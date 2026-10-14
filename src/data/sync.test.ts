@@ -45,6 +45,7 @@ function fakeLc(fail = false) {
     getCalendar: vi.fn(async () => ({ 1775952000: 7 })),
     getRecentAc: vi.fn(async () => [{ id: "1", title: "Two Sum", slug: "two-sum", timestamp: 1 }]),
     getUpcomingContests: vi.fn(async () => []),
+    getProblemMeta: vi.fn(async (slugs: string[]) => slugs.map((slug) => ({ slug, difficulty: "Easy" as const, tags: ["array"] }))),
   };
 }
 
@@ -59,7 +60,7 @@ describe("syncAll", () => {
     expect(res.cf.ok && res.lc.ok).toBe(true);
     expect(cf.getSubmissions).toHaveBeenCalledWith("enkrid"); // full history, no paging
     const counts = await repo.tableCounts();
-    expect(counts).toMatchObject({ profiles: 2, cf_submissions: 3, cf_problems: 1, cf_rating_history: 1, lc_stats: 1, lc_tag_counts: 1, lc_recent_ac: 1 });
+    expect(counts).toMatchObject({ profiles: 2, cf_submissions: 3, cf_problems: 1, cf_rating_history: 1, lc_stats: 1, lc_tag_counts: 1, lc_recent_ac: 1, lc_problems: 1 });
     // The finished contest older than 60 days is dropped; the upcoming one is kept.
     expect((await repo.getContests(0)).map((c) => c.id)).toEqual(["cf:2"]);
   });

@@ -198,6 +198,16 @@ async function syncLeetCode(deps: SyncDeps, now: () => number): Promise<Platform
     return recent.length;
   });
 
+  // Difficulty + tags for accepted problems we haven't looked up yet (feeds topic scoring).
+  await step(repo, result, "lc:problems", now, async () => {
+    const known = new Set((await repo.getLcProblems()).map((p) => p.slug));
+    const missing = (await repo.getLcRecentAc()).map((r) => r.slug).filter((s) => s && !known.has(s));
+    if (!missing.length) return "skipped";
+    const meta = await lc.getProblemMeta(missing);
+    await repo.saveLcProblems(meta);
+    return meta.length;
+  });
+
   await step(repo, result, "lc:contests", now, async () => {
     const contests = await lc.getUpcomingContests(now());
     await repo.saveContests(contests);

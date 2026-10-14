@@ -8,6 +8,7 @@ import type {
   DailyActivity,
   LcContestEntry,
   LcContestRanking,
+  LcProblemMeta,
   LcProfile,
   LcRecentAc,
   LcTagCount,
@@ -25,6 +26,7 @@ export const TABLES = [
   "lc_tag_counts",
   "lc_contest_history",
   "lc_recent_ac",
+  "lc_problems",
   "daily_activity",
   "contests",
   "sync_log",
@@ -254,6 +256,23 @@ export class Repo {
 
   async getLcRecentAc(): Promise<LcRecentAc[]> {
     return this.db.select<LcRecentAc>("SELECT id, title, slug, timestamp FROM lc_recent_ac ORDER BY timestamp DESC");
+  }
+
+  async saveLcProblems(items: LcProblemMeta[]) {
+    await insertMany(
+      this.db,
+      "INSERT INTO lc_problems (slug, difficulty, tags_json)",
+      3,
+      items.map((p) => [p.slug, p.difficulty, json(p.tags)]),
+      "ON CONFLICT(slug) DO UPDATE SET difficulty = excluded.difficulty, tags_json = excluded.tags_json",
+    );
+  }
+
+  async getLcProblems(): Promise<LcProblemMeta[]> {
+    const rows = await this.db.select<{ slug: string; difficulty: LcProblemMeta["difficulty"]; tags_json: string }>(
+      "SELECT slug, difficulty, tags_json FROM lc_problems",
+    );
+    return rows.map((r) => ({ slug: r.slug, difficulty: r.difficulty, tags: parseTags(r.tags_json) }));
   }
 
   // ---------- cross-platform ----------

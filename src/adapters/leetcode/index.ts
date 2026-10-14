@@ -3,6 +3,7 @@ import type {
   LcCalendar,
   LcContestEntry,
   LcContestRanking,
+  LcProblemMeta,
   LcProfile,
   LcRecentAc,
   LcTagCount,
@@ -198,6 +199,34 @@ export class LeetCodeAdapter {
       if (!id || ts === null) return [];
       return [{ id, title: str(get(s, "title")) ?? "", slug: str(get(s, "titleSlug")) ?? "", timestamp: ts }];
     });
+  }
+
+  /**
+   * Difficulty + topic tags for specific problems, batched as aliased `question` lookups.
+   * Slugs are validated before being placed in the query text.
+   */
+  async getProblemMeta(slugs: string[]): Promise<LcProblemMeta[]> {
+    const safe = [...new Set(slugs)].filter((s) => /^[a-z0-9-]+$/.test(s));
+    const out: LcProblemMeta[] = [];
+    for (let i = 0; i < safe.length; i += 20) {
+      const chunk = safe.slice(i, i + 20);
+      const fields = chunk
+        .map((s, j) => `q${j}: question(titleSlug: "${s}") { titleSlug difficulty topicTags { slug } }`)
+        .join("\n");
+      const data = await this.gql(`query lcProblemMeta {\n${fields}\n}`, {});
+      chunk.forEach((_, j) => {
+        const q = data[`q${j}`];
+        const slug = str(get(q, "titleSlug"));
+        const difficulty = str(get(q, "difficulty"));
+        if (!slug || (difficulty !== "Easy" && difficulty !== "Medium" && difficulty !== "Hard")) return;
+        const tags = arr(get(q, "topicTags")).flatMap((t) => {
+          const s = str(get(t, "slug"));
+          return s ? [s] : [];
+        });
+        out.push({ slug, difficulty, tags });
+      });
+    }
+    return out;
   }
 
   async getUpcomingContests(nowSeconds = Math.floor(Date.now() / 1000)): Promise<Contest[]> {

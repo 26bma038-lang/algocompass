@@ -43,6 +43,44 @@
 | Upcoming | Educational CF Round 195 (Oct 14), CF Round 1128 (Oct 17), LC Weekly 524 (Oct 18), 2 more CF Div. 2 |
 | Problemset | 11,450 CF problems cached, 38 distinct CF tags |
 
+### Task 3: Topic engine
+- `src/data/topics.json`: **33 unified topics**. Every one of the **38 Codeforces tags** and **75 LeetCode topic tags** (both lists pulled live from the platforms, saved in `src/engine/fixtures/tag-universe.json`) maps to at least one topic, and tests enforce it tag by tag.
+- `src/data/prerequisites.json`: prerequisite DAG (implementation is the root). Tests check that it is acyclic and that every reference is valid.
+- `src/engine/strength.ts`: score 0–100 per topic. Inputs:
+  - CF unique solves, weighted by problem rating vs your rating (×2 per +300, clamped 0.2–4) with 90-day half-life decay.
+  - LC solves weighted Easy 1 / Medium 2.5 / Hard 5 (× 0.5 platform factor).
+  - Also tracked: solved count, max CF rating solved, last practiced, struggle rate (non-AC share of judged CF submissions, up to −30%).
+  - Status: Mastered / Strong / Developing / Weak / Untouched / Locked.
+- `src/engine/standing.ts`: "Where I stand" lists the top 3 strengths, the top 3 weaknesses (ranked by how often the topic appears in CF problems at your rating × how weak it is × struggle) and blind spots (never-solved topics common in your rating band).
+- LC per-problem difficulty: added the `lc_problems` table (migration 2) and a sync step that looks up difficulty and tags for your recent ACs in one batched GraphQL query.
+- **Tests:** 156 passing (tag mapping, DAG, decay, difficulty weights, LC weighting and dedupe, struggle, every status, mastery gate, band frequency, standing).
+- **Debug page** now shows the full topic table and Where I stand.
+
+#### Your real topic results (2026-10-14, CF 1008)
+| Score | Status | Topic | Solved (CF / LC) | Max CF | Struggle |
+|---|---|---|---|---|---|
+| 75 | Strong | Math | 34 (29 / 5) | 1000 | 35% |
+| 73 | Strong | Implementation | 31 (29 / 2) | 1000 | 40% |
+| 69 | Strong | Strings | 18 (13 / 5) | 900 | 0% |
+| 66 | Strong | Arrays & hashing | 15 (0 / 15) | – | – |
+| 55 | Strong | Greedy | 19 (18 / 1) | 900 | 25% |
+| 50 | Strong | Brute force | 15 (14 / 1) | 900 | 23% |
+| 37 | Developing | Constructive algorithms | 10 (10 / 0) | 900 | 38% |
+| 36 | Developing | Range data structures | 3 (2 / 1) | – | 33% |
+| 34 | Developing | Binary search | 2 (0 / 2) | – | – |
+| 32 | Developing | Sorting | 9 (6 / 3) | 900 | 33% |
+| 28 | Developing | Number theory | 7 (6 / 1) | 900 | 45% |
+| 22 | Weak | Dynamic programming | 4 (3 / 1) | 800 | 0% |
+| ≤18 | Weak | Divide & conquer, Geometry, Game theory (67% struggle), Prefix sums, Stacks & queues, Bit manipulation, Recursion, Design, Heaps, Tries | 1–2 each | | |
+| 0 | Untouched | Two pointers, Linked lists, Combinatorics, Hashing & string algorithms, Interactive | | | |
+| 0 | Locked | Trees, Graph traversal, Shortest paths, Union-find & MST, Probability, Flows & advanced | | | |
+
+**Where you stand**
+- **Strengths:** Math (75, 34 solved, up to CF 1000), Implementation (73), Strings (69).
+- **Weaknesses:** Constructive algorithms (37, in 21% of problems at your rating), Sorting (32, 15%), Number theory (28, 45% of CF submissions not accepted).
+- **Blind spots:** Two pointers & sliding window (6% of problems at your rating), Graph traversal (5%).
+- Nothing is Mastered yet. Math and Implementation clear the score bar (≥75 / ≥15 solves), but your hardest solve in them (1000) is just under your rating (1008). One accepted 1100+ math problem flips Math to Mastered.
+
 ## Decisions I made
 - **React 18 kept as specified.** create-tauri-app now ships React 19; pinned react/react-dom 18.3. shadcn components are written with `forwardRef` so Radix `asChild` works on React 18.
 - **Hash routing** (`createHashRouter`): the bundled app is served from `tauri://`, where history-API deep links can't reload.
@@ -53,6 +91,14 @@
 - **Contests table** keeps upcoming/running contests plus finished ones from the last 60 days.
 - **CF and LC sync in parallel**, but the CF calls themselves are serialized at 1 per 2s through one shared adapter instance.
 - **Unknown LC contest ranking is stored as NULL**, never 0 (you haven't entered an LC contest yet).
+- **Topic engine tuning** (all constants exported from `src/engine/strength.ts`, easy to tweak):
+  - `EVIDENCE_SCALE = 6`: 6 effective solves at your rating ≈ 63/100.
+  - Status bands: Weak <25, Developing 25–49, Strong 50–74, Mastered ≥75, plus ≥15 solves and a CF solve at/above your rating.
+  - LC solves count at 0.5× a CF solve (LeetCode = learn, Codeforces = sharpen).
+  - Unrated CF problems are treated as 100 below your rating. Unrated users use an 800 baseline.
+- **LC difficulty for older solves:** LeetCode only exposes your last 20 ACs with dates. Those get exact difficulty, tags and recency. Older solves come from tag counts at the average difficulty of the remaining solves, aged like the oldest known AC. When several LC tags map to one topic, the max count is taken (not the sum), so one problem isn't double counted.
+- **"Locked"** = never practiced *and* some prerequisite is below Developing. Any solve unlocks a topic.
+- **Weakness ranking** weighs how common the topic is in CF problems at your rating (−100/+400), so weaknesses that matter for the climb come first.
 - **21st.dev**: its MCP server needs an API key that isn't configured, so component source couldn't be pulled. The sidebar follows the pattern of 21st.dev's animated sidebars (Unlumen "Animated Sidebar", Wensity "Sidebar") rebuilt on our tokens.
 
 ## Blocked / needs Sahil

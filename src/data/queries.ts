@@ -15,3 +15,13 @@ export function useTableDump(table: TableName, limit = 50) {
 export function useSyncLog(limit = 40) {
   return useQuery({ queryKey: ["db", "sync-log", limit], queryFn: async () => (await getRepo()).getSyncLog(limit) });
 }
+
+export function useTopicReport() {
+  return useQuery({
+    queryKey: ["db", "topic-report"],
+    queryFn: async () => {
+      const { buildTopicReport } = await import("@/engine/report");
+      return buildTopicReport(await getRepo());
+    },
+  });
+}

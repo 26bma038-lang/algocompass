@@ -1,11 +1,75 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useSyncLog, useTableCounts, useTableDump } from "@/data/queries";
+import { useSyncLog, useTableCounts, useTableDump, useTopicReport } from "@/data/queries";
 import { TABLES, type TableName } from "@/data/repo";
 import { useSyncStore } from "@/data/syncStore";
 import { cn } from "@/lib/utils";
 
 const time = (s: number) => new Date(s * 1000).toLocaleString();
+
+function TopicReportSection() {
+  const report = useTopicReport();
+  if (report.isLoading) return <section className="glass-card p-5 text-body-sm text-ink-muted">Computing topic strengths…</section>;
+  if (report.error || !report.data) {
+    return <section className="glass-card p-5 text-body-sm text-danger">Topic engine failed: {String(report.error)}</section>;
+  }
+  const { topics, standing, cfRating } = report.data;
+  const sorted = [...topics].sort((a, b) => b.score - a.score);
+  const groups = [
+    ["Strengths", standing.strengths],
+    ["Weaknesses", standing.weaknesses],
+    ["Blind spots", standing.blindSpots],
+  ] as const;
+
+  return (
+    <section className="glass-card p-5">
+      <h2 className="text-title font-semibold">Topic engine</h2>
+      <p className="text-body-sm text-ink-muted">CF rating used: {cfRating ?? "unrated (800 baseline)"}</p>
+      <div className="mt-3 grid grid-cols-3 gap-3">
+        {groups.map(([label, items]) => (
+          <div key={label} className="rounded-md bg-abyss-sunken p-3">
+            <p className="text-body-sm font-semibold">{label}</p>
+            <ul className="mt-1 space-y-1 text-body-sm">
+              {items.length === 0 && <li className="text-ink-faint">None</li>}
+              {items.map((i) => (
+                <li key={i.topicId}>
+                  <span className="text-ink">{i.name}</span> <span className="numeric text-ink-muted">{i.score}</span>
+                  <span className="block text-ink-faint">{i.reason}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <table className="mt-4 w-full text-left text-body-sm">
+        <thead className="text-label text-ink-muted">
+          <tr>
+            {["Topic", "Score", "Status", "Solved (CF / LC)", "Max CF", "Struggle", "Last practiced"].map((h) => (
+              <th key={h} className="py-1 pr-3 font-medium">
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="numeric">
+          {sorted.map((t) => (
+            <tr key={t.topicId} className="border-t border-glass-border">
+              <td className="py-1 pr-3">{t.name}</td>
+              <td className="pr-3">{t.score}</td>
+              <td className="pr-3 text-ink-muted">{t.status}</td>
+              <td className="pr-3">
+                {t.solvedCount} ({t.cfSolved} / {t.lcSolved})
+              </td>
+              <td className="pr-3">{t.maxCfRatingSolved ?? "–"}</td>
+              <td className="pr-3">{t.struggleRate === null ? "–" : `${Math.round(t.struggleRate * 100)}%`}</td>
+              <td className="text-ink-muted">{t.lastPracticedAt ? new Date(t.lastPracticedAt * 1000).toLocaleDateString() : "–"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  );
+}
 
 /** Hidden page (Ctrl+Shift+D): raw synced data for checking the data layer. */
 export function Debug() {
@@ -45,6 +109,8 @@ export function Debug() {
           </div>
         )}
       </section>
+
+      <TopicReportSection />
 
       <section className="glass-card p-5">
         <h2 className="text-title font-semibold">Tables</h2>

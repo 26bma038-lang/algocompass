@@ -9,6 +9,7 @@ import { CodeforcesAdapter } from "@/adapters/codeforces";
 import { LeetCodeAdapter } from "@/adapters/leetcode";
 import { DEFAULT_HANDLES } from "@/data/settings";
 import { syncAll } from "@/data/sync";
+import { buildTopicReport } from "@/engine/report";
 import { memoryRepo } from "@/test/sqljs";
 
 const LIVE = import.meta.env.MODE === "live";
@@ -38,13 +39,14 @@ describe.skipIf(!LIVE)("live sync (real Codeforces + LeetCode)", () => {
         lcTags: await repo.getLcTagCounts(),
         lcContests: await repo.getLcContestHistory(),
         lcRecent: await repo.getLcRecentAc(),
+        lcProblems: await repo.getLcProblems(),
         activity: await repo.getDailyActivity(),
         upcoming: await repo.getContests(res.finishedAt),
         cfTagUniverse: [...new Set((await repo.getCfProblems()).flatMap((p) => p.tags))].sort(),
       };
       mkdirSync("tmp", { recursive: true });
       writeFileSync("tmp/live-snapshot.json", JSON.stringify(snapshot, null, 2));
-      console.log("counts", JSON.stringify(snapshot.counts));
+      writeFileSync("tmp/topic-report.json", JSON.stringify(await buildTopicReport(repo), null, 2));
 
       expect(res.cf.ok).toBe(true);
       expect(res.lc.ok).toBe(true);

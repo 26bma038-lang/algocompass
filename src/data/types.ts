@@ -109,6 +109,14 @@ export interface LcRecentAc {
   timestamp: number;
 }
 
+export type LcDifficulty = "Easy" | "Medium" | "Hard";
+
+export interface LcProblemMeta {
+  slug: string;
+  difficulty: LcDifficulty;
+  tags: string[];
+}
+
 /** Submissions per UTC day start (epoch seconds), straight from LeetCode's calendar. */
 export type LcCalendar = Record<number, number>;
 

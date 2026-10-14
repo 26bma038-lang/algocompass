@@ -11,12 +11,20 @@ const DB_URL: &str = "sqlite:algocompass.db";
 
 /// Schema migrations. The SQL files are shared with the TS test harness (sql.js).
 fn migrations() -> Vec<Migration> {
-    vec![Migration {
-        version: 1,
-        description: "init",
-        sql: include_str!("../migrations/0001_init.sql"),
-        kind: MigrationKind::Up,
-    }]
+    vec![
+        Migration {
+            version: 1,
+            description: "init",
+            sql: include_str!("../migrations/0001_init.sql"),
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 2,
+            description: "lc_problems",
+            sql: include_str!("../migrations/0002_lc_problems.sql"),
+            kind: MigrationKind::Up,
+        },
+    ]
 }
 
 fn show_main_window(app: &AppHandle) {
