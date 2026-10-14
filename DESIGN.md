@@ -383,3 +383,12 @@ The honest "nothing here yet" pattern. A 40px accent-soft tile (12px radius) wit
 - **Don't** use all-caps labels, monospace data labels, or color-only status.
 - **Don't** let any transition delay input. If the user clicks during an animation, the animation yields.
 - **Don't** light an element for a status the user hasn't earned yet, even as a preview.
+
+<!-- Appended 2026-10-14 (Home Base dashboard build). Additions only; nothing above changed. -->
+### Data-viz additions (Home Base)
+- **Do** draw Codeforces data series in **CF Periwinkle** (platform-cf) and LeetCode series in **LeetCode Amber**, not in the accent. The accent stays the rank's chrome color. At Newbie it's gray, and a gray series on a gray band disappears.
+- **Do** show rank bands on rating charts at 10% of each rank color, with a dashed `accent-next` line at the next rank's floor labelled "<Rank> · N to go". This echoes the ascent bar's destination tip.
+- **Do** use the accent as the activity heatmap's single sequential hue (35/55/78/100% steps, outlined empty step). Mark today's cell: ember ring when practiced, dashed Dusk outline when not. Streak-family ember use is allowed here because it's tied to data.
+- **Do** follow one flame rule everywhere: ember fill = practiced today, ember outline = streak running but nothing today (breathes from 8pm), Dusk outline = no streak.
+- **Do** count up hero numbers once per app launch. Revisits show the settled value, and counts animate only when the value changes.
+- **Do** keep one hero number per screen. On Home Base it's the CF rating, and LeetCode's total uses display size.

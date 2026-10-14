@@ -52,7 +52,7 @@ export function whereIStand(strengths: readonly TopicStrength[], frequency: Read
     .filter((t) => t.status !== "Weak")
     .sort((a, b) => b.score - a.score || b.solvedCount - a.solvedCount)
     .slice(0, 3)
-    .map((t) => item(t, `${t.solvedCount} solved${t.maxCfRatingSolved ? `, up to CF ${t.maxCfRatingSolved}` : ""}`));
+    .map((t) => item(t, `${t.solvedCount} solved${t.maxCfRatingSolved ? `, up to Codeforces ${t.maxCfRatingSolved}` : ""}.`));
 
   const topIds = new Set(top.map((t) => t.topicId));
   // Weak = practiced but low, ranked by how much it matters at your rating, then by struggle.
@@ -67,8 +67,8 @@ export function whereIStand(strengths: readonly TopicStrength[], frequency: Read
       item(
         t,
         t.struggleRate !== null && t.struggleRate >= 0.5 && t.cfJudged >= 4
-          ? `${pct(t.struggleRate)} of your CF submissions here aren't accepted`
-          : `only ${t.solvedCount} solved; in ${pct(freq(t.topicId))} of problems at your rating`,
+          ? `${pct(t.struggleRate)} of your Codeforces submissions here aren't accepted.`
+          : `Appears in ${pct(freq(t.topicId))} of problems at your rating. You've solved ${t.solvedCount}.`,
       ),
     );
 
@@ -76,7 +76,7 @@ export function whereIStand(strengths: readonly TopicStrength[], frequency: Read
     .filter((t) => t.solvedCount === 0 && freq(t.topicId) >= 0.03)
     .sort((a, b) => freq(b.topicId) - freq(a.topicId))
     .slice(0, 3)
-    .map((t) => item(t, `never solved, yet in ${pct(freq(t.topicId))} of problems at your rating`));
+    .map((t) => item(t, `Appears in ${pct(freq(t.topicId))} of problems at your rating.`));
 
   return { strengths: top, weaknesses: weak, blindSpots: blind };
 }

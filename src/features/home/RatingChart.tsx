@@ -1,7 +1,7 @@
 import { useMemo } from "react";
-import { CartesianGrid, Line, LineChart, ReferenceArea, ResponsiveContainer, Tooltip, XAxis, YAxis, type TooltipContentProps } from "recharts";
+import { CartesianGrid, Line, LineChart, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis, type TooltipContentProps } from "recharts";
 import type { CfRatingChange, LcContestEntry } from "@/data/types";
-import { RANK_BANDS } from "@/lib/rank";
+import { bandForRating, RANK_BANDS } from "@/lib/rank";
 
 interface Point {
   t: number;
@@ -34,7 +34,16 @@ function ChartTooltip({ active, payload }: TooltipContentProps) {
 }
 
 /** CF rating over time on CF's own rank bands; LC contest rating joins on the same axis once it exists. */
-export function RatingChart({ cf, lc }: { cf: readonly CfRatingChange[]; lc: readonly LcContestEntry[] }) {
+export function RatingChart({
+  cf,
+  lc,
+  rating,
+}: {
+  cf: readonly CfRatingChange[];
+  lc: readonly LcContestEntry[];
+  rating: number | null;
+}) {
+  const next = rating !== null ? bandForRating(rating).next : null;
   const data = useMemo<Point[]>(
     () =>
       [
@@ -45,7 +54,12 @@ export function RatingChart({ cf, lc }: { cf: readonly CfRatingChange[]; lc: rea
   );
   const values = data.flatMap((d) => [d.cf, d.lc]).filter((v): v is number => v !== undefined);
   const lo = Math.max(0, Math.floor((Math.min(...values) - 100) / 200) * 200);
-  const hi = Math.ceil((Math.max(...values) + 250) / 200) * 200;
+  const hi = Math.ceil((Math.max(...values, next?.min ?? 0) + 150) / 200) * 200;
+  const first = cf[0];
+  const latest = cf[cf.length - 1];
+  const summary = latest && first
+    ? `Codeforces rating ${latest.newRating} after ${cf.length} rated contests, from ${first.newRating} on ${fmtDate(first.at)}.${next && rating !== null ? ` ${next.min - rating} points to ${next.label}.` : ""}`
+    : "No rated contests yet";
   const step = hi - lo > 1200 ? 400 : hi - lo > 600 ? 200 : 100;
   const ticks = Array.from({ length: Math.floor((hi - lo) / step) + 1 }, (_, i) => lo + i * step);
   const bands = RANK_BANDS.map((b, i) => ({
@@ -63,7 +77,7 @@ export function RatingChart({ cf, lc }: { cf: readonly CfRatingChange[]; lc: rea
         {lc.length > 0 && (
           <div className="flex items-center gap-4 text-label text-ink-muted">
             <span className="flex items-center gap-1.5">
-              <span aria-hidden className="h-0.5 w-3 rounded-full bg-accent" />
+              <span aria-hidden className="h-0.5 w-3 rounded-full bg-platform-cf" />
               Codeforces
             </span>
             <span className="flex items-center gap-1.5">
@@ -76,16 +90,16 @@ export function RatingChart({ cf, lc }: { cf: readonly CfRatingChange[]; lc: rea
       {data.length === 0 ? (
         <p className="py-10 text-body-sm text-ink-muted">Your rating graph starts after your first rated contest.</p>
       ) : (
-        <div className="h-[220px]">
+        <div className="h-[220px]" role="img" aria-label={summary}>
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data} margin={{ top: 8, right: 88, bottom: 0, left: -8 }} title="Codeforces rating history">
+            <LineChart data={data} margin={{ top: 8, right: 88, bottom: 0, left: -8 }} accessibilityLayer={false}>
               {bands.map((b) => (
                 <ReferenceArea
                   key={b.rank}
                   y1={Math.max(b.from, lo)}
                   y2={Math.min(b.to, hi)}
                   fill={`var(--${b.token})`}
-                  fillOpacity={0.07}
+                  fillOpacity={0.1}
                   strokeOpacity={0}
                   ifOverflow="hidden"
                   label={{ value: b.label, position: "right", fill: "var(--ink-faint)", fontSize: 12 }}
@@ -112,17 +126,26 @@ export function RatingChart({ cf, lc }: { cf: readonly CfRatingChange[]; lc: rea
                 width={48}
                 allowDecimals={false}
               />
+              {next && rating !== null && (
+                <ReferenceLine
+                  y={next.min}
+                  stroke="var(--accent-next)"
+                  strokeDasharray="4 4"
+                  strokeOpacity={0.8}
+                  label={{ value: `${next.label} · ${next.min - rating} to go`, position: "insideTopLeft", fill: "var(--ink-muted)", fontSize: 12 }}
+                />
+              )}
               <Tooltip content={ChartTooltip} cursor={{ stroke: "var(--glass-border-strong)" }} isAnimationActive={false} />
               <Line
                 dataKey="cf"
                 name="Codeforces"
                 connectNulls
-                stroke="var(--accent)"
+                stroke="var(--platform-cf)"
                 strokeWidth={2}
                 strokeLinejoin="round"
                 strokeLinecap="round"
-                dot={{ r: 4, fill: "var(--accent)", stroke: "var(--abyss-raised)", strokeWidth: 2 }}
-                activeDot={{ r: 6, fill: "var(--accent)", stroke: "var(--abyss-raised)", strokeWidth: 2 }}
+                dot={{ r: 4, fill: "var(--platform-cf)", stroke: "var(--abyss-raised)", strokeWidth: 2 }}
+                activeDot={{ r: 6, fill: "var(--platform-cf)", stroke: "var(--abyss-raised)", strokeWidth: 2 }}
                 isAnimationActive={false}
               />
               {lc.length > 0 && (

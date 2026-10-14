@@ -1,6 +1,31 @@
 # AlgoCompass progress log
 
-<!-- Summary goes at the top when the autonomous run finishes. -->
+## Summary (autonomous run, 2026-10-14)
+
+**Done: all 4 tasks.** Each one is committed, `npm test` (163 tests) passes, and `npm run build` is green.
+1. **Step C:** Tauri 2 shell, Rank Aura tokens, Settings with handles, impeccable critique + fixes.
+2. **Data layer:** CF + LC adapters, SQLite (11 tables + `lc_problems`), sync service (on start / every 2h / manual, incremental, fail-soft), hidden Debug page (**Ctrl+Shift+D**).
+3. **Topic engine:** 33 topics covering every CF (38) and LC (75) tag, prerequisite DAG, 0–100 strength scores, Where I stand.
+4. **Home Base dashboard** on your real data, critiqued by impeccable (26/40) with every priority issue fixed.
+
+**Your real stats right now**
+- **Codeforces:** `enkrid` at **1008 (Newbie, 192 to Pupil)** after 8 rated rounds (391 → 1008, last change +26). 73 problems solved, hardest rated 1000.
+- **LeetCode:** **19 solved** (14 Easy / 3 Medium / 2 Hard), no contests yet.
+- **Streak:** 1 day (longest 13). 47 active days in the last ~7 months.
+- **Topics:**
+  - Strongest are Math 75, Implementation 73, Strings 69. Nothing is Mastered yet: you need a solve at or above your rating.
+  - **Work on next:** Constructive algorithms (37), Sorting (32), Number theory (28).
+  - **Blind spots:** Two pointers & sliding window, Graph traversal.
+- **Next contest:** Educational CF Round 195, tonight 8:05 pm.
+- The whole app now wears **Newbie Slate**, your real rank color. It turns Pupil green when you cross 1200.
+
+**Needs you (blocking)**
+- **Install the Windows SDK.** Rust can't link without it, so `npm run tauri dev` doesn't run yet. Open Visual Studio Installer → Build Tools 2022 → Modify → tick **Desktop development with C++** + **Windows 11 SDK**. Then run `npm run tauri dev` from **PowerShell** (not Git Bash). Everything Rust-side (tray, plugins, migrations, `unsafe-headers`) is written but has never been compiled. Expect possibly small compile fixes on the first run.
+
+**Suggested next step**
+After the SDK install, run `npm run tauri dev` and confirm three things: the window, the tray, and a full sync including LeetCode through tauri-plugin-http. Then build the **Skill Tree** screen (@xyflow/react on top of `topics.json` + `prerequisites.json` + the engine's statuses) and **Topic Detail**. The engine already gives you everything they need.
+
+---
 
 ## Task log
 
@@ -81,7 +106,25 @@
 - **Blind spots:** Two pointers & sliding window (6% of problems at your rating), Graph traversal (5%).
 - Nothing is Mastered yet. Math and Implementation clear the score bar (≥75 / ≥15 solves), but your hardest solve in them (1000) is just under your rating (1008). One accepted 1100+ math problem flips Math to Mastered.
 
+### Task 4: Home Base dashboard
+- **Layout** (Today leads, per DESIGN.md):
+  - Left column: Today card (combined streak, practiced-today status, one "Practice X" action from the engine, and tonight's next CF round with a countdown), rating chart, activity heatmap.
+  - Right column: Codeforces hero card (the one 56px number, count-up), compact LeetCode card (E/M/H), "Where you stand" (ranked strength bars with visible reasons).
+  - Bottom: later contests (CF + LC, countdowns, open in browser).
+- **Wired into the shell:** the real CF rank now drives `--accent` app-wide (Earned Light), the top-bar streak flame shows real data, and the ascent bar shows real progress to the next rank.
+- **Charts:**
+  - CF rating line on CF rank bands, with a dashed next-rank line "Pupil · 192 to go". The LC contest line appears automatically after your first LC contest. Uses Recharts.
+  - Heatmap sized to the card's real width.
+- **Process:** frontend-design and dataviz guidance first, then the impeccable critique (two independent reviewers): 26/40. All P1–P3 issues and every mechanical finding were fixed, then confirmed in a second capture round. The detector is clean. Snapshot is in `.impeccable/critique/`.
+- **DESIGN.md:** appended a "Data-viz additions" block. Nothing earlier was changed.
+
 ## Decisions I made
+- **Home Base layout follows DESIGN.md** (Today leads, 8-col left) rather than three equal hero cards, because the critique showed equal cards failed the 2-second "am I on track today?" check.
+- **Radar replaced by ranked bars** in "Where you stand". The radar repeated the list below it and had no readable scale. A radar fits the Skill Tree / Topic screens better, if you still want one.
+- **Count-up numbers animate once per app launch**, not on every visit (DESIGN.md: "animate value changes, not every render").
+- **Streak = a day with activity on either platform** (CF accepted or any LC submission). Yesterday's streak stays alive until today ends.
+- **Dev-only Vite proxy** (`/__leetcode`) so `npm run dev` in a plain browser gets LeetCode data despite CORS. The Tauri app doesn't use it.
+- **21st.dev**: the number ticker and sidebar are hand-built on DESIGN.md tokens (21st API key not configured).
 - **React 18 kept as specified.** create-tauri-app now ships React 19; pinned react/react-dom 18.3. shadcn components are written with `forwardRef` so Radix `asChild` works on React 18.
 - **Hash routing** (`createHashRouter`): the bundled app is served from `tauri://`, where history-API deep links can't reload.
 - **Close button hides to tray** (Quit lives in the tray menu), matching the daily check-in usage.

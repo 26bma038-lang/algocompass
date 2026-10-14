@@ -6,7 +6,8 @@ import { useSyncStore } from "@/data/syncStore";
 import { cn } from "@/lib/utils";
 import { AscentBar } from "./AscentBar";
 import { useRankAccent } from "./useRankAccent";
-import { useStreak } from "./useStreak";
+import { flameState, useStreak } from "./useStreak";
+import type { Streak } from "@/engine/activity";
 
 export interface RouteHandle {
   title: string | ((params: Params) => string);
@@ -25,21 +26,23 @@ export function useScreenTitle() {
 const chipLink =
   "flex h-8 items-center gap-1.5 rounded-full px-2.5 transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover";
 
-/** Streak flame → Quests. Shows no number until the streak engine has real data. */
-function StreakFlame({ days }: { days: number | null }) {
+/** Streak flame → Quests. Same flame rule as Home Base (useStreak.flameState). */
+function StreakFlame({ streak }: { streak: Streak | null }) {
+  const state = flameState(streak);
+  const days = streak?.current ?? null;
   const hasData = days !== null;
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <Link
           to="/quests"
-          aria-label={hasData ? `Streak: ${days} days. Open quests` : "Streak: no practice data yet. Open quests"}
+          aria-label={hasData ? `Streak: ${days} ${days === 1 ? "day" : "days"}. Open quests` : "Streak: no practice data yet. Open quests"}
           className={chipLink}
         >
           <Flame
             aria-hidden
-            className={hasData ? "size-[18px] text-ember" : "size-[18px] text-ink-faint"}
-            fill={hasData ? "url(#ember-gradient)" : "none"}
+            className={cn("size-[18px]", state === "none" ? "text-ink-faint" : "text-ember")}
+            fill={state === "lit" ? "url(#ember-gradient)" : "none"}
             strokeWidth={1.8}
           />
           <span className="numeric text-body font-semibold text-ink-muted">{hasData ? days : "–"}</span>
@@ -53,7 +56,9 @@ function StreakFlame({ days }: { days: number | null }) {
           </svg>
         </Link>
       </TooltipTrigger>
-      <TooltipContent side="bottom">{hasData ? `${days}-day streak` : "No streak yet"}</TooltipContent>
+      <TooltipContent side="bottom">
+        {!hasData ? "No streak yet" : state === "lit" ? `${days}-day streak, practiced today` : state === "pending" ? `${days}-day streak. Solve one problem today to keep it` : "No active streak"}
+      </TooltipContent>
     </Tooltip>
   );
 }
@@ -146,7 +151,10 @@ function SyncButton() {
           ) : (
             <RefreshCw aria-hidden className={cn("size-3.5", syncing && "animate-spin")} strokeWidth={1.8} />
           )}
-          <span aria-live="polite">{label}</span>
+          <span>{label}</span>
+          <span className="sr-only" aria-live="polite">
+            {syncing ? "Syncing" : lastFinishedAt === null ? "" : failed.length ? "Sync incomplete" : "Sync complete"}
+          </span>
         </button>
       </TooltipTrigger>
       <TooltipContent side="bottom">{tip}</TooltipContent>
@@ -164,7 +172,7 @@ export function TopBar() {
         <h1 className="truncate font-display text-headline font-semibold tracking-[-0.005em] text-ink">{title}</h1>
         <div className="flex shrink-0 items-center gap-1.5">
           <SyncButton />
-          <StreakFlame days={streak ? streak.current : null} />
+          <StreakFlame streak={streak} />
           <LevelBadge level={null} xpProgress={0} />
         </div>
       </div>
