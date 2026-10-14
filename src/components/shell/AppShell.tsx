@@ -6,10 +6,13 @@ import { Sidebar } from "./Sidebar";
 import { TitleBar } from "./TitleBar";
 import { TopBar } from "./TopBar";
 import { useShortcuts } from "./useShortcuts";
+import { Toaster } from "@/components/ui/sonner";
+import { useSyncScheduler } from "@/data/syncStore";
 
 export function AppShell() {
   const { pathname } = useLocation();
   useShortcuts();
+  useSyncScheduler();
   return (
     <TooltipProvider delayDuration={250} skipDelayDuration={150}>
       <div className="relative flex h-full flex-col bg-abyss">
@@ -34,6 +37,7 @@ export function AppShell() {
           </main>
         </div>
       </div>
+      <Toaster />
     </TooltipProvider>
   );
 }

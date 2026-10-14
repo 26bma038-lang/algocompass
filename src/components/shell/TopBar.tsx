@@ -1,6 +1,8 @@
 import { Link, useMatches, type Params } from "react-router-dom";
-import { Flame, RefreshCw } from "lucide-react";
+import { useEffect, useState } from "react";
+import { AlertTriangle, Flame, RefreshCw } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useSyncStore } from "@/data/syncStore";
 import { cn } from "@/lib/utils";
 import { AscentBar } from "./AscentBar";
 
@@ -93,25 +95,59 @@ function LevelBadge({ level, xpProgress }: { level: number | null; xpProgress: n
   );
 }
 
-/**
- * Sync control. Platform adapters aren't wired yet, so it is visibly unavailable but still
- * focusable and explained (aria-disabled instead of disabled keeps the tooltip reachable).
- */
+function relativeTime(epochSeconds: number, nowMs: number): string {
+  const mins = Math.floor((nowMs / 1000 - epochSeconds) / 60);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  return hours < 24 ? `${hours}h ago` : `${Math.floor(hours / 24)}d ago`;
+}
+
+/** Manual sync control + status (syncing / synced Xm ago / failed). */
 function SyncButton() {
+  const { syncing, lastResult, lastFinishedAt, run } = useSyncStore();
+  const [nowMs, setNowMs] = useState(() => Date.now());
+  useEffect(() => {
+    const t = window.setInterval(() => setNowMs(Date.now()), 60_000);
+    return () => window.clearInterval(t);
+  }, []);
+
+  const failed = lastResult ? [lastResult.cf, lastResult.lc].filter((p) => !p.ok) : [];
+  const label = syncing
+    ? "Syncing…"
+    : lastFinishedAt === null
+      ? "Not synced"
+      : failed.length
+        ? "Sync incomplete"
+        : `Synced ${relativeTime(lastFinishedAt, nowMs)}`;
+  const tip = syncing
+    ? "Fetching Codeforces and LeetCode"
+    : failed.length
+      ? `${failed.map((p) => (p.platform === "cf" ? "Codeforces" : "LeetCode")).join(" and ")} failed. Click to retry`
+      : "Sync now";
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <button
           type="button"
-          aria-disabled="true"
-          onClick={(e) => e.preventDefault()}
-          className="flex h-8 cursor-not-allowed items-center gap-1.5 rounded-full px-2.5 text-label text-ink-muted"
+          aria-busy={syncing}
+          aria-disabled={syncing || undefined}
+          onClick={() => void run()}
+          className={cn(
+            "flex h-8 items-center gap-1.5 rounded-full px-2.5 text-label transition-colors duration-[var(--dur-fast)]",
+            syncing ? "cursor-progress text-ink-muted" : "text-ink-muted hover:bg-glass-hover hover:text-ink",
+          )}
         >
-          <RefreshCw aria-hidden className="size-3.5" strokeWidth={1.8} />
-          <span>Not synced</span>
+          {failed.length && !syncing ? (
+            <AlertTriangle aria-hidden className="size-3.5 text-warning" strokeWidth={1.8} />
+          ) : (
+            <RefreshCw aria-hidden className={cn("size-3.5", syncing && "animate-spin")} strokeWidth={1.8} />
+          )}
+          <span aria-live="polite">{label}</span>
         </button>
       </TooltipTrigger>
-      <TooltipContent side="bottom">Syncing with Codeforces and LeetCode isn't built yet</TooltipContent>
+      <TooltipContent side="bottom">{tip}</TooltipContent>
     </Tooltip>
   );
 }

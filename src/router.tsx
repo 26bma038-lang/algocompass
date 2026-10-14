@@ -8,6 +8,7 @@ import { Quests } from "@/features/quests/Quests";
 import { Settings } from "@/features/settings/Settings";
 import { SkillTree } from "@/features/skill-tree/SkillTree";
 import { TopicDetail } from "@/features/topic/TopicDetail";
+import { Debug } from "@/features/debug/Debug";
 import { humanizeTopic } from "@/lib/topics";
 
 const h = (title: RouteHandle["title"]): RouteHandle => ({ title });
@@ -28,6 +29,7 @@ export const router = createHashRouter([
       { path: "contests", element: <Contests />, handle: h("Contests") },
       { path: "achievements", element: <Achievements />, handle: h("Achievements") },
       { path: "settings", element: <Settings />, handle: h("Settings") },
+      { path: "debug", element: <Debug />, handle: h("Debug") },
       { path: "*", element: <Navigate to="/" replace /> },
     ],
   },

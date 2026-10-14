@@ -4,6 +4,21 @@ use tauri::{
     AppHandle, Manager,
 };
 
+use tauri_plugin_sql::{Migration, MigrationKind};
+
+/// Must match `DB_URL` in src/data/db.ts.
+const DB_URL: &str = "sqlite:algocompass.db";
+
+/// Schema migrations. The SQL files are shared with the TS test harness (sql.js).
+fn migrations() -> Vec<Migration> {
+    vec![Migration {
+        version: 1,
+        description: "init",
+        sql: include_str!("../migrations/0001_init.sql"),
+        kind: MigrationKind::Up,
+    }]
+}
+
 fn show_main_window(app: &AppHandle) {
     if let Some(window) = app.get_webview_window("main") {
         let _ = window.unminimize();
@@ -19,7 +34,11 @@ pub fn run() {
         .plugin(tauri_plugin_autostart::Builder::new().build())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_http::init())
-        .plugin(tauri_plugin_sql::Builder::new().build())
+        .plugin(
+            tauri_plugin_sql::Builder::new()
+                .add_migrations(DB_URL, migrations())
+                .build(),
+        )
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             let open = MenuItem::with_id(app, "open", "Open AlgoCompass", true, None::<&str>)?;
