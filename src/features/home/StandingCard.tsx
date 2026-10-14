@@ -1,14 +1,17 @@
 import { Link } from "react-router-dom";
+import { useUiStore } from "@/data/uiStore";
 import type { TopicReport } from "@/engine/report";
 import type { StandingItem } from "@/engine/standing";
 
 /** One ranked row: name + reason, and a thin 0–100 strength bar. Untried topics say so instead of "0". */
 function Row({ item, untried }: { item: StandingItem; untried?: boolean }) {
+  const openTopic = useUiStore((s) => s.openTopic);
   return (
     <li>
-      <Link
-        to={`/topics/${item.topicId}`}
-        className="group flex flex-col gap-1.5 rounded-xs py-1"
+      <button
+        type="button"
+        onClick={() => openTopic(item.topicId)}
+        className="group flex w-full flex-col gap-1.5 rounded-xs py-1 text-left"
         aria-describedby={`why-${item.topicId}`}
       >
         <span className="flex items-baseline justify-between gap-3">
@@ -25,7 +28,7 @@ function Row({ item, untried }: { item: StandingItem; untried?: boolean }) {
         <span id={`why-${item.topicId}`} className="text-label text-ink-muted">
           {item.reason}
         </span>
-      </Link>
+      </button>
     </li>
   );
 }

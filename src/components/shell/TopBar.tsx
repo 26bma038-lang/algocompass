@@ -1,8 +1,8 @@
 import { Link, useMatches, type Params } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { AlertTriangle, Flame, RefreshCw } from "lucide-react";
+import { AlertTriangle, CloudOff, Flame, RefreshCw } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useSyncStore } from "@/data/syncStore";
+import { syncStatus, useSyncStore } from "@/data/syncStore";
 import { cn } from "@/lib/utils";
 import { AscentBar } from "./AscentBar";
 import { useRankAccent } from "./useRankAccent";
@@ -110,7 +110,9 @@ function relativeTime(epochSeconds: number, nowMs: number): string {
   return hours < 24 ? `${hours}h ago` : `${Math.floor(hours / 24)}d ago`;
 }
 
-/** Manual sync control + status (syncing / synced Xm ago / failed). */
+const PLATFORM = { cf: "Codeforces", lc: "LeetCode" } as const;
+
+/** Manual sync control + status: syncing / synced Xm ago / offline, will retry / incomplete. */
 function SyncButton() {
   const { syncing, lastResult, lastFinishedAt, run } = useSyncStore();
   const [nowMs, setNowMs] = useState(() => Date.now());
@@ -119,19 +121,26 @@ function SyncButton() {
     return () => window.clearInterval(t);
   }, []);
 
-  const failed = lastResult ? [lastResult.cf, lastResult.lc].filter((p) => !p.ok) : [];
-  const label = syncing
-    ? "Syncing…"
-    : lastFinishedAt === null
-      ? "Not synced"
-      : failed.length
-        ? "Sync incomplete"
-        : `Synced ${relativeTime(lastFinishedAt, nowMs)}`;
-  const tip = syncing
-    ? "Fetching Codeforces and LeetCode"
-    : failed.length
-      ? `${failed.map((p) => (p.platform === "cf" ? "Codeforces" : "LeetCode")).join(" and ")} failed. Click to retry`
-      : "Sync now";
+  const status = syncStatus(syncing, lastResult);
+  const platforms = lastResult ? [lastResult.cf, lastResult.lc] : [];
+  const names = (ps: typeof platforms) => ps.map((p) => PLATFORM[p.platform]).join(" and ");
+  const failed = platforms.filter((p) => !p.ok && !p.offline);
+  const offline = platforms.filter((p) => p.offline);
+
+  const label = {
+    syncing: "Syncing…",
+    idle: "Not synced",
+    offline: "Offline, will retry",
+    partial: "Sync incomplete",
+    ok: lastFinishedAt === null ? "Synced" : `Synced ${relativeTime(lastFinishedAt, nowMs)}`,
+  }[status];
+  const tip = {
+    syncing: "Fetching Codeforces and LeetCode",
+    idle: "Sync now",
+    offline: `Couldn't reach ${names(offline)}. Showing saved data. Retrying when you're back online, or click to retry now`,
+    partial: `${names(failed)} failed. Click to retry`,
+    ok: "Sync now",
+  }[status];
 
   return (
     <Tooltip>
@@ -146,18 +155,22 @@ function SyncButton() {
             syncing ? "cursor-progress text-ink-muted" : "text-ink-muted hover:bg-glass-hover hover:text-ink",
           )}
         >
-          {failed.length && !syncing ? (
+          {status === "partial" ? (
             <AlertTriangle aria-hidden className="size-3.5 text-warning" strokeWidth={1.8} />
+          ) : status === "offline" ? (
+            <CloudOff aria-hidden className="size-3.5" strokeWidth={1.8} />
           ) : (
             <RefreshCw aria-hidden className={cn("size-3.5", syncing && "animate-spin")} strokeWidth={1.8} />
           )}
           <span>{label}</span>
           <span className="sr-only" aria-live="polite">
-            {syncing ? "Syncing" : lastFinishedAt === null ? "" : failed.length ? "Sync incomplete" : "Sync complete"}
+            {{ syncing: "Syncing", idle: "", offline: "Offline. Showing saved data, will retry", partial: "Sync incomplete", ok: "Sync complete" }[status]}
           </span>
         </button>
       </TooltipTrigger>
-      <TooltipContent side="bottom">{tip}</TooltipContent>
+      <TooltipContent side="bottom" className="max-w-[280px]">
+        {tip}
+      </TooltipContent>
     </Tooltip>
   );
 }

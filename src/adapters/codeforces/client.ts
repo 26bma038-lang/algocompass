@@ -1,4 +1,4 @@
-import { AdapterError, defaultFetch, sleep, type FetchLike } from "../http";
+import { AdapterError, defaultFetch, fetchFailure, sleep, type FetchLike } from "../http";
 
 const BASE = "https://codeforces.com/api/";
 
@@ -57,7 +57,7 @@ export class CodeforcesClient {
     try {
       res = await this.fetchImpl(url, { method: "GET", headers: { Accept: "application/json" } });
     } catch (e) {
-      throw new AdapterError("cf", "network", `Couldn't reach Codeforces (${(e as Error).message})`);
+      throw fetchFailure("cf", "Codeforces", e);
     }
 
     let body: CfEnvelope<T>;

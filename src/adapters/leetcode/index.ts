@@ -9,20 +9,31 @@ import type {
   LcTagCount,
   LcTagLevel,
 } from "@/data/types";
-import { isTauri } from "@tauri-apps/api/core";
-import { AdapterError, defaultFetch, type FetchLike } from "../http";
+import { AdapterError, defaultFetch, fetchFailure, inTauri, type FetchLike } from "../http";
 
 /**
  * LeetCode adapter over the UNOFFICIAL GraphQL endpoint. It can change without notice, so:
  * every response is validated field by field, missing data degrades to null/empty, and
  * all failures surface as AdapterError("lc", …) so callers can fail soft.
  */
+export const LC_GRAPHQL_URL = "https://leetcode.com/graphql";
+/** Vite dev-server proxy (vite.config.ts). Only exists under `npm run dev` in a plain browser. */
+export const LC_DEV_PROXY_URL = "/__leetcode/graphql";
+
 /**
- * Inside Tauri the request goes straight to LeetCode via tauri-plugin-http. In plain-browser
- * dev (npm run dev) LeetCode blocks CORS, so it goes through the Vite dev proxy (vite.config.ts).
+ * Where a LeetCode request goes, decided per request (never at module load):
+ * - inside Tauri (`tauri dev` and the packaged .exe): straight to leetcode.com through
+ *   tauri-plugin-http. The Vite proxy doesn't exist in the .exe, so Tauri never uses it.
+ * - plain-browser dev: LeetCode blocks CORS, so through the Vite dev proxy.
+ * - anywhere else (Node tests, scripts): straight to leetcode.com with the global fetch.
  */
-const ENDPOINT =
-  import.meta.env.DEV && typeof window !== "undefined" && !isTauri() ? "/__leetcode/graphql" : "https://leetcode.com/graphql";
+export function leetcodeEndpoint(env: { tauri: boolean; viteDev: boolean; browser: boolean }): string {
+  if (env.tauri) return LC_GRAPHQL_URL;
+  return env.viteDev && env.browser ? LC_DEV_PROXY_URL : LC_GRAPHQL_URL;
+}
+
+const currentEndpoint = () =>
+  leetcodeEndpoint({ tauri: inTauri(), viteDev: import.meta.env.DEV, browser: typeof window !== "undefined" });
 
 const Q = {
   profile: `query lcProfile($username: String!) {
@@ -93,7 +104,7 @@ export class LeetCodeAdapter {
   private async gql(query: string, variables: Record<string, unknown>): Promise<Record<string, Json>> {
     let res: Response;
     try {
-      res = await this.fetchImpl(ENDPOINT, {
+      res = await this.fetchImpl(currentEndpoint(), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -103,7 +114,7 @@ export class LeetCodeAdapter {
         body: JSON.stringify({ query, variables }),
       });
     } catch (e) {
-      throw new AdapterError("lc", "network", `Couldn't reach LeetCode (${(e as Error).message})`);
+      throw fetchFailure("lc", "LeetCode", e);
     }
     if (res.status === 429) throw new AdapterError("lc", "rate-limit", "LeetCode is rate-limiting requests");
     if (!res.ok) throw new AdapterError("lc", "http", `LeetCode returned HTTP ${res.status}`);

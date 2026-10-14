@@ -1,6 +1,5 @@
 import { ExternalLink } from "lucide-react";
-import { openUrl } from "@tauri-apps/plugin-opener";
-import { isTauri } from "@tauri-apps/api/core";
+import { openExternal } from "@/lib/openExternal";
 import type { Contest } from "@/data/types";
 import { cn } from "@/lib/utils";
 import { useNow } from "./useNow";
@@ -22,10 +21,7 @@ export const when = (t: number) =>
 /** The platform label already says "Codeforces", so drop it from the round name. */
 export const shortName = (c: Contest) => (c.platform === "cf" ? c.name.replace(/^Codeforces\s+/i, "") : c.name);
 
-export function openContest(url: string) {
-  if (isTauri()) void openUrl(url);
-  else window.open(url, "_blank", "noopener");
-}
+export const openContest = openExternal;
 
 /** The rest of the contest calendar, in time order (the next CF round leads in the Today card). */
 export function ContestStrip({ contests }: { contests: readonly Contest[] }) {

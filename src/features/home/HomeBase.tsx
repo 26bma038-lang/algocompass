@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
 import { ArrowRight, Check, Flame } from "lucide-react";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { flameState, streakAtRisk, useStreak } from "@/components/shell/useStreak";
 import { useHomeData, useTopicReport } from "@/data/queries";
+import { useUiStore } from "@/data/uiStore";
 import type { CfRatingChange, CfUser, Contest } from "@/data/types";
 import type { StandingItem } from "@/engine/standing";
 import { bandForRating } from "@/lib/rank";
@@ -26,6 +26,7 @@ function TodayCard({ focus, nextCf }: { focus: StandingItem | undefined; nextCf:
   const state = flameState(streak);
   const atRisk = streakAtRisk(streak);
   const nowMs = useNow();
+  const openTopic = useUiStore((s) => s.openTopic);
 
   return (
     <section aria-labelledby="today-title" className="glass-card grid grid-cols-1 gap-6 p-6 md:grid-cols-[1fr_auto]">
@@ -73,16 +74,17 @@ function TodayCard({ focus, nextCf }: { focus: StandingItem | undefined; nextCf:
           </div>
         </div>
         {focus && (
-          <Link
-            to={`/topics/${focus.topicId}`}
-            className="group flex items-center justify-between gap-4 rounded-md border border-glass-border bg-abyss-sunken px-4 py-3 transition-colors duration-[var(--dur-fast)] hover:border-glass-border-strong"
+          <button
+            type="button"
+            onClick={() => openTopic(focus.topicId)}
+            className="group flex items-center justify-between gap-4 rounded-md border text-left border-glass-border bg-abyss-sunken px-4 py-3 transition-colors duration-[var(--dur-fast)] hover:border-glass-border-strong"
           >
             <span className="flex min-w-0 flex-col gap-0.5">
               <span className="text-title font-semibold text-ink">Practice {focus.name.toLowerCase()}</span>
               <span className="text-body-sm text-ink-muted">{focus.reason}</span>
             </span>
             <ArrowRight aria-hidden className="size-4 shrink-0 text-ink-muted transition-transform duration-[var(--dur-fast)] group-hover:translate-x-0.5" />
-          </Link>
+          </button>
         )}
         {streak && <p className="text-body-sm text-ink-muted">Longest streak: {plural(streak.longest, "day")}</p>}
       </div>

@@ -36,6 +36,9 @@ export interface TopicStrength {
   status: TopicStatus;
   /** Sum of weighted, decayed solves feeding the score. */
   evidence: number;
+  /** The Codeforces / LeetCode parts of `evidence` (they add up to it). */
+  cfEvidence: number;
+  lcEvidence: number;
   solvedCount: number;
   cfSolved: number;
   lcSolved: number;
@@ -77,6 +80,7 @@ export function scoreFromEvidence(evidence: number, struggleRate: number | null,
 
 interface Acc {
   evidence: number;
+  cfEvidence: number;
   cfSolved: number;
   lcKnown: number;
   lcUnknown: number;
@@ -90,7 +94,7 @@ export function computeTopicStrengths(input: StrengthInput): TopicStrength[] {
   const { now } = input;
   const ur = input.cfRating ?? UNRATED_BASELINE;
   const acc = new Map<string, Acc>(
-    TOPICS.map((t) => [t.id, { evidence: 0, cfSolved: 0, lcKnown: 0, lcUnknown: 0, maxCf: null, last: null, fails: 0, oks: 0 }]),
+    TOPICS.map((t) => [t.id, { evidence: 0, cfEvidence: 0, cfSolved: 0, lcKnown: 0, lcUnknown: 0, maxCf: null, last: null, fails: 0, oks: 0 }]),
   );
   const touch = (id: string) => acc.get(id)!;
 
@@ -111,6 +115,7 @@ export function computeTopicStrengths(input: StrengthInput): TopicStrength[] {
     for (const id of topicsForTags(s.tags, "cf")) {
       const a = touch(id);
       a.evidence += w;
+      a.cfEvidence += w;
       a.cfSolved++;
       if (s.problemRating !== null) a.maxCf = Math.max(a.maxCf ?? 0, s.problemRating);
       a.last = Math.max(a.last ?? 0, s.createdAt);
@@ -198,6 +203,8 @@ export function computeTopicStrengths(input: StrengthInput): TopicStrength[] {
       score,
       status,
       evidence: Math.round(a.evidence * 100) / 100,
+      cfEvidence: Math.round(a.cfEvidence * 100) / 100,
+      lcEvidence: Math.round((a.evidence - a.cfEvidence) * 100) / 100,
       solvedCount,
       cfSolved: a.cfSolved,
       lcSolved: a.lcKnown + a.lcUnknown,

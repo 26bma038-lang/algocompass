@@ -5,6 +5,8 @@ import { computeTopicStrengths, type TopicStrength } from "./strength";
 
 export interface TopicReport {
   computedAt: number;
+  /** At least one platform has synced. Without this, every score is a placeholder, not a zero. */
+  hasData: boolean;
   cfRating: number | null;
   topics: TopicStrength[];
   standing: Standing;
@@ -31,5 +33,5 @@ export async function buildTopicReport(repo: Repo, now = Math.floor(Date.now() /
     lcProblems,
     lcRecentAc,
   });
-  return { computedAt: now, cfRating, topics, standing: whereIStand(topics, bandFrequency(problems, cfRating)) };
+  return { computedAt: now, hasData: cfProfile !== null || lcProfile !== null, cfRating, topics, standing: whereIStand(topics, bandFrequency(problems, cfRating)) };
 }

@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { TableName } from "./repo";
 import type { CfUser } from "./types";
 import { getRepo } from "./syncStore";
+import { topicProblems } from "@/engine/topicProblems";
 
 /** Read hooks over the local SQLite cache. Every key starts with "db" so a sync invalidates them all. */
 
@@ -23,6 +24,19 @@ export function useTopicReport() {
     queryFn: async () => {
       const { buildTopicReport } = await import("@/engine/report");
       return buildTopicReport(await getRepo());
+    },
+  });
+}
+
+/** Your solved and still-open problems in one topic (feeds Topic Detail). */
+export function useTopicProblems(topicId: string | null) {
+  return useQuery({
+    queryKey: ["db", "topic-problems", topicId],
+    enabled: topicId !== null,
+    queryFn: async () => {
+      const repo = await getRepo();
+      const [cfSubmissions, lcRecentAc, lcProblems] = await Promise.all([repo.getCfSubmissions(), repo.getLcRecentAc(), repo.getLcProblems()]);
+      return topicProblems(topicId!, { cfSubmissions, lcRecentAc, lcProblems });
     },
   });
 }

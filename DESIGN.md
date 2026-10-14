@@ -392,3 +392,14 @@ The honest "nothing here yet" pattern. A 40px accent-soft tile (12px radius) wit
 - **Do** follow one flame rule everywhere: ember fill = practiced today, ember outline = streak running but nothing today (breathes from 8pm), Dusk outline = no streak.
 - **Do** count up hero numbers once per app launch. Revisits show the settled value, and counts animate only when the value changes.
 - **Do** keep one hero number per screen. On Home Base it's the CF rating, and LeetCode's total uses display size.
+
+<!-- Appended 2026-10-14 (Skill Tree + Topic Detail build). Additions only; nothing above changed. -->
+### Skill Tree and Topic Detail additions
+- **Do** treat the Skill Tree canvas as one light under the Three Lights Rule. Inside it, glow encodes status and only two statuses may glow: **Mastered** wears the Aura on its disc, **Strong** a faint 6px accent drop-shadow on its ring. Weak, Developing, Not tried and Locked never glow.
+- **Do** draw nodes as a 46px disc (topic icon) inside a 64px, 10-segment mastery ring (one segment per 10 points). Below the ring sits a soft abyss label plate with the name (13px semibold, two lines max) and "score status" (score in Chakra Petch). Locked = sunken disc, lock icon, dashed hairline ring, Dusk text. Not tried = bare ring, Mist icon.
+- **Do** mark work-on-next topics with a 24px ink badge holding an abyss crosshair. Its slow 2.4s pulse is the tree's one data-tied loop (static under reduced motion). The same three topics lead the screen in a "Work on next" strip above the canvas, each with its reason.
+- **Do** draw edges as 1.5px beziers: accent when the parent is at least Developing (unlocked path), **dashed** glass-border-strong when not, so lit vs unlit never hangs on color (at Newbie the accent is gray). Hovering or opening a topic lights its whole prerequisite chain and what it leads to (2px) and fades the rest to 18%.
+- **Do** mark selection with a 2px ink ring 5px outside the mastery ring, never with the accent alone.
+- **Do** play the unlock moment once per change: newly earned ring segments fade in clockwise (160ms each, 50ms stagger) and a 2px accent ring expands and fades (700ms). The baseline is the status snapshot from your last look, so revisits don't replay it. A "Since your last look" line names what rose, so the change is announced in words too.
+- **Do** open Topic Detail as a non-modal 440px Float-plane sheet from the right, below the top bar and ascent bar (they stay visible), sliding 24px in over 240ms. Esc or × closes it and focus returns to where it came from. Changing screens closes it. Order: ring + status sentence, "Builds on" chips (dashed when below Developing), Codeforces vs LeetCode strength bar (platform colors), four stat tiles, Upsolve, Solved, then next-phase sections as one muted line each. Untried topics show only the unlock path.
+- **Don't** hide React Flow's attribution. Keep it in Dusk at 10px in the canvas's empty top-left corner.

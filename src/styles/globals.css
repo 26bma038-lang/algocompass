@@ -279,3 +279,42 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+/* "Work on next" marker on skill-tree nodes: a slow ring that fades out. Tied to data (the engine's
+   work-on-next list), so it's an allowed loop; static under reduced motion. */
+@keyframes next-pulse {
+  0% { transform: scale(1); opacity: 0.6; }
+  70%, 100% { transform: scale(2.4); opacity: 0; }
+}
+
+/* React Flow, themed to the Rank Aura (only base.css is imported, so it brings no colors). */
+.skill-tree .react-flow {
+  --xy-background-color: transparent;
+}
+/* Nodes aren't selectable or draggable (each holds its own button), so React Flow would switch
+   their pointer events off. */
+.skill-tree .react-flow__node {
+  cursor: default;
+  pointer-events: all !important;
+}
+.skill-tree .react-flow__minimap {
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-slab);
+}
+.skill-tree .react-flow__minimap-mask {
+  stroke: var(--glass-border-strong);
+  stroke-width: 1;
+}
+.skill-tree .react-flow__panel {
+  margin: 12px;
+}
+.skill-tree .react-flow__attribution {
+  background: transparent;
+  font-size: 10px;
+  color: var(--ink-faint);
+}
+.skill-tree .react-flow__attribution a {
+  color: var(--ink-faint);
+}

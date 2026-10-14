@@ -60,3 +60,30 @@ export function useSaveHandles() {
     onSuccess: (saved) => queryClient.setQueryData(handlesKey, saved),
   });
 }
+
+/** Small app-state values (not user settings) kept in the same store file. */
+export async function readPref<T>(key: string): Promise<T | null> {
+  if (!isTauri()) {
+    try {
+      const raw = localStorage.getItem(`pref:${key}`);
+      return raw ? (JSON.parse(raw) as T) : null;
+    } catch {
+      return null;
+    }
+  }
+  return (await (await getStore()).get<T>(key)) ?? null;
+}
+
+export async function writePref<T>(key: string, value: T): Promise<void> {
+  if (!isTauri()) {
+    try {
+      localStorage.setItem(`pref:${key}`, JSON.stringify(value));
+    } catch {
+      // Storage blocked: the value just won't persist.
+    }
+    return;
+  }
+  const store = await getStore();
+  await store.set(key, value);
+  await store.save();
+}

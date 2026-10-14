@@ -1,5 +1,44 @@
 # AlgoCompass progress log
 
+## Latest: Skill Tree, Topic Detail and the packaged-app fixes (2026-10-14, evening)
+
+**Done.** Committed. `npm test` passes (180 tests), `npm run build` is green, and `npm run tauri build` produces `AlgoCompass_0.1.0_x64-setup.exe` (NSIS) and `AlgoCompass_0.1.0_x64_en-US.msi`.
+
+- **LeetCode in the real app: verified.**
+  - I ran the built release exe, and it synced LeetCode on its own: profile, tags, calendar, 20 recent ACs and contests, logged at 15:36:29–32 UTC in `sync_log`.
+  - The packaged exe has no Vite server, so those calls went through tauri-plugin-http.
+  - Your earlier `tauri dev` runs had logged `Couldn't reach LeetCode (undefined)`. Tauri rejects with plain strings, and the adapter read `.message` off them. That's fixed.
+- **Offline is calm now.**
+  - A DNS/network failure retries with backoff (3 tries: now, +1.5s, +4s).
+  - If it still fails, the top bar says **"Offline, will retry"** (cloud icon, no error toast).
+  - It retries as soon as Windows reports the connection is back, or after 5 minutes.
+  - Real errors (API, HTTP, parse) still say "Sync incomplete" and toast.
+- **Skill Tree** (Ctrl+2): all 33 topics on @xyflow/react with a dagre top-to-bottom layout.
+  - Each node shows a 10-segment mastery ring with its score and status.
+  - Lit edges vs dashed edges, and the hovered or opened topic's whole prerequisite chain lights up.
+  - "Work on next" strip with reasons, filters (All / Unlocked / Weak / Blind spots), search by name or platform tag (`/` to focus, Enter opens the best match), zoom/fit, minimap and a key.
+  - A one-time unlock animation for anything that rose since your last look, named in a "Since your last look" line.
+- **Topic Detail**: a side panel from any node or any topic on Home Base. It shows:
+  - Strength and what it needs next, plus the prerequisites it builds on.
+  - Codeforces vs LeetCode share of the strength, solved count, hardest CF solve, struggle rate and last practiced.
+  - **Upsolve**: CF problems you tried but never got accepted.
+  - **Solved** (CF + LC), with links that open in your browser.
+  - Placeholders for Recommended problems and Resources.
+- **Impeccable critique: 24/40** (two independent reviewers), then a polish pass that fixed every P1 and P2. It also caught a **system-wide bug**: `cn()` was silently dropping our 12/13px type sizes whenever a text color followed them. That's fixed everywhere, including Home Base.
+
+**What the tree says about you right now (real data)**
+- **Work on next:**
+  - Constructive algorithms 37 (in 21% of problems at your rating).
+  - Sorting 32.
+  - Number theory 28 (45% of your CF submissions there aren't accepted).
+- **Upsolve on Constructive:** Special Permutation (1600) and Zhily and Mex and Max (1200).
+- 27 of 33 topics are unlocked. Graph traversal is locked until Recursion & backtracking (7) and Stacks & queues (10) reach 25.
+
+**Suggested next step**
+Fill the panel's two placeholders: **recommended problems** (LC to learn the topic, unsolved CF problems from the cached 11k problemset just above your rating to sharpen it) and **resources**. Then Quests/XP.
+
+---
+
 ## Summary (autonomous run, 2026-10-14)
 
 **Done: all 4 tasks.** Each one is committed, `npm test` (163 tests) passes, and `npm run build` is green.
@@ -19,8 +58,8 @@
 - **Next contest:** Educational CF Round 195, tonight 8:05 pm.
 - The whole app now wears **Newbie Slate**, your real rank color. It turns Pupil green when you cross 1200.
 
-**Needs you (blocking)**
-- **Install the Windows SDK.** Rust can't link without it, so `npm run tauri dev` doesn't run yet. Open Visual Studio Installer → Build Tools 2022 → Modify → tick **Desktop development with C++** + **Windows 11 SDK**. Then run `npm run tauri dev` from **PowerShell** (not Git Bash). Everything Rust-side (tray, plugins, migrations, `unsafe-headers`) is written but has never been compiled. Expect possibly small compile fixes on the first run.
+**Needs you (blocking)**: *resolved later the same day. The SDK is installed and the app builds; see Latest above.*
+- ~~**Install the Windows SDK.**~~ Rust can't link without it, so `npm run tauri dev` doesn't run yet. Open Visual Studio Installer → Build Tools 2022 → Modify → tick **Desktop development with C++** + **Windows 11 SDK**. Then run `npm run tauri dev` from **PowerShell** (not Git Bash). Everything Rust-side (tray, plugins, migrations, `unsafe-headers`) is written but has never been compiled. Expect possibly small compile fixes on the first run.
 
 **Suggested next step**
 After the SDK install, run `npm run tauri dev` and confirm three things: the window, the tray, and a full sync including LeetCode through tauri-plugin-http. Then build the **Skill Tree** screen (@xyflow/react on top of `topics.json` + `prerequisites.json` + the engine's statuses) and **Topic Detail**. The engine already gives you everything they need.
@@ -118,6 +157,37 @@ After the SDK install, run `npm run tauri dev` and confirm three things: the win
 - **Process:** frontend-design and dataviz guidance first, then the impeccable critique (two independent reviewers): 26/40. All P1–P3 issues and every mechanical finding were fixed, then confirmed in a second capture round. The detector is clean. Snapshot is in `.impeccable/critique/`.
 - **DESIGN.md:** appended a "Data-viz additions" block. Nothing earlier was changed.
 
+### Task 5: Packaged-app fixes, Skill Tree, Topic Detail
+- **LeetCode transport** (`src/adapters/leetcode/index.ts`, `src/adapters/http.ts`):
+  - The endpoint is now decided **per request** by `leetcodeEndpoint()`: always `https://leetcode.com/graphql` through tauri-plugin-http inside Tauri (dev and the .exe), and the Vite proxy only for plain-browser `npm run dev`.
+  - `inTauri()` also checks `__TAURI_INTERNALS__`.
+  - Fetch failures go through `fetchFailure()`. It handles Tauri's string rejections and classifies capability-scope denials as config errors, not "offline".
+  - Tests pin the routing.
+- **Retry + offline** (`src/data/sync.ts`, `syncStore.ts`, `TopBar.tsx`):
+  - Each sync step retries network errors only (backoff `[1500, 4000]` ms).
+  - A platform is `offline` when every failure was a network error. The status is `idle | syncing | ok | partial | offline`.
+  - Offline queues a retry on the browser `online` event or after 5 min.
+- **Engine:**
+  - `strength.ts` now splits `evidence` into `cfEvidence` + `lcEvidence`.
+  - New `skillTree.ts`: tree model, edge lighting, filters, tag search + ranking, lineage, status diff.
+  - New `topicProblems.ts`: solved / upsolve lists per topic.
+  - 17 new tests.
+- **UI:**
+  - `features/skill-tree/` (`SkillTree.tsx`, `TopicNode.tsx`, `layout.ts`), `components/MasteryRing.tsx`, `features/topic/TopicPanel.tsx` (mounted in the shell).
+  - `/topics/:id` deep-links to the tree with the panel open.
+  - Problem links come from `adapters/links.ts` and open via tauri-plugin-opener (`lib/openExternal.ts`).
+  - The previous statuses for the unlock animation live in tauri-plugin-store (`skillTree.seen`).
+- **Process:**
+  - frontend-design for direction, then the impeccable critique: dual-agent, **24/40**, snapshot in `.impeccable/critique/`.
+  - The polish pass fixed:
+    - the tailwind-merge type-size bug;
+    - work-on-next strip + labeled badge;
+    - toolbar before the canvas in tab order, nodes in visual tab order, pan-on-focus, `aria-expanded`;
+    - the "since your last look" announcement and lineage highlighting;
+    - the key behind a toggle, the minimap moved off the nodes, and the no-match search state;
+    - the panel starts below the top bar, Upsolve comes before Solved, untried topics collapse, and quiet placeholders.
+  - Detector clean (0 findings). DESIGN.md got a "Skill Tree and Topic Detail additions" block (additions only).
+
 ## Decisions I made
 - **Home Base layout follows DESIGN.md** (Today leads, 8-col left) rather than three equal hero cards, because the critique showed equal cards failed the 2-second "am I on track today?" check.
 - **Radar replaced by ranked bars** in "Where you stand". The radar repeated the list below it and had no readable scale. A radar fits the Skill Tree / Topic screens better, if you still want one.
@@ -144,8 +214,17 @@ After the SDK install, run `npm run tauri dev` and confirm three things: the win
 - **Weakness ranking** weighs how common the topic is in CF problems at your rating (−100/+400), so weaknesses that matter for the climb come first.
 - **21st.dev**: its MCP server needs an API key that isn't configured, so component source couldn't be pulled. The sidebar follows the pattern of 21st.dev's animated sidebars (Unlumen "Animated Sidebar", Wensity "Sidebar") rebuilt on our tokens.
 
+- **Strong nodes glow (faintly), Mastered wear the Aura.** You asked for exactly this. The critique flagged that it can exceed the Three Lights Rule once many topics are Strong, so DESIGN.md now counts the tree canvas as one light with glow encoding status inside it.
+- **The "work on next" marker pulses** (2.4s, static under reduced motion), as you asked. It's documented as the tree's one data-tied loop.
+- **"Weak" filter = Weak + Developing** (everything practiced but under 50). The tooltip says so. It's the set that needs reps.
+- **First view opens at a readable zoom (≥0.75), not fit-all.** Fit-all at 1280x800 is ~0.55, where names are ~7px. The fit button shows everything, and the minimap shows where you are.
+- **Each rank is squeezed to 66% of dagre's width** (keeping its crossing-minimized order), so the 12-wide bottom rank fits a desktop window.
+- **Topic Detail is a non-modal side panel, not a page.** Clicking another node swaps it in place. `/topics/:id` still works as a deep link.
+- **React Flow attribution stays visible** (small, top-left). Hiding it is meant for Pro subscribers.
+- **LeetCode "attempted" isn't shown.** LeetCode's public API doesn't expose failed submissions, and the panel says so.
+
 ## Blocked / needs Sahil
-- **Windows SDK missing → Rust can't link, so `npm run tauri dev` / `cargo check` fail.** `C:\Program Files (x86)\Windows Kits\10` only has `Catalogs` and `Redist` (no `Lib`/`Include`). Fix: Visual Studio Installer → Build Tools 2022 → Modify → tick **Desktop development with C++** and **Windows 11 SDK (10.0.26100)** → install → restart the terminal. Until then I verify with `tsc` + `vite build` only.
+- *(Resolved)* ~~**Windows SDK missing → Rust can't link, so `npm run tauri dev` / `cargo check` fail.**~~ `C:\Program Files (x86)\Windows Kits\10` only has `Catalogs` and `Redist` (no `Lib`/`Include`). Fix: Visual Studio Installer → Build Tools 2022 → Modify → tick **Desktop development with C++** and **Windows 11 SDK (10.0.26100)** → install → restart the terminal. Until then I verify with `tsc` + `vite build` only.
 - Also: run cargo/tauri from **PowerShell or cmd**, not Git Bash. Git Bash's `/usr/bin/link` shadows MSVC's `link.exe` and breaks linking.
-- **LeetCode inside Tauri is untested end to end** (blocked by the SDK issue above). The adapter is verified against the live API from Node, and the request shape is the same through tauri-plugin-http with `unsafe-headers`. In `npm run dev` (plain browser) LC sync fails with a CORS error, as expected, and the app degrades correctly: CF data still syncs and an LC error toast appears.
+- *(Resolved: verified in the release exe, see Latest)* ~~**LeetCode inside Tauri is untested end to end**~~ (blocked by the SDK issue above). The adapter is verified against the live API from Node, and the request shape is the same through tauri-plugin-http with `unsafe-headers`. In `npm run dev` (plain browser) LC sync fails with a CORS error, as expected, and the app degrades correctly: CF data still syncs and an LC error toast appears.
 - **21st.dev API key** (optional): set `API_KEY_21ST` in the 21st plugin config if you want components pulled directly from 21st.dev.

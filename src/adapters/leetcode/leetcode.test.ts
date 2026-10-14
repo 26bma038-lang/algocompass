@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { AdapterError } from "../http";
+import { AdapterError, fetchFailure } from "../http";
 import { stubFetch } from "@/test/sqljs";
-import { LeetCodeAdapter } from "./index";
+import { LC_DEV_PROXY_URL, LC_GRAPHQL_URL, LeetCodeAdapter, leetcodeEndpoint } from "./index";
 
 const body = (init?: RequestInit) => JSON.parse(String(init?.body)) as { query: string; variables: Record<string, unknown> };
 
@@ -122,5 +122,24 @@ describe("LeetCodeAdapter", () => {
         url: "https://leetcode.com/contest/weekly-contest-524/",
       },
     ]);
+  });
+});
+
+describe("LeetCode transport", () => {
+  it("goes straight to leetcode.com inside Tauri, dev or packaged (never the Vite proxy)", () => {
+    expect(leetcodeEndpoint({ tauri: true, viteDev: true, browser: true })).toBe(LC_GRAPHQL_URL);
+    expect(leetcodeEndpoint({ tauri: true, viteDev: false, browser: true })).toBe(LC_GRAPHQL_URL);
+  });
+
+  it("uses the Vite proxy only for plain-browser dev", () => {
+    expect(leetcodeEndpoint({ tauri: false, viteDev: true, browser: true })).toBe(LC_DEV_PROXY_URL);
+    expect(leetcodeEndpoint({ tauri: false, viteDev: false, browser: true })).toBe(LC_GRAPHQL_URL);
+    expect(leetcodeEndpoint({ tauri: false, viteDev: true, browser: false })).toBe(LC_GRAPHQL_URL);
+  });
+
+  it("classifies fetch failures: DNS/connect = network, scope denial = api", () => {
+    expect(fetchFailure("lc", "LeetCode", "error sending request for url (https://leetcode.com/graphql): dns error").kind).toBe("network");
+    expect(fetchFailure("lc", "LeetCode", new TypeError("Failed to fetch")).kind).toBe("network");
+    expect(fetchFailure("lc", "LeetCode", "url not allowed on the configured scope: https://x").kind).toBe("api");
   });
 });

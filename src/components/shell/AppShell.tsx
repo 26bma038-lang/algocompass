@@ -8,6 +8,7 @@ import { TopBar } from "./TopBar";
 import { useShortcuts } from "./useShortcuts";
 import { Toaster } from "@/components/ui/sonner";
 import { useSyncScheduler } from "@/data/syncStore";
+import { TopicPanel } from "@/features/topic/TopicPanel";
 
 export function AppShell() {
   const { pathname } = useLocation();
@@ -37,6 +38,7 @@ export function AppShell() {
           </main>
         </div>
       </div>
+      <TopicPanel />
       <Toaster />
     </TooltipProvider>
   );

@@ -101,6 +101,41 @@ describe("syncAll", () => {
     expect(log.some((e) => e.kind === "lc:profile" && e.status === "error")).toBe(true);
   });
 
+  it("retries network errors with backoff and recovers", async () => {
+    const repo = await memoryRepo();
+    const cf = fakeCf([sub(1, 1000)]);
+    let calls = 0;
+    const realGetUser = cf.getUser.getMockImplementation()!;
+    cf.getUser.mockImplementation(async (h: string) => {
+      if (++calls < 3) throw new AdapterError("cf", "network", "Couldn't reach Codeforces (dns error)");
+      return realGetUser(h);
+    });
+    const res = await syncAll({ repo, cf: cf as unknown as CodeforcesAdapter, lc: fakeLc() as unknown as LeetCodeAdapter, handles, now: () => NOW, retryDelaysMs: [0, 0] });
+    expect(calls).toBe(3);
+    expect(res.cf.ok).toBe(true);
+    expect(res.cf.offline).toBe(false);
+  });
+
+  it("marks a platform offline after 3 failed network tries, and keeps the other one", async () => {
+    const repo = await memoryRepo();
+    const lc = fakeLc();
+    lc.getProfile.mockImplementation(async () => {
+      throw new AdapterError("lc", "network", "Couldn't reach LeetCode (error sending request: dns error)");
+    });
+    const res = await syncAll({ repo, cf: fakeCf([sub(1, 1000)]) as unknown as CodeforcesAdapter, lc: lc as unknown as LeetCodeAdapter, handles, now: () => NOW, retryDelaysMs: [0, 0] });
+    expect(lc.getProfile).toHaveBeenCalledTimes(3);
+    expect(res.lc).toMatchObject({ ok: false, offline: true });
+    expect(res.cf).toMatchObject({ ok: true, offline: false });
+  });
+
+  it("doesn't retry API errors, and they aren't 'offline'", async () => {
+    const repo = await memoryRepo();
+    const lc = fakeLc(true);
+    const res = await syncAll({ repo, cf: fakeCf([]) as unknown as CodeforcesAdapter, lc: lc as unknown as LeetCodeAdapter, handles, now: () => NOW, retryDelaysMs: [0, 0] });
+    expect(lc.getProfile).toHaveBeenCalledTimes(1);
+    expect(res.lc).toMatchObject({ ok: false, offline: false });
+  });
+
   it("re-syncs from scratch when the handle changes", async () => {
     const repo = await memoryRepo();
     const cf = fakeCf([sub(1, 1000)]);
