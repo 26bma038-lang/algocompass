@@ -9,6 +9,7 @@ import type {
   LcTagCount,
   LcTagLevel,
 } from "@/data/types";
+import { isTauri } from "@tauri-apps/api/core";
 import { AdapterError, defaultFetch, type FetchLike } from "../http";
 
 /**
@@ -16,7 +17,12 @@ import { AdapterError, defaultFetch, type FetchLike } from "../http";
  * every response is validated field by field, missing data degrades to null/empty, and
  * all failures surface as AdapterError("lc", …) so callers can fail soft.
  */
-const ENDPOINT = "https://leetcode.com/graphql";
+/**
+ * Inside Tauri the request goes straight to LeetCode via tauri-plugin-http. In plain-browser
+ * dev (npm run dev) LeetCode blocks CORS, so it goes through the Vite dev proxy (vite.config.ts).
+ */
+const ENDPOINT =
+  import.meta.env.DEV && typeof window !== "undefined" && !isTauri() ? "/__leetcode/graphql" : "https://leetcode.com/graphql";
 
 const Q = {
   profile: `query lcProfile($username: String!) {

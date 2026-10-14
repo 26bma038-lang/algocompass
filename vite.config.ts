@@ -24,6 +24,15 @@ export default defineConfig(() => ({
     strictPort: true,
     host: host || false,
     hmr: host ? { protocol: "ws", host, port: 1421 } : undefined,
+    // Dev-only: lets the plain-browser build reach LeetCode GraphQL (no CORS there). Tauri doesn't use this.
+    proxy: {
+      "/__leetcode": {
+        target: "https://leetcode.com",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/__leetcode/, ""),
+        headers: { Referer: "https://leetcode.com/", Origin: "https://leetcode.com" },
+      },
+    },
     watch: {
       // 3. tell Vite to ignore watching `src-tauri`
       ignored: ["**/src-tauri/**"],

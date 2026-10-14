@@ -5,6 +5,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { useSyncStore } from "@/data/syncStore";
 import { cn } from "@/lib/utils";
 import { AscentBar } from "./AscentBar";
+import { useRankAccent } from "./useRankAccent";
+import { useStreak } from "./useStreak";
 
 export interface RouteHandle {
   title: string | ((params: Params) => string);
@@ -154,17 +156,19 @@ function SyncButton() {
 
 export function TopBar() {
   const title = useScreenTitle();
+  const rating = useRankAccent();
+  const streak = useStreak();
   return (
     <div className="relative shrink-0">
       <div className="flex h-[var(--topbar-h)] items-center justify-between gap-4 px-6">
         <h1 className="truncate font-display text-headline font-semibold tracking-[-0.005em] text-ink">{title}</h1>
         <div className="flex shrink-0 items-center gap-1.5">
           <SyncButton />
-          <StreakFlame days={null} />
+          <StreakFlame days={streak ? streak.current : null} />
           <LevelBadge level={null} xpProgress={0} />
         </div>
       </div>
-      <AscentBar rating={null} />
+      <AscentBar rating={rating} />
       {/* Announce screen changes for screen readers (focus stays in the nav). */}
       <p className="sr-only" aria-live="polite">
         {title}

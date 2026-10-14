@@ -249,6 +249,12 @@
   100% { transform: translate3d(0, 0, 0) scale(0.9); }
 }
 
+/* Streak at risk (8pm+, nothing solved): the only data-driven loop (DESIGN.md Streak flame). */
+@keyframes ember-breathe {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--ember) 0%, transparent); }
+  50% { box-shadow: 0 0 22px 2px color-mix(in oklab, var(--ember) 35%, transparent); }
+}
+
 .nebula-blob {
   position: absolute;
   border-radius: 50%;
