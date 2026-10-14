@@ -1,0 +1,703 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-14T09:11:53.640Z",
+  "title": "Design System: AlgoCompass",
+  "extensions": {
+    "colorMeta": {
+      "abyss": {
+        "role": "neutral",
+        "displayName": "Abyss",
+        "canonical": "oklch(15.1% 0.025 267.1)",
+        "tonalRamp": [
+          "#070B16",
+          "#1F2430",
+          "#3A404D",
+          "#575D6C",
+          "#798090",
+          "#9EA5B5",
+          "#C3CADB",
+          "#E8EEFE"
+        ]
+      },
+      "abyss-raised": {
+        "role": "neutral",
+        "displayName": "Abyss Raised",
+        "canonical": "oklch(18.2% 0.036 268.0)",
+        "tonalRamp": [
+          "#050A1A",
+          "#1C2336",
+          "#373F53",
+          "#555D73",
+          "#778097",
+          "#9BA4BC",
+          "#C0CAE3",
+          "#E8EEFE"
+        ]
+      },
+      "abyss-sunken": {
+        "role": "neutral",
+        "displayName": "Abyss Sunken",
+        "canonical": "oklch(13.6% 0.023 267.3)",
+        "tonalRamp": [
+          "#070B15",
+          "#1F2430",
+          "#3A404D",
+          "#585D6B",
+          "#7A808F",
+          "#9EA5B4",
+          "#C4CADA",
+          "#E7EEFF"
+        ]
+      },
+      "glass": {
+        "role": "neutral",
+        "displayName": "Glass",
+        "canonical": "oklch(23.6% 0.050 267.6) / 0.55",
+        "tonalRamp": [
+          "#040920",
+          "#19233C",
+          "#343F5B",
+          "#515D7A",
+          "#73809F",
+          "#97A4C5",
+          "#BCCAEC",
+          "#E8EEFE"
+        ]
+      },
+      "glass-hover": {
+        "role": "neutral",
+        "displayName": "Glass Hover",
+        "canonical": "oklch(27.2% 0.060 267.6) / 0.66",
+        "tonalRamp": [
+          "#030824",
+          "#172241",
+          "#323E60",
+          "#4F5D80",
+          "#707FA5",
+          "#94A4CB",
+          "#B9CAF3",
+          "#E8EEFE"
+        ]
+      },
+      "glass-border": {
+        "role": "neutral",
+        "displayName": "Glass Border",
+        "canonical": "oklch(74.9% 0.088 268.2) / 0.10",
+        "tonalRamp": [
+          "#02032F",
+          "#121F4E",
+          "#2C3C6E",
+          "#485B8F",
+          "#6A7EB5",
+          "#8DA3DC",
+          "#B5C9FE",
+          "#E8EEFF"
+        ]
+      },
+      "glass-border-strong": {
+        "role": "neutral",
+        "displayName": "Glass Border Strong",
+        "canonical": "oklch(74.9% 0.088 268.2) / 0.20",
+        "tonalRamp": [
+          "#02032F",
+          "#121F4E",
+          "#2C3C6E",
+          "#485B8F",
+          "#6A7EB5",
+          "#8DA3DC",
+          "#B5C9FE",
+          "#E8EEFF"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Starlight Ink",
+        "canonical": "oklch(94.2% 0.016 266.3)",
+        "tonalRamp": [
+          "#080B12",
+          "#20242C",
+          "#3C4048",
+          "#595E67",
+          "#7C808A",
+          "#A0A5AF",
+          "#C6CBD5",
+          "#E9EEFA"
+        ]
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Mist",
+        "canonical": "oklch(72.2% 0.040 267.2)",
+        "tonalRamp": [
+          "#050A1C",
+          "#1B2337",
+          "#363F55",
+          "#545D75",
+          "#768099",
+          "#99A4BE",
+          "#BFCAE5",
+          "#E8EEFE"
+        ]
+      },
+      "ink-faint": {
+        "role": "neutral",
+        "displayName": "Dusk",
+        "canonical": "oklch(61.9% 0.047 269.2)",
+        "tonalRamp": [
+          "#05091F",
+          "#1B233B",
+          "#353F59",
+          "#535D79",
+          "#757F9D",
+          "#98A4C3",
+          "#BECAEA",
+          "#E8EEFF"
+        ]
+      },
+      "rank-newbie": {
+        "role": "primary",
+        "displayName": "Newbie Slate",
+        "canonical": "oklch(74.4% 0.026 265.5)",
+        "tonalRamp": [
+          "#060B16",
+          "#1E2431",
+          "#39404E",
+          "#575E6D",
+          "#798090",
+          "#9DA5B6",
+          "#C2CBDC",
+          "#E7EFFE"
+        ]
+      },
+      "rank-pupil": {
+        "role": "primary",
+        "displayName": "Pupil Fern",
+        "canonical": "oklch(79.4% 0.174 152.9)",
+        "tonalRamp": [
+          "#001003",
+          "#002D13",
+          "#004E26",
+          "#00713A",
+          "#059951",
+          "#2AC36D",
+          "#5EEA92",
+          "#C6FFD5"
+        ]
+      },
+      "rank-specialist": {
+        "role": "primary",
+        "displayName": "Specialist Lagoon",
+        "canonical": "oklch(78.9% 0.132 186.2)",
+        "tonalRamp": [
+          "#000F0D",
+          "#002B27",
+          "#024A45",
+          "#006D65",
+          "#06948A",
+          "#00BEB1",
+          "#44E6D8",
+          "#B7FFF6"
+        ]
+      },
+      "rank-expert": {
+        "role": "primary",
+        "displayName": "Expert Azure",
+        "canonical": "oklch(66.2% 0.179 264.6)",
+        "tonalRamp": [
+          "#000038",
+          "#020078",
+          "#0D309C",
+          "#2953C0",
+          "#4978E9",
+          "#77A1FF",
+          "#B1CBFF",
+          "#E7EFFE"
+        ],
+        "note": "Pre-sync fallback value of --accent (the Rank Aura)."
+      },
+      "rank-candidate-master": {
+        "role": "primary",
+        "displayName": "Candidate Violet",
+        "canonical": "oklch(67.5% 0.213 303.8)",
+        "tonalRamp": [
+          "#140027",
+          "#330058",
+          "#57018F",
+          "#7929BC",
+          "#9D53E5",
+          "#BD84FE",
+          "#D8BBFF",
+          "#F2EAFF"
+        ]
+      },
+      "rank-master": {
+        "role": "primary",
+        "displayName": "Master Ember",
+        "canonical": "oklch(77.8% 0.158 59.6)",
+        "tonalRamp": [
+          "#170600",
+          "#391B00",
+          "#613200",
+          "#8A4B02",
+          "#BB6804",
+          "#EB8924",
+          "#FFBA81",
+          "#FFEADB"
+        ]
+      },
+      "rank-grandmaster": {
+        "role": "primary",
+        "displayName": "Grandmaster Crimson",
+        "canonical": "oklch(67.8% 0.211 20.2)",
+        "tonalRamp": [
+          "#200002",
+          "#4B000C",
+          "#7C001B",
+          "#B1002B",
+          "#E33147",
+          "#FE7176",
+          "#FFB4B3",
+          "#FEE9E8"
+        ]
+      },
+      "ember": {
+        "role": "secondary",
+        "displayName": "Streak Ember",
+        "canonical": "oklch(75.0% 0.167 50.5)",
+        "tonalRamp": [
+          "#1A0400",
+          "#3E1700",
+          "#662D00",
+          "#934402",
+          "#C75E02",
+          "#F48031",
+          "#FEB991",
+          "#FEEADF"
+        ]
+      },
+      "ember-core": {
+        "role": "secondary",
+        "displayName": "Ember Core",
+        "canonical": "oklch(88.5% 0.118 82.9)",
+        "tonalRamp": [
+          "#120900",
+          "#312100",
+          "#533B00",
+          "#785702",
+          "#A27813",
+          "#C89D44",
+          "#F0C36B",
+          "#FEECCB"
+        ]
+      },
+      "success": {
+        "role": "state",
+        "displayName": "Success Mint",
+        "canonical": "oklch(84.2% 0.142 158.4)",
+        "tonalRamp": [
+          "#001005",
+          "#002D18",
+          "#004D2E",
+          "#047045",
+          "#069860",
+          "#41BF82",
+          "#6DE6A7",
+          "#C4FFDC"
+        ]
+      },
+      "warning": {
+        "role": "state",
+        "displayName": "Warning Amber",
+        "canonical": "oklch(83.7% 0.164 84.4)",
+        "tonalRamp": [
+          "#120900",
+          "#302100",
+          "#523C00",
+          "#775800",
+          "#A27903",
+          "#CF9B07",
+          "#FCC026",
+          "#FEEDC9"
+        ]
+      },
+      "danger": {
+        "role": "state",
+        "displayName": "Danger Coral",
+        "canonical": "oklch(71.1% 0.166 22.2)",
+        "tonalRamp": [
+          "#200001",
+          "#4B0009",
+          "#7C0016",
+          "#A7242F",
+          "#D14E51",
+          "#FB7474",
+          "#FEB5B1",
+          "#FFE9E7"
+        ]
+      },
+      "platform-cf": {
+        "role": "secondary",
+        "displayName": "CF Periwinkle",
+        "canonical": "oklch(72.6% 0.141 267.2)",
+        "tonalRamp": [
+          "#020036",
+          "#091467",
+          "#1F3689",
+          "#3A56AC",
+          "#5B7BD4",
+          "#7DA0FD",
+          "#B4CAFE",
+          "#E7EEFF"
+        ]
+      },
+      "platform-lc": {
+        "role": "secondary",
+        "displayName": "LeetCode Amber",
+        "canonical": "oklch(78.6% 0.169 67.7)",
+        "tonalRamp": [
+          "#160700",
+          "#361D00",
+          "#5B3601",
+          "#845002",
+          "#B36E04",
+          "#E48E08",
+          "#FFBB70",
+          "#FFEBD6"
+        ]
+      },
+      "nebula-deep": {
+        "role": "neutral",
+        "displayName": "Nebula Deep",
+        "canonical": "oklch(37.1% 0.107 269.6)",
+        "tonalRamp": [
+          "#030035",
+          "#111B57",
+          "#2A3A78",
+          "#46599A",
+          "#677CC1",
+          "#8AA1E8",
+          "#B6C9FE",
+          "#E8EEFF"
+        ]
+      }
+    },
+    "derivedAccent": [
+      {
+        "name": "--accent",
+        "value": "var(--rank-<current>)",
+        "purpose": "The Rank Aura. Set at runtime by applyRankAccent(); rank-expert before the first sync."
+      },
+      {
+        "name": "--accent-next",
+        "value": "var(--rank-<next>) or var(--accent)",
+        "purpose": "Ascent bar destination tip; equals the current accent when the next rank is unknown."
+      },
+      {
+        "name": "--accent-soft",
+        "value": "color-mix(in oklab, var(--accent) 14%, transparent)",
+        "purpose": "Active nav fill, lit level badge, empty-state tile."
+      },
+      {
+        "name": "--accent-line",
+        "value": "color-mix(in oklab, var(--accent) 45%, transparent)",
+        "purpose": "Hairline ring of the Aura halo."
+      },
+      {
+        "name": "--accent-glow",
+        "value": "color-mix(in oklab, var(--accent) 50%, transparent)",
+        "purpose": "Halo of the Aura and the ascent bar glow."
+      },
+      {
+        "name": "--accent-ink",
+        "value": "var(--abyss)",
+        "purpose": "Text on accent fills."
+      },
+      {
+        "name": "selection",
+        "value": "color-mix(in oklab, var(--accent) 35%, transparent)",
+        "purpose": "Text selection background."
+      }
+    ],
+    "typographyMeta": {
+      "hero-number": {
+        "displayName": "Hero number",
+        "purpose": "The CF rating on Home Base and the level on Achievements. One per screen."
+      },
+      "display": {
+        "displayName": "Display",
+        "purpose": "The lead card's title on a screen and big stat values."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Screen title in the top bar; stat values inside a card."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Section and card headings inside screens, empty-state titles, list-item primaries."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "All reading text and nav labels (at 500). Max 68ch."
+      },
+      "body-sm": {
+        "displayName": "Body small",
+        "purpose": "Metadata, field hints, inline errors, small buttons."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Field and stat labels, chips, tooltips, kbd keys. Sentence case."
+      },
+      "button": {
+        "displayName": "Button",
+        "purpose": "Button text."
+      },
+      "numeric": {
+        "displayName": "Numeric",
+        "purpose": "Tabular figures for every changing or column-aligned number."
+      }
+    },
+    "shadows": [
+      {
+        "name": "slab",
+        "value": "inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 32px -16px rgba(2,6,18,0.8)",
+        "purpose": "Every glass card at rest."
+      },
+      {
+        "name": "float",
+        "value": "inset 0 1px 0 rgba(255,255,255,0.06), 0 24px 64px -20px rgba(2,6,18,0.9)",
+        "purpose": "Tooltips, popovers and dialogs."
+      },
+      {
+        "name": "aura",
+        "value": "0 0 0 1px var(--accent-line), 0 6px 24px -6px var(--accent-glow)",
+        "purpose": "Lit elements only: the active nav rail, the primary button on hover."
+      },
+      {
+        "name": "ascent-glow",
+        "value": "0 0 10px var(--accent-glow)",
+        "purpose": "Ascent bar fill once it has real progress."
+      },
+      {
+        "name": "focus",
+        "value": "0 0 0 2px var(--abyss), 0 0 0 4px var(--accent)",
+        "purpose": "Keyboard focus on every interactive element (global :focus-visible)."
+      }
+    ],
+    "motion": [
+      {
+        "name": "dur-press",
+        "value": "90ms",
+        "purpose": "Button press (scale 0.97)."
+      },
+      {
+        "name": "dur-fast",
+        "value": "160ms",
+        "purpose": "Hover and state changes."
+      },
+      {
+        "name": "dur-base",
+        "value": "240ms",
+        "purpose": "Panels and route settle (fade plus 6px rise)."
+      },
+      {
+        "name": "dur-slow",
+        "value": "420ms",
+        "purpose": "Number ticks, progress fills and reveals."
+      },
+      {
+        "name": "ceremony",
+        "value": "1200ms",
+        "purpose": "Aura Shift and achievement unlock; nebula color crossfade. Skippable, never blocks input."
+      },
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Ease-out-quint for entrances and state."
+      },
+      {
+        "name": "ease-move",
+        "value": "cubic-bezier(0.65, 0, 0.35, 1)",
+        "purpose": "Ease-in-out for movement."
+      },
+      {
+        "name": "spring",
+        "value": "spring(stiffness 380, damping 32)",
+        "purpose": "Sidebar width, active-nav rail and traveling hover highlight."
+      },
+      {
+        "name": "tooltip",
+        "value": "150ms fade + zoom from 95%; open delay 250ms, skip delay 150ms",
+        "purpose": "Tooltip enter and exit."
+      },
+      {
+        "name": "nebula-drift",
+        "value": "44s / 52s / 61s ease-in-out transform loops",
+        "purpose": "Ambient layer; paused when hidden, static under reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "window-min",
+        "value": "1100px x 700px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      },
+      {
+        "name": "content-max",
+        "value": "1440px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one committed action on a surface: Rank Aura fill, abyss text, Aura glow on hover only.",
+      "html": "<button class=\"ds-btn-primary\">Save handles</button>",
+      "css": ".ds-btn-primary{--abyss:#070b16;--abyss-raised:#0b1122;--abyss-sunken:#050812;--glass:rgba(20,29,54,.55);--glass-hover:rgba(26,37,68,.66);--glass-border:rgba(150,172,230,.1);--glass-border-strong:rgba(150,172,230,.2);--ink:#e7ecf7;--ink-muted:#9aa5bf;--ink-faint:#7a85a3;--accent:#5b8cff;--accent-next:#5b8cff;--danger:#f87171;--ember:#ff8a3d;--ember-core:#ffd27a;--platform-cf:#7fa2ff;--platform-lc:#ffa116}.ds-btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 16px;border-radius:8px;font-family:'Geist Variable',Geist,'Segoe UI',system-ui,sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background-color 160ms cubic-bezier(.22,1,.36,1),border-color 160ms cubic-bezier(.22,1,.36,1),box-shadow 160ms cubic-bezier(.22,1,.36,1),transform 90ms cubic-bezier(.22,1,.36,1);background:var(--accent);color:var(--abyss);border:none;}.ds-btn-primary:hover{box-shadow:0 0 0 1px color-mix(in oklab,var(--accent) 45%,transparent),0 6px 24px -6px color-mix(in oklab,var(--accent) 50%,transparent);}.ds-btn-primary:focus-visible{box-shadow:0 0 0 2px var(--abyss),0 0 0 4px var(--accent);outline:none;}.ds-btn-primary:active{transform:scale(.97);}"
+    },
+    {
+      "name": "Outline Button (small)",
+      "kind": "button",
+      "refersTo": "button-outline-sm",
+      "description": "The quiet next-step action in empty states and secondary card actions.",
+      "html": "<button class=\"ds-btn-outline\">Open contests</button>",
+      "css": ".ds-btn-outline{--abyss:#070b16;--abyss-raised:#0b1122;--abyss-sunken:#050812;--glass:rgba(20,29,54,.55);--glass-hover:rgba(26,37,68,.66);--glass-border:rgba(150,172,230,.1);--glass-border-strong:rgba(150,172,230,.2);--ink:#e7ecf7;--ink-muted:#9aa5bf;--ink-faint:#7a85a3;--accent:#5b8cff;--accent-next:#5b8cff;--danger:#f87171;--ember:#ff8a3d;--ember-core:#ffd27a;--platform-cf:#7fa2ff;--platform-lc:#ffa116}.ds-btn-outline{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 16px;border-radius:8px;font-family:'Geist Variable',Geist,'Segoe UI',system-ui,sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background-color 160ms cubic-bezier(.22,1,.36,1),border-color 160ms cubic-bezier(.22,1,.36,1),box-shadow 160ms cubic-bezier(.22,1,.36,1),transform 90ms cubic-bezier(.22,1,.36,1);height:32px;padding:0 12px;font-size:13px;background:var(--glass);color:var(--ink);border:1px solid var(--glass-border-strong);}.ds-btn-outline:hover{background:var(--glass-hover);}.ds-btn-outline:focus-visible{box-shadow:0 0 0 2px var(--abyss),0 0 0 4px var(--accent);outline:none;}.ds-btn-outline:active{transform:scale(.97);}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Tertiary actions such as Discard changes: transparent until hovered.",
+      "html": "<button class=\"ds-btn-ghost\">Discard changes</button>",
+      "css": ".ds-btn-ghost{--abyss:#070b16;--abyss-raised:#0b1122;--abyss-sunken:#050812;--glass:rgba(20,29,54,.55);--glass-hover:rgba(26,37,68,.66);--glass-border:rgba(150,172,230,.1);--glass-border-strong:rgba(150,172,230,.2);--ink:#e7ecf7;--ink-muted:#9aa5bf;--ink-faint:#7a85a3;--accent:#5b8cff;--accent-next:#5b8cff;--danger:#f87171;--ember:#ff8a3d;--ember-core:#ffd27a;--platform-cf:#7fa2ff;--platform-lc:#ffa116}.ds-btn-ghost{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 16px;border-radius:8px;font-family:'Geist Variable',Geist,'Segoe UI',system-ui,sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background-color 160ms cubic-bezier(.22,1,.36,1),border-color 160ms cubic-bezier(.22,1,.36,1),box-shadow 160ms cubic-bezier(.22,1,.36,1),transform 90ms cubic-bezier(.22,1,.36,1);background:transparent;color:var(--ink);border:1px solid transparent;}.ds-btn-ghost:hover{background:var(--glass-hover);border-color:var(--glass-border-strong);}.ds-btn-ghost:focus-visible{box-shadow:0 0 0 2px var(--abyss),0 0 0 4px var(--accent);outline:none;}.ds-btn-ghost:active{transform:scale(.97);}"
+    },
+    {
+      "name": "Handle Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Sunken input well with a platform-dot label and a Dusk hint below; the border turns accent on focus.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-field-label\" for=\"ds-cf\"><span class=\"ds-dot\"></span>Codeforces handle</label><input id=\"ds-cf\" class=\"ds-input\" value=\"enkrid\" spellcheck=\"false\"><p class=\"ds-hint\">Used for rating, contests and sharpening practice.</p></div>",
+      "css": ".ds-field{--abyss:#070b16;--abyss-raised:#0b1122;--abyss-sunken:#050812;--glass:rgba(20,29,54,.55);--glass-hover:rgba(26,37,68,.66);--glass-border:rgba(150,172,230,.1);--glass-border-strong:rgba(150,172,230,.2);--ink:#e7ecf7;--ink-muted:#9aa5bf;--ink-faint:#7a85a3;--accent:#5b8cff;--accent-next:#5b8cff;--danger:#f87171;--ember:#ff8a3d;--ember-core:#ffd27a;--platform-cf:#7fa2ff;--platform-lc:#ffa116}.ds-field{display:flex;flex-direction:column;gap:6px;width:280px;font-family:'Geist Variable',Geist,system-ui,sans-serif;}.ds-field-label{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;letter-spacing:.01em;color:var(--ink-muted);}.ds-dot{width:6px;height:6px;border-radius:999px;background:var(--platform-cf);}.ds-input{height:38px;padding:0 12px;border-radius:8px;border:1px solid var(--glass-border);background:var(--abyss-sunken);color:var(--ink);font:inherit;font-size:14px;caret-color:var(--accent);transition:border-color 160ms cubic-bezier(.22,1,.36,1),box-shadow 160ms cubic-bezier(.22,1,.36,1);}.ds-input::placeholder{color:var(--ink-faint);}.ds-input:hover{border-color:var(--glass-border-strong);}.ds-input:focus-visible{border-color:var(--accent);box-shadow:0 0 0 2px var(--abyss),0 0 0 4px var(--accent);outline:none;}.ds-hint{margin:0;font-size:13px;line-height:1.5;color:var(--ink-faint);}"
+    },
+    {
+      "name": "Sidebar Navigation",
+      "kind": "nav",
+      "refersTo": "nav-item",
+      "description": "Icon rail; the active item gets accent-soft fill, an accent icon and a glowing 3px rail on the sidebar edge.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Main\"><a class=\"ds-nav-item ds-active\" href=\"#\"><span class=\"ds-rail\"></span><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.1\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\"/><path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/></svg><span>Home Base</span></a><a class=\"ds-nav-item\" href=\"#\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"16\" y=\"16\" width=\"6\" height=\"6\" rx=\"1\"/><rect x=\"2\" y=\"16\" width=\"6\" height=\"6\" rx=\"1\"/><rect x=\"9\" y=\"2\" width=\"6\" height=\"6\" rx=\"1\"/><path d=\"M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3\"/><path d=\"M12 12V8\"/></svg><span>Skill Tree</span></a></nav>",
+      "css": ".ds-nav{--abyss:#070b16;--abyss-raised:#0b1122;--abyss-sunken:#050812;--glass:rgba(20,29,54,.55);--glass-hover:rgba(26,37,68,.66);--glass-border:rgba(150,172,230,.1);--glass-border-strong:rgba(150,172,230,.2);--ink:#e7ecf7;--ink-muted:#9aa5bf;--ink-faint:#7a85a3;--accent:#5b8cff;--accent-next:#5b8cff;--danger:#f87171;--ember:#ff8a3d;--ember-core:#ffd27a;--platform-cf:#7fa2ff;--platform-lc:#ffa116}.ds-nav{display:flex;flex-direction:column;gap:4px;width:220px;padding:12px 11px;background:color-mix(in oklab,var(--abyss-raised) 85%,transparent);border-right:1px solid var(--glass-border);font-family:'Geist Variable',Geist,system-ui,sans-serif;}.ds-nav-item{position:relative;display:flex;align-items:center;gap:12px;height:40px;padding:0 13px;border-radius:8px;color:var(--ink-muted);font-size:14px;font-weight:500;text-decoration:none;transition:color 160ms,background-color 160ms;}.ds-nav-item:hover{background:var(--glass-hover);color:var(--ink);}.ds-nav-item:focus-visible{box-shadow:0 0 0 2px var(--abyss),0 0 0 4px var(--accent);outline:none;}.ds-nav-item.ds-active{background:color-mix(in oklab,var(--accent) 14%,transparent);color:var(--ink);}.ds-nav-item.ds-active svg{color:var(--accent);}.ds-rail{position:absolute;top:10px;left:-11px;width:3px;height:20px;border-radius:0 999px 999px 0;background:var(--accent);box-shadow:0 0 0 1px color-mix(in oklab,var(--accent) 45%,transparent),0 6px 24px -6px color-mix(in oklab,var(--accent) 50%,transparent);}"
+    },
+    {
+      "name": "Platform Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "24px glass pill identifying a platform handle by a 6px platform-color dot.",
+      "html": "<a class=\"ds-chip\" href=\"#\"><span class=\"ds-chip-dot ds-cf\"></span>enkrid</a> <a class=\"ds-chip\" href=\"#\"><span class=\"ds-chip-dot ds-lc\"></span>xfO61DFAh6</a>",
+      "css": ".ds-chip{--abyss:#070b16;--abyss-raised:#0b1122;--abyss-sunken:#050812;--glass:rgba(20,29,54,.55);--glass-hover:rgba(26,37,68,.66);--glass-border:rgba(150,172,230,.1);--glass-border-strong:rgba(150,172,230,.2);--ink:#e7ecf7;--ink-muted:#9aa5bf;--ink-faint:#7a85a3;--accent:#5b8cff;--accent-next:#5b8cff;--danger:#f87171;--ember:#ff8a3d;--ember-core:#ffd27a;--platform-cf:#7fa2ff;--platform-lc:#ffa116}.ds-chip{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;border:1px solid var(--glass-border);background:var(--glass);color:var(--ink-muted);font-family:'Geist Variable',Geist,system-ui,sans-serif;font-size:12px;font-weight:500;text-decoration:none;transition:border-color 160ms,color 160ms;}.ds-chip:hover{border-color:var(--glass-border-strong);color:var(--ink);}.ds-chip:focus-visible{box-shadow:0 0 0 2px var(--abyss),0 0 0 4px var(--accent);outline:none;}.ds-chip-dot{width:6px;height:6px;border-radius:999px;}.ds-cf{background:var(--platform-cf);}.ds-lc{background:var(--platform-lc);}"
+    },
+    {
+      "name": "Glass Card",
+      "kind": "card",
+      "refersTo": "card-glass",
+      "description": "Frosted slab over the nebula: 16px radius, hairline border, Slab shadow, 16px Geist title.",
+      "html": "<section class=\"ds-card\"><h2 class=\"ds-card-title\">Today's quest</h2><p class=\"ds-card-body\">Quests target your weakest topics, so the first one is picked after your solve history loads.</p></section>",
+      "css": ".ds-card{--abyss:#070b16;--abyss-raised:#0b1122;--abyss-sunken:#050812;--glass:rgba(20,29,54,.55);--glass-hover:rgba(26,37,68,.66);--glass-border:rgba(150,172,230,.1);--glass-border-strong:rgba(150,172,230,.2);--ink:#e7ecf7;--ink-muted:#9aa5bf;--ink-faint:#7a85a3;--accent:#5b8cff;--accent-next:#5b8cff;--danger:#f87171;--ember:#ff8a3d;--ember-core:#ffd27a;--platform-cf:#7fa2ff;--platform-lc:#ffa116}.ds-card{max-width:340px;padding:20px;border-radius:16px;border:1px solid var(--glass-border);background:var(--glass);box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 12px 32px -16px rgba(2,6,18,.8);backdrop-filter:blur(16px) saturate(140%);font-family:'Geist Variable',Geist,system-ui,sans-serif;}.ds-card-title{margin:0 0 8px;font-size:16px;font-weight:600;line-height:1.35;color:var(--ink);}.ds-card-body{margin:0;font-size:13px;line-height:1.5;color:var(--ink-muted);}"
+    },
+    {
+      "name": "Level Badge",
+      "kind": "custom",
+      "refersTo": "level-badge",
+      "description": "The one chamfered plate: Lv label, Chakra Petch numeral, 2px accent XP line on the bottom edge. Shown lit; unlit uses glass fill and Mist text.",
+      "html": "<a class=\"ds-level\" href=\"#\"><span class=\"ds-level-plate\"><span class=\"ds-level-lv\">Lv</span><span class=\"ds-level-num\">7</span><span class=\"ds-level-xp\"></span></span></a>",
+      "css": ".ds-level{--abyss:#070b16;--abyss-raised:#0b1122;--abyss-sunken:#050812;--glass:rgba(20,29,54,.55);--glass-hover:rgba(26,37,68,.66);--glass-border:rgba(150,172,230,.1);--glass-border-strong:rgba(150,172,230,.2);--ink:#e7ecf7;--ink-muted:#9aa5bf;--ink-faint:#7a85a3;--accent:#5b8cff;--accent-next:#5b8cff;--danger:#f87171;--ember:#ff8a3d;--ember-core:#ffd27a;--platform-cf:#7fa2ff;--platform-lc:#ffa116}.ds-level{display:inline-block;border-radius:6px;text-decoration:none;}.ds-level:focus-visible{box-shadow:0 0 0 2px var(--abyss),0 0 0 4px var(--accent);outline:none;}.ds-level-plate{position:relative;display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;clip-path:polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px);background:color-mix(in oklab,var(--accent) 14%,transparent);color:var(--ink);transition:background-color 160ms;}.ds-level-lv{font-family:'Geist Variable',Geist,system-ui,sans-serif;font-size:12px;font-weight:500;}.ds-level-num{font-family:'Chakra Petch','Geist Variable',system-ui,sans-serif;font-size:16px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums;}.ds-level-xp{position:absolute;left:0;bottom:0;height:2px;width:62%;background:var(--accent);}"
+    },
+    {
+      "name": "Ascent Bar",
+      "kind": "custom",
+      "refersTo": "ascent-bar",
+      "description": "2px meter under the top bar: current-rank to next-rank gradient over a strong-hairline track, glowing once there is progress.",
+      "html": "<div class=\"ds-ascent\" role=\"meter\" aria-label=\"Progress to next rank\" aria-valuemin=\"0\" aria-valuemax=\"100\" aria-valuenow=\"58\"><div class=\"ds-ascent-fill\"></div></div>",
+      "css": ".ds-ascent{--abyss:#070b16;--abyss-raised:#0b1122;--abyss-sunken:#050812;--glass:rgba(20,29,54,.55);--glass-hover:rgba(26,37,68,.66);--glass-border:rgba(150,172,230,.1);--glass-border-strong:rgba(150,172,230,.2);--ink:#e7ecf7;--ink-muted:#9aa5bf;--ink-faint:#7a85a3;--accent:#5b8cff;--accent-next:#5b8cff;--danger:#f87171;--ember:#ff8a3d;--ember-core:#ffd27a;--platform-cf:#7fa2ff;--platform-lc:#ffa116}.ds-ascent{--accent-next:#b46cff;position:relative;width:420px;height:2px;background:var(--glass-border-strong);}.ds-ascent-fill{position:absolute;inset:0 auto 0 0;width:58%;background:linear-gradient(90deg,var(--accent),var(--accent-next));box-shadow:0 0 10px color-mix(in oklab,var(--accent) 50%,transparent);}"
+    },
+    {
+      "name": "Empty State",
+      "kind": "custom",
+      "refersTo": "card-glass",
+      "description": "Honest nothing-yet pattern: 40px accent-soft icon tile, 16px title, body that says what will appear, optional small outline action.",
+      "html": "<div class=\"ds-empty\"><span class=\"ds-empty-tile\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 9H4.5a2.5 2.5 0 0 1 0-5H6\"/><path d=\"M18 9h1.5a2.5 2.5 0 0 0 0-5H18\"/><path d=\"M4 22h16\"/><path d=\"M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22\"/><path d=\"M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22\"/><path d=\"M18 2H6v7a6 6 0 0 0 12 0V2Z\"/></svg></span><h2 class=\"ds-empty-title\">Nothing unlocked yet</h2><p class=\"ds-empty-body\">Achievements mark real milestones: rank promotions, long streaks, topics mastered.</p><button class=\"ds-empty-btn\">Check your handles</button></div>",
+      "css": ".ds-empty{--abyss:#070b16;--abyss-raised:#0b1122;--abyss-sunken:#050812;--glass:rgba(20,29,54,.55);--glass-hover:rgba(26,37,68,.66);--glass-border:rgba(150,172,230,.1);--glass-border-strong:rgba(150,172,230,.2);--ink:#e7ecf7;--ink-muted:#9aa5bf;--ink-faint:#7a85a3;--accent:#5b8cff;--accent-next:#5b8cff;--danger:#f87171;--ember:#ff8a3d;--ember-core:#ffd27a;--platform-cf:#7fa2ff;--platform-lc:#ffa116}.ds-empty{display:flex;flex-direction:column;align-items:flex-start;gap:8px;max-width:52ch;font-family:'Geist Variable',Geist,system-ui,sans-serif;}.ds-empty-tile{display:grid;place-items:center;width:40px;height:40px;margin-bottom:8px;border-radius:12px;background:color-mix(in oklab,var(--accent) 14%,transparent);color:var(--accent);}.ds-empty-title{margin:0;font-size:16px;font-weight:600;line-height:1.35;color:var(--ink);}.ds-empty-body{margin:0;font-size:14px;line-height:1.55;color:var(--ink-muted);}.ds-empty-btn{margin-top:12px;height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--glass-border-strong);background:var(--glass);color:var(--ink);font:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:background-color 160ms,transform 90ms;}.ds-empty-btn:hover{background:var(--glass-hover);}.ds-empty-btn:focus-visible{box-shadow:0 0 0 2px var(--abyss),0 0 0 4px var(--accent);outline:none;}.ds-empty-btn:active{transform:scale(.97);}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Rank Aura",
+    "overview": "AlgoCompass should feel like the character screen of a premium RPG, the one you open between runs to see how far you've come. It is still a precise instrument you read in two seconds. The ground is a deep navy night (never pure black). Data sits on frosted glass slabs that catch a single colored light, and that light is **your current Codeforces rank**. A pupil sees the app in green. An expert sees it in blue. Promotion to Candidate Master repaints the whole interface violet. The accent is not a brand color you chose. It is a status you earned, and that is what makes the app addictive without making it noisy.\n\nEverything else stays disciplined. The type is a clean, chamfered display face for numbers and titles over a quiet workhorse sans. Density is moderate and glanceable. Motion is fast. One ambient layer (a slow nebula in the accent color behind the glass) keeps the screen alive while you aren't touching it. Rewards are quick and celebratory (streak flame, level badge, node unlocks), but they never get between the user and the numbers. \"Too slow\" and \"too dry\" are the two failures this system exists to avoid.\n\nBefore the first sync there is no data, and the shell says so honestly. Unearned things stay unlit: the level badge sits on plain glass, the streak flame is a faint outline, numbers are an en dash in faint ink, and the skill tree is a locked silhouette with no labels or values. Light arrives with real data, never ahead of it.",
+    "keyCharacteristics": [
+      "Deep navy-black ground with frosted glass cards and soft hairline borders.",
+      "One accent, driven by one CSS variable, whose value is the live Codeforces rank color.",
+      "Display face for numbers, ranks and screen titles. Workhorse sans for everything you read.",
+      "Glow is a reward, not a texture. Only a few elements per screen are lit.",
+      "Fast, responsive motion. One ambient layer. Ceremonies only on real events.",
+      "Honest empty states: unearned elements stay unlit until real data exists."
+    ],
+    "rules": [
+      {
+        "name": "The Earned Light Rule",
+        "body": "The accent is always the user's real rank color. Never pick it for aesthetics, and never show a rank color the user hasn't earned as chrome. A future rank may appear only as the *destination* tip of the ascent bar. Anything that represents an unearned status (a level, a streak, a node) stays unlit until real data exists.",
+        "section": "colors"
+      },
+      {
+        "name": "The Three Lights Rule",
+        "body": "At most three elements per screen glow (halo shadow) at rest. The active nav rail always counts, and so does the ascent bar fill once a real rating exists. Everything else uses accent fills and borders without a halo.",
+        "section": "colors"
+      },
+      {
+        "name": "The Sentence Case Rule",
+        "body": "No all-caps labels and no tracked-out eyebrows. Labels are sentence case at 12px. Hierarchy comes from size and weight.",
+        "section": "typography"
+      },
+      {
+        "name": "The Steady Digits Rule",
+        "body": "Any number that animates or aligns in a column uses tabular figures, so tickers never jitter in width.",
+        "section": "typography"
+      },
+      {
+        "name": "The Glow Is a Reward Rule",
+        "body": "A halo means \"this is yours, current, or earned\": the active nav item, your rank progress, today's quest, a mastered node. It never decorates a neutral container.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do drive every accent usage from `--accent` (with derived tints from `color-mix()`), so a rank change recolors the whole app from one variable.",
+      "Do keep motion fast: 90ms press, 160ms hover and state, 240ms panel and route, 420ms number tick and reveal. Use ease-out-quint `cubic-bezier(0.22, 1, 0.36, 1)` for entrances and ease-in-out `cubic-bezier(0.65, 0, 0.35, 1)` for movement. Use a spring (stiffness 380, damping 32) for the sidebar and the active-nav rail.",
+      "Do animate only `transform`, `opacity`, `filter` and `box-shadow`. Number tickers animate value changes, not every render.",
+      "Do settle route changes with a 240ms fade and a 6px rise, with no exit animation.",
+      "Do reserve ceremony (up to 1.2s, the Aura Shift, achievement unlock) for real events. It is skippable with a click or Esc, and it never blocks input. The nebula crossfades to a new rank color over 1.2s.",
+      "Do keep the ambient nebula GPU-cheap: three blurred gradients drifting on 40–60s transform loops, paused when the window is hidden, and static under `prefers-reduced-motion`.",
+      "Do pair every state color with an icon and words.",
+      "Do show an honest empty or unknown state (an en dash in Dusk, an unlit badge, a locked silhouette) instead of a placeholder number.",
+      "Do give every icon-only control a tooltip, and show its keyboard shortcut in a kbd key when it has one."
+    ],
+    "donts": [
+      "Don't use pure black (#000) or neutral greys. Every neutral is navy-tinted.",
+      "Don't make more than three things glow at rest on one screen.",
+      "Don't stagger-animate every card on every visit. Home Base gets one orchestrated reveal per day (first open). After that, content is just there.",
+      "Don't add confetti, XP popups on routine clicks, or anything looping that isn't tied to data.",
+      "Don't animate layout properties (width and height except the sidebar spring, top/left, margins), and don't replay chart entrance animations on refetch.",
+      "Don't use all-caps labels, monospace data labels, or color-only status.",
+      "Don't let any transition delay input. If the user clicks during an animation, the animation yields.",
+      "Don't light an element for a status the user hasn't earned yet, even as a preview."
+    ]
+  }
+}

@@ -1,0 +1,274 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@import "@fontsource-variable/geist";
+@import "@fontsource/chakra-petch/500.css";
+@import "@fontsource/chakra-petch/600.css";
+
+/*
+ * Design tokens from DESIGN.md ("The Rank Aura"). DESIGN.md frontmatter is normative;
+ * keep these values in sync with it.
+ *
+ * `--accent` is the Rank Aura: the user's live Codeforces rank color, set at runtime
+ * by `applyRankAccent()` (src/lib/rank.ts). Every accent tint derives from it.
+ * Note: unlike stock shadcn, `accent` here is NOT a neutral hover fill. Use
+ * `bg-glass-hover` for hover surfaces when adapting shadcn components.
+ */
+:root {
+  /* Ground */
+  --abyss: #070b16;
+  --abyss-raised: #0b1122;
+  --abyss-sunken: #050812;
+
+  /* Glass */
+  --glass: rgba(20, 29, 54, 0.55);
+  --glass-hover: rgba(26, 37, 68, 0.66);
+  --glass-border: rgba(150, 172, 230, 0.1);
+  --glass-border-strong: rgba(150, 172, 230, 0.2);
+
+  /* Ink */
+  --ink: #e7ecf7;
+  --ink-muted: #9aa5bf;
+  --ink-faint: #7a85a3;
+
+  /* Rank palette */
+  --rank-newbie: #a4acbd;
+  --rank-pupil: #4cdb84;
+  --rank-specialist: #27d5c7;
+  --rank-expert: #5b8cff;
+  --rank-candidate-master: #b46cff;
+  --rank-master: #ff9b3d;
+  --rank-grandmaster: #ff4f5e;
+
+  /* Fixed hues */
+  --ember: #ff8a3d;
+  --ember-core: #ffd27a;
+  --success: #6ee7a8;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --platform-cf: #7fa2ff;
+  --platform-lc: #ffa116;
+  --nebula-deep: #2a3a78;
+
+  /* Rank Aura (runtime-driven; expert is the pre-sync fallback) */
+  --accent: var(--rank-expert);
+  --accent-next: var(--accent);
+  --accent-soft: color-mix(in oklab, var(--accent) 14%, transparent);
+  --accent-line: color-mix(in oklab, var(--accent) 45%, transparent);
+  --accent-glow: color-mix(in oklab, var(--accent) 50%, transparent);
+  --accent-ink: var(--abyss);
+
+  /* Elevation */
+  --shadow-slab: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 12px 32px -16px rgba(2, 6, 18, 0.8);
+  --shadow-float: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 24px 64px -20px rgba(2, 6, 18, 0.9);
+  --shadow-aura: 0 0 0 1px var(--accent-line), 0 6px 24px -6px var(--accent-glow);
+  --ring-focus: 0 0 0 2px var(--abyss), 0 0 0 4px var(--accent);
+
+  /* Motion */
+  --dur-press: 90ms;
+  --dur-fast: 160ms;
+  --dur-base: 240ms;
+  --dur-slow: 420ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-move: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Shell metrics */
+  --titlebar-h: 36px;
+  --topbar-h: 48px;
+  --sidebar-w: 64px;
+  --sidebar-w-expanded: 220px;
+}
+
+@theme inline {
+  --color-abyss: var(--abyss);
+  --color-abyss-raised: var(--abyss-raised);
+  --color-abyss-sunken: var(--abyss-sunken);
+  --color-glass: var(--glass);
+  --color-glass-hover: var(--glass-hover);
+  --color-glass-border: var(--glass-border);
+  --color-glass-border-strong: var(--glass-border-strong);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-line: var(--accent-line);
+  --color-accent-ink: var(--accent-ink);
+  --color-ember: var(--ember);
+  --color-ember-core: var(--ember-core);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-platform-cf: var(--platform-cf);
+  --color-platform-lc: var(--platform-lc);
+  --color-rank-newbie: var(--rank-newbie);
+  --color-rank-pupil: var(--rank-pupil);
+  --color-rank-specialist: var(--rank-specialist);
+  --color-rank-expert: var(--rank-expert);
+  --color-rank-candidate-master: var(--rank-candidate-master);
+  --color-rank-master: var(--rank-master);
+  --color-rank-grandmaster: var(--rank-grandmaster);
+
+  /* shadcn semantic aliases, mapped onto the Rank Aura system */
+  --color-background: var(--abyss);
+  --color-foreground: var(--ink);
+  --color-primary: var(--accent);
+  --color-primary-foreground: var(--accent-ink);
+  --color-muted: var(--abyss-sunken);
+  --color-muted-foreground: var(--ink-muted);
+  --color-popover: var(--abyss-raised);
+  --color-popover-foreground: var(--ink);
+  --color-card: var(--glass);
+  --color-card-foreground: var(--ink);
+  --color-border: var(--glass-border);
+  --color-input: var(--glass-border);
+  --color-ring: var(--accent);
+  --color-destructive: var(--danger);
+
+  --font-display: "Chakra Petch", "Geist Variable", system-ui, sans-serif;
+  --font-sans: "Geist Variable", "Segoe UI", system-ui, sans-serif;
+
+  /* Type scale (DESIGN.md typography) */
+  --text-hero: 56px;
+  --text-hero--line-height: 1;
+  --text-display: 32px;
+  --text-display--line-height: 1.1;
+  --text-headline: 22px;
+  --text-headline--line-height: 1.2;
+  --text-title: 16px;
+  --text-title--line-height: 1.35;
+  --text-body: 14px;
+  --text-body--line-height: 1.55;
+  --text-body-sm: 13px;
+  --text-body-sm--line-height: 1.5;
+  --text-label: 12px;
+  --text-label--line-height: 1.3;
+
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+
+  --shadow-slab: var(--shadow-slab);
+  --shadow-float: var(--shadow-float);
+  --shadow-aura: var(--shadow-aura);
+
+  --ease-out-quint: var(--ease-out);
+  --ease-move: var(--ease-move);
+}
+
+@layer base {
+  * {
+    @apply border-glass-border;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--abyss);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+    user-select: none;
+    cursor: default;
+    caret-color: var(--accent);
+  }
+
+  input,
+  textarea,
+  [contenteditable] {
+    user-select: text;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--accent) 35%, transparent);
+    color: var(--ink);
+  }
+
+  :focus-visible {
+    outline: none;
+    box-shadow: var(--ring-focus);
+  }
+
+  /* Scrollbars belong to the system too */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--glass-border-strong) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--glass-border-strong);
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@utility glass-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-slab);
+  backdrop-filter: blur(16px) saturate(140%);
+}
+
+@utility numeric {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Ambient nebula: GPU-cheap, transform-only drift */
+@keyframes nebula-drift-a {
+  0% { transform: translate3d(-6%, -4%, 0) scale(1); }
+  50% { transform: translate3d(6%, 4%, 0) scale(1.12); }
+  100% { transform: translate3d(-6%, -4%, 0) scale(1); }
+}
+@keyframes nebula-drift-b {
+  0% { transform: translate3d(5%, 6%, 0) scale(1.08); }
+  50% { transform: translate3d(-7%, -3%, 0) scale(0.94); }
+  100% { transform: translate3d(5%, 6%, 0) scale(1.08); }
+}
+@keyframes nebula-drift-c {
+  0% { transform: translate3d(0, 0, 0) scale(0.9); }
+  50% { transform: translate3d(-4%, 7%, 0) scale(1.05); }
+  100% { transform: translate3d(0, 0, 0) scale(0.9); }
+}
+
+.nebula-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  will-change: transform;
+  transition: background-color 1200ms var(--ease-move);
+}
+
+.ambient-paused .nebula-blob {
+  animation-play-state: paused !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nebula-blob {
+    animation: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+  }
+}
