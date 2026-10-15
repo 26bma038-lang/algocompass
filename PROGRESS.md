@@ -1,6 +1,59 @@
 # AlgoCompass progress log
 
-## Latest: public release, Phase 10 (2026-10-15)
+## Latest: v1.1.0, the redesign everywhere (Phase 11, 2026-10-15)
+
+**Shipped as v1.1.0** (tag `v1.1.0`, release https://github.com/26bma038-lang/algocompass/releases/tag/v1.1.0). `npm test` passes (287), `npm run build` is green, and `npm run tauri build` produced the 1.1.0 installers (sizes below).
+
+**What changed**
+1. **The redesign is merged** (`32a6c24`): three themes, rank colour only on rank elements, and the Home Base bento. The `redesign` worktree and branch are removed.
+2. **Bento on every screen** (`0afc348`): 12-column grid, 24px gaps, glass cards with 24px padding, and one shared `CardHeader` (`src/components/CardHeader.tsx`) with a 22px Chakra Petch title, a description, a count pill and actions.
+   - **Skill Tree:** the three Work on next topics are tiles with their reasons, and the canvas is the hero card with filters and search in its header. It keeps its full height (the space above it is still 154px).
+   - **Topic Detail:** a hero tile (ring, status, builds on, the Codeforces/LeetCode split), stat tiles, then Upsolve / Solved / Recommended / Resources as cards with count pills.
+   - **Practice:** Today's mix leads, then Upsolve beside By topic.
+   - **Quests:** Today's quests beside Level, then This week beside the Weekly review.
+   - **Contests:** the next round leads (countdown in the theme accent), upcoming rounds sit beside past contests, and the **full rating chart** is now here. It loads Recharts only on this screen.
+   - **Achievements:** the level hero, then a card per category with a "2 of 7" pill and the achievements as tiles.
+   - **Home Base / Settings / Welcome:** the remaining card titles use the same 22px style. Later contests is now a proper card with sunken tiles.
+3. **README:**
+   - Every screenshot re-taken in Neon Arcade at 1280x800.
+   - A new Themes section with Ember and Ocean shots.
+   - The Home Base, Skill Tree, Contests and Settings descriptions are updated.
+   - The installer name is version-agnostic.
+4. **Docs:**
+   - DESIGN.md gets "Bento across the app".
+   - CLAUDE.md and PRODUCT.md now describe the colour roles: the theme owns the accent, and the rank colour marks rank elements.
+
+**Impeccable critique** (one in-context pass, no sub-agents): 30 screenshots, all 8 screens in Neon Arcade, Ember and Ocean at 1100x700, plus 6 screens at 1920x1080.
+- **Fixed (P1):** on Practice and Quests, card-header actions (pill, New mix) wrapped under long descriptions. The title block now flexes, so they stay right.
+- **Fixed (P2):** the activity heatmap's first two month labels collided ("JanFeb") when the window started late in a month. The first column is now labelled only when it starts in the first half of its month.
+- **Checked:** the themes read well on every screen, with no contrast problems; the Skill Tree canvas keeps its height; the Topic Detail panel fits 440px; the past-contests table no longer collides.
+- **Left as is (P2):**
+  - On very wide windows, Home Base's equal-height rows leave space at the bottom of the shorter card. Equal rows are the bento rule.
+  - Settings stays one readable form column below 1536px.
+
+**Decisions**
+- **All top-level card titles use one size** (22px Chakra Petch), except EmptyState (16px per DESIGN.md) and the small "Codeforces" label inside the Home hero.
+- **The full rating chart moved to Contests** rather than being deleted with Home Base's old layout. Rating changes happen there, and Home Base keeps the sparkline.
+- **`docs/redesign/` is removed**, superseded by `docs/screenshots/theme-*.png` and the re-taken README shots.
+- **No stale commit hashes to fix (correction).** In v1.0 I said PROGRESS.md quoted pre-rewrite commit hashes. It doesn't. I checked all 22 pre-rewrite hashes against the whole repo (PROGRESS.md, README, every doc) and project memory: none appear. The release history below lists the current hashes, so there's an accurate reference.
+
+**Release history (current hashes, after the email rewrite)**
+
+| Version / phase | Commits |
+|---|---|
+| Scaffold, data layer, topic engine | `2e8ad84`, `61da780`, `745854b` |
+| Home Base, polish | `f14b472`, `5651c47` |
+| Skill Tree + Topic Detail | `cbc5997` |
+| Recommender + Practice | `b3362a4` |
+| Quests, Contests, reminders, weekly review (Phase 7) | `ca55c31`, `9dc9c45`, `cb10213`, `577bf70`, `e8f4bb5` |
+| XP, achievements (Phase 8) | `b649686`, `b1f9258`, `cfc682b` |
+| v1.0 polish, palette, bundle split, release prep (Phase 9) | `d295ad9`, `b273969`, `c09c84c`, `93c5077`, `21a969c` |
+| **v1.0.0** onboarding, README, public release (Phase 10) | `d5bf33a`, `3bcc6ed`, `006ca16`, `180e0c2` (tag `v1.0.0`) |
+| **v1.1.0** redesign + bento everywhere (Phase 11) | `3b00c70`, `32a6c24`, `0afc348`, then the release commits (tag `v1.1.0`) |
+
+---
+
+## Previous: public release, Phase 10 (2026-10-15)
 
 **Part 1: First-run onboarding.**
 - **No default handles any more.** A new install opens on a welcome screen (title bar only, no sidebar or top bar):

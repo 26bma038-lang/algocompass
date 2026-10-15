@@ -19,10 +19,15 @@ AlgoCompass answers those in a two-second glance, from the tray, without logins 
 ## Features
 
 ### Home Base: the daily check-in
-Your Codeforces rating and progress to the next rank, the streak, today's quests, the one topic to work on next (with the two problems to start with), and the next Codeforces round. All of it fits in the window at 1100×700. The app's accent colour is your real Codeforces rank colour, and it changes when you get promoted.
+A bento grid that answers "am I on track today?" at a glance:
+- **The hero:** your Codeforces rating in your real rank colour, a rating sparkline, progress to the next rank, and a countdown to the next round.
+- **Today's two cards:** the topic to work on next (with the two problems to start with), and your streak with today's quests.
+- **Below:** your activity heatmap, LeetCode, the later contests, and where you stand.
+
+The hero and both cards fit in the window at 1100×700.
 
 ### Skill Tree
-33 topics on a prerequisite graph (built with React Flow). Each node has a mastery ring scored 0–100 from your own solves. Topics unlock as their prerequisites reach Developing, and the three most urgent ones are marked "Work on next".
+33 topics on a prerequisite graph (built with React Flow). Each node has a mastery ring scored 0–100 from your own solves. Topics unlock as their prerequisites reach Developing. The three most urgent ones lead the screen as "Work on next" tiles, each with its reason.
 
 ![Skill Tree](docs/screenshots/skill-tree.png)
 
@@ -46,7 +51,7 @@ Three daily quests drawn from your mix. They check themselves off when a sync se
 ![Quests](docs/screenshots/quests.png)
 
 ### Contests
-Upcoming Codeforces rounds come first, with LeetCode weekly and biweekly contests below them. Each shows a countdown, local start time, duration and division, plus a Register button. Mark "I'll attend" to get Windows reminders 1 hour and 10 minutes before. Past rounds show your rank, problems solved and rating change.
+Upcoming Codeforces rounds come first, with LeetCode weekly and biweekly contests below them. Each shows a countdown, local start time, duration and division, plus a Register button. Mark "I'll attend" to get Windows reminders 1 hour and 10 minutes before. Past rounds show your rank, problems solved and rating change, and a full rating chart shows every rated round against the rank bands.
 
 ![Contests](docs/screenshots/contests.png)
 
@@ -61,9 +66,19 @@ A command palette to jump to any screen or topic, sync, or open today's mix or t
 ![Command palette](docs/screenshots/palette.png)
 
 ### Settings
-Your handles, weekly goals (Codeforces problems, LeetCode problems and contests per week), a toggle for each notification with the evening reminder time, and launch on Windows startup.
+- Your handles and the theme.
+- Weekly goals: Codeforces problems, LeetCode problems and contests per week.
+- A toggle for each notification, with the evening reminder time.
+- Launch on Windows startup.
 
 ![Settings](docs/screenshots/settings.png)
+
+### Themes
+Three vibrant themes: **Neon Arcade** (electric violet and cyan, the default), **Ember** (orange and gold on charcoal) and **Ocean** (teal and bright blue on navy). Every theme is contrast-checked for readability. Your Codeforces rank colour stays on the things it belongs to: your rating, your rank and your progress to the next rank.
+
+| Ember | Ocean |
+|---|---|
+| ![Ember theme](docs/screenshots/theme-ember.png) | ![Ocean theme](docs/screenshots/theme-ocean.png) |
 
 ### Desktop
 - Lives in the system tray, with a tray menu showing today's quest progress.
@@ -104,7 +119,7 @@ LeetCode GQL ───┘   (normalize)  (cache)└─ quests / XP ──┘
 
 ## Download and install
 
-1. Download `AlgoCompass_1.0.0_x64-setup.exe` (or the `.msi`) from the **[latest release](https://github.com/26bma038-lang/algocompass/releases/latest)**.
+1. Download the `AlgoCompass_…_x64-setup.exe` installer (or the `.msi`) from the **[latest release](https://github.com/26bma038-lang/algocompass/releases/latest)**.
 2. Run it. The app isn't code-signed, so Windows SmartScreen will warn: click **More info → Run anyway**.
 3. Enter your Codeforces handle (and optionally your LeetCode username) on the welcome screen.
 
