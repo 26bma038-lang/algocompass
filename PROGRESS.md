@@ -1,6 +1,82 @@
 # AlgoCompass progress log
 
-## Latest: Achievements, levels and progression, Phase 8 (2026-10-15)
+## Latest: v1.0.0 release, Phase 9 (2026-10-15)
+
+**AlgoCompass 1.0.0 is built and tagged.** Each part is committed. `npm test` passes (277 tests), `npm run build` is green, and `npm run tauri build` produced the installers:
+- `src-tauri/target/release/bundle/nsis/AlgoCompass_1.0.0_x64-setup.exe` (4.19 MiB, NSIS installer, recommended)
+- `src-tauri/target/release/bundle/msi/AlgoCompass_1.0.0_x64_en-US.msi` (5.57 MiB)
+- The Rust release build took 3m 40s.
+
+**What v1.0 is:** all eight screens (Home Base, Skill Tree, Topic Detail, Practice, Quests, Contests, Achievements, Settings), on your real Codeforces and LeetCode data. It has:
+- topic strength and a recommender
+- daily quests, XP and levels (you're level 14, Pattern Hunter, with 12 of 31 achievements)
+- contest reminders and a streak nudge from the tray
+- launch on startup
+- a command palette
+
+**Part 1: Full design audit** (in-context pass; 16 screenshots of all 8 screens at 1100x700 and 1920x1080, plus keyboard and reduced-motion runs)
+- **Fixed the known P2 (Home Base fold):** at 1100x700, the rating, Work on next, today's quests and the next Codeforces round now sit above the fold, with the top of the rating chart in view. The Today card is one streak line over Work on next and today's quests side by side. The next round moved under the rating, since that's where the rating moves.
+- **P1, Contests at 1920:** the past-contests columns collided ("1 of 710,002") and "1 solved" wrapped. Fixed with column padding and no-wrap.
+- **P1, reduced motion:** tooltips stayed stuck open while tabbing. The global rule shortened animations to 1ms, and Radix waits for exit animations to end. Reduced motion now means `animation: none`.
+- **P2, Settings at 1920:** a 640px column in a 1,856px window. It's two columns from 1536px now.
+- **P2, kbd keys** fell back to the browser's monospace (DESIGN.md forbids monospace labels). They use Geist now.
+- **Checked and fine:**
+  - The tab order runs nav, then top bar, then content, with a visible focus ring on every stop.
+  - The nebula is static under reduced motion, and the ceremonies snap.
+  - Glow stays within three lights.
+  - Every screen has a loading line and an honest empty state.
+- **Left as is (P3):** at 1920 the 1440px content column leaves a wide margin on the right. That's DESIGN.md's max width, by design.
+
+**Part 2: Command palette and shortcuts**
+- **Ctrl+K** (or the new search button in the top bar) opens a palette built on cmdk and styled as DESIGN.md's Float plane:
+  - Actions: Sync now, Open today's mix, Open next contest, Keyboard shortcuts, Toggle sidebar.
+  - All 7 screens, and all 33 topics (selecting one opens Topic Detail). You can search topics by name or by any CF/LC tag.
+  - It's fully usable from the keyboard (arrows, Enter, Esc); I tested it end to end with Playwright.
+- **Ranking** (`src/lib/paletteScore.ts`, 4 tests): cmdk's built-in fuzzy ranking put "Open today's mix" above Dynamic programming for "dp", because keywords matched loosely. The custom ranking prefers name prefix, then word start, exact tag, initials, tag prefix and substring; a loose match on the name comes last.
+- **Ctrl+R** syncs instead of reloading the webview. **?** opens a cheat sheet with every shortcut.
+- **Decision:** CLAUDE.md asks to check 21st.dev before hand-building a command palette. I used shadcn/ui's Command (cmdk) instead, since shadcn is already our component library, and saved the usage.
+
+**Part 3: Performance**
+
+| | Before | After |
+|---|---|---|
+| Main JS chunk | 1,472 kB (441 kB gzip) | 472 kB (151 kB gzip) |
+| JS loaded at startup | 1,439 kB | 812 kB |
+| App shell visible | 1,334 ms | 1,168 ms (−12%) |
+| Home Base content visible | 1,427 ms | 1,294 ms (−9%) |
+| sql.js + WASM in the desktop bundle | 700 kB | none |
+
+- **How it was measured:** Playwright against `vite preview` of each build, CPU throttled 4x, median of 5 cold loads. The desktop app loads from disk, so its absolute times are lower; the relative change carries over.
+- **Route splitting:** every screen except Home Base is `React.lazy`. The Skill Tree chunk (235 kB) carries @xyflow/react and dagre, and Home Base lazy-loads Recharts (352 kB) right after first paint.
+- **INEFFECTIVE_DYNAMIC_IMPORT:** both warnings are gone. `catalog.ts` and `quests.ts` are now imported statically everywhere. recommendations ↔ quests is a circular import, which is safe because neither touches the other at module load.
+- **sql.js:** `vite.config.ts` exposes `TAURI_ENV_*`, so in `tauri build` the database driver folds to tauri-plugin-sql and sql.js is never bundled. I confirmed the real `tauri build` output has no `sql-wasm` files. Plain `npm run dev` keeps it for browser work.
+
+**Part 4: Release prep**
+- **App icon:** Canva generated the concept: a diagonal compass needle with a ring hub and two skill-tree nodes branching off it, azure on navy. Canva only returns a 200x200 JPG with opaque black corners, which isn't usable as a Windows icon. So I redrew the concept as a vector (`src-tauri/icons/source/algocompass-icon.svg`) and rendered it to a 1024x1024 PNG with transparent corners. It's checked at 16/24/32/64px on light and dark taskbars. `npm run tauri icon` generated every size. I deleted the Android and iOS sets it also wrote, since there are no mobile targets.
+- **Bundle identifier: left as `com.algocompass.app`, on purpose.** The warning is about macOS `.app` bundles, and this is a Windows-only app. A new identifier would:
+  - move your data folder (`%APPDATA%\com.algocompass.app`: the SQLite database, settings, reminder state) and the WebView2 data,
+  - change the installer's registry identity, risking two installed copies side by side,
+  - need the data copied before tauri-plugin-sql preloads the database at startup, which happens before the app's own setup code runs.
+  
+  That's not a simple, risk-free migration, so per your rule I left it. Your data stays where it is.
+- **Version 1.0.0** in package.json, tauri.conf.json and Cargo.toml.
+- **README.md:** what it is, 7 screenshots (`docs/screenshots/`, 1280x800, your real data), install steps, building from source, tech stack, privacy.
+
+**Blocked / needs Sahil**
+- **The installer is unsigned.** Windows SmartScreen will warn on first run (More info → Run anyway). Signing needs a code-signing certificate.
+- **Please try it once by hand:** install the NSIS build and check that notifications now show AlgoCompass's name and icon instead of PowerShell's. Also turn on "Launch on Windows startup" and sign out and back in. I can't drive the real Windows desktop from here.
+
+**Future ideas**
+- **AI coach:** a weekly plan in plain words from your topic report, contest results and misses. It would explain *why* you got WA on a problem, using your submission history.
+- **Revision queue:** spaced repetition for solved problems you struggled with (many tries, or solved late), resurfacing them at 3, 7 and 21 days.
+- **Friends comparison:** add a few CF handles and compare ratings, topic strengths and weekly solves side by side. A small, friendly leaderboard.
+- **Problem notes:** a note per problem (key idea, mistake made), searchable from the palette, shown again when the problem comes back in Upsolve or the revision queue.
+- **Rating predictor:** an expected rating change from your live standing during a round, and a "solve these to reach Pupil" projection from your strength trend.
+- **Mobile companion:** a read-only phone view of the streak, today's quests and the next round, with the same reminders. Tauri 2's mobile targets could reuse the engine.
+
+---
+
+## Previous: Achievements, levels and progression, Phase 8 (2026-10-15)
 
 **Done: all three parts.** Each part is committed. `npm test` passes (273 tests: 24 new, replacing 2 old level tests), `npm run build` is green, and `npm run tauri dev` compiles and runs. In your real database, migration 5 is applied, and your first run recorded your level and 12 achievements quietly as the baseline.
 

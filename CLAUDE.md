@@ -41,17 +41,28 @@ src-tauri/         Rust side: window, tray, plugin registration, capabilities/pe
 - Data flow: adapters → `data/` (cache in SQLite) → `engine/` (pure analysis) → features (rendering). The app works offline from the cache, and stale data is marked as stale.
 - Never fabricate numbers. If real data is missing, show an honest empty or stale state.
 
-## Screens (planned)
+## Screens (all built, v1.0.0)
 
 | Screen | Purpose |
 |---|---|
-| **Home Base** | Daily check-in. Shows CF rating and the ascent bar, the streak, today's quest, and the next contest. It must answer "am I on track today?" in about 2 seconds. |
-| **Skill Tree** | Topic graph (@xyflow/react). Nodes show mastery rings. |
-| **Topic Detail** | One topic's strength, history, recommended LC (learn) and CF (sharpen) problems. |
-| **Quests** | Daily and weekly goals, XP. |
-| **Contests** | Upcoming and past CF contests first, LC contests secondary. Reminders. |
-| **Achievements** | Level, unlocked achievements. |
-| **Settings** | CF and LC handles (tauri-plugin-store), notifications, autostart. |
+| **Home Base** (Ctrl+1) | Daily check-in. CF rating with the next round, the streak, Work on next, today's quests above the fold at 1100x700, then the rating chart, activity and standing. It must answer "am I on track today?" in about 2 seconds. |
+| **Skill Tree** (Ctrl+2) | Topic graph (@xyflow/react). Nodes show mastery rings. |
+| **Topic Detail** | A side panel over any screen: one topic's strength, history, recommended LC (learn) and CF (sharpen) problems, resources. |
+| **Practice** (Ctrl+3) | Mix of the Day, Upsolve, problems by topic. |
+| **Quests** (Ctrl+4) | Three daily quests from the mix, weekly goals, level, weekly review. |
+| **Contests** (Ctrl+5) | Upcoming CF rounds first, LC contests secondary, "I'll attend" reminders, past results. |
+| **Achievements** (Ctrl+6) | Level and title, 31 achievements. |
+| **Settings** (Ctrl+,) | Handles, weekly goals, notifications, launch on startup. |
+
+App-wide: Ctrl+K command palette, Ctrl+R sync, `?` shortcut sheet, Ctrl+B sidebar, Ctrl+Shift+D hidden Debug page (raw tables, ceremony previews).
+
+## Build and performance rules
+
+- Run cargo/tauri from **PowerShell**, never Git Bash (its `link` shadows MSVC's linker).
+- Every screen except Home Base is `React.lazy` in `src/router.tsx`; keep new screens lazy. Recharts on Home Base is lazy too.
+- `import.meta.env.TAURI_ENV_PLATFORM` (via `envPrefix` in vite.config.ts) is set by the Tauri CLI. Use it to keep browser-only code (the sql.js driver) out of the desktop bundle.
+- Never edit an applied migration in `src-tauri/migrations/` (sqlx checksums them). Add a new one.
+- The bundle identifier stays `com.algocompass.app`: the user's data folder is named after it (see PROGRESS.md, v1.0).
 
 ## Gamification and reward rules
 

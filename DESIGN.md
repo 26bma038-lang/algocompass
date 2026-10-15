@@ -431,3 +431,11 @@ The honest "nothing here yet" pattern. A 40px accent-soft tile (12px radius) wit
 - **Do** play the level-up moment as a Float plate under the level badge: the number, the title revealed with a left-to-right wipe (done by 0.9s), an accent line drawing in, and one flash on the badge plate. It leaves after 2.6s.
 - **Do** run the Aura Shift on promotion: `--accent` is a registered `<color>`, and `html.aura-shifting` crossfades it over 1.2s, so every accent surface repaints at once, with a wash of the new color from the top and a "Promoted · <Rank>" plate. Both moments use `pointer-events: none`; any click or Esc skips them and still reaches its target. Under reduced motion the color snaps.
 - **Don't** announce the past: the first evaluation records existing achievements and your level silently. More than three unlocks at once become one summary toast with a View action.
+
+<!-- Appended 2026-10-15 (v1.0 polish). Additions only; nothing above changed. -->
+### Command palette and shortcut sheet
+- **Do** open the command palette (Ctrl+K, or the search button left of the sync control) as a 560px Float plate 14vh from the top over a 60% Abyss scrim: a 48px input row with a search icon and an Esc key, then groups (Actions, Screens, Topics) with Dusk sentence-case headings. Rows are 40px, icon plus Starlight label plus an optional Dusk hint, with a kbd key on the right. The selected row takes the glass-hover fill; no accent, no glow.
+- **Do** rank by name prefix, then word start, exact tag, initials, tag prefix, substring, and only last a loose in-order match on the name. Keywords never match loosely.
+- **Do** list every shortcut on the `?` sheet (a 640px Float plate, two columns of label plus kbd).
+- **Do** set kbd keys in Geist (font-sans) with tabular figures, never the browser's monospace.
+- **Do** turn animations off entirely under reduced motion (`animation: none`), not shorten them: Radix waits for exit animations, and 1ms ones left tooltips stuck open.
