@@ -4,6 +4,7 @@ import type { RouteHandle } from "@/components/shell/TopBar";
 import { Achievements } from "@/features/achievements/Achievements";
 import { Contests } from "@/features/contests/Contests";
 import { HomeBase } from "@/features/home/HomeBase";
+import { Practice } from "@/features/practice/Practice";
 import { Quests } from "@/features/quests/Quests";
 import { Settings } from "@/features/settings/Settings";
 import { SkillTree } from "@/features/skill-tree/SkillTree";
@@ -25,6 +26,7 @@ export const router = createHashRouter([
         element: <TopicDetail />,
         handle: h((p) => (p.topicId ? humanizeTopic(p.topicId) : "Topic Detail")),
       },
+      { path: "practice", element: <Practice />, handle: h("Practice") },
       { path: "quests", element: <Quests />, handle: h("Quests") },
       { path: "contests", element: <Contests />, handle: h("Contests") },
       { path: "achievements", element: <Achievements />, handle: h("Achievements") },

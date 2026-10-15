@@ -4,7 +4,7 @@ import { useUiStore } from "@/data/uiStore";
 import { ALL_NAV } from "./nav";
 
 /**
- * App-wide accelerators: Ctrl+1–5 screens, Ctrl+, settings, Ctrl+B sidebar,
+ * App-wide accelerators: Ctrl+1–6 screens, Ctrl+, settings, Ctrl+B sidebar,
  * Ctrl+Shift+D the hidden Debug page.
  */
 export function useShortcuts() {

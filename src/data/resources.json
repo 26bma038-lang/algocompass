@@ -1,0 +1,401 @@
+{
+  "$comment": "Hand-picked study links per topic, in three tiers: learn (one article + one video), practice (a problem set) and deeper (one advanced resource). Every URL is verified by `npm run check:links` (scripts/check-links.mjs). Re-run it before adding or changing a link. The app adds a personalized Codeforces problemset filter (your topic tags at your rating) to each practice tier at runtime.",
+  "topics": {
+    "implementation": {
+      "learn": [
+        { "kind": "article", "title": "Simulation", "source": "USACO Guide", "url": "https://usaco.guide/bronze/simulation" },
+        { "kind": "video", "title": "CSES Introductory Problems, solved live", "source": "Errichto", "url": "https://www.youtube.com/watch?v=pL7Jy3g62GM" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Introductory Problems section", "source": "CSES", "url": "https://cses.fi/problemset/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "How to Debug", "source": "USACO Guide", "url": "https://usaco.guide/general/debugging-checklist" }
+      ]
+    },
+    "brute-force": {
+      "learn": [
+        { "kind": "article", "title": "Basic Complete Search", "source": "USACO Guide", "url": "https://usaco.guide/bronze/intro-complete" },
+        { "kind": "video", "title": "Recursion on Subsequences: generating every subset", "source": "takeUforward", "url": "https://www.youtube.com/watch?v=AxNNVECce8c" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Enumeration problem list", "source": "LeetCode", "url": "https://leetcode.com/problem-list/enumeration/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Meet in the Middle", "source": "USACO Guide", "url": "https://usaco.guide/gold/meet-in-the-middle" }
+      ]
+    },
+    "arrays-hashing": {
+      "learn": [
+        { "kind": "article", "title": "Introduction to Sets & Maps", "source": "USACO Guide", "url": "https://usaco.guide/bronze/intro-sets" },
+        { "kind": "video", "title": "Hashing, maps, collisions and time complexity", "source": "takeUforward", "url": "https://www.youtube.com/watch?v=KEs5UyBJ39g" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Hash Table problem list", "source": "LeetCode", "url": "https://leetcode.com/problem-list/hash-table/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Blowing up unordered_map, and how to stop getting hacked on it", "source": "Codeforces blog (neal)", "url": "https://codeforces.com/blog/entry/62393" }
+      ]
+    },
+    "strings": {
+      "learn": [
+        { "kind": "article", "title": "Strings: introduction, frequency, reversal and case conversion", "source": "takeUforward", "url": "https://takeuforward.org/blogs/data-structure-and-algorithm/string-introduction-vowels-consonants-search-frequency-reverse-and-case-conversion" },
+        { "kind": "video", "title": "C++ strings, getline and big numbers for CP", "source": "Luv", "url": "https://www.youtube.com/watch?v=abZEVCRYZP8" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "String problem list", "source": "LeetCode", "url": "https://leetcode.com/problem-list/string/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Z-function", "source": "CP-Algorithms", "url": "https://cp-algorithms.com/string/z-function.html" }
+      ]
+    },
+    "math": {
+      "learn": [
+        { "kind": "article", "title": "Modular Arithmetic", "source": "USACO Guide", "url": "https://usaco.guide/gold/modular" },
+        { "kind": "video", "title": "Computations modulo P in competitive programming", "source": "Errichto", "url": "https://www.youtube.com/watch?v=-OPohCQqi_E" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Mathematics section", "source": "CSES", "url": "https://cses.fi/problemset/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Binary Exponentiation", "source": "CP-Algorithms", "url": "https://cp-algorithms.com/algebra/binary-exp.html" }
+      ]
+    },
+    "sorting": {
+      "learn": [
+        { "kind": "article", "title": "Introduction to Sorting", "source": "USACO Guide", "url": "https://usaco.guide/bronze/intro-sorting" },
+        { "kind": "video", "title": "Sorting part 1: selection, bubble and insertion sort", "source": "takeUforward", "url": "https://www.youtube.com/watch?v=HGk_ypEuS24" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Sorting and Searching section", "source": "CSES", "url": "https://cses.fi/problemset/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Custom Comparators and Coordinate Compression", "source": "USACO Guide", "url": "https://usaco.guide/silver/sorting-custom" }
+      ]
+    },
+    "greedy": {
+      "learn": [
+        { "kind": "article", "title": "Introduction to Greedy Algorithms", "source": "USACO Guide", "url": "https://usaco.guide/bronze/intro-greedy" },
+        { "kind": "video", "title": "Greedy method: introduction", "source": "Abdul Bari", "url": "https://www.youtube.com/watch?v=ARvQcqJ_-NY" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Greedy problem list", "source": "LeetCode", "url": "https://leetcode.com/problem-list/greedy/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Greedy Algorithms with Sorting", "source": "USACO Guide", "url": "https://usaco.guide/silver/greedy-sorting" }
+      ]
+    },
+    "constructive": {
+      "learn": [
+        { "kind": "article", "title": "Tips on Constructive Algorithms", "source": "Codeforces blog (vmaksimovski)", "url": "https://codeforces.com/blog/entry/80317" },
+        { "kind": "video", "title": "Constructive problems practice, noob to expert", "source": "Colin Galen", "url": "https://www.youtube.com/watch?v=3D3XKJonua0" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "How to approach a constructive problem (with a problem list)", "source": "Codeforces blog", "url": "https://codeforces.com/blog/entry/79659" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "General ideas", "source": "Codeforces blog (adamant)", "url": "https://codeforces.com/blog/entry/48417" }
+      ]
+    },
+    "two-pointers": {
+      "learn": [
+        { "kind": "article", "title": "Two Pointers", "source": "USACO Guide", "url": "https://usaco.guide/silver/two-pointers" },
+        { "kind": "video", "title": "Sliding window and two pointers: templates and patterns", "source": "takeUforward", "url": "https://www.youtube.com/watch?v=9kdHxplyl5I" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Two Pointers problem list", "source": "LeetCode", "url": "https://leetcode.com/problem-list/two-pointers/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Sliding Window", "source": "USACO Guide", "url": "https://usaco.guide/gold/sliding-window" }
+      ]
+    },
+    "prefix-sums": {
+      "learn": [
+        { "kind": "article", "title": "Introduction to Prefix Sums", "source": "USACO Guide", "url": "https://usaco.guide/silver/prefix-sums" },
+        { "kind": "video", "title": "Prefix sums: problems and code", "source": "Errichto", "url": "https://www.youtube.com/watch?v=PhgtNY_-CiY" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Prefix Sum problem list", "source": "LeetCode", "url": "https://leetcode.com/problem-list/prefix-sum/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "More on Prefix Sums (2D, difference arrays)", "source": "USACO Guide", "url": "https://usaco.guide/silver/more-prefix-sums" }
+      ]
+    },
+    "binary-search": {
+      "learn": [
+        { "kind": "article", "title": "Binary Search", "source": "USACO Guide", "url": "https://usaco.guide/silver/binary-search" },
+        { "kind": "video", "title": "Binary search tutorial", "source": "Errichto", "url": "https://www.youtube.com/watch?v=GU7DpgHINWQ" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Binary Search problem list", "source": "LeetCode", "url": "https://leetcode.com/problem-list/binary-search/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Binary Search (on the answer, parallel binary search)", "source": "CP-Algorithms", "url": "https://cp-algorithms.com/num_methods/binary_search.html" }
+      ]
+    },
+    "stacks-queues": {
+      "learn": [
+        { "kind": "article", "title": "Stacks", "source": "USACO Guide", "url": "https://usaco.guide/gold/stacks" },
+        { "kind": "video", "title": "Next greater element (monotonic stack)", "source": "takeUforward", "url": "https://www.youtube.com/watch?v=e7XQLtOQM3I" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Monotonic Stack problem list", "source": "LeetCode", "url": "https://leetcode.com/problem-list/monotonic-stack/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Minimum Stack / Minimum Queue", "source": "CP-Algorithms", "url": "https://cp-algorithms.com/data_structures/stack_queue_modification.html" }
+      ]
+    },
+    "linked-lists": {
+      "learn": [
+        { "kind": "article", "title": "Singly Linked List: structure and basic operations", "source": "takeUforward", "url": "https://takeuforward.org/blogs/data-structure-and-algorithm/singly-linked-list" },
+        { "kind": "video", "title": "Linked lists introduction", "source": "WilliamFiset", "url": "https://www.youtube.com/watch?v=-Yn5DU0_-lw" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Linked List problem list", "source": "LeetCode", "url": "https://leetcode.com/problem-list/linked-list/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Tortoise and Hare (cycle detection)", "source": "CP-Algorithms", "url": "https://cp-algorithms.com/others/tortoise_and_hare.html" }
+      ]
+    },
+    "heaps": {
+      "learn": [
+        { "kind": "article", "title": "Introduction to Heap", "source": "takeUforward", "url": "https://takeuforward.org/blogs/data-structure-and-algorithm/introduction-to-heap" },
+        { "kind": "video", "title": "Priority queue introduction", "source": "WilliamFiset", "url": "https://www.youtube.com/watch?v=wptevk0bshY" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Heap (Priority Queue) problem list", "source": "LeetCode", "url": "https://leetcode.com/problem-list/heap-priority-queue/" }
+      ],
+      "deeper": [
+        { "kind": "video", "title": "Indexed priority queue", "source": "WilliamFiset", "url": "https://www.youtube.com/watch?v=jND_WJ8r7FE" }
+      ]
+    },
+    "recursion-backtracking": {
+      "learn": [
+        { "kind": "article", "title": "Complete Search with Recursion (subsets, permutations)", "source": "USACO Guide", "url": "https://usaco.guide/bronze/complete-rec" },
+        { "kind": "video", "title": "Introduction to recursion: recursion tree and stack space", "source": "takeUforward", "url": "https://www.youtube.com/watch?v=yVdKa8dnKiE" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Backtracking problem list", "source": "LeetCode", "url": "https://leetcode.com/problem-list/backtracking/" }
+      ],
+      "deeper": [
+        { "kind": "video", "title": "N-Queens: backtracking with pruning", "source": "takeUforward", "url": "https://www.youtube.com/watch?v=i05Ju7AftcM" }
+      ]
+    },
+    "bitmasks": {
+      "learn": [
+        { "kind": "article", "title": "Bitwise operations for beginners", "source": "Codeforces blog (Errichto)", "url": "https://codeforces.com/blog/entry/73490" },
+        { "kind": "video", "title": "10 bitwise tricks for competitive programming", "source": "TLE Eliminators (Priyansh)", "url": "https://www.youtube.com/watch?v=LGrE0siZ-ZA" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Bit Manipulation problem list", "source": "LeetCode", "url": "https://leetcode.com/problem-list/bit-manipulation/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Bitmask DP", "source": "USACO Guide", "url": "https://usaco.guide/gold/dp-bitmasks" }
+      ]
+    },
+    "number-theory": {
+      "learn": [
+        { "kind": "article", "title": "Divisibility (primes, factors, GCD)", "source": "USACO Guide", "url": "https://usaco.guide/gold/divisibility" },
+        { "kind": "video", "title": "Sieve of Eratosthenes", "source": "takeUforward", "url": "https://www.youtube.com/watch?v=g5Fuxn_AvSk" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Mathematics section", "source": "CSES", "url": "https://cses.fi/problemset/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Modular Inverse", "source": "CP-Algorithms", "url": "https://cp-algorithms.com/algebra/module-inverse.html" }
+      ]
+    },
+    "combinatorics": {
+      "learn": [
+        { "kind": "article", "title": "Combinatorics", "source": "USACO Guide", "url": "https://usaco.guide/gold/combo" },
+        { "kind": "video", "title": "Combinatorics from CSES (live)", "source": "Vivek Gupta", "url": "https://www.youtube.com/watch?v=M5PbeUrOsDw" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Mathematics section (counting problems)", "source": "CSES", "url": "https://cses.fi/problemset/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "The Inclusion-Exclusion Principle", "source": "CP-Algorithms", "url": "https://cp-algorithms.com/combinatorics/inclusion-exclusion.html" }
+      ]
+    },
+    "probability": {
+      "learn": [
+        { "kind": "article", "title": "Sums and Expected Value, part 1", "source": "Codeforces blog (Errichto)", "url": "https://codeforces.com/blog/entry/62690" },
+        { "kind": "video", "title": "Probability and expected value in competitive programming", "source": "Yash Poonia", "url": "https://www.youtube.com/watch?v=5TML5VL7I2o" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Probability and Statistics problem list", "source": "LeetCode", "url": "https://leetcode.com/problem-list/probability-and-statistics/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Don't use rand(): a guide to random number generators in C++", "source": "Codeforces blog (neal)", "url": "https://codeforces.com/blog/entry/61587" }
+      ]
+    },
+    "geometry": {
+      "learn": [
+        { "kind": "article", "title": "Geometry Primitives", "source": "USACO Guide", "url": "https://usaco.guide/plat/geo-pri" },
+        { "kind": "video", "title": "CSES geometry problem set, solved live", "source": "Errichto", "url": "https://www.youtube.com/watch?v=G9QTjWtK_TQ" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Geometry section", "source": "CSES", "url": "https://cses.fi/problemset/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Convex hull construction", "source": "CP-Algorithms", "url": "https://cp-algorithms.com/geometry/convex-hull.html" }
+      ]
+    },
+    "trees": {
+      "learn": [
+        { "kind": "article", "title": "Introduction to Tree Algorithms", "source": "USACO Guide", "url": "https://usaco.guide/silver/intro-tree" },
+        { "kind": "video", "title": "Introduction to trees", "source": "takeUforward", "url": "https://www.youtube.com/watch?v=_ANrF3FJm7I" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Tree Algorithms section", "source": "CSES", "url": "https://cses.fi/problemset/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "DP on Trees tutorial", "source": "Codeforces blog (darkshadows)", "url": "https://codeforces.com/blog/entry/20935" }
+      ]
+    },
+    "graphs": {
+      "learn": [
+        { "kind": "article", "title": "Depth First Search", "source": "CP-Algorithms", "url": "https://cp-algorithms.com/graph/depth-first-search.html" },
+        { "kind": "video", "title": "Depth first search algorithm", "source": "WilliamFiset", "url": "https://www.youtube.com/watch?v=7fujbpJ0LB4" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Graph Algorithms section", "source": "CSES", "url": "https://cses.fi/problemset/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Topological Sort", "source": "USACO Guide", "url": "https://usaco.guide/gold/toposort" }
+      ]
+    },
+    "shortest-paths": {
+      "learn": [
+        { "kind": "article", "title": "Shortest Paths with Non-Negative Edge Weights", "source": "USACO Guide", "url": "https://usaco.guide/gold/shortest-paths" },
+        { "kind": "video", "title": "Dijkstra's shortest path algorithm", "source": "WilliamFiset", "url": "https://www.youtube.com/watch?v=pSqmAO-m7Lk" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Graph Algorithms section (shortest routes)", "source": "CSES", "url": "https://cses.fi/problemset/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "0-1 BFS", "source": "CP-Algorithms", "url": "https://cp-algorithms.com/graph/01_bfs.html" }
+      ]
+    },
+    "dsu": {
+      "learn": [
+        { "kind": "article", "title": "Disjoint Set Union", "source": "USACO Guide", "url": "https://usaco.guide/gold/dsu" },
+        { "kind": "video", "title": "Union find introduction", "source": "WilliamFiset", "url": "https://www.youtube.com/watch?v=ibjEGG7ylHk" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Union Find problem list", "source": "LeetCode", "url": "https://leetcode.com/problem-list/union-find/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Disjoint Set Union (applications and variants)", "source": "CP-Algorithms", "url": "https://cp-algorithms.com/data_structures/disjoint_set_union.html" }
+      ]
+    },
+    "dp": {
+      "learn": [
+        { "kind": "article", "title": "Introduction to DP", "source": "USACO Guide", "url": "https://usaco.guide/gold/intro-dp" },
+        { "kind": "video", "title": "Dynamic programming lecture #1", "source": "Errichto", "url": "https://www.youtube.com/watch?v=YBSt1jYwVfU" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Dynamic Programming section", "source": "CSES", "url": "https://cses.fi/problemset/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Non-trivial DP tricks and techniques", "source": "Codeforces blog (zscoder)", "url": "https://codeforces.com/blog/entry/47764" }
+      ]
+    },
+    "divide-conquer": {
+      "learn": [
+        { "kind": "article", "title": "Merge Sort: divide and conquer explained", "source": "takeUforward", "url": "https://takeuforward.org/blogs/data-structure-and-algorithm/merge-sort-algorithm" },
+        { "kind": "video", "title": "Merge sort algorithm (divide and conquer)", "source": "Abdul Bari", "url": "https://www.youtube.com/watch?v=mB5HXBb_HY8" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Divide and Conquer problem list", "source": "LeetCode", "url": "https://leetcode.com/problem-list/divide-and-conquer/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Divide and Conquer DP", "source": "CP-Algorithms", "url": "https://cp-algorithms.com/dynamic_programming/divide-and-conquer-dp.html" }
+      ]
+    },
+    "data-structures": {
+      "learn": [
+        { "kind": "article", "title": "Point Update Range Sum (Fenwick and segment trees)", "source": "USACO Guide", "url": "https://usaco.guide/gold/PURS" },
+        { "kind": "video", "title": "Segment trees: the best introduction", "source": "Rachit Jain", "url": "https://www.youtube.com/watch?v=Ic7OO3Uw6J0" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Range Queries section", "source": "CSES", "url": "https://cses.fi/problemset/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Everything About Segment Trees", "source": "Codeforces blog (PrinceOfPersia)", "url": "https://codeforces.com/blog/entry/15890" }
+      ]
+    },
+    "tries": {
+      "learn": [
+        { "kind": "article", "title": "Implement a Trie: insert, search and prefix matching", "source": "takeUforward", "url": "https://takeuforward.org/blogs/data-structure-and-algorithm/trie-implementation" },
+        { "kind": "video", "title": "Implement Trie (Prefix Tree)", "source": "NeetCode", "url": "https://www.youtube.com/watch?v=oobqoCJlHA0" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Trie problem list", "source": "LeetCode", "url": "https://leetcode.com/problem-list/trie/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Aho-Corasick (a trie of many patterns)", "source": "CP-Algorithms", "url": "https://cp-algorithms.com/string/aho_corasick.html" }
+      ]
+    },
+    "string-algorithms": {
+      "learn": [
+        { "kind": "article", "title": "String Hashing", "source": "CP-Algorithms", "url": "https://cp-algorithms.com/string/string-hashing.html" },
+        { "kind": "video", "title": "Rabin-Karp string matching", "source": "Abdul Bari", "url": "https://www.youtube.com/watch?v=qQ8vS2btsxI" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "String Algorithms section", "source": "CSES", "url": "https://cses.fi/problemset/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Prefix function (Knuth-Morris-Pratt)", "source": "CP-Algorithms", "url": "https://cp-algorithms.com/string/prefix-function.html" }
+      ]
+    },
+    "game-theory": {
+      "learn": [
+        { "kind": "article", "title": "Sprague-Grundy theorem and Nim", "source": "CP-Algorithms", "url": "https://cp-algorithms.com/game_theory/sprague-grundy-nim.html" },
+        { "kind": "video", "title": "Grundy numbers: combinatorial game theory", "source": "Gaurav Sen", "url": "https://www.youtube.com/watch?v=MboYbpE76js" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Game Theory problem list", "source": "LeetCode", "url": "https://leetcode.com/problem-list/game-theory/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Game Theory", "source": "USACO Guide", "url": "https://usaco.guide/adv/game-theory" }
+      ]
+    },
+    "advanced-graphs": {
+      "learn": [
+        { "kind": "article", "title": "Maximum flow: Ford-Fulkerson and Edmonds-Karp", "source": "CP-Algorithms", "url": "https://cp-algorithms.com/graph/edmonds_karp.html" },
+        { "kind": "video", "title": "Max flow, Ford-Fulkerson", "source": "WilliamFiset", "url": "https://www.youtube.com/watch?v=LdOnanfc5TM" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Graph Algorithms section (flows and matchings)", "source": "CSES", "url": "https://cses.fi/problemset/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Maximum flow: Dinic's algorithm", "source": "CP-Algorithms", "url": "https://cp-algorithms.com/graph/dinic.html" }
+      ]
+    },
+    "interactive": {
+      "learn": [
+        { "kind": "article", "title": "Interactive Problems: Guide for Participants", "source": "Codeforces blog (MikeMirzayanov)", "url": "https://codeforces.com/blog/entry/45307" },
+        { "kind": "video", "title": "Guide to interactive problems", "source": "Apna College", "url": "https://www.youtube.com/watch?v=iNHbQ0diNZc" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Interactive problem list", "source": "LeetCode", "url": "https://leetcode.com/problem-list/interactive/" }
+      ],
+      "deeper": [
+        { "kind": "video", "title": "Approaching a 2100-rated interactive problem", "source": "Harisam Sharma", "url": "https://www.youtube.com/watch?v=l8G4brLtF1w" }
+      ]
+    },
+    "design": {
+      "learn": [
+        { "kind": "article", "title": "Introduction to Data Structures", "source": "USACO Guide", "url": "https://usaco.guide/bronze/intro-ds" },
+        { "kind": "video", "title": "LRU Cache (hash map + doubly linked list)", "source": "NeetCode", "url": "https://www.youtube.com/watch?v=7ABFKPK2hD4" }
+      ],
+      "practice": [
+        { "kind": "problems", "title": "Design problem list", "source": "LeetCode", "url": "https://leetcode.com/problem-list/design/" }
+      ],
+      "deeper": [
+        { "kind": "article", "title": "Doubly Linked List: structure and operations", "source": "takeUforward", "url": "https://takeuforward.org/blogs/data-structure-and-algorithm/doubly-linked-list" }
+      ]
+    }
+  }
+}

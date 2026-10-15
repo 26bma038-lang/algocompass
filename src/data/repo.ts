@@ -6,6 +6,8 @@ import type {
   CfUser,
   Contest,
   DailyActivity,
+  DailyMix,
+  MixItem,
   LcContestEntry,
   LcContestRanking,
   LcProblemMeta,
@@ -13,6 +15,7 @@ import type {
   LcRecentAc,
   LcTagCount,
   Platform,
+  RecFeedback,
   SyncLogEntry,
 } from "./types";
 
@@ -29,6 +32,9 @@ export const TABLES = [
   "lc_problems",
   "daily_activity",
   "contests",
+  "cf_contest_times",
+  "rec_feedback",
+  "daily_mix",
   "sync_log",
 ] as const;
 export type TableName = (typeof TABLES)[number];
@@ -92,6 +98,8 @@ export class Repo {
     for (const t of tables) await this.db.execute(`DELETE FROM ${t}`);
     await this.db.execute("DELETE FROM daily_activity WHERE platform = $1", [platform]);
     await this.db.execute("DELETE FROM profiles WHERE platform = $1", [platform]);
+    // Today's mix was picked for the old account.
+    await this.db.execute("DELETE FROM daily_mix");
   }
 
   // ---------- Codeforces ----------
@@ -307,6 +315,73 @@ export class Repo {
        FROM contests WHERE start_time + duration_seconds >= $1 ORDER BY start_time ASC`,
       [fromTime],
     );
+  }
+
+  /** Start time of every CF contest (the problemset itself carries no dates). */
+  async saveCfContestTimes(rows: { contestId: number; startTime: number }[]) {
+    await insertMany(
+      this.db,
+      "INSERT INTO cf_contest_times (contest_id, start_time)",
+      2,
+      rows.map((r) => [r.contestId, r.startTime]),
+      "ON CONFLICT(contest_id) DO UPDATE SET start_time = excluded.start_time",
+    );
+  }
+
+  async getCfContestTimes(): Promise<Map<number, number>> {
+    const rows = await this.db.select<{ contest_id: number; start_time: number }>("SELECT contest_id, start_time FROM cf_contest_times");
+    return new Map(rows.map((r) => [r.contest_id, r.start_time]));
+  }
+
+  // ---------- recommender ----------
+  async addFeedback(f: RecFeedback) {
+    await this.db.execute(
+      "INSERT INTO rec_feedback (platform, problem_id, topic_id, kind, created_at) VALUES ($1, $2, $3, $4, $5)",
+      [f.platform, f.problemId, f.topicId, f.kind, f.createdAt],
+    );
+  }
+
+  /** Undo one feedback press (identified by problem and time). */
+  async removeFeedback(f: Pick<RecFeedback, "platform" | "problemId" | "createdAt">) {
+    await this.db.execute("DELETE FROM rec_feedback WHERE platform = $1 AND problem_id = $2 AND created_at = $3", [
+      f.platform,
+      f.problemId,
+      f.createdAt,
+    ]);
+  }
+
+  async getFeedback(): Promise<RecFeedback[]> {
+    return this.db.select<RecFeedback>(
+      `SELECT platform, problem_id AS "problemId", topic_id AS "topicId", kind, created_at AS "createdAt"
+       FROM rec_feedback ORDER BY created_at ASC, id ASC`,
+    );
+  }
+
+  async getDailyMix(day: string): Promise<DailyMix | null> {
+    const [row] = await this.db.select<{ day: string; generated_at: number; items_json: string }>(
+      "SELECT day, generated_at, items_json FROM daily_mix WHERE day = $1",
+      [day],
+    );
+    if (!row) return null;
+    let items: MixItem[] = [];
+    try {
+      const v: unknown = JSON.parse(row.items_json);
+      if (Array.isArray(v)) items = v as MixItem[];
+    } catch {
+      // Unreadable row: treat as no mix, it gets regenerated.
+      return null;
+    }
+    return { day: row.day, generatedAt: row.generated_at, items };
+  }
+
+  /** Stores today's mix and drops older days (only today's is ever read). */
+  async saveDailyMix(mix: DailyMix) {
+    await this.db.execute(
+      `INSERT INTO daily_mix (day, generated_at, items_json) VALUES ($1, $2, $3)
+       ON CONFLICT(day) DO UPDATE SET generated_at = excluded.generated_at, items_json = excluded.items_json`,
+      [mix.day, mix.generatedAt, json(mix.items)],
+    );
+    await this.db.execute("DELETE FROM daily_mix WHERE day <> $1", [mix.day]);
   }
 
   async logSync(e: SyncLogEntry) {

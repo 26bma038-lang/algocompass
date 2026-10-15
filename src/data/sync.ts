@@ -178,8 +178,16 @@ async function syncCodeforces(deps: SyncDeps, now: () => number): Promise<Platfo
 
   await step(ctx, result, "cf:contests", async () => {
     const cutoff = now() - CONTEST_HISTORY_SECONDS;
-    const contests = (await cf.getContests()).filter((c) => c.phase !== "finished" || c.startTime >= cutoff);
+    const all = await cf.getContests();
+    const contests = all.filter((c) => c.phase !== "finished" || c.startTime >= cutoff);
     await repo.saveContests(contests);
+    // Every contest's date, so recommendations can prefer problems from recent rounds.
+    await repo.saveCfContestTimes(
+      all.flatMap((c) => {
+        const id = Number(c.id.slice(3)); // "cf:2050" → 2050
+        return Number.isInteger(id) ? [{ contestId: id, startTime: c.startTime }] : [];
+      }),
+    );
     return contests.length;
   });
 

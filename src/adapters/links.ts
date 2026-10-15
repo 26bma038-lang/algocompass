@@ -10,3 +10,8 @@ export function cfProblemUrl(contestId: number | null, index: string): string | 
 export function lcProblemUrl(slug: string): string {
   return `https://leetcode.com/problems/${encodeURIComponent(slug)}/`;
 }
+
+/** Codeforces problemset filtered to one tag and a rating range, e.g. "sortings" 1000–1200. */
+export function cfProblemsetUrl(tag: string, lo: number, hi: number): string {
+  return `https://codeforces.com/problemset?tags=${encodeURIComponent(tag).replace(/%20/g, "+")},${lo}-${hi}`;
+}

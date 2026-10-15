@@ -1,6 +1,81 @@
 # AlgoCompass progress log
 
-## Latest: Skill Tree, Topic Detail and the packaged-app fixes (2026-10-14, evening)
+## Latest: Recommender + Resources, Phase 6 (2026-10-15)
+
+**Done.** Committed. `npm test` passes (214 tests, 34 new), `npm run build` is green, and `npm run tauri dev` compiles and runs (Rust built in 22s). In your real database, migration 3 is applied (`_sqlx_migrations` v3 "recommender"), 2,157 Codeforces contest dates are stored, and today's mix is saved.
+
+**What it recommends for you right now (real data, CF 1008)**
+- **Next Topic: Sorting** (Sharpen on Codeforces). "Sorting appears in 15% of problems at your rating and you haven't practiced it in 51 days."
+- **Top 2 to start:** I Will Definitely Make It (2126C, 1100, Jul 2025 round) and Artistic Balance Tree (2222B, 1100).
+- **Today's mix:**
+  - Codeforces, sharpen your weakest topics: I Will Definitely Make It (Sorting), Subtract Min Sort (Greedy), Pathless (Constructive), all rated 1100.
+  - LeetCode, learn Two pointers (the next topic still in Learn mode): Valid Palindrome and Remove Duplicates from Sorted Array.
+- **Upsolve:** Chips (800), Social Experiment (800), The 67th Integer Problem (800, 3 tries), Zhily and Mex and Max (1200), Special Permutation (1600).
+
+**What was built**
+1. **Resources** (`src/data/resources.json`): every one of the 33 topics has Learn (one article + one video), Practice (CSES section or LeetCode tag list) and Go deeper.
+   - Sources: CP-Algorithms, USACO Guide, takeUforward, Errichto, WilliamFiset, NeetCode, Codeforces blogs and others.
+   - Topic Detail also adds a personalized Codeforces filter (the topic's tag at your window, e.g. sortings 1000–1200).
+   - **Checker:** `npm run check:links` (`scripts/check-links.mjs`) verifies all 122 URLs, and all 294 curated LeetCode problems against LeetCode itself. Plain HTTP can't prove these, so it checks each kind properly:
+     - YouTube via oEmbed (a watch page answers 200 even for deleted videos).
+     - Codeforces blogs via the official API, and LeetCode lists/problems via GraphQL (both sites answer scripts with a 403 Cloudflare challenge).
+     - It replaced 4 dead links: two Errichto lectures with embedding off, and two moved takeUforward pages.
+2. **Curated LeetCode lists** (`src/data/lc_lists.json`): 294 problems across 31 topics.
+   - **Lists:** the full NeetCode 150 (143; the 7 premium ones are dropped), 90 Striver A2Z / SDE sheet problems, and 61 "AlgoCompass picks" for topics both sheets barely cover (geometry, game theory, number theory, probability, interactive…). Picks are labelled honestly, never passed off as Striver's.
+   - **Order:** Easy → Medium → Hard within each topic.
+   - **Generated, not hand-typed:** titles, difficulties and tags come from LeetCode's GraphQL. Edit `scripts/lc-lists.txt`, then run `npm run gen:lc-lists`.
+   - Constructive and Flows have no LeetCode path; they're learned straight on Codeforces.
+3. **Recommender engine** (`src/engine/recommender.ts`, pure, 26 tests):
+   - **Next Topic:**
+     - priority = band frequency × weakness² × (1 + days since practiced / 60). It only considers unlocked, non-Mastered topics that appear at your rating.
+     - It writes a one-sentence why: days stale, "haven't solved one yet", struggle rate, or score.
+   - **Learn (LeetCode):** the topic's own path in order, then cross-listed problems.
+     - The difficulty level follows strength: all Easy while Weak, alternating Easy/Medium at Developing, then Medium-led.
+     - LeetCode Too easy / Too hard moves it one level.
+   - **Sharpen (Codeforces):**
+     - Window: unsolved, untried problems rated [round(rating), +200], i.e. 1000–1200 for you.
+     - Ordering: recent rounds (last 2 years) first, then closeness to the middle (1100), focus (fewer tags), and popularity.
+     - Skips gym, unrated and `*special` problems.
+   - **Readiness:** a topic switches Learn → Sharpen at `LEARN_SOLVES_TO_SHARPEN = 5` solves.
+   - **Upsolve:** tried, never accepted, easiest first.
+   - **Mix of the Day:**
+     - 3 CF problems, one each from the three weakest Sharpen-mode topics.
+     - 2 LC problems for the first topic still in Learn mode.
+     - Frozen per local day in SQLite. It regenerates at midnight or with **New mix**, which avoids the previous set.
+   - **Feedback:** Skip / Too easy / Too hard hide the problem. Too easy / Too hard also move that topic's window ±100 (CF) or one level (LC), clamped −300…+400. Stored in `rec_feedback`, with Undo in the toast.
+4. **UI:**
+   - **Home Base:** the Today card's "Work on next" block (topic, why, mode chip, top 2 problems; the topic opens Topic Detail).
+   - **Topic Detail:** Recommended problems (current mode first, with feedback) and Resources (3 tiers, open in your browser).
+   - **Practice (new, Ctrl+3; Quests/Contests/Achievements moved to Ctrl+4–6):** Today's mix with a 5-segment run meter, then Upsolve and By topic.
+5. **Data:**
+   - Migration 3 adds `rec_feedback`, `daily_mix` and `cf_contest_times`. The `cf:contests` sync step now also stores every contest's start date.
+   - Solved problems drop out after the next sync, because every recommendation query is keyed under "db".
+
+**Fixed along the way**
+- **Codeforces problem names could arrive in Russian.** Without `lang`, the API picks a language per request; a browser sync got "Сейчас точно успею" for "I Will Definitely Make It". Every CF call now sends `lang=en`, and a test pins it. Your real database had English names already.
+- **Stale recommendations right after a sync:** the recommender read the cached topic report instead of waiting for the fresh one (`ensureQueryData` → `fetchQuery`).
+- **A half-synced mix could be frozen for the day:** a new mix is only created when no sync is running.
+- **Next Topic ranked Greedy (55, Strong) first** just because it's in 42% of problems. Weakness is now squared, so Sorting (32) leads.
+
+**Impeccable critique** (one lightweight in-context pass, at your request: no sub-agents, so it doesn't count as a full dual-agent run)
+- The detector found 0 issues across the 7 files. Screenshots were taken at 1100x700, plus keyboard focus on a mix row (Tab reaches Skip, with a visible ring and tooltip).
+- **Fixed:**
+  - P0: Russian problem names (above).
+  - P1: the next-contest box overflowed the Today card at the minimum window width (the grid column now uses `minmax(0,1fr)`).
+  - P3: "By topic" repeated the mix's problems (it now leaves them out).
+- **Left as is (P2):** at 1100x700 the rating chart now starts just below the fold on Home Base, because Work on next adds about 130px to the Today card.
+- DESIGN.md got a "Practice and recommendation additions" block (additions only).
+
+**Known limits**
+- LeetCode only exposes your 20 most recent ACs. LC problems solved before AlgoCompass started tracking can't be detected; Skip them (the tooltip says so).
+- Upsolve counts any failed attempt, not only in-contest ones: participant type isn't stored.
+
+**Suggested next step**
+Quests/XP: the mix is a natural daily quest ("solve 3 of today's 5"), and the run meter is ready to drive the reward moment.
+
+---
+
+## Previous: Skill Tree, Topic Detail and the packaged-app fixes (2026-10-14, evening)
 
 **Done.** Committed. `npm test` passes (180 tests), `npm run build` is green, and `npm run tauri build` produces `AlgoCompass_0.1.0_x64-setup.exe` (NSIS) and `AlgoCompass_0.1.0_x64_en-US.msi`.
 
@@ -189,6 +264,12 @@ After the SDK install, run `npm run tauri dev` and confirm three things: the win
   - Detector clean (0 findings). DESIGN.md got a "Skill Tree and Topic Detail additions" block (additions only).
 
 ## Decisions I made
+- **Phase 6:**
+  - **Readiness counts CF solves too:** Learn → Sharpen at 5 solves on *either* platform. With 6 CF sorting solves you're past learning sorting.
+  - **Topics Codeforces doesn't tag** (arrays, stacks, heaps, linked lists, prefix sums, recursion, tries, design) stay in Learn mode and never become Next Topic, since their CF frequency is 0. They still get LeetCode paths and feed the mix's LC slots when nothing else is left.
+  - **Mix CF slots prefer Sharpen-mode topics, and LC slots go to the first Learn-mode topic.** That follows the LEARN-on-LC → SHARPEN-on-CF loop, so a topic you haven't learned doesn't get a CF problem yet.
+  - **Solved mix items stay in the mix, checked off.** A daily set that empties itself would erase the day's progress. Everywhere else, solved problems disappear.
+  - **One feedback offset per topic *and* platform:** CF Too easy moves the CF window, and LC Too easy moves the LC level.
 - **Home Base layout follows DESIGN.md** (Today leads, 8-col left) rather than three equal hero cards, because the critique showed equal cards failed the 2-second "am I on track today?" check.
 - **Radar replaced by ranked bars** in "Where you stand". The radar repeated the list below it and had no readable scale. A radar fits the Skill Tree / Topic screens better, if you still want one.
 - **Count-up numbers animate once per app launch**, not on every visit (DESIGN.md: "animate value changes, not every render").

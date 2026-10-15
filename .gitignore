@@ -25,5 +25,6 @@ dist-ssr
 
 # Impeccable review captures (regenerated each critique)
 .impeccable/review/
+.impeccable/live/
 .impeccable/hook.cache.json
 tmp/

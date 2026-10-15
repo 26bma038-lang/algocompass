@@ -1,11 +1,9 @@
 import type { ReactNode } from "react";
-import { ArrowRight, Check, Flame } from "lucide-react";
+import { Check, Flame } from "lucide-react";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { flameState, streakAtRisk, useStreak } from "@/components/shell/useStreak";
 import { useHomeData, useTopicReport } from "@/data/queries";
-import { useUiStore } from "@/data/uiStore";
 import type { CfRatingChange, CfUser, Contest } from "@/data/types";
-import type { StandingItem } from "@/engine/standing";
 import { bandForRating } from "@/lib/rank";
 import { cn } from "@/lib/utils";
 import { ActivityHeatmap } from "./ActivityHeatmap";
@@ -13,6 +11,7 @@ import { ContestStrip, countdown, openContest, shortName, when } from "./Contest
 import { RatingChart } from "./RatingChart";
 import { StandingCard } from "./StandingCard";
 import { useNow } from "./useNow";
+import { WorkOnNext } from "./WorkOnNext";
 
 const plain = (n: number) => String(Math.round(n));
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
@@ -21,15 +20,14 @@ const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? o
  * Lead card: the 2-second answer. Did I practice today, is the streak at risk,
  * what's the one thing to do, and when is the next Codeforces round.
  */
-function TodayCard({ focus, nextCf }: { focus: StandingItem | undefined; nextCf: Contest | undefined }) {
+function TodayCard({ nextCf }: { nextCf: Contest | undefined }) {
   const streak = useStreak();
   const state = flameState(streak);
   const atRisk = streakAtRisk(streak);
   const nowMs = useNow();
-  const openTopic = useUiStore((s) => s.openTopic);
 
   return (
-    <section aria-labelledby="today-title" className="glass-card grid grid-cols-1 gap-6 p-6 md:grid-cols-[1fr_auto]">
+    <section aria-labelledby="today-title" className="glass-card grid grid-cols-1 gap-6 p-6 md:grid-cols-[minmax(0,1fr)_auto]">
       <div className="flex flex-col gap-5">
         <div className="flex items-center gap-4">
           <span
@@ -73,19 +71,7 @@ function TodayCard({ focus, nextCf }: { focus: StandingItem | undefined; nextCf:
             </p>
           </div>
         </div>
-        {focus && (
-          <button
-            type="button"
-            onClick={() => openTopic(focus.topicId)}
-            className="group flex items-center justify-between gap-4 rounded-md border text-left border-glass-border bg-abyss-sunken px-4 py-3 transition-colors duration-[var(--dur-fast)] hover:border-glass-border-strong"
-          >
-            <span className="flex min-w-0 flex-col gap-0.5">
-              <span className="text-title font-semibold text-ink">Practice {focus.name.toLowerCase()}</span>
-              <span className="text-body-sm text-ink-muted">{focus.reason}</span>
-            </span>
-            <ArrowRight aria-hidden className="size-4 shrink-0 text-ink-muted transition-transform duration-[var(--dur-fast)] group-hover:translate-x-0.5" />
-          </button>
-        )}
+        <WorkOnNext />
         {streak && <p className="text-body-sm text-ink-muted">Longest streak: {plural(streak.longest, "day")}</p>}
       </div>
 
@@ -228,7 +214,6 @@ function LcCard({ lc }: { lc: LcStatsRow }) {
 export function HomeBase() {
   const { data, isLoading } = useHomeData();
   const report = useTopicReport();
-  const focus = report.data?.standing.weaknesses[0] ?? report.data?.standing.blindSpots[0];
   const upcoming = data?.upcoming ?? [];
   const nextCf = upcoming.find((c) => c.platform === "cf");
 
@@ -238,7 +223,7 @@ export function HomeBase() {
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-12 flex flex-col gap-4 lg:col-span-8">
-          <TodayCard focus={focus} nextCf={nextCf} />
+          <TodayCard nextCf={nextCf} />
           <RatingChart cf={data?.ratingHistory ?? []} lc={data?.lcContests ?? []} rating={data?.cf?.rating ?? null} />
           <ActivityHeatmap activity={data?.activity ?? []} />
         </div>

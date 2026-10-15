@@ -14,6 +14,7 @@ import { PREREQUISITES, TOPIC_BY_ID } from "@/engine/topics";
 import { openExternal } from "@/lib/openExternal";
 import { topicIcon } from "@/lib/topicIcons";
 import { cn } from "@/lib/utils";
+import { TopicRecommendations, TopicResources } from "./TopicRecommendations";
 
 const DAY = 86_400;
 
@@ -304,13 +305,11 @@ function PanelBody({ t, topics }: { t: TopicStrength; topics: readonly TopicStre
       )}
 
       <Section title="Recommended problems">
-        <p className="text-body-sm text-ink-muted">
-          Coming in the next update: LeetCode problems to learn {t.name.toLowerCase()}, and Codeforces problems just above your rating to sharpen it.
-        </p>
+        <TopicRecommendations topicId={t.topicId} />
       </Section>
 
       <Section title="Resources">
-        <p className="text-body-sm text-ink-muted">Coming in the next update: hand-picked guides and editorials for this topic.</p>
+        <TopicResources topicId={t.topicId} />
       </Section>
     </div>
   );

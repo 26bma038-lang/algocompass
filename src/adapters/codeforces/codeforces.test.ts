@@ -77,6 +77,8 @@ describe("CodeforcesAdapter", () => {
     );
     const [s] = await new CodeforcesAdapter({ fetch, minIntervalMs: 0 }).getSubmissions("enkrid", { from: 1, count: 100 });
     expect(calls[0]!.url).toContain("user.status?handle=enkrid&from=1&count=100");
+    // Pinned to English: otherwise Codeforces may answer with Russian problem names.
+    expect(calls[0]!.url).toContain("lang=en");
     expect(s).toMatchObject({ id: 10, problemKey: "1900-B", problemRating: 1200, tags: ["math", "greedy"], verdict: "OK" });
   });
 

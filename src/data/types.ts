@@ -153,3 +153,30 @@ export interface SyncLogEntry {
   message: string | null;
   items: number;
 }
+
+// ---------- Recommender ----------
+
+/** Feedback buttons on a recommended problem. */
+export type FeedbackKind = "skip" | "too_easy" | "too_hard";
+
+export interface RecFeedback {
+  platform: Platform;
+  /** CF problem key (`2050-B`) or LC slug. */
+  problemId: string;
+  topicId: string;
+  kind: FeedbackKind;
+  createdAt: number;
+}
+
+/** One slot of the Mix of the Day. Only ids are stored; details are resolved against the cache. */
+export interface MixItem {
+  platform: Platform;
+  problemId: string;
+  topicId: string;
+}
+
+export interface DailyMix {
+  day: string; // local YYYY-MM-DD
+  generatedAt: number;
+  items: MixItem[];
+}

@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import type { TableName } from "./repo";
 import type { CfUser } from "./types";
 import { getRepo } from "./syncStore";
@@ -18,14 +18,16 @@ export function useSyncLog(limit = 40) {
   return useQuery({ queryKey: ["db", "sync-log", limit], queryFn: async () => (await getRepo()).getSyncLog(limit) });
 }
 
+export const topicReportQuery = queryOptions({
+  queryKey: ["db", "topic-report"],
+  queryFn: async () => {
+    const { buildTopicReport } = await import("@/engine/report");
+    return buildTopicReport(await getRepo());
+  },
+});
+
 export function useTopicReport() {
-  return useQuery({
-    queryKey: ["db", "topic-report"],
-    queryFn: async () => {
-      const { buildTopicReport } = await import("@/engine/report");
-      return buildTopicReport(await getRepo());
-    },
-  });
+  return useQuery(topicReportQuery);
 }
 
 /** Your solved and still-open problems in one topic (feeds Topic Detail). */

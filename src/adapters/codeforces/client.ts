@@ -51,7 +51,9 @@ export class CodeforcesClient {
   ): Promise<T> {
     const qs = new URLSearchParams();
     for (const [k, v] of Object.entries(params)) if (v !== undefined) qs.set(k, String(v));
-    const url = `${BASE}${method}${qs.size ? `?${qs}` : ""}`;
+    // Without it, Codeforces picks the language per request and problem names can come back in Russian.
+    if (!qs.has("lang")) qs.set("lang", "en");
+    const url = `${BASE}${method}?${qs}`;
 
     let res: Response;
     try {

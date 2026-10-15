@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "test": "tsc --noEmit -p tsconfig.test.json && vitest run",
-    "test:live": "vitest run src/adapters/live.test.ts --mode live"
+    "test:live": "vitest run src/adapters/live.test.ts --mode live",
+    "check:links": "node scripts/check-links.mjs",
+    "gen:lc-lists": "node scripts/gen-lc-lists.mjs"
   },
   "dependencies": {
     "@dagrejs/dagre": "^3.1.1",
