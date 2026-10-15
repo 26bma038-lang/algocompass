@@ -59,7 +59,7 @@ export function ActivityHeatmap({ activity }: { activity: readonly DailyActivity
   return (
     <section aria-labelledby="heatmap-title" className="glass-card flex flex-col gap-4 p-5">
       <div className="flex items-baseline justify-between gap-4">
-        <h2 id="heatmap-title" className="text-title font-semibold">
+        <h2 id="heatmap-title" className="font-display text-headline font-semibold">
           Activity
         </h2>
         <p className="text-body-sm text-ink-muted">{hover ? describe(hover) : summary}</p>

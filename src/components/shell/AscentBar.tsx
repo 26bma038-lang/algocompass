@@ -29,8 +29,8 @@ export function AscentBar({ rating }: { rating: number | null }) {
         className="absolute inset-0 origin-left transition-transform duration-[var(--dur-slow)] ease-out-quint"
         style={{
           transform: `scaleX(${progress})`,
-          background: "linear-gradient(90deg, var(--accent), var(--accent-next))",
-          boxShadow: progress > 0 ? "0 0 10px var(--accent-glow)" : undefined,
+          background: "linear-gradient(90deg, var(--rank), var(--rank-next))",
+          boxShadow: progress > 0 ? "0 0 10px var(--rank-glow)" : undefined,
         }}
       />
     </div>

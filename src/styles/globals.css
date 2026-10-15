@@ -58,6 +58,13 @@
   --accent-glow: color-mix(in oklab, var(--accent) 50%, transparent);
   --accent-ink: var(--abyss);
 
+  /* Rank colour: only the rank label, the CF rating number and the rank progress (ascent) bar.
+     Set at runtime by applyRankAccent() (src/lib/rank.ts). */
+  --rank: var(--rank-expert);
+  --rank-next: var(--rank);
+  --rank-line: color-mix(in oklab, var(--rank) 45%, transparent);
+  --rank-glow: color-mix(in oklab, var(--rank) 50%, transparent);
+
   /* Elevation */
   --shadow-slab: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 12px 32px -16px rgba(2, 6, 18, 0.8);
   --shadow-float: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 24px 64px -20px rgba(2, 6, 18, 0.9);
@@ -94,6 +101,8 @@
   --color-accent-soft: var(--accent-soft);
   --color-accent-line: var(--accent-line);
   --color-accent-ink: var(--accent-ink);
+  --color-accent-2: var(--accent-2);
+  --color-rank: var(--rank);
   --color-ember: var(--ember);
   --color-ember-core: var(--ember-core);
   --color-success: var(--success);
@@ -333,13 +342,13 @@
 
 /* The accent is a registered color, so a rank promotion can crossfade the whole app (the Aura
    Shift). The transition only applies while .aura-shifting is on <html>; normally it snaps. */
-@property --accent {
+@property --rank {
   syntax: "<color>";
   inherits: true;
   initial-value: #5b8cff;
 }
 html.aura-shifting {
-  transition: --accent 1200ms var(--ease-move);
+  transition: --rank 1200ms var(--ease-move);
 }
 
 /* Level-up: the level badge's plate takes one Aura flash while the title is revealed. */
@@ -350,4 +359,64 @@ html.aura-shifting {
 }
 .level-flash {
   animation: level-flash 900ms var(--ease-out) 1;
+}
+
+
+/* ---------------------------------------------------------------------------------------------
+   Themes (redesign). The theme owns the chrome: ground, glass, ink tint, and a two-tone accent
+   (--accent primary, --accent-2 secondary). Neon Arcade is the default. Selectors also match any
+   element, so a [data-theme] wrapper previews a theme (the Settings swatches).
+   Contrast (checked with scripts in PROGRESS.md): ink/muted/faint ≥ 4.5:1 on ground and glass,
+   accent and accent-2 ≥ 3:1 on ground, accent-ink on accent ≥ 4.5:1.
+   --------------------------------------------------------------------------------------------- */
+:root,
+[data-theme="neon-arcade"] {
+  --abyss: #0b0816;
+  --abyss-raised: #120e24;
+  --abyss-sunken: #07050f;
+  --glass: rgba(34, 24, 66, 0.55);
+  --glass-hover: rgba(46, 33, 88, 0.66);
+  --glass-border: rgba(186, 166, 255, 0.12);
+  --glass-border-strong: rgba(186, 166, 255, 0.24);
+  --ink: #eeeafb;
+  --ink-muted: #ada6cc;
+  --ink-faint: #918ab5;
+  --accent: #a274ff;
+  --accent-2: #2ee6f2;
+  --accent-ink: #0b0816;
+  --nebula-deep: #3a1c7a;
+}
+
+[data-theme="ember"] {
+  --abyss: #121010;
+  --abyss-raised: #1a1615;
+  --abyss-sunken: #0b0909;
+  --glass: rgba(46, 36, 32, 0.55);
+  --glass-hover: rgba(62, 48, 42, 0.66);
+  --glass-border: rgba(255, 210, 170, 0.11);
+  --glass-border-strong: rgba(255, 210, 170, 0.22);
+  --ink: #f5eee8;
+  --ink-muted: #bdb0a6;
+  --ink-faint: #9e9188;
+  --accent: #ff9550;
+  --accent-2: #ffcb47;
+  --accent-ink: #160e0a;
+  --nebula-deep: #5a2a12;
+}
+
+[data-theme="ocean"] {
+  --abyss: #051320;
+  --abyss-raised: #091b2c;
+  --abyss-sunken: #030d17;
+  --glass: rgba(16, 40, 62, 0.55);
+  --glass-hover: rgba(22, 54, 82, 0.66);
+  --glass-border: rgba(140, 210, 240, 0.11);
+  --glass-border-strong: rgba(140, 210, 240, 0.22);
+  --ink: #e6f2f8;
+  --ink-muted: #9db7c9;
+  --ink-faint: #809db2;
+  --accent: #2dd4bf;
+  --accent-2: #4da3ff;
+  --accent-ink: #04121c;
+  --nebula-deep: #0b3b66;
 }

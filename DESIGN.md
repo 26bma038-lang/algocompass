@@ -439,3 +439,24 @@ The honest "nothing here yet" pattern. A 40px accent-soft tile (12px radius) wit
 - **Do** list every shortcut on the `?` sheet (a 640px Float plate, two columns of label plus kbd).
 - **Do** set kbd keys in Geist (font-sans) with tabular figures, never the browser's monospace.
 - **Do** turn animations off entirely under reduced motion (`animation: none`), not shorten them: Radix waits for exit animations, and 1ms ones left tooltips stuck open.
+
+<!-- Appended 2026-10-15 (redesign branch: themes and the Home Base bento). -->
+## Themes and colour roles (redesign)
+
+**This supersedes the Earned Light Rule for chrome.** The rank colour no longer paints the app; it stays on rank elements only.
+
+- **Rank colour (`--rank`, `--rank-next`, `--rank-line`, `--rank-glow`)**: only the Codeforces rating number, the rank label chip, and rank progress (the ascent bar and the hero's progress bar). `applyRankAccent()` sets it. The Aura Shift ceremony animates `--rank`, registered as `<color>`, and the promotion plate uses it.
+- **Theme accent (`--accent`, `--accent-2`)**: everything else that was "the Aura": active nav, primary buttons, focus ring, progress fills, the quest pulse, the level badge, the nebula (accent and accent-2 blobs), heatmap steps, the sparkline (`--accent-2`). The derived tints (`--accent-soft/-line/-glow/-ink`) still come from `--accent` via `color-mix`.
+- **Themes** are token sets on `[data-theme]` (`<html>`, or any wrapper for a preview). Each redefines the ground (abyss, abyss-raised, abyss-sunken), glass and glass borders, the ink tint, the two accents and nebula-deep:
+  - **Neon Arcade** (default): electric violet `#A274FF` and cyan `#2EE6F2` on violet-black `#0B0816`.
+  - **Ember**: orange `#FF9550` and gold `#FFCB47` on charcoal `#121010`.
+  - **Ocean**: teal `#2DD4BF` and bright blue `#4DA3FF` on deep navy `#051320`.
+- **Contrast floor** (every theme meets it): ink, muted and faint ink ≥ 4.5:1 on glass and ground (faint is ≥ 5.5:1 in all three); accent and accent-2 ≥ 3:1 on ground (actual: 6.1 to 12.9); accent-ink on accent ≥ 4.5:1 (actual ≥ 6.1).
+- **Theme picker** (Settings, first card after Handles): a radiogroup of three live swatches, each rendered inside its own `[data-theme]` wrapper so it shows real tokens. Arrows move and select. The choice applies instantly, persists in the settings store (`theme`) with a localStorage mirror, and `main.tsx` applies the mirror before the first render (no flash).
+- **Streak ember, platform colours and state colours are unchanged** in every theme. Fire is fire, CF is periwinkle, LC is amber.
+
+### Home Base bento
+- **Row 1, the hero** (full width): Codeforces rating as the one hero number in the rank colour, the rank chip and rank progress, a rating sparkline (inline SVG in `--accent-2`, no chart library on first paint), Solved / Contests / Last change, and the next round with its countdown in the accent.
+- **Row 2, the two things to do today**, the most prominent cards: **Work on next** (7 columns) and **Today** (5 columns: the streak line plus the three quests, each with its own bar).
+- **Rows 3–4**: Activity (8) with LeetCode (4), then Upcoming contests (8) with Where you stand (4).
+- **Spacing**: 24px gaps and padding, section titles in Chakra Petch headline (22px). At 1100x700 the hero, Work on next and Today all start above the fold.

@@ -1,19 +1,18 @@
-import { lazy, Suspense, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Check, Flame } from "lucide-react";
+import { Link } from "react-router-dom";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { flameState, streakAtRisk, useStreak } from "@/components/shell/useStreak";
-import { Link } from "react-router-dom";
 import { useHomeData, useTopicReport } from "@/data/queries";
 import { useTodayQuests } from "@/data/quests";
 import { useHandles } from "@/data/settings";
-import { QuestBar, QuestRow } from "@/features/quests/QuestList";
 import type { CfRatingChange, CfUser, Contest } from "@/data/types";
-import { bandForRating } from "@/lib/rank";
+import type { QuestState } from "@/engine/quests";
+import { QuestBar, useRewardPulse } from "@/features/quests/QuestList";
+import { bandForRating, bandProgress } from "@/lib/rank";
 import { cn } from "@/lib/utils";
 import { ActivityHeatmap } from "./ActivityHeatmap";
 import { ContestStrip, countdown, openContest, shortName, when } from "./ContestStrip";
-// Recharts is the heaviest thing on Home Base; it loads right after the first paint.
-const RatingChart = lazy(() => import("./RatingChart").then((m) => ({ default: m.RatingChart })));
 import { StandingCard } from "./StandingCard";
 import { useNow } from "./useNow";
 import { WorkOnNext } from "./WorkOnNext";
@@ -21,118 +20,40 @@ import { WorkOnNext } from "./WorkOnNext";
 const plain = (n: number) => String(Math.round(n));
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
-/** Today's quests as a checklist, beside the next contest: "am I on track?" in one look. */
-function QuestsTile() {
-  const { data } = useTodayQuests();
-  if (!data) return null;
+/** Rating history as a light inline sparkline (no chart library on the first paint). */
+function Sparkline({ history }: { history: readonly CfRatingChange[] }) {
+  if (history.length < 2) {
+    return <p className="text-body-sm text-ink-faint">Your rating line starts after two rated rounds.</p>;
+  }
+  const w = 320;
+  const h = 96;
+  const pad = 6;
+  const values = history.map((x) => x.newRating);
+  const lo = Math.min(...values);
+  const hi = Math.max(...values);
+  const span = Math.max(1, hi - lo);
+  const pts = values.map((v, i) => [pad + (i / (values.length - 1)) * (w - pad * 2), pad + (1 - (v - lo) / span) * (h - pad * 2)] as const);
+  const line = pts.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`).join(" ");
+  const first = pts[0]!;
+  const last = pts[pts.length - 1]!;
+  const area = `${line} L${last[0].toFixed(1)} ${h} L${first[0].toFixed(1)} ${h} Z`;
   return (
-    <Link
-      to="/quests"
-      aria-label={`Today's quests: ${data.done} of ${data.total} done. Open quests`}
-      className="flex flex-col gap-2.5 rounded-md border border-glass-border bg-abyss-sunken p-4 transition-colors duration-[var(--dur-fast)] hover:border-glass-border-strong"
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      preserveAspectRatio="none"
+      role="img"
+      aria-label={`Rating over ${history.length} rated rounds, from ${values[0]} to ${values[values.length - 1]}`}
+      className="h-20 w-full"
     >
-      <span className="flex items-center justify-between gap-2 text-label text-ink-muted">
-        Today's quests
-        <span className="numeric font-display text-title font-semibold text-ink">
-          {data.done}/{data.total}
-        </span>
-      </span>
-      <QuestBar value={data.total ? data.done / data.total : 0} />
-      <ul className="flex flex-col gap-1.5">
-        {data.quests.map((q) => (
-          <QuestRow key={q.id} q={q} compact />
-        ))}
-      </ul>
-    </Link>
-  );
-}
-
-/**
- * Lead card: the 2-second answer. Did I practice today, is the streak at risk,
- * what's the one thing to do, and when is the next Codeforces round.
- */
-function TodayCard() {
-  const streak = useStreak();
-  const state = flameState(streak);
-  const atRisk = streakAtRisk(streak);
-
-  return (
-    <section aria-labelledby="today-title" className="glass-card flex flex-col gap-4 p-5">
-      {/* One line: the streak and what it needs today. */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <span
-          className={cn(
-            "grid size-11 shrink-0 place-items-center rounded-md",
-            state === "lit" ? "bg-[color-mix(in_oklab,var(--ember)_16%,transparent)]" : "bg-abyss-sunken",
-            atRisk && "animate-[ember-breathe_2s_ease-in-out_infinite]",
-          )}
-        >
-          <Flame
-            aria-hidden
-            className={cn("size-6", state === "none" ? "text-ink-faint" : "text-ember")}
-            fill={state === "lit" ? "url(#ember-gradient)" : "none"}
-            strokeWidth={1.7}
-          />
-        </span>
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <h2 id="today-title" className="flex items-baseline gap-2 text-ink">
-            <span className="numeric font-display text-display leading-none font-semibold">
-              {streak ? <NumberTicker id="streak" value={streak.current} format={plain} /> : "–"}
-            </span>
-            <span className="text-body font-medium text-ink-muted">day streak</span>
-          </h2>
-          <p className="flex flex-wrap items-center gap-x-1.5 text-body-sm">
-            {!streak ? (
-              <span className="text-ink-muted">Waiting for the first sync</span>
-            ) : state === "lit" ? (
-              <>
-                <Check aria-hidden className="size-4 text-success" strokeWidth={2.4} />
-                <span>Practiced today</span>
-                <span className="text-ink-muted">· {plural(streak.todayCount, "solve")} so far</span>
-              </>
-            ) : state === "pending" ? (
-              <span className={atRisk ? "text-warning" : "text-ink"}>
-                Solve one problem today to keep your {streak.current}-day streak
-                {atRisk ? ". It ends at midnight." : "."}
-              </span>
-            ) : (
-              <span className="text-ink">Solve one problem today to start a streak.</span>
-            )}
-          </p>
-        </div>
-        {streak && <p className="text-body-sm text-ink-muted">Longest streak: {plural(streak.longest, "day")}</p>}
-      </div>
-      {/* The two things to do today, side by side. */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_250px]">
-        <WorkOnNext />
-        <QuestsTile />
-      </div>
-    </section>
-  );
-}
-
-/** The next Codeforces round, at the foot of the rating card: the round is where the rating moves. */
-function NextRound({ c }: { c: Contest }) {
-  const nowMs = useNow();
-  return (
-    <button
-      type="button"
-      onClick={() => openContest(c.url)}
-      className="flex w-full flex-col items-start gap-1 rounded-md border border-glass-border bg-abyss-sunken p-3 text-left transition-colors duration-[var(--dur-fast)] hover:border-glass-border-strong"
-    >
-      <span className="flex w-full items-center justify-between gap-2 text-label text-ink-muted">
-        <span className="flex items-center gap-1.5">
-          <span aria-hidden className="size-1.5 rounded-full bg-platform-cf" />
-          Next round
-        </span>
-        <span className="numeric font-display text-title font-semibold text-ink">{countdown(c.startTime, nowMs)}</span>
-      </span>
-      <span className="line-clamp-1 text-body-sm text-ink">{shortName(c)}</span>
-      <span className="text-label text-ink-muted">
-        {when(c.startTime)}
-        <span className="sr-only"> (opens in browser)</span>
-      </span>
-    </button>
+      <defs>
+        <linearGradient id="spark-fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="var(--accent-2)" stopOpacity="0.32" />
+          <stop offset="1" stopColor="var(--accent-2)" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={area} fill="url(#spark-fill)" />
+      <path d={line} fill="none" stroke="var(--accent-2)" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+    </svg>
   );
 }
 
@@ -145,57 +66,172 @@ function Stat({ label, value }: { label: string; value: ReactNode }) {
   );
 }
 
-/** The one hero number on Home Base (DESIGN.md): your Codeforces rating. */
-function CfCard({ cf, solved, history, nextCf }: { cf: CfUser | null; solved: number; history: readonly CfRatingChange[]; nextCf: Contest | undefined }) {
-  const band = cf?.rating != null ? bandForRating(cf.rating) : null;
+/**
+ * The hero: your Codeforces rating, the one hero number. The rank colour lives only here (number,
+ * rank label, progress to the next rank); the theme colours everything else.
+ */
+function HeroCard({ cf, solved, history, nextCf }: { cf: CfUser | null; solved: number; history: readonly CfRatingChange[]; nextCf: Contest | undefined }) {
+  const nowMs = useNow();
+  const rating = cf?.rating ?? null;
+  const band = rating !== null ? bandForRating(rating) : null;
+  const progress = rating !== null ? bandProgress(rating) : 0;
   const last = history[history.length - 1];
   const lastDelta = last ? last.newRating - last.oldRating : null;
   return (
-    <section aria-labelledby="cf-title" className="glass-card flex flex-col gap-4 p-5">
-      <div className="flex items-center justify-between gap-3">
-        <h2 id="cf-title" className="flex items-center gap-2 text-title font-semibold">
-          <span aria-hidden className="size-2 rounded-full bg-platform-cf" />
+    <section
+      aria-labelledby="hero-title"
+      className="glass-card grid grid-cols-1 items-center gap-6 p-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)_minmax(0,0.9fr)]"
+    >
+      <div className="flex min-w-0 flex-col gap-3">
+        <h2 id="hero-title" className="flex items-baseline gap-2 text-title font-semibold text-ink">
+          <span aria-hidden className="size-2 self-center rounded-full bg-platform-cf" />
           Codeforces
+          <span className="truncate text-body-sm font-normal text-ink-muted">{cf?.handle ?? ""}</span>
         </h2>
-        <span className="truncate text-body-sm text-ink-muted">{cf?.handle ?? "…"}</span>
-      </div>
-      <div>
-        <p className="numeric font-display text-hero leading-none font-semibold text-ink">
-          {cf?.rating != null ? <NumberTicker id="cf-rating" value={cf.rating} format={plain} /> : "–"}
+        <p className="numeric font-display text-hero leading-none font-semibold text-rank">
+          {rating !== null ? <NumberTicker id="cf-rating" value={rating} format={plain} /> : <span className="text-ink-faint">–</span>}
         </p>
-        <p className="mt-2 text-body-sm">
-          {band ? (
-            <>
-              <span className="font-semibold" style={{ color: `var(--${band.current.token})` }}>
-                {band.current.label}
-              </span>
+        {band ? (
+          <div className="flex flex-col gap-2">
+            <p className="flex flex-wrap items-center gap-2 text-body-sm">
+              <span className="rounded-full border border-[var(--rank-line)] px-2.5 py-0.5 text-label font-semibold text-rank">{band.current.label}</span>
               {band.next && (
                 <span className="text-ink-muted">
-                  {" "}
-                  · {band.next.min - (cf?.rating ?? 0)} to {band.next.label}
+                  {band.next.min - (rating ?? 0)} to {band.next.label}
                 </span>
               )}
-            </>
+            </p>
+            <span
+              role="meter"
+              aria-label={band.next ? `Progress to ${band.next.label}` : "Top rank reached"}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round(progress * 100)}
+              className="relative block h-1.5 overflow-hidden rounded-full bg-glass-border-strong"
+            >
+              <span
+                className="absolute inset-0 origin-left rounded-full transition-transform duration-[var(--dur-slow)] ease-out-quint"
+                style={{ transform: `scaleX(${progress})`, background: "linear-gradient(90deg, var(--rank), var(--rank-next))" }}
+              />
+            </span>
+          </div>
+        ) : (
+          <p className="text-body-sm text-ink-muted">{cf ? "Unrated" : "Not synced yet"}</p>
+        )}
+      </div>
+      <div className="flex min-w-0 flex-col gap-2">
+        <span className="text-label text-ink-muted">Rating, last {plural(history.length, "rated round")}</span>
+        <Sparkline history={history} />
+        <dl className="grid grid-cols-3 gap-3">
+          <Stat label="Solved" value={<NumberTicker id="cf-solved" value={solved} />} />
+          <Stat label="Contests" value={history.length} />
+          <Stat label="Last change" value={lastDelta === null ? "–" : `${lastDelta >= 0 ? "+" : ""}${lastDelta}`} />
+        </dl>
+      </div>
+      {nextCf ? (
+        <button
+          type="button"
+          onClick={() => openContest(nextCf.url)}
+          className="flex h-full flex-col items-start justify-center gap-1.5 rounded-md border border-glass-border bg-abyss-sunken p-4 text-left transition-colors duration-[var(--dur-fast)] hover:border-glass-border-strong"
+        >
+          <span className="text-label text-ink-muted">Next round</span>
+          <span className="numeric font-display text-headline font-semibold text-accent">{countdown(nextCf.startTime, nowMs)}</span>
+          <span className="line-clamp-2 text-body-sm text-ink">{shortName(nextCf)}</span>
+          <span className="text-label text-ink-muted">
+            {when(nextCf.startTime)}
+            <span className="sr-only"> (opens in browser)</span>
+          </span>
+        </button>
+      ) : (
+        <p className="text-body-sm text-ink-muted">No Codeforces round is scheduled yet.</p>
+      )}
+    </section>
+  );
+}
+
+function TodayQuest({ q }: { q: QuestState }) {
+  const pulse = useRewardPulse(q.id);
+  return (
+    <li className={cn("flex flex-col gap-2 rounded-md bg-abyss-sunken px-4 py-3", pulse && "aura-pulse")}>
+      <span className="flex items-start gap-3">
+        {q.done ? (
+          <Check aria-hidden className="mt-0.5 size-4 shrink-0 text-success" strokeWidth={2.4} />
+        ) : (
+          <span
+            aria-hidden
+            className={cn("mt-1.5 size-2 shrink-0 rounded-full", q.kind === "cf_topic" ? "bg-platform-cf" : q.kind === "lc_topic" ? "bg-platform-lc" : "bg-accent-2")}
+          />
+        )}
+        <span className={cn("min-w-0 flex-1 text-body-sm", q.done ? "text-ink-muted" : "text-ink")}>
+          {q.title}
+          <span className="sr-only">. {q.done ? "Done" : `${q.progress} of ${q.target}`}</span>
+        </span>
+        <span aria-hidden className="numeric font-display text-body-sm font-semibold text-ink-muted">
+          {q.progress}/{q.target}
+        </span>
+      </span>
+      <QuestBar value={q.progress / q.target} />
+    </li>
+  );
+}
+
+/** Today: the streak and today's quests. "Am I on track?" in one card. */
+function TodayCard() {
+  const streak = useStreak();
+  const state = flameState(streak);
+  const atRisk = streakAtRisk(streak);
+  const { data } = useTodayQuests();
+  return (
+    <section aria-labelledby="today-title" className="glass-card flex h-full flex-col gap-4 p-6">
+      <div className="flex items-center justify-between gap-3">
+        <h2 id="today-title" className="font-display text-headline font-semibold text-ink">
+          Today
+        </h2>
+        {data && (
+          <Link
+            to="/quests"
+            className="numeric rounded-full bg-accent-soft px-3 py-1 text-label font-semibold text-ink transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover"
+          >
+            {data.done}/{data.total} quests
+          </Link>
+        )}
+      </div>
+      <div className="flex items-center gap-3">
+        <span
+          className={cn(
+            "grid size-10 shrink-0 place-items-center rounded-md",
+            state === "lit" ? "bg-[color-mix(in_oklab,var(--ember)_16%,transparent)]" : "bg-abyss-sunken",
+            atRisk && "animate-[ember-breathe_2s_ease-in-out_infinite]",
+          )}
+        >
+          <Flame
+            aria-hidden
+            className={cn("size-5", state === "none" ? "text-ink-faint" : "text-ember")}
+            fill={state === "lit" ? "url(#ember-gradient)" : "none"}
+            strokeWidth={1.7}
+          />
+        </span>
+        <p className="min-w-0 text-body-sm">
+          <span className="numeric font-display text-title font-semibold text-ink">{streak ? streak.current : "–"}</span>
+          <span className="text-ink-muted"> day streak, </span>
+          {!streak ? (
+            <span className="text-ink-muted">waiting for the first sync</span>
+          ) : state === "lit" ? (
+            <span className="text-ink">practiced today ({plural(streak.todayCount, "solve")})</span>
           ) : (
-            <span className="text-ink-muted">{cf ? "Unrated" : "Not synced yet"}</span>
+            <span className={atRisk ? "text-warning" : "text-ink"}>solve one problem to {streak.current > 0 ? "keep it" : "start one"}</span>
           )}
         </p>
       </div>
-      <dl className="grid grid-cols-3 gap-3 border-t border-glass-border pt-4">
-        <Stat label="Solved" value={<NumberTicker id="cf-solved" value={solved} />} />
-        <Stat label="Contests" value={history.length} />
-        <Stat
-          label={cf?.maxRating != null && cf.maxRating !== cf.rating ? "Max rating" : "Last change"}
-          value={
-            cf?.maxRating != null && cf.maxRating !== cf.rating
-              ? cf.maxRating
-              : lastDelta === null
-                ? "–"
-                : `${lastDelta >= 0 ? "+" : ""}${lastDelta}`
-          }
-        />
-      </dl>
-      {nextCf && <NextRound c={nextCf} />}
+      {data ? (
+        <ul className="flex flex-col gap-2">
+          {data.quests.map((q) => (
+            <TodayQuest key={q.id} q={q} />
+          ))}
+        </ul>
+      ) : (
+        <p className="text-body-sm text-ink-muted">Today's quests appear after the first sync.</p>
+      )}
     </section>
   );
 }
@@ -207,7 +243,7 @@ function LcCard({ lc }: { lc: LcStatsRow }) {
   const tracked = (useHandles().data?.leetcode ?? "") !== "";
   if (!lc && !tracked) {
     return (
-      <section aria-labelledby="lc-title" className="glass-card flex flex-col gap-2 p-5">
+      <section aria-labelledby="lc-title" className="glass-card flex h-full flex-col gap-2 p-6">
         <h2 id="lc-title" className="flex items-center gap-2 text-title font-semibold">
           <span aria-hidden className="size-2 rounded-full bg-platform-lc" />
           LeetCode
@@ -230,7 +266,7 @@ function LcCard({ lc }: { lc: LcStatsRow }) {
       ]
     : [];
   return (
-    <section aria-labelledby="lc-title" className="glass-card flex flex-col gap-3 p-5">
+    <section aria-labelledby="lc-title" className="glass-card flex h-full flex-col gap-3 p-6">
       <div className="flex items-center justify-between gap-3">
         <h2 id="lc-title" className="flex items-center gap-2 text-title font-semibold">
           <span aria-hidden className="size-2 rounded-full bg-platform-lc" />
@@ -266,8 +302,8 @@ function LcCard({ lc }: { lc: LcStatsRow }) {
 }
 
 /**
- * Home Base: Today leads (streak, the one next action, tonight's CF round), then your
- * rating and how it moves, activity, where you stand, and the rest of the contest calendar.
+ * Home Base as a bento grid: the rating hero, then the two things to do today (Work on next and
+ * Today), then activity and LeetCode, then contests and where you stand.
  */
 export function HomeBase() {
   const { data, isLoading } = useHomeData();
@@ -278,22 +314,28 @@ export function HomeBase() {
   if (isLoading) return <p className="text-body-sm text-ink-muted">Loading your cached stats…</p>;
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-12 flex flex-col gap-4 lg:col-span-8">
-          <TodayCard />
-          <Suspense fallback={<section aria-busy className="glass-card h-[300px] p-5" />}>
-            <RatingChart cf={data?.ratingHistory ?? []} lc={data?.lcContests ?? []} rating={data?.cf?.rating ?? null} />
-          </Suspense>
-          <ActivityHeatmap activity={data?.activity ?? []} />
-        </div>
-        <div className="col-span-12 flex flex-col gap-4 lg:col-span-4">
-          <CfCard cf={data?.cf ?? null} solved={data?.cfSolved ?? 0} history={data?.ratingHistory ?? []} nextCf={nextCf} />
-          <LcCard lc={data?.lcStats ?? null} />
-          <StandingCard report={report.data} />
-        </div>
+    <div className="grid grid-cols-12 gap-6">
+      <div className="col-span-12">
+        <HeroCard cf={data?.cf ?? null} solved={data?.cfSolved ?? 0} history={data?.ratingHistory ?? []} nextCf={nextCf} />
       </div>
-      <ContestStrip contests={upcoming.filter((c) => c !== nextCf)} />
+      <div className="col-span-12 lg:col-span-7">
+        <WorkOnNext />
+      </div>
+      <div className="col-span-12 lg:col-span-5">
+        <TodayCard />
+      </div>
+      <div className="col-span-12 lg:col-span-8">
+        <ActivityHeatmap activity={data?.activity ?? []} />
+      </div>
+      <div className="col-span-12 lg:col-span-4">
+        <LcCard lc={data?.lcStats ?? null} />
+      </div>
+      <div className="col-span-12 lg:col-span-8">
+        <ContestStrip contests={upcoming.filter((c) => c !== nextCf)} />
+      </div>
+      <div className="col-span-12 lg:col-span-4">
+        <StandingCard report={report.data} />
+      </div>
     </div>
   );
 }

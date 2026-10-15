@@ -36,7 +36,7 @@ export function AmbientBackground() {
           height: "46vw",
           bottom: "-24vw",
           left: "4vw",
-          background: "var(--accent)",
+          background: "var(--accent-2)",
           opacity: 0.12,
           animation: "nebula-drift-b 61s ease-in-out infinite",
         }}

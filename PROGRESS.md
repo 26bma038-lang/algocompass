@@ -586,3 +586,36 @@ After the SDK install, run `npm run tauri dev` and confirm three things: the win
 - Also: run cargo/tauri from **PowerShell or cmd**, not Git Bash. Git Bash's `/usr/bin/link` shadows MSVC's `link.exe` and breaks linking.
 - *(Resolved: verified in the release exe, see Latest)* ~~**LeetCode inside Tauri is untested end to end**~~ (blocked by the SDK issue above). The adapter is verified against the live API from Node, and the request shape is the same through tauri-plugin-http with `unsafe-headers`. In `npm run dev` (plain browser) LC sync fails with a CORS error, as expected, and the app degrades correctly: CF data still syncs and an LC error toast appears.
 - **21st.dev API key** (optional): set `API_KEY_21ST` in the 21st plugin config if you want components pulled directly from 21st.dev.
+
+---
+
+## Redesign (branch `redesign`, 2026-10-15; worktree `C:\dsa tracker-redesign`)
+
+Not merged. Preview it and merge it yourself if you like it (steps at the end of this section).
+
+**What changed**
+- **Colour roles:** the CF rank colour moved to its own token (`--rank`). It now colours only the rating number, the rank chip and rank progress (ascent bar and hero bar). The theme owns all other chrome. Newbie gray no longer paints the whole app.
+- **Three themes**, contrast-checked with a WCAG script:
+
+| Theme | faint ink / glass | accent / ground | accent-2 / ground | text on accent |
+|---|---|---|---|---|
+| Neon Arcade (default) | 5.63 | 6.11 | 12.93 | 6.11 |
+| Ember | 5.55 | 8.73 | 12.54 | 8.78 |
+| Ocean | 5.91 | 10.07 | 7.14 | 10.18 |
+
+- **Theme picker** in Settings: live swatches, keyboard radiogroup, saved in the settings store plus a localStorage mirror, applied before first render.
+- **Home Base bento:** rating hero with sparkline and next round, then Work on next and Today (streak + quests) as the two big cards, then activity + LeetCode, then contests + where you stand. The full Recharts rating chart is gone from Home Base; the hero sparkline replaces it, so Home Base no longer loads Recharts at all.
+- **DESIGN.md:** appended "Themes and colour roles (redesign)". It states that it supersedes the Earned Light Rule for chrome.
+
+**Decisions**
+- The sparkline uses `--accent-2`, not the CF periwinkle: the redesign's point is vibrancy, and the series is the only line in the hero.
+- The streak flame keeps its ember colours in every theme. In Ember it sits close to the accent, which reads as on-theme.
+- `@property --accent` was replaced by `@property --rank`, so the Aura Shift still crossfades (only rank elements now).
+
+**Checks:** `npm test` 287 passed; `npm run build` green. Screenshots in `docs/redesign/`: `home-neon-arcade.png`, `home-ember.png`, `home-ocean.png` and `settings-theme-picker.png` (1100x700).
+
+**Preview and merge**
+- Browser preview: `cd "C:\dsa tracker-redesign"; npm run dev`, then open http://localhost:1420.
+- Desktop preview: from PowerShell, `cd "C:\dsa tracker-redesign"; npm run tauri dev`.
+- Merge: `cd "C:\dsa tracker"; git checkout master; git merge redesign`. If `PROGRESS.md` conflicts, keep both sections.
+- When done: `git worktree remove "../dsa tracker-redesign"`.

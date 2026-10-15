@@ -129,7 +129,7 @@ export function RatingChart({
               {next && rating !== null && (
                 <ReferenceLine
                   y={next.min}
-                  stroke="var(--accent-next)"
+                  stroke="var(--rank-next)"
                   strokeDasharray="4 4"
                   strokeOpacity={0.8}
                   label={{ value: `${next.label} · ${next.min - rating} to go`, position: "insideTopLeft", fill: "var(--ink-muted)", fontSize: 12 }}
