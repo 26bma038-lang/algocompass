@@ -3,13 +3,17 @@ import { contestsToCheck, UPSOLVE_WINDOW_SECONDS, upsolvePicks } from "@/engine/
 import type { CodeforcesAdapter } from "@/adapters/codeforces";
 import type { LeetCodeAdapter } from "@/adapters/leetcode";
 import type { Repo } from "./repo";
-import type { CfSubmission, DailyActivity, LcCalendar, Platform } from "./types";
+import type { CfProblem, CfSubmission, DailyActivity, LcCalendar, Platform } from "./types";
 import type { Handles } from "./settings";
 
 export const PROBLEMSET_TTL_SECONDS = 24 * 60 * 60;
 /** Finished contests older than this aren't kept in the contests table. */
 const CONTEST_HISTORY_SECONDS = 60 * 24 * 60 * 60;
 const CF_PAGE = 100;
+/** How long a finished round may wait for its problems to appear in the problemset. */
+const PROBLEMS_WAIT_SECONDS = 24 * 60 * 60;
+/** Fewer problems than this in the problemset means the list is partial (see cf:results). */
+const MIN_ROUND_PROBLEMS = 4;
 /** Waits between attempts when a step hits a DNS/network error: 3 tries in total. */
 export const NETWORK_RETRY_DELAYS_MS = [1500, 4000] as const;
 
@@ -177,9 +181,12 @@ async function syncCodeforces(deps: SyncDeps, now: () => number): Promise<Platfo
     return problems.length;
   });
 
+  // Names of every CF contest from this sync's contest.list (older rounds aren't kept in `contests`).
+  const contestNames = new Map<number, string>();
   await step(ctx, result, "cf:contests", async () => {
     const cutoff = now() - CONTEST_HISTORY_SECONDS;
     const all = await cf.getContests();
+    for (const c of all) contestNames.set(Number(c.id.slice(3)), c.name);
     const contests = all.filter((c) => c.phase !== "finished" || c.startTime >= cutoff);
     await repo.saveContests(contests);
     // Every contest's date, so recommendations can prefer problems from recent rounds.
@@ -194,6 +201,7 @@ async function syncCodeforces(deps: SyncDeps, now: () => number): Promise<Platfo
 
   // Your result in each finished round you took part in; unsolved problems of recent rounds go to Upsolve.
   await step(ctx, result, "cf:results", async () => {
+    await repo.repairContestResults(contestNames, MIN_ROUND_PROBLEMS);
     const [known, windows, ratingHistory, attending, submissions, contests] = await Promise.all([
       repo.getContestResults(),
       repo.getCfContestWindows(),
@@ -210,12 +218,28 @@ async function syncCodeforces(deps: SyncDeps, now: () => number): Promise<Platfo
       attending,
       submissions,
       known: new Set(known.map((k) => k.contestId)),
+      names: contestNames,
     });
     if (!todo.length) return "skipped";
+    // The problem list comes from the problemset cache. A round from today may not be in it yet:
+    // refresh it once, and if it's still missing, wait (up to a day) instead of saving half a list.
+    const byContest = async () => {
+      const m = new Map<number, CfProblem[]>();
+      for (const p of await repo.getCfProblems()) if (p.contestId !== null) m.set(p.contestId, [...(m.get(p.contestId) ?? []), p]);
+      return m;
+    };
+    let problems = await byContest();
+    if (todo.some((c) => !problems.has(c.contestId))) {
+      await repo.saveCfProblems(await cf.getProblemset());
+      problems = await byContest();
+    }
+    const rated = new Map(ratingHistory.map((h) => [h.contestId, h]));
     let failure: unknown = null;
     for (const c of todo) {
+      const list = problems.get(c.contestId) ?? [];
+      if (!list.length && now() - (c.startTime + c.durationSeconds) < PROBLEMS_WAIT_SECONDS) continue;
       try {
-        const standing = await cf.getContestStanding(c.contestId, handle);
+        const standing = await cf.getContestStanding(c.contestId, handle, list);
         const solved = new Set(standing.me?.solvedIndices ?? []);
         await repo.saveContestResult({
           contestId: `cf:${c.contestId}`,
@@ -223,9 +247,12 @@ async function syncCodeforces(deps: SyncDeps, now: () => number): Promise<Platfo
           startTime: c.startTime,
           durationSeconds: c.durationSeconds,
           participated: standing.me !== null,
-          rank: standing.me?.rank ?? null,
+          // contest.status has no rank; rated rounds get it from your rating history.
+          rank: rated.get(c.contestId)?.rank ?? null,
           solved: standing.me ? solved.size : null,
-          total: standing.problems.length,
+          // Paired Div. 2 rounds list only their own problems (shared ones sit under the Div. 1 id),
+          // so a list this short isn't the whole round: no total rather than a wrong one.
+          total: standing.problems.length >= MIN_ROUND_PROBLEMS ? standing.problems.length : null,
           problems: standing.problems.map((p) => ({ index: p.index, name: p.name, rating: p.rating, solved: solved.has(p.index) })),
           syncedAt: now(),
         });

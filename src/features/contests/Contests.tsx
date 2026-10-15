@@ -161,10 +161,10 @@ function PastList({ past }: { past: PastContest[] }) {
                   <span className="pl-3.5 text-label text-ink-muted">{dateOnly(p.startTime)}</span>
                 </td>
                 <td className="numeric py-2.5 text-right text-body-sm text-ink">
-                  {p.solved !== null && p.total !== null ? (
+                  {p.solved !== null ? (
                     <>
                       {p.solved}
-                      <span className="text-ink-muted"> of {p.total}</span>
+                      <span className="text-ink-muted">{p.total !== null ? ` of ${p.total}` : " solved"}</span>
                     </>
                   ) : (
                     <span className="text-ink-faint">–</span>

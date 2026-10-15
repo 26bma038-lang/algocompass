@@ -49,40 +49,31 @@ interface RawContest {
   startTimeSeconds?: number;
 }
 
-interface RawStandingsRow {
-  party: { participantType: string };
-  rank: number;
-  problemResults: { points: number }[];
-}
-interface RawStandings {
-  problems: RawProblem[];
-  rows: RawStandingsRow[];
+interface RawContestSubmission extends RawSubmission {
+  author: { participantType: string };
 }
 
-/** Which of your standings rows is "you in the contest": live first, then out of competition. Virtual and practice don't count. */
-const PARTICIPATION = ["CONTESTANT", "OUT_OF_COMPETITION"];
+/** Which submissions are "you in the contest": live, or out of competition. Virtual and practice don't count. */
+const PARTICIPATION = new Set(["CONTESTANT", "OUT_OF_COMPETITION"]);
 
-export function toStanding(contestId: number, raw: RawStandings): CfContestStanding {
-  const problems: CfProblem[] = raw.problems.map((p) => ({
-    key: problemKey({ ...p, contestId: p.contestId ?? contestId }),
-    contestId: p.contestId ?? contestId,
-    index: p.index,
-    name: p.name,
-    rating: p.rating ?? null,
-    tags: p.tags ?? [],
-    solvedCount: null,
-  }));
-  const row = PARTICIPATION.map((t) => raw.rows.find((r) => r.party.participantType === t)).find((r) => r !== undefined);
+/**
+ * Your part in one contest from contest.status (your submissions there). Codeforces only serves
+ * full standings now (megabytes per round), so the problem list comes from the problemset cache.
+ */
+export function toStanding(contestId: number, problems: readonly CfProblem[], subs: readonly RawContestSubmission[]): CfContestStanding {
+  const mine = subs.filter((x) => PARTICIPATION.has(x.author.participantType));
+  const known = new Map(problems.map((p) => [p.index, p]));
+  // Problems you submitted to that the cache doesn't know yet (a round from today).
+  for (const x of mine) {
+    if (!known.has(x.problem.index)) {
+      known.set(x.problem.index, { key: problemKey({ ...x.problem, contestId }), contestId, index: x.problem.index, name: x.problem.name, rating: x.problem.rating ?? null, tags: x.problem.tags ?? [], solvedCount: null });
+    }
+  }
+  const type = mine.some((x) => x.author.participantType === "CONTESTANT") ? "CONTESTANT" : (mine[0]?.author.participantType ?? null);
   return {
     contestId,
-    problems,
-    me: row
-      ? {
-          rank: row.rank,
-          participantType: row.party.participantType,
-          solvedIndices: problems.filter((_, i) => (row.problemResults[i]?.points ?? 0) > 0).map((p) => p.index),
-        }
-      : null,
+    problems: [...known.values()],
+    me: type ? { rank: 0, participantType: type, solvedIndices: [...new Set(mine.filter((x) => x.verdict === "OK").map((x) => x.problem.index))] } : null,
   };
 }
 
@@ -189,10 +180,10 @@ export class CodeforcesAdapter {
     });
   }
 
-  /** Problems of one contest and your row in its standings (null if you didn't take part). */
-  async getContestStanding(contestId: number, handle: string): Promise<CfContestStanding> {
-    const raw = await this.client.call<RawStandings>("contest.standings", { contestId, handles: handle, showUnofficial: true });
-    return toStanding(contestId, raw);
+  /** What you did in one contest (null `me` if you didn't take part). `problems` = the contest's problems from the cache. */
+  async getContestStanding(contestId: number, handle: string, problems: readonly CfProblem[]): Promise<CfContestStanding> {
+    const subs = await this.client.call<RawContestSubmission[]>("contest.status", { contestId, handle });
+    return toStanding(contestId, problems, subs);
   }
 
   async getContests(): Promise<Contest[]> {

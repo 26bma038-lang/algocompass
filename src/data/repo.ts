@@ -479,6 +479,19 @@ export class Repo {
     );
   }
 
+  /**
+   * Fixes rows saved before contest names and partial problem lists were handled: fills in
+   * placeholder names, and drops totals that can't be a whole round. Idempotent.
+   */
+  async repairContestResults(names: ReadonlyMap<number, string>, minProblems: number) {
+    await this.db.execute("UPDATE contest_results SET total = NULL WHERE total IS NOT NULL AND total < $1", [minProblems]);
+    const rows = await this.db.select<{ contest_id: string }>("SELECT contest_id FROM contest_results WHERE name LIKE 'Codeforces contest %'");
+    for (const r of rows) {
+      const name = names.get(Number(r.contest_id.slice(3)));
+      if (name) await this.db.execute("UPDATE contest_results SET name = $1 WHERE contest_id = $2", [name, r.contest_id]);
+    }
+  }
+
   async getContestResults(): Promise<ContestResult[]> {
     const rows = await this.db.select<{
       contest_id: string; name: string; start_time: number; duration_seconds: number; participated: number;

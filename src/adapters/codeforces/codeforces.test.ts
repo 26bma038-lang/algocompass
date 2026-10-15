@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest";
+﻿import { describe, expect, it } from "vitest";
 import { AdapterError } from "../http";
 import { stubFetch } from "@/test/sqljs";
-import { CodeforcesAdapter, problemKey } from "./index";
+import { CodeforcesAdapter, problemKey, toStanding } from "./index";
 
 const ok = (result: unknown) => ({ status: "OK", result });
 
@@ -102,5 +102,27 @@ describe("CodeforcesAdapter", () => {
 
   it("builds problem keys for problemset-only problems", () => {
     expect(problemKey({ problemsetName: "acmsguru", index: "100" })).toBe("acmsguru-100");
+  });
+});
+
+describe("toStanding (contest.status)", () => {
+  const sub = (index: string, verdict: string, participantType: string) => ({
+    id: Math.random(), contestId: 9, creationTimeSeconds: 1, programmingLanguage: "C++", verdict,
+    problem: { contestId: 9, index, name: `P${index}` }, author: { participantType },
+  });
+  const problems = ["A", "B", "C"].map((index) => ({ key: `9-${index}`, contestId: 9, index, name: `P${index}`, rating: 800, tags: [], solvedCount: 1 }));
+
+  it("counts only live (or out-of-competition) solves, not practice or virtual", () => {
+    const s = toStanding(9, problems, [sub("A", "OK", "CONTESTANT"), sub("B", "WRONG_ANSWER", "CONTESTANT"), sub("B", "OK", "PRACTICE"), sub("C", "OK", "VIRTUAL")]);
+    expect(s.me).toMatchObject({ participantType: "CONTESTANT", solvedIndices: ["A"] });
+    expect(s.problems).toHaveLength(3);
+  });
+
+  it("says you weren't in it when every submission was practice", () => {
+    expect(toStanding(9, problems, [sub("A", "OK", "PRACTICE")]).me).toBeNull();
+  });
+
+  it("adds problems the cache doesn't know yet from your own submissions", () => {
+    expect(toStanding(9, [], [sub("D", "OK", "CONTESTANT")]).problems.map((p) => p.key)).toEqual(["9-D"]);
   });
 });

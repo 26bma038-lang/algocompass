@@ -1,6 +1,86 @@
 # AlgoCompass progress log
 
-## Latest: Recommender + Resources, Phase 6 (2026-10-15)
+## Latest: Quests, Contests and Notifications, Phase 7 (2026-10-15)
+
+**Done: all four parts.** Each part is committed separately. `npm test` passes (251 tests, 37 new), `npm run build` is green, `cargo check` is clean, and `npm run tauri dev` compiles (Rust in 37s) and runs. In your real database, migration 4 is applied, today's 3 quests are stored, and 9 past Codeforces rounds have been looked up.
+
+**What you'll see**
+- **Today's quests (0/3 right now):**
+  - Solve 1 Sorting problem rated 1100+ on Codeforces (+30 XP)
+  - Solve 1 Two pointers & sliding window problem on LeetCode (+20 XP)
+  - Solve any 2 problems today (+15 XP)
+- **Top bar:** sync, then the quest pill "0/3", then the streak flame, then the level badge (lit once you earn XP).
+- **Contests:** WorldQuant Round 1 (CF Round 1128, Div. 1 + 2) leads, Sat 17 Oct 20:05. Past contests list all 9 of your rounds with solves, rank and rating change (e.g. Round 1125 (Div. 3): 3 of 8, +26 → 1008).
+- **Weekly review:** this week, 0 CF / 0 LC so far (3 CF last week). Suggested focus: sharpen sorting on Codeforces.
+
+**What was built**
+1. **Quests** (`src/engine/quests.ts`, `src/data/quests.ts`, Quests screen):
+   - Three daily quests from the Mix of the Day, frozen per day in SQLite (`daily_quests`). "New mix" rewrites the open ones; completed ones stay earned.
+   - They complete when a sync sees the accepted submission (or you mark a LeetCode problem solved). The watcher records it once, sends the "Quest complete" notification, and queues the reward moment: one Aura pulse on the card, the bar filling and the XP ticker. It waits until the window is visible.
+   - **XP and levels:** 100 XP to level 2, then +50 per level. The level badge lights up with your first quest.
+   - **Weekly goals** (Settings: CF/week 10, LC/week 5, contests/week 1 by default) as progress rings on Quests.
+   - **Mark solved** on LeetCode rows (Practice, Topic Detail, Home Base, quest cards). It's stored in `manual_solves` and counts as solved for recommendations, quests, goals and Topic Detail's Solved list. It isn't added to strength scores, because LeetCode's tag totals already count every real solve. Undo is in the toast.
+2. **Contests** (`src/engine/contests.ts`, Contests screen):
+   - Upcoming rounds show a countdown, local start time, duration, division chip, Register (CF's registration page, opened in your browser) and an "I'll attend" switch (`contest_attend`).
+   - **Past contests:** a new `cf:results` sync step looks up each finished round you took part in, once (`contest_results`). A round counts if it's rated, marked "I'll attend", or has one of your submissions inside its contest window. LeetCode contests come from LeetCode's history.
+   - **Auto-upsolve:** for rounds that ended in the last 7 days, the problems you didn't solve among the first (solved + 2) by index go to Upsolve (`upsolve_queue`). Solving A and B queues C and D. Practice shows them as "Unsolved in <round>".
+3. **Notifications and desktop:**
+   - `src/engine/notifications.ts` builds the reminder list. Rust (`src-tauri/src/lib.rs`) fires it from a 15-second scheduler thread, so reminders arrive while the window is hidden. Fired keys persist in `reminders.json`, so nothing fires twice across restarts.
+   - **Contest reminders:** 1 hour and 10 minutes before rounds you'll attend. Each is valid for 10 minutes only, so a "1 hour" reminder is never sent 30 minutes before.
+   - **Streak at risk:** at your set time (default 20:00), only while a streak is running and nothing is solved today. The app syncs 15 minutes before, so it won't nag you about a problem you already solved.
+   - **Quest complete:** sent from the app when the watcher records a quest.
+   - **Settings:** a toggle per notification type, the evening time, and "Launch on Windows startup".
+   - **Tray:** Open AlgoCompass, Sync now, "Quests 0/3" (also in the tooltip), Quit.
+   - **Autostart** registers `--minimized`. The window is now created hidden and shown in setup unless that flag is present, so a login launch never flashes.
+4. **Weekly review** (Quests, right column; open by default on Sundays, "Show" on other days):
+   - Solves per platform against last week, rating change, current streak and active days.
+   - Topics whose strength rose since Monday, recomputed by running the engine on only what happened before Monday.
+   - Goals hit or missed, and one line on next week's focus (the recommender's Next Topic).
+
+**Decisions (made without asking, per your instructions)**
+- **Three quests a day, not one per mix problem.** "2/3" stays glanceable. The CF quest takes the mix's first sharpen topic at its mix problem's rating; any solve in that topic at or above the rating counts, and so does the mix problem itself.
+- **XP values:** CF quest 30, LC quest 20, consistency 15. This answers PRODUCT.md's open "XP economy" question; retune in `QUEST_XP`.
+- **A completed quest stays completed** even if its manual mark is undone. The reward already played, and un-earning XP would feel worse than the edge case.
+- **Weeks run Monday to Sunday.** A problem counts in the week of its first accepted solve. LeetCode manual marks count on the day you mark them.
+- **Upsolve is limited to recent rounds (7 days) and to "solved + 2" problems,** so the first sync didn't flood Upsolve with 2400-rated F's from rounds months ago.
+- **Reminders fire from Rust, not JavaScript.** Tauri's `backgroundThrottling` setting is unsupported on Windows (WebView2), so a hidden webview's timers can't be trusted. As a second line of defence, the webview also gets Chromium's `--disable-background-timer-throttling --disable-renderer-backgrounding --disable-backgrounding-occluded-windows` (with wry's default `--disable-features` kept), so syncs and quest checks keep running in the tray.
+- **context7 wasn't available** in this session (only its sign-in tools were exposed), so I used the official Tauri v2 docs plus the installed crate sources (tauri 2.12.3, autostart 2.7.0, notification 2.6.0, store 2.5.0).
+
+**Fixed along the way**
+- **Codeforces now blocks `contest.standings` with any parameters** ("available only via anonymous GET requests with no extra parameters"), and the plain call returns 8 MB per round. The lookup now uses `contest.status?contestId&handle`: your submissions, each with its participant type (live and out-of-competition count; practice and virtual don't). The problem list comes from the problemset cache, refreshed once if a new round isn't in it yet (it waits up to a day). Rank comes from your rating history.
+- **Paired Div. 2 rounds** list only their own problems in the problemset (the shared ones sit under the Div. 1 id), which showed "1 of 2". A list under 4 problems is now treated as partial and shown as "1 solved". Older rounds get their name from `contest.list`. A one-time repair fixed the 9 rows already in your database.
+- **Quests could be cached as "none" for the whole day:** a sync invalidates queries before it clears its `syncing` flag. The quest query now has `syncing` in its key, like the mix. (This hit your real app; it's fixed and today's quests are there now.)
+- **A "1 hour" reminder could fire 30 minutes before a round.** Caught by the new scheduling tests; every lead now has a 10-minute window.
+
+**Impeccable critique** (one lightweight in-context pass, no sub-agents)
+- Screenshots of Quests, Contests, Settings and Home Base at 1100x700, including scrolled views. The design hook found 0 deterministic issues in the new files.
+- **Fixed:**
+  - P1: "Mark solved" was hidden behind hover on quest cards. LeetCode quest rows now show it, Skip and Open.
+  - P1: a past round showed as "contest 2248" (now "Round 1113 (Div. 2)").
+  - P1: wrong "of 2" totals (above).
+- **Left as is (P2):**
+  - The Today card on Home Base is taller with the quest tile, so the rating chart sits lower at 1100x700.
+  - Goal rings at 0 are bare tracks. That's honest, but quiet on a Monday.
+- DESIGN.md got a "Quests, contests and settings additions" block (additions only).
+
+**Blocked / needs Sahil**
+- **Windows notifications in dev show PowerShell's name and icon.** This is a Windows limitation for unpackaged apps. Install the built app (`npm run tauri build`, then the NSIS installer) to see AlgoCompass's own name. Not blocking.
+- **Please check by hand once:**
+  - Turn on "Launch on Windows startup", sign out and back in, and check the app starts in the tray with no window.
+  - Mark a contest "I'll attend" and leave the app in the tray to see the 1-hour reminder.
+  - I couldn't drive the real desktop (tray clicks, toasts) from here. The logic is unit-tested, and the Rust side compiles and starts.
+
+**Known limits**
+- LeetCode contests have no per-problem data in the API, so they don't feed Upsolve.
+- On paired Div. 2 rounds, auto-upsolve only sees the round's own problems (usually A and B), not the shared harder ones.
+- The weekly review's "topics that improved" is an estimate: LeetCode solves outside your 20 most recent can't be dated.
+
+**Suggested next step**
+Achievements (the last placeholder screen). The level, quest history and contest results are all stored now, so a catalogue (first rated round, 7-day streak, first Hard, rank promotions) can unlock from real data, with the restrained ceremony DESIGN.md already describes.
+
+---
+
+## Previous: Recommender + Resources, Phase 6 (2026-10-15)
 
 **Done.** Committed. `npm test` passes (214 tests, 34 new), `npm run build` is green, and `npm run tauri dev` compiles and runs (Rust built in 22s). In your real database, migration 3 is applied (`_sqlx_migrations` v3 "recommender"), 2,157 Codeforces contest dates are stored, and today's mix is saved.
 

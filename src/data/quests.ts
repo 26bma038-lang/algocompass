@@ -86,7 +86,9 @@ export function useTodayQuests() {
   const mix = useMixOfTheDay();
   const syncing = useSyncStore((s) => s.syncing);
   return useQuery({
-    queryKey: ["db", "quests", day, mix.data?.generatedAt ?? null],
+    // `syncing` is in the key: a sync invalidates queries before it clears the flag, so without it the
+    // post-sync refetch could still see "syncing" and cache "no quests" for the day.
+    queryKey: ["db", "quests", day, mix.data?.generatedAt ?? null, syncing],
     enabled: mix.data !== undefined,
     placeholderData: (prev) => prev,
     queryFn: async (): Promise<TodayQuests | null> => {

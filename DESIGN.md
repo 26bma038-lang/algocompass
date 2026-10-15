@@ -411,3 +411,14 @@ The honest "nothing here yet" pattern. A 40px accent-soft tile (12px radius) wit
 - **Do** mark Today's mix progress with the run meter: one 24x8px chamfered segment per problem (clip-path echoes the level-badge plate), filling with the accent via scaleX over 420ms when solved. No halo, so Practice stays at two lights (nav rail, ascent bar). Solved rows dim and say "Solved" with a Success check, never color alone.
 - **Do** confirm feedback with a toast that names the effect and offers Undo. No reward motion for feedback; it's a routine action.
 - **Don't** show the same problem twice on one screen: By topic leaves out what's already in Today's mix.
+
+<!-- Appended 2026-10-15 (Quests, Contests, Notifications build). Additions only; nothing above changed. -->
+### Quests, contests and settings additions
+- **Do** show a quest as a sunken tile (12px radius): a 28px status tile (platform dot, a Repeat icon for the consistency quest, or a Success check when done), the quest sentence in 14px semibold, "+N XP" in 12px Mist, the count as "0/1" in Chakra Petch, and a 4px accent progress bar (scaleX, 420ms). Done quests say "Done" in words next to the check.
+- **Do** play the quest reward moment once, when a sync (or a manual mark) completes a quest: one 720ms Aura pulse on its card (`.aura-pulse`), the bar filling, and the XP number ticking. It waits for the window to be visible, so a quest finished in the tray still gets its moment. No confetti, no popups, never on routine clicks.
+- **Do** put today's quest count in the top bar as a pill right before the streak flame ("0/3", ScrollText icon in Mist, a Success check when all are done), and as a checklist tile under the next contest in Home Base's Today card.
+- **Do** draw weekly goal rings as a 64px SVG: a 5px glass-border-strong track and an accent arc. A hit goal adds a Success check and the words "Goal hit"; otherwise "N to go".
+- **Do** lead Contests with the next Codeforces round in a lead card (Chakra Petch countdown at display size, Register as the primary button, the "I'll attend" switch beside it). Later CF rounds and LeetCode contests are rows in their own cards below. Division is a plain glass chip.
+- **Do** show rating change as an arrow icon (Success up, Danger down) plus a signed number in Chakra Petch, with words for screen readers. Unrated rounds say "Unrated" in Dusk.
+- **Do** use the Switch (20x36 sunken pill, accent fill and an abyss thumb when on) for every on/off setting. The thumb's position carries the state, never color alone.
+- **Don't** show a total you can't vouch for: when a round's problem list is partial, show "1 solved" instead of "1 of 2".

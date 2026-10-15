@@ -4,7 +4,7 @@ import type { LeetCodeAdapter } from "@/adapters/leetcode";
 import { AdapterError } from "@/adapters/http";
 import { memoryRepo } from "@/test/sqljs";
 import { cfDailyActivity, lcDailyActivity, syncAll } from "./sync";
-import type { CfSubmission, Contest } from "./types";
+import type { CfProblem, CfSubmission, Contest } from "./types";
 
 const sub = (id: number, createdAt: number, verdict: string | null = "OK"): CfSubmission => ({
   id,
@@ -26,15 +26,15 @@ function fakeCf(subs: CfSubmission[]) {
     getSubmissions: vi.fn(async (_h: string, page?: { from: number; count: number }) =>
       page ? subs.slice(page.from - 1, page.from - 1 + page.count) : subs,
     ),
-    getProblemset: vi.fn(async () => [{ key: "1-1", contestId: 1, index: "1", name: "P1", rating: 800, tags: ["math"], solvedCount: 10 }]),
+    getProblemset: vi.fn(async (): Promise<CfProblem[]> => [{ key: "1-1", contestId: 1, index: "1", name: "P1", rating: 800, tags: ["math"], solvedCount: 10 }]),
     getContests: vi.fn(async (): Promise<Contest[]> => [
       { id: "cf:2", platform: "cf" as const, name: "Next", startTime: 10_000_000, durationSeconds: 7200, phase: "upcoming" as const, url: "u" },
       { id: "cf:0", platform: "cf" as const, name: "Ancient", startTime: 1, durationSeconds: 7200, phase: "finished" as const, url: "u" },
     ]),
-    getContestStanding: vi.fn(async (contestId: number) => ({
+    getContestStanding: vi.fn(async (contestId: number, _h: string, problems: CfProblem[]) => ({
       contestId,
-      problems: ["A", "B", "C", "D", "E"].map((index) => ({ key: `${contestId}-${index}`, contestId, index, name: `P${index}`, rating: null, tags: ["math"], solvedCount: null })),
-      me: { rank: 4321, participantType: "CONTESTANT", solvedIndices: ["A", "C"] },
+      problems,
+      me: { rank: 0, participantType: "CONTESTANT", solvedIndices: ["A", "C"] },
     })),
   };
 }
@@ -172,6 +172,10 @@ describe("contest results", () => {
     cf.getContests.mockImplementation(async () => [
       { id: "cf:7", platform: "cf" as const, name: "Codeforces Round 7 (Div. 2)", startTime: NOW - 3 * 3600, durationSeconds: 7200, phase: "finished" as const, url: "u" },
     ]);
+    cf.getProblemset.mockImplementation(async () =>
+      ["A", "B", "C", "D", "E"].map((index) => ({ key: `7-${index}`, contestId: 7, index, name: `P${index}`, rating: null, tags: ["math"], solvedCount: null })),
+    );
+    cf.getRatingHistory.mockImplementation(async () => [{ contestId: 7, contestName: "Codeforces Round 7 (Div. 2)", rank: 4321, oldRating: 1008, newRating: 1030, at: NOW - 600 }]);
     await repo.setAttending("cf:7", true, 1);
     const res = await syncAll({ repo, cf: cf as unknown as CodeforcesAdapter, lc: fakeLc() as unknown as LeetCodeAdapter, handles, now: () => NOW, retryDelaysMs: [0, 0] });
     expect(res.cf.steps.find((s) => s.kind === "cf:results")?.status).toBe("ok");
@@ -195,5 +199,19 @@ describe("contest results", () => {
     const res = await syncAll({ repo, cf: cf as unknown as CodeforcesAdapter, lc: fakeLc() as unknown as LeetCodeAdapter, handles, now: () => NOW, retryDelaysMs: [0, 0] });
     expect(res.cf.steps.find((s) => s.kind === "cf:results")?.status).toBe("skipped");
     expect(cf.getContestStanding).not.toHaveBeenCalled();
+  });
+});
+
+describe("contest result repair", () => {
+  it("names placeholder rows from contest.list and drops partial totals", async () => {
+    const repo = await memoryRepo();
+    const base = { startTime: 1, durationSeconds: 7200, participated: true, rank: null, solved: 1, problems: [], syncedAt: 1 };
+    await repo.saveContestResult({ ...base, contestId: "cf:0", name: "Codeforces contest 0", total: 7 });
+    await repo.saveContestResult({ ...base, contestId: "cf:9", name: "Round 9 (Div. 2)", total: 2 });
+    const cf = fakeCf([]);
+    await syncAll({ repo, cf: cf as unknown as CodeforcesAdapter, lc: fakeLc() as unknown as LeetCodeAdapter, handles, now: () => NOW, retryDelaysMs: [0, 0] });
+    const rows = new Map((await repo.getContestResults()).map((r) => [r.contestId, r]));
+    expect(rows.get("cf:0")).toMatchObject({ name: "Ancient", total: 7 });
+    expect(rows.get("cf:9")).toMatchObject({ total: null, solved: 1 });
   });
 });

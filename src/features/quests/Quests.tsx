@@ -22,7 +22,8 @@ function QuestProblems({ q }: { q: QuestState }) {
   return (
     <ul className="-mx-2 -mb-1 flex flex-col">
       {items.map((i) => (
-        <ProblemRow key={i.problemId} p={i.rec!} density="compact" feedback={i.platform === "lc" ? ["skip"] : []} />
+        // LeetCode rows keep Mark solved in view: the API can't see older solves.
+        <ProblemRow key={i.problemId} p={i.rec!} density={i.platform === "lc" ? "comfortable" : "compact"} chips={false} feedback={i.platform === "lc" ? ["skip"] : []} />
       ))}
     </ul>
   );

@@ -28,6 +28,8 @@ export interface CheckInput {
   submissions: readonly CfSubmission[];
   /** Contests already looked up ('cf:<id>'). */
   known: ReadonlySet<string>;
+  /** contest id → name, from contest.list (for rounds older than the contests table). */
+  names?: ReadonlyMap<number, string>;
 }
 
 /**
@@ -61,7 +63,7 @@ export function contestsToCheck(input: CheckInput): ContestToCheck[] {
     if (!w || w.startTime + w.durationSeconds > input.now) continue;
     const row = table.get(id);
     if (row && row.phase !== "finished") continue; // system test still running
-    out.push({ contestId: id, name: row?.name ?? names.get(id) ?? `Codeforces contest ${id}`, ...w });
+    out.push({ contestId: id, name: row?.name ?? names.get(id) ?? input.names?.get(id) ?? `Codeforces contest ${id}`, ...w });
   }
   return out.sort((a, b) => b.startTime - a.startTime).slice(0, RESULTS_PER_SYNC);
 }
