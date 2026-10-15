@@ -7,12 +7,14 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { CodeforcesAdapter } from "@/adapters/codeforces";
 import { LeetCodeAdapter } from "@/adapters/leetcode";
-import { DEFAULT_HANDLES } from "@/data/settings";
+// Handles come from the environment (there are no built-in defaults any more):
+//   $env:CF_HANDLE="tourist"; $env:LC_HANDLE="..."; npm run test:live
+const LIVE_HANDLES = { codeforces: process.env.CF_HANDLE ?? "", leetcode: process.env.LC_HANDLE ?? "" };
 import { syncAll } from "@/data/sync";
 import { buildTopicReport } from "@/engine/report";
 import { memoryRepo } from "@/test/sqljs";
 
-const LIVE = import.meta.env.MODE === "live";
+const LIVE = import.meta.env.MODE === "live" && LIVE_HANDLES.codeforces !== "";
 
 describe.skipIf(!LIVE)("live sync (real Codeforces + LeetCode)", () => {
   it(
@@ -24,7 +26,7 @@ describe.skipIf(!LIVE)("live sync (real Codeforces + LeetCode)", () => {
         repo,
         cf: new CodeforcesAdapter({ fetch }),
         lc: new LeetCodeAdapter({ fetch }),
-        handles: DEFAULT_HANDLES,
+        handles: LIVE_HANDLES,
       });
       for (const p of [res.cf, res.lc]) console.log(p.platform, p.ok ? "OK" : "ERRORS", JSON.stringify(p.steps));
 

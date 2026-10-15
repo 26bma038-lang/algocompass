@@ -1,15 +1,17 @@
 import { isTauri } from "@tauri-apps/api/core";
 import { Store } from "@tauri-apps/plugin-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { Repo } from "./repo";
 
 export interface Handles {
   codeforces: string;
   leetcode: string;
 }
 
+/** No defaults: a new install asks for handles on first launch (src/features/onboarding). */
 export const DEFAULT_HANDLES: Handles = {
-  codeforces: "enkrid",
-  leetcode: "xfO61DFAh6",
+  codeforces: "",
+  leetcode: "",
 };
 
 const STORE_FILE = "settings.json";
@@ -30,6 +32,46 @@ export async function readHandles(): Promise<Handles> {
   const store = await getStore();
   const saved = await store.get<Partial<Handles>>(HANDLES_KEY);
   return { ...DEFAULT_HANDLES, ...saved };
+}
+
+/** The handles the user actually saved, or null when nothing (or no Codeforces handle) is saved. */
+export async function readSavedHandles(): Promise<Handles | null> {
+  let saved: Partial<Handles> | null | undefined;
+  if (!isTauri()) {
+    try {
+      const raw = localStorage.getItem(HANDLES_KEY);
+      saved = raw ? (JSON.parse(raw) as Partial<Handles>) : null;
+    } catch {
+      saved = null;
+    }
+  } else {
+    saved = await (await getStore()).get<Partial<Handles>>(HANDLES_KEY);
+  }
+  const h = { ...DEFAULT_HANDLES, ...saved };
+  return h.codeforces.trim() ? h : null;
+}
+
+/**
+ * A new install has no handles, so the app shows the welcome screen instead of someone else's
+ * stats. Installs from before v1.0.1 never saved their handles (they ran on built-in defaults), so
+ * when the database already holds synced profiles, those handles are adopted and saved: an existing
+ * install keeps its data and never sees onboarding.
+ */
+export interface HandleSource {
+  readSaved: () => Promise<Handles | null>;
+  write: (h: Handles) => Promise<unknown>;
+  repo: Pick<Repo, "getProfile">;
+}
+
+/** Handles to use, or null when the welcome screen should ask for them. */
+export async function resolveHandles(src: HandleSource): Promise<Handles | null> {
+  const saved = await src.readSaved();
+  if (saved) return saved;
+  const [cf, lc] = await Promise.all([src.repo.getProfile("cf"), src.repo.getProfile("lc")]);
+  if (!cf) return null;
+  const adopted: Handles = { codeforces: cf.handle, leetcode: lc?.handle ?? "" };
+  await src.write(adopted);
+  return adopted;
 }
 
 export async function writeHandles(handles: Handles): Promise<Handles> {

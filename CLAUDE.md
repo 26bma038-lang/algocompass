@@ -1,6 +1,6 @@
 # AlgoCompass
 
-A Windows desktop app that tracks the user's competitive programming on Codeforces (`enkrid`) and LeetCode (`xfO61DFAh6`). It analyzes topic strengths, recommends what to study next, and keeps the user consistent. **The CF rating climb is the goal. LeetCode is where new topics are learned, and Codeforces is where they get sharpened.** CF contests are the main event, and LC contests are listed as secondary.
+A Windows desktop app that tracks the user's competitive programming on Codeforces and LeetCode (handles are entered on first launch; there are no built-in defaults). It analyzes topic strengths, recommends what to study next, and keeps the user consistent. **The CF rating climb is the goal. LeetCode is where new topics are learned, and Codeforces is where they get sharpened.** CF contests are the main event, and LC contests are listed as secondary.
 
 - Product truth (users, purpose, principles): `PRODUCT.md`
 - Visual system (tokens, type, motion, the "Rank Aura" direction): `DESIGN.md`. Read it before touching any UI. Its tokens are normative.

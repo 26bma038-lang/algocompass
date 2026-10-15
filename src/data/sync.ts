@@ -48,6 +48,8 @@ export interface SyncDeps {
   forceProblemset?: boolean;
   /** Backoff between network retries (tests pass zeros). */
   retryDelaysMs?: readonly number[];
+  /** Called as each step finishes (the first-sync progress list on the welcome screen). */
+  onStep?: (platform: Platform, kind: string, status: "ok" | "error" | "skipped") => void;
 }
 
 const nowSeconds = () => Math.floor(Date.now() / 1000);
@@ -75,6 +77,7 @@ interface StepCtx {
   repo: Repo;
   now: () => number;
   retryDelaysMs: readonly number[];
+  onStep?: SyncDeps["onStep"];
 }
 
 /** Runs one logged step; failures are recorded and swallowed so later steps still run. */
@@ -86,6 +89,7 @@ async function step(ctx: StepCtx, result: PlatformSyncResult, kind: string, fn: 
     const skipped = out === "skipped";
     const items = skipped ? 0 : out;
     result.steps.push({ kind, status: skipped ? "skipped" : "ok", items, message: null });
+    ctx.onStep?.(result.platform, kind, skipped ? "skipped" : "ok");
     await repo.logSync({ platform: result.platform, kind, startedAt, finishedAt: now(), status: skipped ? "skipped" : "ok", message: null, items });
   } catch (e) {
     const message = describe(e);
@@ -94,6 +98,7 @@ async function step(ctx: StepCtx, result: PlatformSyncResult, kind: string, fn: 
     result.ok = false;
     result.errors.push(message);
     result.steps.push({ kind, status: "error", items: 0, message });
+    ctx.onStep?.(result.platform, kind, "error");
     await repo.logSync({ platform: result.platform, kind, startedAt, finishedAt: now(), status: "error", message, items: 0 }).catch(() => undefined);
   }
 }
@@ -131,8 +136,14 @@ async function syncCodeforces(deps: SyncDeps, now: () => number): Promise<Platfo
   const { repo, cf } = deps;
   const handle = deps.handles.codeforces;
   const result: PlatformSyncResult = { platform: "cf", ok: true, offline: false, errors: [], steps: [] };
-  const ctx: StepCtx = { repo, now, retryDelaysMs: deps.retryDelaysMs ?? NETWORK_RETRY_DELAYS_MS };
+  const ctx: StepCtx = { repo, now, retryDelaysMs: deps.retryDelaysMs ?? NETWORK_RETRY_DELAYS_MS, onStep: deps.onStep };
 
+  // Defense in depth: an empty handle is "not set", never a handle change that clears history.
+  if (!handle.trim()) {
+    result.ok = false;
+    result.errors.push("No Codeforces handle");
+    return result;
+  }
   const stored = await repo.getProfile("cf");
   if (stored && stored.handle.toLowerCase() !== handle.toLowerCase()) await repo.clearPlatform("cf");
 
@@ -287,8 +298,13 @@ async function syncLeetCode(deps: SyncDeps, now: () => number): Promise<Platform
   const { repo, lc } = deps;
   const username = deps.handles.leetcode;
   const result: PlatformSyncResult = { platform: "lc", ok: true, offline: false, errors: [], steps: [] };
-  const ctx: StepCtx = { repo, now, retryDelaysMs: deps.retryDelaysMs ?? NETWORK_RETRY_DELAYS_MS };
+  const ctx: StepCtx = { repo, now, retryDelaysMs: deps.retryDelaysMs ?? NETWORK_RETRY_DELAYS_MS, onStep: deps.onStep };
 
+  // LeetCode is optional: no username, nothing to sync (and nothing to fail, or to clear).
+  if (!username.trim()) {
+    result.steps.push({ kind: "lc:profile", status: "skipped", items: 0, message: "No LeetCode username" });
+    return result;
+  }
   const stored = await repo.getProfile("lc");
   if (stored && stored.handle.toLowerCase() !== username.toLowerCase()) await repo.clearPlatform("lc");
 

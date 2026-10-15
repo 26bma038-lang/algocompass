@@ -16,8 +16,41 @@ import { CommandPalette } from "./CommandPalette";
 import { ShortcutSheet } from "./ShortcutSheet";
 import { useSyncScheduler } from "@/data/syncStore";
 import { TopicPanel } from "@/features/topic/TopicPanel";
+import { useHandlesState } from "@/data/onboarding";
+import { Welcome } from "@/features/onboarding/Welcome";
 
+/**
+ * First launch (no handles saved, nothing synced): only the title bar and the welcome screen. The
+ * sidebar, top bar and every watcher wait until there's a real account to show.
+ */
 export function AppShell() {
+  const handles = useHandlesState();
+  if (handles.isLoading) {
+    return (
+      <div className="relative flex h-full flex-col bg-abyss">
+        <AmbientBackground />
+        <TitleBar />
+      </div>
+    );
+  }
+  if (handles.data === null) {
+    return (
+      <TooltipProvider delayDuration={250} skipDelayDuration={150}>
+        <div className="relative flex h-full flex-col bg-abyss">
+          <AmbientBackground />
+          <TitleBar />
+          <main className="relative z-10 min-h-0 flex-1 overflow-y-auto px-6">
+            <Welcome />
+          </main>
+        </div>
+        <Toaster />
+      </TooltipProvider>
+    );
+  }
+  return <MainShell />;
+}
+
+function MainShell() {
   const { pathname } = useLocation();
   useShortcuts();
   useSyncScheduler();

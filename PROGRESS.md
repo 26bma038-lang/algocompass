@@ -1,5 +1,27 @@
 # AlgoCompass progress log
 
+## Latest: public release, Phase 10 (2026-10-15)
+
+**Part 1: First-run onboarding.**
+- **No default handles any more.** A new install opens on a welcome screen (title bar only, no sidebar or top bar):
+  - Codeforces handle is required; LeetCode username is optional.
+  - Both are checked against the platforms first, with plain "No Codeforces user "x"" / "No LeetCode user "x"" errors. Offline and other failures get their own messages.
+  - The handles are saved with the platform's own spelling.
+  - The first sync runs right there, with a live step list (profile, rating, submissions, problemset…), then "Open Home Base".
+- **Your install keeps everything:**
+  - Your installed app had never saved its handles; it ran on the old built-in defaults (I checked `settings.json`).
+  - On launch, when nothing is saved but the database holds synced profiles, the app now adopts those handles and saves them, so you never see onboarding.
+  - **Bug caught on the way:** startup sync read handles directly. With empty defaults, it would have treated "enkrid" → "" as a handle change and wiped your Codeforces history. Sync now resolves handles the same way (adopting from the database) and doesn't run at all without a Codeforces handle. As a second guard, an empty handle is never treated as a change. Both are covered by tests.
+- **LeetCode is optional everywhere:**
+  - Sync skips it cleanly with an empty username.
+  - Settings accepts an empty username and clears the cached LeetCode data when you remove it.
+  - Home Base's LeetCode card says "Not tracked" with a link to Settings, instead of "Not synced yet".
+- **Smaller changes:**
+  - The welcome screen's first sync isn't immediately repeated on entering the app.
+  - `npm run test:live` reads `CF_HANDLE` / `LC_HANDLE` from the environment.
+  - Your handles no longer read as config in CLAUDE.md, PRODUCT.md or the design-system sample (`.impeccable/design.json`). PROGRESS.md history, test fixtures and README screenshots keep them, as you allowed.
+- **Tests:** 10 new in `src/data/onboarding.test.ts`: defaults, resolve/adopt, handle checks, LeetCode skip, no wipe. Also driven end to end in a fresh browser profile: bad handles show both errors, then a real handle syncs and lands on Home Base.
+
 ## Latest: v1.0.0 release, Phase 9 (2026-10-15)
 
 **AlgoCompass 1.0.0 is built and tagged.** Each part is committed. `npm test` passes (277 tests), `npm run build` is green, and `npm run tauri build` produced the installers:

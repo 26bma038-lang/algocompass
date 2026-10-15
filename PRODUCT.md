@@ -14,7 +14,7 @@ Tauri 2 + React 18 + Vite + TypeScript (strict), Tailwind, shadcn/ui, Framer Mot
 
 ## Users
 
-A single user: a competitive programmer (Codeforces handle `enkrid`, LeetCode handle `xfO61DFAh6`). They open the app as a **quick daily check-in**, usually from the tray. They look at the streak, today's quest and their rating progress, then close it. Visits last seconds, not minutes. Deeper Skill Tree and topic exploration is occasional.
+A single user per install: a competitive programmer who enters their own Codeforces handle (required) and LeetCode username (optional) on first launch. They open the app as a **quick daily check-in**, usually from the tray. They look at the streak, today's quest and their rating progress, then close it. Visits last seconds, not minutes. Deeper Skill Tree and topic exploration is occasional.
 
 ## Product Purpose
 
@@ -46,7 +46,7 @@ AlgoCompass is one personal compass across both platforms, with distinct roles f
 
 ## Evidence on Hand
 
-- Real handles (above). All other data comes from the platforms at runtime. Don't fabricate stats, ratings or problem counts anywhere a real value is expected. Demo or empty states must say they are empty.
+- The user's own handles, entered on first launch. All other data comes from the platforms at runtime. Don't fabricate stats, ratings or problem counts anywhere a real value is expected. Demo or empty states must say they are empty.
 
 ## Product Principles
 

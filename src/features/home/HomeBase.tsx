@@ -5,6 +5,7 @@ import { flameState, streakAtRisk, useStreak } from "@/components/shell/useStrea
 import { Link } from "react-router-dom";
 import { useHomeData, useTopicReport } from "@/data/queries";
 import { useTodayQuests } from "@/data/quests";
+import { useHandles } from "@/data/settings";
 import { QuestBar, QuestRow } from "@/features/quests/QuestList";
 import type { CfRatingChange, CfUser, Contest } from "@/data/types";
 import { bandForRating } from "@/lib/rank";
@@ -203,6 +204,24 @@ type LcStatsRow = NonNullable<ReturnType<typeof useHomeData>["data"]>["lcStats"]
 
 /** LeetCode is the classroom: a compact secondary card. */
 function LcCard({ lc }: { lc: LcStatsRow }) {
+  const tracked = (useHandles().data?.leetcode ?? "") !== "";
+  if (!lc && !tracked) {
+    return (
+      <section aria-labelledby="lc-title" className="glass-card flex flex-col gap-2 p-5">
+        <h2 id="lc-title" className="flex items-center gap-2 text-title font-semibold">
+          <span aria-hidden className="size-2 rounded-full bg-platform-lc" />
+          LeetCode
+        </h2>
+        <p className="text-body-sm text-ink-muted">
+          Not tracked. LeetCode is where new topics are learned;{" "}
+          <Link to="/settings" className="text-ink underline decoration-glass-border-strong underline-offset-4">
+            add your username in Settings
+          </Link>{" "}
+          to count those solves too.
+        </p>
+      </section>
+    );
+  }
   const parts = lc
     ? [
         { label: "Easy", n: lc.easy },

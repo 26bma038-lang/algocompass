@@ -6,8 +6,9 @@ import { LeetCodeAdapter } from "@/adapters/leetcode";
 import { getDb } from "./db";
 import { queryClient } from "./queryClient";
 import { Repo } from "./repo";
-import { readHandles } from "./settings";
+import { readSavedHandles, resolveHandles, writeHandles } from "./settings";
 import { syncAll, type SyncResult } from "./sync";
+import type { Platform } from "./types";
 
 export const SYNC_INTERVAL_MS = 2 * 60 * 60 * 1000;
 /** After an offline sync, try again this soon (or as soon as the OS reports a connection). */
@@ -49,6 +50,8 @@ function cancelOfflineRetry() {
 
 interface SyncState {
   syncing: boolean;
+  /** Steps finished in the current/last sync (the first-sync progress list). */
+  progress: { platform: Platform; kind: string; status: "ok" | "error" | "skipped" }[];
   lastResult: SyncResult | null;
   lastFinishedAt: number | null;
   run: (opts?: { forceProblemset?: boolean }) => Promise<void>;
@@ -58,6 +61,7 @@ const PLATFORM_NAME = { cf: "Codeforces", lc: "LeetCode" } as const;
 
 export const useSyncStore = create<SyncState>((set, get) => ({
   syncing: false,
+  progress: [],
   lastResult: null,
   lastFinishedAt: null,
   run: async (opts) => {
@@ -65,8 +69,16 @@ export const useSyncStore = create<SyncState>((set, get) => ({
     set({ syncing: true });
     cancelOfflineRetry();
     try {
-      const [repo, handles] = await Promise.all([getRepo(), readHandles()]);
-      const result = await syncAll({ repo, cf, lc, handles, forceProblemset: opts?.forceProblemset });
+      const repo = await getRepo();
+      // Never sync without a Codeforces handle: an empty one would read as a handle change and wipe
+      // the cache. No handles yet means the welcome screen is up; it starts the first sync itself.
+      const handles = await resolveHandles({ readSaved: readSavedHandles, write: writeHandles, repo });
+      if (!handles) return;
+      set({ progress: [] });
+      const result = await syncAll({
+        repo, cf, lc, handles, forceProblemset: opts?.forceProblemset,
+        onStep: (platform, kind, status) => set((s) => ({ progress: [...s.progress, { platform, kind, status }] })),
+      });
       set({ lastResult: result, lastFinishedAt: result.finishedAt });
       for (const p of [result.cf, result.lc]) {
         // Offline isn't an error worth a toast: the top bar says "Offline, will retry".
@@ -91,7 +103,9 @@ export const useSyncStore = create<SyncState>((set, get) => ({
 export function useSyncScheduler() {
   useEffect(() => {
     const run = () => void useSyncStore.getState().run();
-    run();
+    // Skip the start-up sync when one just finished (e.g. the welcome screen's first sync).
+    const last = useSyncStore.getState().lastFinishedAt;
+    if (last === null || Date.now() / 1000 - last > 5 * 60) run();
     const timer = window.setInterval(run, SYNC_INTERVAL_MS);
     // Back online after an offline sync: retry right away instead of waiting out the timer.
     const onOnline = () => {
@@ -106,3 +120,9 @@ export function useSyncScheduler() {
     };
   }, []);
 }
+
+/** The platform adapters' own profile lookups (shared rate-limit queue), for checking handles. */
+export const handleCheckers = {
+  cf: (handle: string) => cf.getUser(handle),
+  lc: (username: string) => lc.getProfile(username),
+};
