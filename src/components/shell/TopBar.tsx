@@ -1,7 +1,8 @@
 import { Link, useMatches, type Params } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { AlertTriangle, CloudOff, Flame, RefreshCw } from "lucide-react";
+import { AlertTriangle, Check, CloudOff, Flame, RefreshCw, ScrollText } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useLevel, useTodayQuests } from "@/data/quests";
 import { syncStatus, useSyncStore } from "@/data/syncStore";
 import { cn } from "@/lib/utils";
 import { AscentBar } from "./AscentBar";
@@ -59,6 +60,30 @@ function StreakFlame({ streak }: { streak: Streak | null }) {
       <TooltipContent side="bottom">
         {!hasData ? "No streak yet" : state === "lit" ? `${days}-day streak, practiced today` : state === "pending" ? `${days}-day streak. Solve one problem today to keep it` : "No active streak"}
       </TooltipContent>
+    </Tooltip>
+  );
+}
+
+/** Today's quest progress ("2/3") → Quests. Sits right before the streak flame. */
+function QuestChip() {
+  const { data } = useTodayQuests();
+  if (!data) return null;
+  const all = data.done === data.total;
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Link to="/quests" aria-label={`Quests: ${data.done} of ${data.total} done today. Open quests`} className={chipLink}>
+          {all ? (
+            <Check aria-hidden className="size-4 text-success" strokeWidth={2.4} />
+          ) : (
+            <ScrollText aria-hidden className="size-4 text-ink-muted" strokeWidth={1.8} />
+          )}
+          <span className="numeric text-body font-semibold text-ink-muted">
+            {data.done}/{data.total}
+          </span>
+        </Link>
+      </TooltipTrigger>
+      <TooltipContent side="bottom">{all ? "All of today's quests done" : `${data.done} of ${data.total} quests done today`}</TooltipContent>
     </Tooltip>
   );
 }
@@ -179,14 +204,16 @@ export function TopBar() {
   const title = useScreenTitle();
   const rating = useRankAccent();
   const streak = useStreak();
+  const level = useLevel().data;
   return (
     <div className="relative shrink-0">
       <div className="flex h-[var(--topbar-h)] items-center justify-between gap-4 px-6">
         <h1 className="truncate font-display text-headline font-semibold tracking-[-0.005em] text-ink">{title}</h1>
         <div className="flex shrink-0 items-center gap-1.5">
           <SyncButton />
+          <QuestChip />
           <StreakFlame streak={streak} />
-          <LevelBadge level={null} xpProgress={0} />
+          <LevelBadge level={level?.level ?? null} xpProgress={level?.progress ?? 0} />
         </div>
       </div>
       <AscentBar rating={rating} />

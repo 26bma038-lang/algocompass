@@ -11,6 +11,10 @@ interface UiState {
   /** Skill Tree filter, kept for the session so coming back doesn't reset it. */
   treeFilter: "all" | "unlocked" | "weak" | "blind";
   setTreeFilter: (f: UiState["treeFilter"]) => void;
+  /** Quests that just completed and still owe their reward moment (aura pulse + fill). */
+  rewards: string[];
+  queueReward: (questIds: string[]) => void;
+  clearReward: (questId: string) => void;
 }
 
 export const useUiStore = create<UiState>()(
@@ -23,6 +27,9 @@ export const useUiStore = create<UiState>()(
       closeTopic: () => set({ openTopicId: null }),
       treeFilter: "all",
       setTreeFilter: (treeFilter) => set({ treeFilter }),
+      rewards: [],
+      queueReward: (ids) => set((s) => ({ rewards: [...new Set([...s.rewards, ...ids])] })),
+      clearReward: (id) => set((s) => ({ rewards: s.rewards.filter((r) => r !== id) })),
     }),
     { name: "algocompass-ui", partialize: (s) => ({ sidebarExpanded: s.sidebarExpanded }) },
   ),

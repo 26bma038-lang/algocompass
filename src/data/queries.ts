@@ -37,8 +37,19 @@ export function useTopicProblems(topicId: string | null) {
     enabled: topicId !== null,
     queryFn: async () => {
       const repo = await getRepo();
-      const [cfSubmissions, lcRecentAc, lcProblems] = await Promise.all([repo.getCfSubmissions(), repo.getLcRecentAc(), repo.getLcProblems()]);
-      return topicProblems(topicId!, { cfSubmissions, lcRecentAc, lcProblems });
+      const [cfSubmissions, lcRecentAc, lcProblems, manual, { LC_CURATED }] = await Promise.all([
+        repo.getCfSubmissions(),
+        repo.getLcRecentAc(),
+        repo.getLcProblems(),
+        repo.getManualSolves(),
+        import("./catalog"),
+      ]);
+      const curated = new Map(LC_CURATED.map((p) => [p.slug, p]));
+      const manualLc = manual.flatMap((m) => {
+        const c = m.platform === "lc" ? curated.get(m.problemId) : undefined;
+        return c ? [{ slug: c.slug, title: c.title, difficulty: c.difficulty, topics: c.topics, solvedAt: m.solvedAt }] : [];
+      });
+      return topicProblems(topicId!, { cfSubmissions, lcRecentAc, lcProblems, manualLc });
     },
   });
 }

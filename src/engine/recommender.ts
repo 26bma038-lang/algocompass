@@ -1,4 +1,4 @@
-import type { CfProblem, CfSubmission, LcDifficulty, MixItem, Platform, RecFeedback } from "@/data/types";
+import type { CfProblem, CfSubmission, LcDifficulty, MixItem, Platform, RecFeedback, UpsolveQueueItem } from "@/data/types";
 import { STATUS_THRESHOLDS, UNRATED_BASELINE, type TopicStatus, type TopicStrength } from "./strength";
 import { TOPIC_BY_ID, topicsForTags } from "./topics";
 
@@ -62,6 +62,8 @@ export interface RecommenderInput {
   /** LeetCode slugs you've solved (as far as LeetCode lets us see). */
   lcSolved: ReadonlySet<string>;
   feedback: readonly RecFeedback[];
+  /** Problems queued after a contest you took part in (unsolved ones show in Upsolve). */
+  upsolveQueue?: readonly UpsolveQueueItem[];
 }
 
 export interface CfRec {
@@ -106,6 +108,8 @@ export interface UpsolveRec {
   attempts: number;
   lastVerdict: string;
   lastAttemptAt: number;
+  /** Queued from a contest you took part in (name of the round). */
+  fromContest?: string;
 }
 
 export interface TopicPlan {
@@ -381,6 +385,31 @@ export function createRecommender(input: RecommenderInput): Recommender {
         attempts: subs.length,
         lastVerdict: last.verdict ?? "",
         lastAttemptAt: last.createdAt,
+      });
+    }
+    // Contest leftovers: queued after a round you took part in, until solved (or skipped).
+    const listed = new Set(out.map((u) => u.id));
+    for (const q of input.upsolveQueue ?? []) {
+      if (cfSolved.has(q.problemKey) || dismissed.has(fbKey("cf", q.problemKey))) continue;
+      const tried = out.find((u) => u.id === q.problemKey);
+      if (tried) {
+        tried.fromContest = q.contestName;
+        continue;
+      }
+      if (listed.has(q.problemKey)) continue;
+      listed.add(q.problemKey);
+      out.push({
+        platform: "cf",
+        id: q.problemKey,
+        contestId: q.contestId,
+        index: q.index,
+        name: q.name,
+        rating: q.rating ?? cfByKey.get(q.problemKey)?.rating ?? null,
+        topics: topicsForTags(q.tags.length ? q.tags : (cfByKey.get(q.problemKey)?.tags ?? []), "cf"),
+        attempts: 0,
+        lastVerdict: "",
+        lastAttemptAt: q.addedAt,
+        fromContest: q.contestName,
       });
     }
     return out.sort((a, b) => (a.rating ?? Infinity) - (b.rating ?? Infinity) || b.lastAttemptAt - a.lastAttemptAt);

@@ -28,6 +28,8 @@ export interface LcSolvedProblem {
   title: string;
   difficulty: LcDifficulty;
   solvedAt: number;
+  /** Marked solved by hand (LeetCode didn't report it). */
+  manual?: boolean;
 }
 
 export interface TopicProblems {
@@ -42,6 +44,8 @@ export interface TopicProblemsInput {
   cfSubmissions: readonly CfSubmission[];
   lcRecentAc: readonly LcRecentAc[];
   lcProblems: readonly LcProblemMeta[];
+  /** LeetCode problems marked solved by hand, with their curated topics. */
+  manualLc?: readonly { slug: string; title: string; difficulty: LcDifficulty; topics: readonly string[]; solvedAt: number }[];
 }
 
 /** Verdicts that say something about the solution (same rule as strength scoring). */
@@ -84,6 +88,10 @@ export function topicProblems(topicId: string, input: TopicProblemsInput): Topic
     const m = meta.get(r.slug);
     if (!m || !topicsForTags(m.tags, "lc").includes(topicId)) continue;
     lcSolved.push({ slug: r.slug, title: r.title, difficulty: m.difficulty, solvedAt: r.timestamp });
+  }
+  for (const m of input.manualLc ?? []) {
+    if (lcFirst.has(m.slug) || !m.topics.includes(topicId)) continue;
+    lcSolved.push({ slug: m.slug, title: m.title, difficulty: m.difficulty, solvedAt: m.solvedAt, manual: true });
   }
 
   return {

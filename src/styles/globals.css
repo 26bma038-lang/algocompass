@@ -318,3 +318,14 @@
 .skill-tree .react-flow__attribution a {
   color: var(--ink-faint);
 }
+
+/* Quest reward moment: one Aura pulse on the quest card when it completes (720ms, runs once).
+   Restrained by design: no confetti, no popups. The progress fill and XP ticker do the rest. */
+@keyframes aura-pulse {
+  0% { box-shadow: 0 0 0 0 var(--accent-line), 0 0 0 0 transparent; }
+  35% { box-shadow: 0 0 0 1px var(--accent-line), 0 6px 28px -4px var(--accent-glow); }
+  100% { box-shadow: 0 0 0 0 transparent, 0 0 0 0 transparent; }
+}
+.aura-pulse {
+  animation: aura-pulse 720ms var(--ease-out) 1;
+}

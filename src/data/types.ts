@@ -180,3 +180,74 @@ export interface DailyMix {
   generatedAt: number;
   items: MixItem[];
 }
+
+// ---------- Quests, contests (Phase 7) ----------
+
+/** A problem you marked solved by hand (LeetCode hides all but your 20 latest solves). */
+export interface ManualSolve {
+  platform: Platform;
+  problemId: string;
+  title: string;
+  topicId: string | null;
+  solvedAt: number;
+}
+
+export interface ContestProblemResult {
+  index: string;
+  name: string;
+  rating: number | null;
+  solved: boolean;
+}
+
+/** Your standing in one finished Codeforces contest. */
+export interface ContestResult {
+  contestId: string; // 'cf:<id>'
+  name: string;
+  startTime: number;
+  durationSeconds: number;
+  participated: boolean;
+  rank: number | null;
+  solved: number | null;
+  total: number | null;
+  problems: ContestProblemResult[];
+  syncedAt: number;
+}
+
+/** contest.standings, normalized: the problem list plus your row (null when you didn't take part). */
+export interface CfContestStanding {
+  contestId: number;
+  problems: CfProblem[];
+  me: { rank: number; participantType: string; solvedIndices: string[] } | null;
+}
+
+export interface UpsolveQueueItem {
+  problemKey: string;
+  contestId: number;
+  index: string;
+  name: string;
+  rating: number | null;
+  tags: string[];
+  contestName: string;
+  addedAt: number;
+}
+
+export type QuestKind = "cf_topic" | "lc_topic" | "any_solves";
+
+/** One daily quest, generated from the Mix of the Day. */
+export interface QuestSpec {
+  /** Stable within a day: one quest per kind. */
+  id: string;
+  kind: QuestKind;
+  title: string;
+  target: number;
+  topicId: string | null;
+  /** Codeforces quests: a solve counts when rated at least this. */
+  minRating: number | null;
+  /** The mix problems this quest points at (they always count). */
+  problemIds: string[];
+  xp: number;
+}
+
+export interface StoredQuest extends QuestSpec {
+  completedAt: number | null;
+}

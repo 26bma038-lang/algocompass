@@ -185,7 +185,7 @@ async function syncCodeforces(deps: SyncDeps, now: () => number): Promise<Platfo
     await repo.saveCfContestTimes(
       all.flatMap((c) => {
         const id = Number(c.id.slice(3)); // "cf:2050" → 2050
-        return Number.isInteger(id) ? [{ contestId: id, startTime: c.startTime }] : [];
+        return Number.isInteger(id) ? [{ contestId: id, startTime: c.startTime, durationSeconds: c.durationSeconds }] : [];
       }),
     );
     return contests.length;

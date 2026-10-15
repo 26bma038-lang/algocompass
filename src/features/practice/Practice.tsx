@@ -121,8 +121,8 @@ function MixCard({ mix, rec }: { mix: MixOfTheDay; rec: Recommender }) {
         </div>
       )}
       <p className="text-label text-ink-muted">
-        Problems you solve are checked off after the next sync. LeetCode only shares your 20 most recent solves, so skip anything you solved
-        long ago.
+        Problems you solve are checked off after the next sync. LeetCode only shares your 20 most recent solves, so use Mark solved for
+        anything you solved long ago.
       </p>
     </section>
   );

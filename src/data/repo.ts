@@ -14,7 +14,12 @@ import type {
   LcProfile,
   LcRecentAc,
   LcTagCount,
+  ManualSolve,
   Platform,
+  QuestSpec,
+  StoredQuest,
+  ContestResult,
+  UpsolveQueueItem,
   RecFeedback,
   SyncLogEntry,
 } from "./types";
@@ -35,6 +40,11 @@ export const TABLES = [
   "cf_contest_times",
   "rec_feedback",
   "daily_mix",
+  "manual_solves",
+  "daily_quests",
+  "contest_attend",
+  "contest_results",
+  "upsolve_queue",
   "sync_log",
 ] as const;
 export type TableName = (typeof TABLES)[number];
@@ -318,13 +328,13 @@ export class Repo {
   }
 
   /** Start time of every CF contest (the problemset itself carries no dates). */
-  async saveCfContestTimes(rows: { contestId: number; startTime: number }[]) {
+  async saveCfContestTimes(rows: { contestId: number; startTime: number; durationSeconds: number }[]) {
     await insertMany(
       this.db,
-      "INSERT INTO cf_contest_times (contest_id, start_time)",
-      2,
-      rows.map((r) => [r.contestId, r.startTime]),
-      "ON CONFLICT(contest_id) DO UPDATE SET start_time = excluded.start_time",
+      "INSERT INTO cf_contest_times (contest_id, start_time, duration_seconds)",
+      3,
+      rows.map((r) => [r.contestId, r.startTime, r.durationSeconds]),
+      "ON CONFLICT(contest_id) DO UPDATE SET start_time = excluded.start_time, duration_seconds = excluded.duration_seconds",
     );
   }
 
@@ -382,6 +392,140 @@ export class Repo {
       [mix.day, mix.generatedAt, json(mix.items)],
     );
     await this.db.execute("DELETE FROM daily_mix WHERE day <> $1", [mix.day]);
+  }
+
+  // ---------- manual solves ----------
+  async addManualSolve(m: ManualSolve) {
+    await this.db.execute(
+      `INSERT INTO manual_solves (platform, problem_id, title, topic_id, solved_at) VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT(platform, problem_id) DO NOTHING`,
+      [m.platform, m.problemId, m.title, m.topicId, m.solvedAt],
+    );
+  }
+
+  async removeManualSolve(platform: Platform, problemId: string) {
+    await this.db.execute("DELETE FROM manual_solves WHERE platform = $1 AND problem_id = $2", [platform, problemId]);
+  }
+
+  async getManualSolves(): Promise<ManualSolve[]> {
+    return this.db.select<ManualSolve>(
+      `SELECT platform, problem_id AS "problemId", title, topic_id AS "topicId", solved_at AS "solvedAt"
+       FROM manual_solves ORDER BY solved_at DESC`,
+    );
+  }
+
+  // ---------- quests ----------
+  async getQuests(day: string): Promise<StoredQuest[]> {
+    const rows = await this.db.select<{ quest_id: string; spec_json: string; xp: number; completed_at: number | null }>(
+      "SELECT quest_id, spec_json, xp, completed_at FROM daily_quests WHERE day = $1 ORDER BY rowid ASC",
+      [day],
+    );
+    const out: StoredQuest[] = [];
+    for (const r of rows) {
+      try {
+        out.push({ ...(JSON.parse(r.spec_json) as QuestSpec), xp: r.xp, completedAt: r.completed_at });
+      } catch {
+        // Unreadable row: skipped; the day's quests get regenerated if none are left.
+      }
+    }
+    return out;
+  }
+
+  /** Replaces the day's not-yet-completed quests (completed ones are kept as earned). */
+  async saveQuests(day: string, quests: QuestSpec[]) {
+    await this.db.execute("DELETE FROM daily_quests WHERE day = $1 AND completed_at IS NULL", [day]);
+    await insertMany(
+      this.db,
+      "INSERT INTO daily_quests (day, quest_id, spec_json, xp, completed_at)",
+      5,
+      quests.map((q) => [day, q.id, json(q), q.xp, null]),
+      "ON CONFLICT(day, quest_id) DO NOTHING",
+    );
+  }
+
+  async completeQuest(day: string, questId: string, at: number) {
+    await this.db.execute("UPDATE daily_quests SET completed_at = $1 WHERE day = $2 AND quest_id = $3 AND completed_at IS NULL", [at, day, questId]);
+  }
+
+  /** Every completed quest (XP history, weekly review). */
+  async getCompletedQuests(): Promise<{ day: string; questId: string; xp: number; completedAt: number }[]> {
+    return this.db.select(
+      `SELECT day, quest_id AS "questId", xp, completed_at AS "completedAt" FROM daily_quests
+       WHERE completed_at IS NOT NULL ORDER BY completed_at ASC`,
+    );
+  }
+
+  // ---------- contests ----------
+  async setAttending(contestId: string, attending: boolean, now: number) {
+    if (attending) {
+      await this.db.execute("INSERT INTO contest_attend (contest_id, created_at) VALUES ($1, $2) ON CONFLICT(contest_id) DO NOTHING", [contestId, now]);
+    } else {
+      await this.db.execute("DELETE FROM contest_attend WHERE contest_id = $1", [contestId]);
+    }
+  }
+
+  async getAttending(): Promise<Set<string>> {
+    const rows = await this.db.select<{ contest_id: string }>("SELECT contest_id FROM contest_attend");
+    return new Set(rows.map((r) => r.contest_id));
+  }
+
+  async saveContestResult(r: ContestResult) {
+    await this.db.execute(
+      `INSERT INTO contest_results (contest_id, name, start_time, duration_seconds, participated, rank, solved, total, problems_json, synced_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+       ON CONFLICT(contest_id) DO UPDATE SET name = excluded.name, participated = excluded.participated, rank = excluded.rank,
+         solved = excluded.solved, total = excluded.total, problems_json = excluded.problems_json, synced_at = excluded.synced_at`,
+      [r.contestId, r.name, r.startTime, r.durationSeconds, r.participated ? 1 : 0, r.rank, r.solved, r.total, json(r.problems), r.syncedAt],
+    );
+  }
+
+  async getContestResults(): Promise<ContestResult[]> {
+    const rows = await this.db.select<{
+      contest_id: string; name: string; start_time: number; duration_seconds: number; participated: number;
+      rank: number | null; solved: number | null; total: number | null; problems_json: string; synced_at: number;
+    }>("SELECT * FROM contest_results ORDER BY start_time DESC");
+    return rows.map((r) => {
+      let problems: ContestResult["problems"] = [];
+      try {
+        const v: unknown = JSON.parse(r.problems_json);
+        if (Array.isArray(v)) problems = v as ContestResult["problems"];
+      } catch {
+        // Keep the row, without its problem list.
+      }
+      return {
+        contestId: r.contest_id, name: r.name, startTime: r.start_time, durationSeconds: r.duration_seconds,
+        participated: r.participated === 1, rank: r.rank, solved: r.solved, total: r.total, problems, syncedAt: r.synced_at,
+      };
+    });
+  }
+
+  /** Start and length of every CF contest we know (contest.list), for in-contest windows. */
+  async getCfContestWindows(): Promise<Map<number, { startTime: number; durationSeconds: number | null }>> {
+    const rows = await this.db.select<{ contest_id: number; start_time: number; duration_seconds: number | null }>(
+      "SELECT contest_id, start_time, duration_seconds FROM cf_contest_times",
+    );
+    return new Map(rows.map((r) => [r.contest_id, { startTime: r.start_time, durationSeconds: r.duration_seconds }]));
+  }
+
+  async addToUpsolveQueue(items: UpsolveQueueItem[]) {
+    await insertMany(
+      this.db,
+      "INSERT INTO upsolve_queue (problem_key, contest_id, problem_index, name, rating, tags_json, contest_name, added_at)",
+      8,
+      items.map((i) => [i.problemKey, i.contestId, i.index, i.name, i.rating, json(i.tags), i.contestName, i.addedAt]),
+      "ON CONFLICT(problem_key) DO NOTHING",
+    );
+  }
+
+  async getUpsolveQueue(): Promise<UpsolveQueueItem[]> {
+    const rows = await this.db.select<{
+      problem_key: string; contest_id: number; problem_index: string; name: string; rating: number | null;
+      tags_json: string; contest_name: string; added_at: number;
+    }>("SELECT * FROM upsolve_queue ORDER BY added_at DESC");
+    return rows.map((r) => ({
+      problemKey: r.problem_key, contestId: r.contest_id, index: r.problem_index, name: r.name, rating: r.rating,
+      tags: parseTags(r.tags_json), contestName: r.contest_name, addedAt: r.added_at,
+    }));
   }
 
   async logSync(e: SyncLogEntry) {

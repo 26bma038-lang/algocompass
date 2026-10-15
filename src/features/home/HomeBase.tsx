@@ -2,7 +2,10 @@ import type { ReactNode } from "react";
 import { Check, Flame } from "lucide-react";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { flameState, streakAtRisk, useStreak } from "@/components/shell/useStreak";
+import { Link } from "react-router-dom";
 import { useHomeData, useTopicReport } from "@/data/queries";
+import { useTodayQuests } from "@/data/quests";
+import { QuestBar, QuestRow } from "@/features/quests/QuestList";
 import type { CfRatingChange, CfUser, Contest } from "@/data/types";
 import { bandForRating } from "@/lib/rank";
 import { cn } from "@/lib/utils";
@@ -15,6 +18,32 @@ import { WorkOnNext } from "./WorkOnNext";
 
 const plain = (n: number) => String(Math.round(n));
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
+
+/** Today's quests as a checklist, beside the next contest: "am I on track?" in one look. */
+function QuestsTile() {
+  const { data } = useTodayQuests();
+  if (!data) return null;
+  return (
+    <Link
+      to="/quests"
+      aria-label={`Today's quests: ${data.done} of ${data.total} done. Open quests`}
+      className="flex flex-col gap-2.5 rounded-md border border-glass-border bg-abyss-sunken p-4 transition-colors duration-[var(--dur-fast)] hover:border-glass-border-strong"
+    >
+      <span className="flex items-center justify-between gap-2 text-label text-ink-muted">
+        Today's quests
+        <span className="numeric font-display text-title font-semibold text-ink">
+          {data.done}/{data.total}
+        </span>
+      </span>
+      <QuestBar value={data.total ? data.done / data.total : 0} />
+      <ul className="flex flex-col gap-1.5">
+        {data.quests.map((q) => (
+          <QuestRow key={q.id} q={q} compact />
+        ))}
+      </ul>
+    </Link>
+  );
+}
 
 /**
  * Lead card: the 2-second answer. Did I practice today, is the streak at risk,
@@ -75,11 +104,12 @@ function TodayCard({ nextCf }: { nextCf: Contest | undefined }) {
         {streak && <p className="text-body-sm text-ink-muted">Longest streak: {plural(streak.longest, "day")}</p>}
       </div>
 
+      <div className="flex flex-col gap-3 self-start md:w-[230px]">
       {nextCf && (
         <button
           type="button"
           onClick={() => openContest(nextCf.url)}
-          className="flex flex-col items-start gap-1.5 self-start rounded-md border border-glass-border bg-abyss-sunken p-4 text-left transition-colors duration-[var(--dur-fast)] hover:border-glass-border-strong md:w-[230px]"
+          className="flex w-full flex-col items-start gap-1.5 rounded-md border border-glass-border bg-abyss-sunken p-4 text-left transition-colors duration-[var(--dur-fast)] hover:border-glass-border-strong"
         >
           <span className="flex items-center gap-1.5 text-label text-ink-muted">
             <span aria-hidden className="size-1.5 rounded-full bg-platform-cf" />
@@ -93,6 +123,8 @@ function TodayCard({ nextCf }: { nextCf: Contest | undefined }) {
           </span>
         </button>
       )}
+      <QuestsTile />
+      </div>
     </section>
   );
 }

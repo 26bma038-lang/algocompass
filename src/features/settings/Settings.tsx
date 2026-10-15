@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useHandles, useSaveHandles, type Handles } from "@/data/settings";
 import { useSyncStore } from "@/data/syncStore";
+import { PrefsSections } from "./PrefsSections";
 
 // Codeforces handles: 3–24 chars of letters, digits, underscore, dot, hyphen.
 const CF_HANDLE = /^[A-Za-z0-9_.-]{3,24}$/;
@@ -109,7 +110,7 @@ export function Settings() {
   };
 
   return (
-    <div className="flex max-w-[640px] flex-col gap-8">
+    <div className="flex max-w-[640px] flex-col gap-6">
       <section aria-labelledby="handles-title" className="glass-card p-6">
         <h2 id="handles-title" className="text-title font-semibold text-ink">
           Handles
@@ -174,6 +175,7 @@ export function Settings() {
           </form>
         )}
       </section>
+      <PrefsSections />
     </div>
   );
 }

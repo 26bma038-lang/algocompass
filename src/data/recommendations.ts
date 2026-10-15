@@ -23,13 +23,15 @@ export const recommenderQuery = queryOptions({
     const repo = await getRepo();
     // fetchQuery, not ensureQueryData: after a sync invalidates the report, this waits for the fresh one.
     const report = await client.fetchQuery(topicReportQuery);
-    const [cfProfile, cfProblems, cfSubmissions, contestTimes, lcRecentAc, feedback] = await Promise.all([
+    const [cfProfile, cfProblems, cfSubmissions, contestTimes, lcRecentAc, feedback, manual, upsolveQueue] = await Promise.all([
       repo.getProfile<CfUser>("cf"),
       repo.getCfProblems(),
       repo.getCfSubmissions(),
       repo.getCfContestTimes(),
       repo.getLcRecentAc(),
       repo.getFeedback(),
+      repo.getManualSolves(),
+      repo.getUpsolveQueue(),
     ]);
     const cfRating = cfProfile?.data.rating ?? null;
     return createRecommender({
@@ -41,8 +43,10 @@ export const recommenderQuery = queryOptions({
       cfSubmissions,
       contestTimes,
       lcCurated: LC_CURATED,
-      lcSolved: new Set(lcRecentAc.map((r) => r.slug)),
+      // Manual marks count as solved: LeetCode only shows the 20 most recent solves.
+      lcSolved: new Set([...lcRecentAc.map((r) => r.slug), ...manual.filter((m) => m.platform === "lc").map((m) => m.problemId)]),
       feedback,
+      upsolveQueue,
     });
   },
 });
@@ -112,6 +116,9 @@ export function useReshuffleMix() {
       // Out of fresh problems: start over rather than show an empty mix.
       if (items.length === 0) items = rec.generateMix();
       await repo.saveDailyMix({ day, generatedAt: Math.floor(Date.now() / 1000), items });
+      // Open quests follow the new mix; completed ones stay earned.
+      const { regenerateOpenQuests } = await import("./quests");
+      await regenerateOpenQuests(day, items.map((i) => ({ ...i, rec: rec.resolve(i), done: false })));
     },
     onSuccess: () => client.invalidateQueries({ queryKey: ["db", "mix"] }),
   });

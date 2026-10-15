@@ -3,6 +3,7 @@ import { cfProblemUrl, lcProblemUrl } from "@/adapters/links";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { LC_LISTS } from "@/data/catalog";
+import { useMarkSolved } from "@/data/quests";
 import { useRecFeedback } from "@/data/recommendations";
 import { useUiStore } from "@/data/uiStore";
 import type { FeedbackKind } from "@/data/types";
@@ -32,7 +33,10 @@ function meta(p: RowProblem): string {
     const topic = TOPIC_BY_ID.get(p.topicId)?.name.toLowerCase();
     return p.onPath && topic ? `Step ${p.order} of the ${topic} path, ${list}` : list;
   }
-  if ("attempts" in p) return `${plural(p.attempts, "try", "tries")}, last ${verdictLabel(p.lastVerdict).toLowerCase()}, ${monthYear(p.lastAttemptAt)}`;
+  if ("attempts" in p) {
+    if (p.attempts === 0) return `Unsolved in ${p.fromContest ?? "a contest you took part in"}`;
+    return `${plural(p.attempts, "try", "tries")}, last ${verdictLabel(p.lastVerdict).toLowerCase()}, ${monthYear(p.lastAttemptAt)}`;
+  }
   return p.contestStart ? `From a ${monthYear(p.contestStart)} round` : `Contest ${p.contestId}`;
 }
 
@@ -47,13 +51,18 @@ function Grade({ p }: { p: RowProblem }) {
 }
 
 const FEEDBACK: { kind: FeedbackKind; label: string; hint: (p: RowProblem) => string }[] = [
-  { kind: "skip", label: "Skip", hint: () => "Hide it. Use this for problems you've already solved, too." },
+  { kind: "skip", label: "Skip", hint: (p) => (p.platform === "lc" ? "Hide it without marking it solved" : "Hide it. Use this for problems you've already solved, too.") },
   { kind: "too_easy", label: "Too easy", hint: (p) => (p.platform === "cf" ? "Hide it and raise this topic's range by 100" : "Hide it and serve harder problems for this topic") },
   { kind: "too_hard", label: "Too hard", hint: (p) => (p.platform === "cf" ? "Hide it and lower this topic's range by 100" : "Hide it and serve easier problems for this topic") },
 ];
 
 function Feedback({ p, topicId, kinds, reveal, compact = false }: { p: RowProblem; topicId: string; kinds: FeedbackKind[]; reveal: boolean; compact?: boolean }) {
   const feedback = useRecFeedback();
+  const mark = useMarkSolved();
+  const btn = cn(
+    "rounded-xs px-1.5 text-label whitespace-nowrap text-ink-faint transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover hover:text-ink disabled:opacity-45",
+    compact ? "h-5" : "h-7",
+  );
   return (
     <div
       role="group"
@@ -62,9 +71,25 @@ function Feedback({ p, topicId, kinds, reveal, compact = false }: { p: RowProble
         "flex shrink-0 items-center",
         reveal && "opacity-0 transition-opacity duration-[var(--dur-fast)] group-hover:opacity-100 group-focus-within:opacity-100",
         // Compact: no width until shown (snaps, no layout animation); the buttons stay focusable.
-        compact && "max-w-0 overflow-hidden group-hover:max-w-[260px] group-focus-within:max-w-[260px]",
+        compact && "max-w-0 overflow-hidden group-hover:max-w-[340px] group-focus-within:max-w-[340px]",
       )}
     >
+      {/* LeetCode hides all but your 20 latest solves, so older ones are marked by hand. */}
+      {p.platform === "lc" && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              disabled={mark.isPending}
+              onClick={() => mark.mutate({ platform: "lc", problemId: p.id, title: title(p), topicId })}
+              className={btn}
+            >
+              Mark solved
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="top">Already solved it? LeetCode only shares your 20 latest solves</TooltipContent>
+        </Tooltip>
+      )}
       {FEEDBACK.filter((f) => kinds.includes(f.kind)).map((f) => (
         <Tooltip key={f.kind}>
           <TooltipTrigger asChild>
@@ -72,10 +97,7 @@ function Feedback({ p, topicId, kinds, reveal, compact = false }: { p: RowProble
               type="button"
               disabled={feedback.isPending}
               onClick={() => feedback.mutate({ platform: p.platform, problemId: p.id, topicId, kind: f.kind, label: title(p) })}
-              className={cn(
-                "rounded-xs px-1.5 text-label whitespace-nowrap text-ink-faint transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover hover:text-ink disabled:opacity-45",
-                compact ? "h-5" : "h-7",
-              )}
+              className={btn}
             >
               {f.label}
             </button>

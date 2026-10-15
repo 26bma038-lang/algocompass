@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+﻿import { describe, expect, it } from "vitest";
 import { memoryRepo } from "@/test/sqljs";
 import { TOPICS } from "@/engine/topics";
 import { LC_CURATED, LC_LISTS, RESOURCES } from "./catalog";
@@ -29,12 +29,12 @@ describe("lc_lists.json", () => {
     for (const p of LC_CURATED) {
       expect(topicIds.has(p.topic), p.slug).toBe(true);
       expect(p.topics[0]).toBe(p.topic);
-      for (const id of p.topics) expect(topicIds.has(id), `${p.slug} → ${id}`).toBe(true);
+      for (const id of p.topics) expect(topicIds.has(id), `${p.slug} â†’ ${id}`).toBe(true);
       expect(LC_LISTS[p.list], p.slug).toBeDefined();
     }
   });
 
-  it("orders each topic's path 1..n, Easy → Medium → Hard", () => {
+  it("orders each topic's path 1..n, Easy â†’ Medium â†’ Hard", () => {
     const rank = { Easy: 0, Medium: 1, Hard: 2 } as const;
     for (const t of TOPICS) {
       const path = LC_CURATED.filter((p) => p.topic === t.id);
@@ -76,10 +76,10 @@ describe("recommender tables", () => {
   it("stores contest start times", async () => {
     const repo = await memoryRepo();
     await repo.saveCfContestTimes([
-      { contestId: 2050, startTime: 1_700_000_000 },
-      { contestId: 1, startTime: 1_266_000_000 },
+      { contestId: 2050, startTime: 1_700_000_000, durationSeconds: 7200 },
+      { contestId: 1, startTime: 1_266_000_000, durationSeconds: 7200 },
     ]);
-    await repo.saveCfContestTimes([{ contestId: 2050, startTime: 1_700_000_100 }]);
+    await repo.saveCfContestTimes([{ contestId: 2050, startTime: 1_700_000_100, durationSeconds: 8100 }]);
     const times = await repo.getCfContestTimes();
     expect(times.get(2050)).toBe(1_700_000_100);
     expect(times.size).toBe(2);
