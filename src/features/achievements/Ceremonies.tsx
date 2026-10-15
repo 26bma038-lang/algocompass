@@ -119,16 +119,16 @@ function AuraShift({ c, onDone }: { c: Extract<Ceremony, { kind: "rank" }>; onDo
         initial={{ opacity: 0 }}
         animate={{ opacity: [0, 0.5, 0] }}
         transition={{ duration: SHIFT_MS / 1000, ease: "easeInOut" }}
-        className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--accent-glow),transparent_60%)]"
+        className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--rank-glow),transparent_60%)]"
       />
       <motion.div
         initial={{ opacity: 0, y: 8, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ delay: 0.35, duration: 0.5, ease }}
-        className="relative flex flex-col items-center gap-2 rounded-lg border border-accent-line bg-abyss-raised/90 px-10 py-7 shadow-aura"
+        className="relative flex flex-col items-center gap-2 rounded-lg border border-[var(--rank-line)] bg-abyss-raised/90 px-10 py-7 shadow-[0_0_0_1px_var(--rank-line),0_6px_24px_-6px_var(--rank-glow)]"
       >
         <span className="text-label text-ink-muted">{c.preview ? "Preview · Promoted" : "Promoted"}</span>
-        <span className="font-display text-display leading-none font-semibold text-accent">{to.label}</span>
+        <span className="font-display text-display leading-none font-semibold text-rank">{to.label}</span>
         <span className="text-body-sm text-ink-muted">
           {from.label} → {to.label}. The whole app now wears your new rank.
         </span>

@@ -36,7 +36,7 @@ export function ContestStrip({ contests }: { contests: readonly Contest[] }) {
       {shown.length === 0 ? (
         <p className="glass-card p-5 text-body-sm text-ink-muted">No other upcoming contests are listed yet.</p>
       ) : (
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4">
           {shown.map((c) => (
             <button
               key={c.id}

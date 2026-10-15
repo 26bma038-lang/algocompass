@@ -63,9 +63,10 @@ export function bandProgress(rating: number): number {
   return Math.min(1, Math.max(0, (rating - floor) / (next.min - floor)));
 }
 
-/** Points the whole app's Rank Aura at a rank. One variable recolors everything. */
+/** Points the rank colour (--rank) at a rank: the rating number, rank chip and rank progress. */
 export function applyRankAccent(current: RankToken, next: RankToken | null) {
   const root = document.documentElement.style;
-  root.setProperty("--accent", `var(--${current})`);
-  root.setProperty("--accent-next", `var(--${next ?? current})`);
+  // Since the redesign the rank colour paints only rank elements; the theme owns the chrome.
+  root.setProperty("--rank", `var(--${current})`);
+  root.setProperty("--rank-next", `var(--${next ?? current})`);
 }

@@ -17,9 +17,9 @@ export function WorkOnNext() {
   const problems = next.mode === "learn" ? rec.learn(next.topicId, 2) : rec.sharpen(next.topicId, 2);
 
   return (
-    <div className="flex flex-col gap-2 rounded-md border border-glass-border bg-abyss-sunken p-4">
+    <section aria-labelledby="won-title" className="glass-card flex h-full flex-col gap-3 p-6">
       <div className="flex items-center justify-between gap-3">
-        <span className="text-label text-ink-muted">Work on next</span>
+        <h2 id="won-title" className="font-display text-headline font-semibold text-ink">Work on next</h2>
         <ModeBadge mode={next.mode} />
       </div>
       <button
@@ -44,6 +44,6 @@ export function WorkOnNext() {
       <Link to="/practice" className="self-start text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
         Today's mix and more in Practice
       </Link>
-    </div>
+    </section>
   );
 }
