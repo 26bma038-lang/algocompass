@@ -45,6 +45,7 @@ export const TABLES = [
   "contest_attend",
   "contest_results",
   "upsolve_queue",
+  "achievements",
   "sync_log",
 ] as const;
 export type TableName = (typeof TABLES)[number];
@@ -452,6 +453,30 @@ export class Repo {
     return this.db.select(
       `SELECT day, quest_id AS "questId", xp, completed_at AS "completedAt" FROM daily_quests
        WHERE completed_at IS NOT NULL ORDER BY completed_at ASC`,
+    );
+  }
+
+  /** Per day with quests: how many there were, how many got done, and when the last one finished. */
+  async getQuestDays(): Promise<{ day: string; total: number; done: number; lastAt: number | null }[]> {
+    return this.db.select(
+      `SELECT day, COUNT(*) AS total, COUNT(completed_at) AS done, MAX(completed_at) AS "lastAt"
+       FROM daily_quests GROUP BY day ORDER BY day ASC`,
+    );
+  }
+
+  // ---------- achievements ----------
+  async getAchievements(): Promise<Map<string, { unlockedAt: number | null; recordedAt: number }>> {
+    const rows = await this.db.select<{ id: string; unlocked_at: number | null; recorded_at: number }>("SELECT id, unlocked_at, recorded_at FROM achievements");
+    return new Map(rows.map((r) => [r.id, { unlockedAt: r.unlocked_at, recordedAt: r.recorded_at }]));
+  }
+
+  async recordAchievements(rows: { id: string; unlockedAt: number | null }[], now: number) {
+    await insertMany(
+      this.db,
+      "INSERT INTO achievements (id, unlocked_at, recorded_at)",
+      3,
+      rows.map((r) => [r.id, r.unlockedAt, now]),
+      "ON CONFLICT(id) DO NOTHING",
     );
   }
 

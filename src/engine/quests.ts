@@ -106,30 +106,3 @@ export function evaluateQuests(quests: readonly StoredQuest[], solves: readonly 
 export function newlyCompleted(states: readonly QuestState[]): QuestState[] {
   return states.filter((q) => q.done && q.completedAt === null);
 }
-
-// ---------- XP and levels ----------
-
-/** XP needed to go from `level` to `level + 1`: 100, 150, 200, … */
-export const xpToNext = (level: number) => 100 + 50 * (level - 1);
-
-export interface LevelInfo {
-  /** Null until any XP is earned (the level badge stays unlit). */
-  level: number | null;
-  totalXp: number;
-  intoLevel: number;
-  toNext: number;
-  /** 0–1 toward the next level. */
-  progress: number;
-}
-
-export function levelForXp(totalXp: number): LevelInfo {
-  if (totalXp <= 0) return { level: null, totalXp: 0, intoLevel: 0, toNext: xpToNext(1), progress: 0 };
-  let level = 1;
-  let rest = totalXp;
-  while (rest >= xpToNext(level)) {
-    rest -= xpToNext(level);
-    level++;
-  }
-  const toNext = xpToNext(level);
-  return { level, totalXp, intoLevel: rest, toNext, progress: rest / toNext };
-}

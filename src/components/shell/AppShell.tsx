@@ -8,7 +8,9 @@ import { TopBar } from "./TopBar";
 import { useShortcuts } from "./useShortcuts";
 import { Toaster } from "@/components/ui/sonner";
 import { useDesktopBridge } from "@/data/desktopBridge";
+import { useProgressionWatcher } from "@/data/progression";
 import { useQuestWatcher } from "@/data/quests";
+import { Ceremonies } from "@/features/achievements/Ceremonies";
 import { useSyncScheduler } from "@/data/syncStore";
 import { TopicPanel } from "@/features/topic/TopicPanel";
 
@@ -18,6 +20,7 @@ export function AppShell() {
   useSyncScheduler();
   useQuestWatcher();
   useDesktopBridge();
+  useProgressionWatcher();
   return (
     <TooltipProvider delayDuration={250} skipDelayDuration={150}>
       <div className="relative flex h-full flex-col bg-abyss">
@@ -43,6 +46,7 @@ export function AppShell() {
         </div>
       </div>
       <TopicPanel />
+      <Ceremonies />
       <Toaster />
     </TooltipProvider>
   );

@@ -1,6 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+/** A progression moment: a level-up, or a rank promotion (the Aura Shift). Indices are into RANK_BANDS. */
+export type Ceremony =
+  | { kind: "level"; level: number; title: string }
+  | { kind: "rank"; from: number; to: number; preview: boolean };
+
 interface UiState {
   sidebarExpanded: boolean;
   toggleSidebar: () => void;
@@ -15,6 +20,9 @@ interface UiState {
   rewards: string[];
   queueReward: (questIds: string[]) => void;
   clearReward: (questId: string) => void;
+  ceremony: Ceremony | null;
+  startCeremony: (c: Ceremony) => void;
+  endCeremony: () => void;
 }
 
 export const useUiStore = create<UiState>()(
@@ -30,6 +38,9 @@ export const useUiStore = create<UiState>()(
       rewards: [],
       queueReward: (ids) => set((s) => ({ rewards: [...new Set([...s.rewards, ...ids])] })),
       clearReward: (id) => set((s) => ({ rewards: s.rewards.filter((r) => r !== id) })),
+      ceremony: null,
+      startCeremony: (ceremony) => set({ ceremony }),
+      endCeremony: () => set({ ceremony: null }),
     }),
     { name: "algocompass-ui", partialize: (s) => ({ sidebarExpanded: s.sidebarExpanded }) },
   ),

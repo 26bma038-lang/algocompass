@@ -1,7 +1,7 @@
 ﻿import { describe, expect, it } from "vitest";
 import type { StoredQuest } from "@/data/types";
 import { weekCounts, weekEnd, weekStart } from "./goals";
-import { CONSISTENCY_TARGET, evaluateQuests, generateQuests, levelForXp, newlyCompleted, QUEST_XP, xpToNext, type QuestMixItem, type SolveEvent } from "./quests";
+import { CONSISTENCY_TARGET, evaluateQuests, generateQuests, newlyCompleted, QUEST_XP, type QuestMixItem, type SolveEvent } from "./quests";
 
 const names: Record<string, string> = { sorting: "Sorting", greedy: "Greedy", "two-pointers": "Two pointers" };
 const name = (id: string) => names[id] ?? id;
@@ -94,18 +94,6 @@ describe("newlyCompleted", () => {
     const s = evaluateQuests(stored(), [cf("1500-A", ["sorting"], 1200)]);
     const recorded = s.map((x) => (x.done ? { ...x, completedAt: 99 } : x));
     expect(newlyCompleted(evaluateQuests(recorded, [cf("1500-A", ["sorting"], 1200)]))).toEqual([]);
-  });
-});
-
-describe("levels", () => {
-  it("is unlit with no XP", () => {
-    expect(levelForXp(0).level).toBeNull();
-  });
-  it("climbs 100, 150, 200 â€¦ XP per level", () => {
-    expect(xpToNext(1)).toBe(100);
-    expect(levelForXp(15)).toMatchObject({ level: 1, intoLevel: 15, toNext: 100 });
-    expect(levelForXp(100)).toMatchObject({ level: 2, intoLevel: 0, toNext: 150 });
-    expect(levelForXp(260)).toMatchObject({ level: 3, intoLevel: 10, toNext: 200 });
   });
 });
 

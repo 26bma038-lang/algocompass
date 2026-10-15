@@ -5,7 +5,6 @@ import { weekCounts, weekEnd, weekStart } from "@/engine/goals";
 import {
   evaluateQuests,
   generateQuests,
-  levelForXp,
   newlyCompleted,
   type QuestMixItem,
   type QuestState,
@@ -139,22 +138,12 @@ export function useQuestWatcher() {
           }
         }
         await client.invalidateQueries({ queryKey: ["db", "quests"] });
-        await client.invalidateQueries({ queryKey: ["db", "xp"] });
+        await client.invalidateQueries({ queryKey: ["db", "progression"] });
       } finally {
         busy.current = false;
       }
     })();
   }, [data, client]);
-}
-
-export function useLevel() {
-  return useQuery({
-    queryKey: ["db", "xp"],
-    queryFn: async () => {
-      const done = await (await getRepo()).getCompletedQuests();
-      return levelForXp(done.reduce((n, q) => n + q.xp, 0));
-    },
-  });
 }
 
 /** This week's counts toward the goals set in Settings. */

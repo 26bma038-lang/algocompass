@@ -4,7 +4,8 @@ import { EmptyState } from "@/components/EmptyState";
 import { ProblemRow } from "@/components/practice/ProblemRow";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { useTopicReport } from "@/data/queries";
-import { useLevel, useTodayQuests, useWeeklyGoals } from "@/data/quests";
+import { useProgression } from "@/data/progression";
+import { useTodayQuests, useWeeklyGoals } from "@/data/quests";
 import { useMixOfTheDay } from "@/data/recommendations";
 import type { QuestState } from "@/engine/quests";
 import { cn } from "@/lib/utils";
@@ -82,7 +83,7 @@ function TodayQuestsCard() {
 }
 
 function LevelCard() {
-  const { data } = useLevel();
+  const data = useProgression().data?.xp;
   const lit = data?.level != null;
   return (
     <section aria-labelledby="level-title" className="glass-card flex flex-col gap-3 p-5">
@@ -93,7 +94,7 @@ function LevelCard() {
         <span className={cn("numeric font-display text-display leading-none font-semibold", lit ? "text-ink" : "text-ink-faint")}>
           {lit ? <NumberTicker id="level" value={data.level!} format={plain} /> : "–"}
         </span>
-        <span className="text-body-sm text-ink-muted">{lit ? `${data.totalXp} XP total` : "Complete a quest to reach level 1"}</span>
+        <span className="text-body-sm text-ink-muted">{lit ? `${data.title} · ${data.totalXp.toLocaleString()} XP` : "Solve a problem to reach level 1"}</span>
       </p>
       {lit && (
         <div className="flex flex-col gap-1.5">

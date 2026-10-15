@@ -329,3 +329,24 @@
 .aura-pulse {
   animation: aura-pulse 720ms var(--ease-out) 1;
 }
+
+/* The accent is a registered color, so a rank promotion can crossfade the whole app (the Aura
+   Shift). The transition only applies while .aura-shifting is on <html>; normally it snaps. */
+@property --accent {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #5b8cff;
+}
+html.aura-shifting {
+  transition: --accent 1200ms var(--ease-move);
+}
+
+/* Level-up: the level badge's plate takes one Aura flash while the title is revealed. */
+@keyframes level-flash {
+  0% { background-color: var(--accent-soft); }
+  30% { background-color: color-mix(in oklab, var(--accent) 55%, transparent); }
+  100% { background-color: var(--accent-soft); }
+}
+.level-flash {
+  animation: level-flash 900ms var(--ease-out) 1;
+}

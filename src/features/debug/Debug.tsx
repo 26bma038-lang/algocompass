@@ -2,7 +2,11 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useSyncLog, useTableCounts, useTableDump, useTopicReport } from "@/data/queries";
 import { TABLES, type TableName } from "@/data/repo";
+import { useProgression } from "@/data/progression";
 import { useSyncStore } from "@/data/syncStore";
+import { useUiStore } from "@/data/uiStore";
+import { bandForRating, RANK_BANDS } from "@/lib/rank";
+import { titleForLevel } from "@/engine/xp";
 import { cn } from "@/lib/utils";
 
 const time = (s: number) => new Date(s * 1000).toLocaleString();
@@ -71,6 +75,26 @@ function TopicReportSection() {
   );
 }
 
+/** Previews of the progression moments. They change nothing: your real rank comes back after. */
+function CeremonyPreviews() {
+  const start = useUiStore((s) => s.startCeremony);
+  const p = useProgression().data;
+  const from = RANK_BANDS.indexOf(bandForRating(p?.cfRating ?? 0).current);
+  const to = Math.min(from + 1, RANK_BANDS.length - 1);
+  const level = p?.xp.level ?? 1;
+  return (
+    <section className="glass-card flex flex-wrap items-center gap-3 p-5">
+      <h2 className="mr-auto text-title font-semibold">Ceremony previews</h2>
+      <Button size="sm" variant="outline" onClick={() => start({ kind: "rank", from, to, preview: true })} disabled={from === to}>
+        Preview Aura Shift ({RANK_BANDS[from]!.label} → {RANK_BANDS[to]!.label})
+      </Button>
+      <Button size="sm" variant="outline" onClick={() => start({ kind: "level", level: level + 1, title: titleForLevel(level + 1) })}>
+        Preview level-up
+      </Button>
+    </section>
+  );
+}
+
 /** Hidden page (Ctrl+Shift+D): raw synced data for checking the data layer. */
 export function Debug() {
   const { syncing, lastResult, run } = useSyncStore();
@@ -82,6 +106,7 @@ export function Debug() {
 
   return (
     <div className="flex flex-col gap-6">
+      <CeremonyPreviews />
       <section className="glass-card flex flex-wrap items-center gap-3 p-5">
         <h2 className="mr-auto text-title font-semibold">Sync</h2>
         <Button size="sm" onClick={() => void run()} disabled={syncing}>
