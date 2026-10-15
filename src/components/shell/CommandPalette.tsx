@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Command } from "cmdk";
 import { CalendarClock, Keyboard, PanelLeft, RefreshCw, Search, Target, type LucideIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -38,6 +39,21 @@ function Item({ icon: Icon, label, hint, kbd, keywords, onSelect }: { icon: Luci
  * Ctrl+K: jump anywhere. Screens, every topic (opens Topic Detail), and the everyday actions.
  * cmdk ranks matches fuzzily and handles the arrows, Enter and Esc. Styled as the Float plane.
  */
+interface Entry {
+  key: string;
+  group: "Actions" | "Screens" | "Topics";
+  icon: LucideIcon;
+  label: string;
+  hint?: string;
+  kbd?: string;
+  keywords?: string[];
+  onSelect: () => void;
+}
+
+const GROUPS: Entry["group"][] = ["Actions", "Screens", "Topics"];
+/** In the flat search list, each row says what it is. */
+const KIND: Record<Entry["group"], string> = { Actions: "Action", Screens: "Screen", Topics: "Topic" };
+
 export function CommandPalette() {
   const open = useUiStore((s) => s.paletteOpen);
   const setOpen = useUiStore((s) => s.setPaletteOpen);
@@ -47,6 +63,7 @@ export function CommandPalette() {
   const navigate = useNavigate();
   const { data } = useHomeData();
   const nextContest = data?.upcoming.find((c) => c.platform === "cf") ?? data?.upcoming[0];
+  const [search, setSearch] = useState("");
 
   /** Close first, then act: the palette never lingers over where you're going. */
   const run = (fn: () => void) => () => {
@@ -54,10 +71,31 @@ export function CommandPalette() {
     fn();
   };
 
+  const entries: Entry[] = [
+    { key: "sync", group: "Actions", icon: RefreshCw, label: "Sync now", kbd: "Ctrl R", keywords: ["refresh", "update"], onSelect: run(() => void useSyncStore.getState().run()) },
+    { key: "mix", group: "Actions", icon: Target, label: "Open today's mix", hint: "Practice", keywords: ["problems", "daily"], onSelect: run(() => navigate("/practice")) },
+    ...(nextContest
+      ? [{ key: "contest", group: "Actions" as const, icon: CalendarClock, label: "Open next contest", hint: shortName(nextContest), keywords: ["round", "register", "codeforces"], onSelect: run(() => openExternal(nextContest.url)) }]
+      : []),
+    { key: "keys", group: "Actions", icon: Keyboard, label: "Keyboard shortcuts", kbd: "?", keywords: ["help", "keys"], onSelect: run(() => setShortcuts(true)) },
+    { key: "sidebar", group: "Actions", icon: PanelLeft, label: "Toggle sidebar", kbd: "Ctrl B", onSelect: run(toggleSidebar) },
+    ...ALL_NAV.map((n): Entry => ({ key: n.to, group: "Screens", icon: n.icon, label: n.label, kbd: keyLabel(n.shortcut), keywords: ["go", "screen"], onSelect: run(() => navigate(n.to)) })),
+    ...TOPICS.map((t): Entry => ({ key: t.id, group: "Topics", icon: topicIcon(t.id), label: t.name, keywords: [...t.cfTags, ...t.lcTags, "topic"], onSelect: run(() => openTopic(t.id)) })),
+  ];
+  const row = (e: Entry, flat: boolean) => (
+    <Item key={e.key} icon={e.icon} label={e.label} hint={flat ? KIND[e.group] : e.hint} kbd={e.kbd} keywords={e.keywords} onSelect={e.onSelect} />
+  );
+  // cmdk ranks items inside a group but keeps groups in order, so while typing the list is flat:
+  // the best match is always on top ("sort" → Sorting, not Keyboard shortcuts).
+  const searching = search.trim() !== "";
+
   return (
     <Command.Dialog
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={(o) => {
+        setOpen(o);
+        if (!o) setSearch("");
+      }}
       label="Command palette"
       loop
       filter={paletteScore}
@@ -67,6 +105,8 @@ export function CommandPalette() {
       <div className="flex items-center gap-2 border-b border-glass-border px-4">
         <Search aria-hidden className="size-4 shrink-0 text-ink-muted" strokeWidth={1.8} />
         <Command.Input
+          value={search}
+          onValueChange={setSearch}
           placeholder="Jump to a screen or topic, or run a command"
           className="h-12 w-full bg-transparent text-body text-ink outline-none placeholder:text-ink-faint focus-visible:!shadow-none"
         />
@@ -74,31 +114,13 @@ export function CommandPalette() {
       </div>
       <Command.List className="max-h-[min(420px,60vh)] overflow-y-auto p-2 [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:pt-2 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:text-label [&_[cmdk-group-heading]]:text-ink-faint">
         <Command.Empty className="px-3 py-6 text-center text-body-sm text-ink-muted">Nothing matches. Try a screen, a topic or a tag.</Command.Empty>
-        <Command.Group heading="Actions">
-          <Item icon={RefreshCw} label="Sync now" kbd="Ctrl R" keywords={["refresh", "update"]} onSelect={run(() => void useSyncStore.getState().run())} />
-          <Item icon={Target} label="Open today's mix" hint="Practice" keywords={["problems", "daily"]} onSelect={run(() => navigate("/practice"))} />
-          {nextContest && (
-            <Item
-              icon={CalendarClock}
-              label="Open next contest"
-              hint={shortName(nextContest)}
-              keywords={["round", "register", "codeforces"]}
-              onSelect={run(() => openExternal(nextContest.url))}
-            />
-          )}
-          <Item icon={Keyboard} label="Keyboard shortcuts" kbd="?" keywords={["help", "keys"]} onSelect={run(() => setShortcuts(true))} />
-          <Item icon={PanelLeft} label="Toggle sidebar" kbd="Ctrl B" onSelect={run(toggleSidebar)} />
-        </Command.Group>
-        <Command.Group heading="Screens">
-          {ALL_NAV.map((n) => (
-            <Item key={n.to} icon={n.icon} label={n.label} kbd={keyLabel(n.shortcut)} keywords={["go", "screen"]} onSelect={run(() => navigate(n.to))} />
-          ))}
-        </Command.Group>
-        <Command.Group heading="Topics">
-          {TOPICS.map((t) => (
-            <Item key={t.id} icon={topicIcon(t.id)} label={t.name} keywords={[...t.cfTags, ...t.lcTags, "topic"]} onSelect={run(() => openTopic(t.id))} />
-          ))}
-        </Command.Group>
+        {searching
+          ? entries.map((e) => row(e, true))
+          : GROUPS.map((g) => (
+              <Command.Group key={g} heading={g}>
+                {entries.filter((e) => e.group === g).map((e) => row(e, false))}
+              </Command.Group>
+            ))}
       </Command.List>
     </Command.Dialog>
   );
