@@ -1,4 +1,5 @@
 import { AdapterError, isNetworkError, sleep } from "@/adapters/http";
+import { contestsToCheck, UPSOLVE_WINDOW_SECONDS, upsolvePicks } from "@/engine/contests";
 import type { CodeforcesAdapter } from "@/adapters/codeforces";
 import type { LeetCodeAdapter } from "@/adapters/leetcode";
 import type { Repo } from "./repo";
@@ -189,6 +190,67 @@ async function syncCodeforces(deps: SyncDeps, now: () => number): Promise<Platfo
       }),
     );
     return contests.length;
+  });
+
+  // Your result in each finished round you took part in; unsolved problems of recent rounds go to Upsolve.
+  await step(ctx, result, "cf:results", async () => {
+    const [known, windows, ratingHistory, attending, submissions, contests] = await Promise.all([
+      repo.getContestResults(),
+      repo.getCfContestWindows(),
+      repo.getCfRatingHistory(),
+      repo.getAttending(),
+      repo.getCfSubmissions(),
+      repo.getContests(0),
+    ]);
+    const todo = contestsToCheck({
+      now: now(),
+      contests,
+      windows,
+      ratingHistory,
+      attending,
+      submissions,
+      known: new Set(known.map((k) => k.contestId)),
+    });
+    if (!todo.length) return "skipped";
+    let failure: unknown = null;
+    for (const c of todo) {
+      try {
+        const standing = await cf.getContestStanding(c.contestId, handle);
+        const solved = new Set(standing.me?.solvedIndices ?? []);
+        await repo.saveContestResult({
+          contestId: `cf:${c.contestId}`,
+          name: c.name,
+          startTime: c.startTime,
+          durationSeconds: c.durationSeconds,
+          participated: standing.me !== null,
+          rank: standing.me?.rank ?? null,
+          solved: standing.me ? solved.size : null,
+          total: standing.problems.length,
+          problems: standing.problems.map((p) => ({ index: p.index, name: p.name, rating: p.rating, solved: solved.has(p.index) })),
+          syncedAt: now(),
+        });
+        if (standing.me && now() - (c.startTime + c.durationSeconds) <= UPSOLVE_WINDOW_SECONDS) {
+          await repo.addToUpsolveQueue(
+            upsolvePicks(standing).map((p) => ({
+              problemKey: p.key,
+              contestId: c.contestId,
+              index: p.index,
+              name: p.name,
+              rating: p.rating,
+              tags: p.tags,
+              contestName: c.name,
+              addedAt: now(),
+            })),
+          );
+        }
+      } catch (e) {
+        // One unavailable standings page doesn't block the rest; the step still reports it.
+        failure ??= e;
+        if (isNetworkError(e)) throw e;
+      }
+    }
+    if (failure) throw failure;
+    return todo.length;
   });
 
   return result;

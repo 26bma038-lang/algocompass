@@ -4,7 +4,7 @@ import type { LeetCodeAdapter } from "@/adapters/leetcode";
 import { AdapterError } from "@/adapters/http";
 import { memoryRepo } from "@/test/sqljs";
 import { cfDailyActivity, lcDailyActivity, syncAll } from "./sync";
-import type { CfSubmission } from "./types";
+import type { CfSubmission, Contest } from "./types";
 
 const sub = (id: number, createdAt: number, verdict: string | null = "OK"): CfSubmission => ({
   id,
@@ -27,10 +27,15 @@ function fakeCf(subs: CfSubmission[]) {
       page ? subs.slice(page.from - 1, page.from - 1 + page.count) : subs,
     ),
     getProblemset: vi.fn(async () => [{ key: "1-1", contestId: 1, index: "1", name: "P1", rating: 800, tags: ["math"], solvedCount: 10 }]),
-    getContests: vi.fn(async () => [
+    getContests: vi.fn(async (): Promise<Contest[]> => [
       { id: "cf:2", platform: "cf" as const, name: "Next", startTime: 10_000_000, durationSeconds: 7200, phase: "upcoming" as const, url: "u" },
       { id: "cf:0", platform: "cf" as const, name: "Ancient", startTime: 1, durationSeconds: 7200, phase: "finished" as const, url: "u" },
     ]),
+    getContestStanding: vi.fn(async (contestId: number) => ({
+      contestId,
+      problems: ["A", "B", "C", "D", "E"].map((index) => ({ key: `${contestId}-${index}`, contestId, index, name: `P${index}`, rating: null, tags: ["math"], solvedCount: null })),
+      me: { rank: 4321, participantType: "CONTESTANT", solvedIndices: ["A", "C"] },
+    })),
   };
 }
 
@@ -156,5 +161,39 @@ describe("daily activity", () => {
 
   it("maps LeetCode calendar keys to UTC days", () => {
     expect(lcDailyActivity({ 1775952000: 7 })).toEqual([{ day: "2026-04-12", platform: "lc", count: 7 }]);
+  });
+});
+
+describe("contest results", () => {
+  it("looks up a round you just took part in and queues what you didn't solve", async () => {
+    const repo = await memoryRepo();
+    const cf = fakeCf([]);
+    // A round that ended an hour before NOW, which you marked "I'll attend".
+    cf.getContests.mockImplementation(async () => [
+      { id: "cf:7", platform: "cf" as const, name: "Codeforces Round 7 (Div. 2)", startTime: NOW - 3 * 3600, durationSeconds: 7200, phase: "finished" as const, url: "u" },
+    ]);
+    await repo.setAttending("cf:7", true, 1);
+    const res = await syncAll({ repo, cf: cf as unknown as CodeforcesAdapter, lc: fakeLc() as unknown as LeetCodeAdapter, handles, now: () => NOW, retryDelaysMs: [0, 0] });
+    expect(res.cf.steps.find((s) => s.kind === "cf:results")?.status).toBe("ok");
+    const [r] = await repo.getContestResults();
+    expect(r).toMatchObject({ contestId: "cf:7", participated: true, rank: 4321, solved: 2, total: 5 });
+    // Solved A and C → upsolve B and D (the first solved + 2 by index).
+    expect((await repo.getUpsolveQueue()).map((q) => q.problemKey).sort()).toEqual(["7-B", "7-D"]);
+
+    // Looked up once: the next sync doesn't call standings again.
+    await syncAll({ repo, cf: cf as unknown as CodeforcesAdapter, lc: fakeLc() as unknown as LeetCodeAdapter, handles, now: () => NOW + 60, retryDelaysMs: [0, 0] });
+    expect(cf.getContestStanding).toHaveBeenCalledTimes(1);
+  });
+
+  it("waits while a round is still in system testing", async () => {
+    const repo = await memoryRepo();
+    const cf = fakeCf([]);
+    cf.getContests.mockImplementation(async () => [
+      { id: "cf:8", platform: "cf" as const, name: "Round 8", startTime: NOW - 3 * 3600, durationSeconds: 7200, phase: "running" as const, url: "u" },
+    ]);
+    await repo.setAttending("cf:8", true, 1);
+    const res = await syncAll({ repo, cf: cf as unknown as CodeforcesAdapter, lc: fakeLc() as unknown as LeetCodeAdapter, handles, now: () => NOW, retryDelaysMs: [0, 0] });
+    expect(res.cf.steps.find((s) => s.kind === "cf:results")?.status).toBe("skipped");
+    expect(cf.getContestStanding).not.toHaveBeenCalled();
   });
 });

@@ -1,4 +1,4 @@
-import type { CfProblem, CfRatingChange, CfSubmission, CfUser, Contest, ContestPhase } from "@/data/types";
+import type { CfContestStanding, CfProblem, CfRatingChange, CfSubmission, CfUser, Contest, ContestPhase } from "@/data/types";
 import { CodeforcesClient, type CfClientOptions } from "./client";
 
 // Raw response shapes: private to this adapter.
@@ -47,6 +47,43 @@ interface RawContest {
   phase: string;
   durationSeconds: number;
   startTimeSeconds?: number;
+}
+
+interface RawStandingsRow {
+  party: { participantType: string };
+  rank: number;
+  problemResults: { points: number }[];
+}
+interface RawStandings {
+  problems: RawProblem[];
+  rows: RawStandingsRow[];
+}
+
+/** Which of your standings rows is "you in the contest": live first, then out of competition. Virtual and practice don't count. */
+const PARTICIPATION = ["CONTESTANT", "OUT_OF_COMPETITION"];
+
+export function toStanding(contestId: number, raw: RawStandings): CfContestStanding {
+  const problems: CfProblem[] = raw.problems.map((p) => ({
+    key: problemKey({ ...p, contestId: p.contestId ?? contestId }),
+    contestId: p.contestId ?? contestId,
+    index: p.index,
+    name: p.name,
+    rating: p.rating ?? null,
+    tags: p.tags ?? [],
+    solvedCount: null,
+  }));
+  const row = PARTICIPATION.map((t) => raw.rows.find((r) => r.party.participantType === t)).find((r) => r !== undefined);
+  return {
+    contestId,
+    problems,
+    me: row
+      ? {
+          rank: row.rank,
+          participantType: row.party.participantType,
+          solvedIndices: problems.filter((_, i) => (row.problemResults[i]?.points ?? 0) > 0).map((p) => p.index),
+        }
+      : null,
+  };
 }
 
 export function problemKey(p: { contestId?: number; problemsetName?: string; index: string }): string {
@@ -150,6 +187,12 @@ export class CodeforcesAdapter {
         solvedCount: solved.get(key) ?? null,
       };
     });
+  }
+
+  /** Problems of one contest and your row in its standings (null if you didn't take part). */
+  async getContestStanding(contestId: number, handle: string): Promise<CfContestStanding> {
+    const raw = await this.client.call<RawStandings>("contest.standings", { contestId, handles: handle, showUnofficial: true });
+    return toStanding(contestId, raw);
   }
 
   async getContests(): Promise<Contest[]> {

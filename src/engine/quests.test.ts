@@ -147,3 +147,32 @@ describe("weekly goals", () => {
     expect(counts).toEqual({ cfProblems: 1, lcProblems: 2, contests: 2 });
   });
 });
+
+describe("contests", async () => {
+  const { contestDivision, contestsToCheck, upsolvePicks, registerUrl } = await import("./contests");
+  it("labels divisions from the round name", () => {
+    expect(contestDivision({ platform: "cf", name: "Codeforces Round 1060 (Div. 2)" })).toBe("Div. 2");
+    expect(contestDivision({ platform: "cf", name: "Codeforces Round 1000 (Div. 1 + Div. 2)" })).toBe("Div. 1 + 2");
+    expect(contestDivision({ platform: "cf", name: "Educational Codeforces Round 195 (Rated for Div. 2)" })).toBe("Educational · Div. 2");
+    expect(contestDivision({ platform: "cf", name: "Codeforces Global Round 30" })).toBe("Global");
+    expect(contestDivision({ platform: "lc", name: "Biweekly Contest 168" })).toBe("Biweekly");
+    expect(contestDivision({ platform: "lc", name: "Weekly Contest 524" })).toBe("Weekly");
+  });
+  it("registers on CF's registration page", () => {
+    expect(registerUrl({ id: "cf:2160", platform: "cf", url: "https://codeforces.com/contests/2160" })).toBe("https://codeforces.com/contestRegistration/2160");
+  });
+  it("upsolves the next two past what you solved, and nothing for a round you skipped", () => {
+    const problems = ["A", "B1", "B2", "C", "D"].map((index) => ({ key: index, contestId: 1, index, name: index, rating: null, tags: [], solvedCount: null }));
+    expect(upsolvePicks({ contestId: 1, problems, me: { rank: 1, participantType: "CONTESTANT", solvedIndices: ["A"] } }).map((p) => p.index)).toEqual(["B1", "B2"]);
+    expect(upsolvePicks({ contestId: 1, problems, me: null })).toEqual([]);
+  });
+  it("finds rounds you submitted in during the contest window, ignoring practice later", () => {
+    const sub = (contestId: number, createdAt: number) => ({ id: createdAt, problemKey: `${contestId}-A`, contestId, problemIndex: "A", problemName: "A", problemRating: null, tags: [], verdict: "OK", createdAt, language: "C++" });
+    const windows = new Map([
+      [5, { startTime: 1000, durationSeconds: 7200 }],
+      [6, { startTime: 1000, durationSeconds: 7200 }],
+    ]);
+    const todo = contestsToCheck({ now: 100_000, contests: [], windows, ratingHistory: [], attending: new Set(), submissions: [sub(5, 2000), sub(6, 50_000)], known: new Set() });
+    expect(todo.map((t) => t.contestId)).toEqual([5]);
+  });
+});
