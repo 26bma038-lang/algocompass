@@ -115,7 +115,7 @@ export function Settings() {
     // One column at the minimum window; two at large ones (handles and goals, then notifications and startup).
     <div className="grid max-w-[640px] grid-cols-1 items-start gap-6 2xl:max-w-[1312px] 2xl:grid-cols-2">
       <section aria-labelledby="handles-title" className="glass-card p-6">
-        <h2 id="handles-title" className="text-title font-semibold text-ink">
+        <h2 id="handles-title" className="font-display text-headline font-semibold text-ink">
           Handles
         </h2>
         <p className="mt-1 max-w-[56ch] text-body text-ink-muted">

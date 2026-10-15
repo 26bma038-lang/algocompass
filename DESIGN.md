@@ -460,3 +460,25 @@ The honest "nothing here yet" pattern. A 40px accent-soft tile (12px radius) wit
 - **Row 2, the two things to do today**, the most prominent cards: **Work on next** (7 columns) and **Today** (5 columns: the streak line plus the three quests, each with its own bar).
 - **Rows 3–4**: Activity (8) with LeetCode (4), then Upcoming contests (8) with Where you stand (4).
 - **Spacing**: 24px gaps and padding, section titles in Chakra Petch headline (22px). At 1100x700 the hero, Work on next and Today all start above the fold.
+
+<!-- Appended 2026-10-15 (v1.1.0: bento across the app). Additions only; nothing above changed. -->
+## Bento across the app
+
+Every screen uses the Home Base bento from the redesign.
+
+- **Grid:** 12 columns with 24px gaps (`grid grid-cols-12 gap-6`). Use `items-start` where neighbours carry very different amounts of content, so a short card doesn't stretch into an empty slab. Home Base keeps equal-height rows.
+- **Cards:** `glass-card` with 24px padding (`p-6`) and 16–24px between blocks inside.
+- **Card header** (`CardHeader`, `src/components/CardHeader.tsx`):
+  - the title in Chakra Petch headline (22px);
+  - an optional one-line description (13px, muted, ≤ 62ch);
+  - on the right, an optional count pill (`Pill`: accent-soft fill, 12px semibold, words not just numbers, like "0/3 done" or "5 open") and actions.
+  - The title block flexes, so the pill and actions stay on the right until the card is genuinely narrow.
+- **Inner tiles:** sunken (`bg-abyss-sunken`, 12px radius, 16px padding) for items inside a card: quests, contests, earned achievements, stats. Locked or empty items use a dashed hairline outline instead of a fill.
+- **Per screen:**
+  - **Practice:** Today's mix leads (12), then Upsolve (5) beside By topic (7).
+  - **Quests:** Today's quests (8) beside Level (4), then This week (8) beside the Weekly review (4).
+  - **Contests:** the next round leads, with its countdown in the accent. Upcoming rounds (7) sit beside Past contests (5) from 1280px, then the full rating chart (Recharts, loaded only here).
+  - **Achievements:** the level hero, then one card per category with a "2 of 7" pill and the achievements as tiles.
+  - **Skill Tree:** the three Work on next topics as 64px tiles with their reasons, then the canvas as the hero card, with filters and search in its header. The space above the canvas stays 154px, so it keeps its full height at 1100x700.
+  - **Topic Detail:** inside the 440px panel, a hero tile (ring, status in headline, builds on, the Codeforces/LeetCode split), four stat tiles, then Upsolve, Solved, Recommended and Resources as cards with count pills.
+  - **Home Base:** every card follows the same header rule (Later contests is now a card with sunken contest tiles).

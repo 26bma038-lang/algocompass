@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { RefreshCw, Target } from "lucide-react";
+import { CardHeader, Pill } from "@/components/CardHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { ModeBadge } from "@/components/practice/ModeBadge";
 import { ProblemRow } from "@/components/practice/ProblemRow";
@@ -55,41 +56,42 @@ function MixCard({ mix, rec }: { mix: MixOfTheDay; rec: Recommender }) {
   const learnTopic = lc[0] ? rec.plans.get(lc[0].topicId) : undefined;
 
   return (
-    <section aria-labelledby="mix-title" className="glass-card flex flex-col gap-5 p-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex max-w-[60ch] flex-col gap-1">
-          <h2 id="mix-title" className="font-display text-headline font-semibold text-ink">
-            Today's mix
-          </h2>
-          <p className="text-body-sm text-ink-muted">
+    <section aria-labelledby="mix-title" className="glass-card flex flex-col gap-6 p-6">
+      <CardHeader
+        id="mix-title"
+        title="Today's mix"
+        description={
+          <>
             {cf.length > 0 && `${cf.length} Codeforces ${cf.length === 1 ? "problem" : "problems"} to sharpen your weakest topics`}
             {cf.length > 0 && lc.length > 0 && ", and "}
-            {lc.length > 0 && `${lc.length} on LeetCode to learn ${learnTopic?.name.toLowerCase() ?? "your next topic"}`}. The same set
-            until midnight.
-          </p>
-        </div>
-        <div className="flex items-center gap-4">
-          {items.length > 0 && (
-            <span className="flex items-center gap-2.5">
-              <RunMeter done={done} total={items.length} />
-              <span className="numeric text-body-sm text-ink-muted">
-                <span className="font-display font-semibold text-ink">{done}</span> of {items.length} solved
+            {lc.length > 0 && `${lc.length} on LeetCode to learn ${learnTopic?.name.toLowerCase() ?? "your next topic"}`}. The same set until
+            midnight.
+          </>
+        }
+        actions={
+          <>
+            {items.length > 0 && (
+              <span className="flex items-center gap-3">
+                <RunMeter done={done} total={items.length} />
+                <Pill>
+                  {done}/{items.length} solved
+                </Pill>
               </span>
-            </span>
-          )}
-          <Button variant="outline" size="sm" onClick={() => reshuffle.mutate()} disabled={reshuffle.isPending}>
-            <RefreshCw aria-hidden className={cn(reshuffle.isPending && "animate-spin")} />
-            New mix
-          </Button>
-        </div>
-      </div>
+            )}
+            <Button variant="outline" size="sm" onClick={() => reshuffle.mutate()} disabled={reshuffle.isPending}>
+              <RefreshCw aria-hidden className={cn(reshuffle.isPending && "animate-spin")} />
+              New mix
+            </Button>
+          </>
+        }
+      />
 
       {items.length === 0 ? (
         <p className="text-body-sm text-ink-muted">
           Nothing left to recommend in your current ranges. Mark a few problems too easy or too hard, or sync to pick up new Codeforces problems.
         </p>
       ) : (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-5">
           {cf.length > 0 && (
             <Group
               label={
@@ -133,14 +135,13 @@ function UpsolveCard({ rec }: { rec: Recommender }) {
   const list = rec.upsolve();
   const shown = all ? list : list.slice(0, 6);
   return (
-    <section aria-labelledby="upsolve-title" className="glass-card flex flex-col gap-3 p-5">
-      <div className="flex items-baseline justify-between gap-3">
-        <h2 id="upsolve-title" className="text-title font-semibold text-ink">
-          Upsolve
-        </h2>
-        {list.length > 0 && <span className="text-label text-ink-muted">{list.length} open</span>}
-      </div>
-      <p className="text-body-sm text-ink-muted">Codeforces problems you tried and never got accepted, easiest first.</p>
+    <section aria-labelledby="upsolve-title" className="glass-card flex flex-col gap-4 p-6">
+      <CardHeader
+        id="upsolve-title"
+        title="Upsolve"
+        description="Codeforces problems you tried and never got accepted, easiest first."
+        pill={list.length > 0 ? `${list.length} open` : undefined}
+      />
       {list.length === 0 ? (
         <p className="text-body-sm text-ink-muted">Nothing open. Every Codeforces problem you've tried is solved.</p>
       ) : (
@@ -171,7 +172,7 @@ function TopicBlock({ plan, rec, avoid }: { plan: TopicPlan; rec: Recommender; a
       ? `${plan.readiness.solves} of ${plan.readiness.needed} solves before it moves to Codeforces`
       : `Codeforces problems rated ${plan.window.lo} to ${plan.window.hi}`;
   return (
-    <li className="flex flex-col gap-2 border-t border-glass-border pt-4 first:border-t-0 first:pt-0">
+    <li className="flex flex-col gap-2 border-t border-glass-border pt-5 first:border-t-0 first:pt-0">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <button
           type="button"
@@ -203,15 +204,16 @@ function ByTopicCard({ rec, avoid }: { rec: Recommender; avoid: ReadonlySet<stri
   const [all, setAll] = useState(false);
   const topics = all ? rec.ranked : rec.ranked.slice(0, TOPICS_SHOWN);
   return (
-    <section aria-labelledby="bytopic-title" className="glass-card flex flex-col gap-3 p-5">
-      <h2 id="bytopic-title" className="text-title font-semibold text-ink">
-        By topic
-      </h2>
-      <p className="text-body-sm text-ink-muted">Your weakest topics at your rating, most urgent first. Learn new ones on LeetCode, sharpen the rest on Codeforces.</p>
+    <section aria-labelledby="bytopic-title" className="glass-card flex flex-col gap-4 p-6">
+      <CardHeader
+        id="bytopic-title"
+        title="By topic"
+        description="Your weakest topics at your rating, most urgent first. Learn new ones on LeetCode, sharpen the rest on Codeforces."
+      />
       {topics.length === 0 ? (
         <p className="text-body-sm text-ink-muted">No topic needs work at your rating right now.</p>
       ) : (
-        <ul className="flex flex-col gap-4 pt-2">
+        <ul className="flex flex-col gap-5 pt-1">
           {topics.map((p) => (
             <TopicBlock key={p.topicId} plan={p} rec={rec} avoid={avoid} />
           ))}
@@ -247,22 +249,23 @@ export function Practice() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      {mix.data ? (
-        <MixCard mix={mix.data} rec={rec.data} />
-      ) : (
-        <section className="glass-card flex flex-col gap-1 p-6" aria-busy={mix.isLoading || mix.data === null}>
-          <h2 className="font-display text-headline font-semibold text-ink">Today's mix</h2>
-          <p className="text-body-sm text-ink-muted">{mix.data === null ? "Picked as soon as this sync finishes, so it's built on your latest solves." : "Picking today's problems…"}</p>
-        </section>
-      )}
-      <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-12 lg:col-span-5">
-          <UpsolveCard rec={rec.data} />
-        </div>
-        <div className="col-span-12 lg:col-span-7">
-          <ByTopicCard rec={rec.data} avoid={new Set(mix.data?.items.map((i) => i.problemId) ?? [])} />
-        </div>
+    // Bento: today's mix leads full width, then Upsolve and By topic side by side (each keeps its own height).
+    <div className="grid grid-cols-12 items-start gap-6">
+      <div className="col-span-12">
+        {mix.data ? (
+          <MixCard mix={mix.data} rec={rec.data} />
+        ) : (
+          <section className="glass-card flex flex-col gap-1 p-6" aria-busy={mix.isLoading || mix.data === null}>
+            <h2 className="font-display text-headline font-semibold text-ink">Today's mix</h2>
+            <p className="text-body-sm text-ink-muted">{mix.data === null ? "Picked as soon as this sync finishes, so it's built on your latest solves." : "Picking today's problems…"}</p>
+          </section>
+        )}
+      </div>
+      <div className="col-span-12 lg:col-span-5">
+        <UpsolveCard rec={rec.data} />
+      </div>
+      <div className="col-span-12 lg:col-span-7">
+        <ByTopicCard rec={rec.data} avoid={new Set(mix.data?.items.map((i) => i.problemId) ?? [])} />
       </div>
     </div>
   );

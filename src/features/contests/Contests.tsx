@@ -1,15 +1,20 @@
-import { useId } from "react";
+import { lazy, Suspense, useId } from "react";
 import { ArrowDown, ArrowUp, ExternalLink, Swords } from "lucide-react";
+import { CardHeader } from "@/components/CardHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { formatDuration, useContestsData, useSetAttending, type PastContest } from "@/data/contests";
+import { useHomeData } from "@/data/queries";
 import type { Contest } from "@/data/types";
 import { contestDivision, registerUrl } from "@/engine/contests";
 import { countdown, shortName, when } from "@/features/home/ContestStrip";
 import { useNow } from "@/features/home/useNow";
 import { openExternal } from "@/lib/openExternal";
 import { cn } from "@/lib/utils";
+
+// The full rating history lives here (Home Base has the sparkline). Recharts loads only on this screen.
+const RatingChart = lazy(() => import("@/features/home/RatingChart").then((m) => ({ default: m.RatingChart })));
 
 const PLATFORM = { cf: "Codeforces", lc: "LeetCode" } as const;
 const dot = (p: Contest["platform"]) => (p === "cf" ? "bg-platform-cf" : "bg-platform-lc");
@@ -62,7 +67,7 @@ function NextRound({ c, attending, nowMs }: { c: Contest; attending: boolean; no
         <Meta c={c} />
       </div>
       <div className="flex flex-col items-start gap-3 sm:items-end">
-        <span className="numeric font-display text-display leading-none font-semibold text-ink">{countdown(c.startTime, nowMs)}</span>
+        <span className="numeric font-display text-display leading-none font-semibold text-accent">{countdown(c.startTime, nowMs)}</span>
         <div className="flex items-center gap-4">
           <AttendToggle c={c} attending={attending} />
           <Button onClick={() => openExternal(live ? c.url : registerUrl(c))}>
@@ -97,12 +102,10 @@ function ContestRow({ c, attending, nowMs }: { c: Contest; attending: boolean; n
 }
 
 function UpcomingList({ title, contests, attending, nowMs, note }: { title: string; contests: Contest[]; attending: ReadonlySet<string>; nowMs: number; note?: string }) {
+  const headingId = useId();
   return (
-    <section aria-label={title} className="glass-card flex flex-col gap-3 p-5">
-      <div className="flex items-baseline justify-between gap-3">
-        <h2 className="text-title font-semibold text-ink">{title}</h2>
-        {note && <span className="text-label text-ink-muted">{note}</span>}
-      </div>
+    <section aria-labelledby={headingId} className="glass-card flex flex-col gap-4 p-6">
+      <CardHeader id={headingId} title={title} description={note} pill={contests.length > 0 ? `${contests.length} upcoming` : undefined} />
       {contests.length === 0 ? (
         <p className="text-body-sm text-ink-muted">Nothing else is scheduled yet. New rounds appear after the next sync.</p>
       ) : (
@@ -133,10 +136,8 @@ const dateOnly = (t: number) => new Date(t * 1000).toLocaleDateString(undefined,
 
 function PastList({ past }: { past: PastContest[] }) {
   return (
-    <section aria-labelledby="past-title" className="glass-card flex flex-col gap-3 p-5">
-      <h2 id="past-title" className="text-title font-semibold text-ink">
-        Past contests
-      </h2>
+    <section aria-labelledby="past-title" className="glass-card flex flex-col gap-4 p-6">
+      <CardHeader id="past-title" title="Past contests" pill={past.length > 0 ? `${past.length} ${past.length === 1 ? "round" : "rounds"}` : undefined} />
       {past.length === 0 ? (
         <p className="text-body-sm text-ink-muted">No contests yet. Rounds you take part in show here with your rank, rating change and solves.</p>
       ) : (
@@ -187,6 +188,12 @@ function PastList({ past }: { past: PastContest[] }) {
   );
 }
 
+/** Your rating over every rated round (Codeforces, plus LeetCode contest rating once you have one). */
+function ContestRating() {
+  const { data } = useHomeData();
+  return <RatingChart cf={data?.ratingHistory ?? []} lc={data?.lcContests ?? []} rating={data?.cf?.rating ?? null} />;
+}
+
 /** Contests: Codeforces first and biggest, LeetCode below it, then your history. */
 export function Contests() {
   const { data, isLoading } = useContestsData();
@@ -203,16 +210,24 @@ export function Contests() {
   const lc = data.upcoming.filter((c) => c.platform === "lc");
   const [next, ...laterCf] = cf;
   return (
-    <div className="flex flex-col gap-4">
-      {next && <NextRound c={next} attending={data.attending.has(next.id)} nowMs={nowMs} />}
-      <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-12 flex flex-col gap-4 xl:col-span-7">
-          <UpcomingList title="More Codeforces rounds" contests={laterCf} attending={data.attending} nowMs={nowMs} note="Reminders 1 hour and 10 minutes before rounds you'll attend" />
-          <UpcomingList title="LeetCode" contests={lc} attending={data.attending} nowMs={nowMs} />
+    // Bento: the next Codeforces round leads; upcoming rounds (7) beside your history (5); then the rating chart.
+    <div className="grid grid-cols-12 items-start gap-6">
+      {next && (
+        <div className="col-span-12">
+          <NextRound c={next} attending={data.attending.has(next.id)} nowMs={nowMs} />
         </div>
-        <div className="col-span-12 xl:col-span-5">
-          <PastList past={data.past} />
-        </div>
+      )}
+      <div className="col-span-12 flex flex-col gap-6 xl:col-span-7">
+        <UpcomingList title="More Codeforces rounds" contests={laterCf} attending={data.attending} nowMs={nowMs} note="Reminders 1 hour and 10 minutes before rounds you'll attend." />
+        <UpcomingList title="LeetCode" contests={lc} attending={data.attending} nowMs={nowMs} />
+      </div>
+      <div className="col-span-12 xl:col-span-5">
+        <PastList past={data.past} />
+      </div>
+      <div className="col-span-12">
+        <Suspense fallback={<section aria-busy className="glass-card h-[300px] p-6" />}>
+          <ContestRating />
+        </Suspense>
       </div>
     </div>
   );

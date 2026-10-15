@@ -24,7 +24,7 @@ export function ThemeSection() {
 
   return (
     <section aria-labelledby="theme-title" className="glass-card p-6">
-      <h2 id="theme-title" className="text-title font-semibold text-ink">
+      <h2 id="theme-title" className="font-display text-headline font-semibold text-ink">
         Theme
       </h2>
       <p className="mt-1 max-w-[56ch] text-body text-ink-muted">

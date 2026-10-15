@@ -42,7 +42,7 @@ AlgoCompass is one personal compass across both platforms, with distinct roles f
 ## Brand Commitments
 
 - The name is "AlgoCompass". The visual identity is "Skill Tree RPG" (the user pinned it).
-- The accent color follows the user's current Codeforces rank color.
+- The app wears a vibrant theme the user picks (Neon Arcade, Ember or Ocean). The user's current Codeforces rank colour marks their rank: the rating number, the rank chip and progress to the next rank.
 
 ## Evidence on Hand
 

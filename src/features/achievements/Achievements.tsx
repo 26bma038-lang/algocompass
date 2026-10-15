@@ -1,4 +1,5 @@
 import { Check, Trophy } from "lucide-react";
+import { CardHeader } from "@/components/CardHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { useProgression, type AchievementView } from "@/data/progression";
@@ -25,8 +26,9 @@ function AchievementCard({ a }: { a: AchievementView }) {
   return (
     <li
       className={cn(
-        "flex gap-3 rounded-md border p-4",
-        a.unlocked ? "border-glass-border-strong bg-glass" : "border-dashed border-glass-border bg-abyss-sunken/60",
+        "flex gap-4 rounded-md border p-4",
+        // Tiles inside the category card: earned ones are solid sunken tiles, locked ones a dashed outline.
+        a.unlocked ? "border-glass-border-strong bg-abyss-sunken" : "border-dashed border-glass-border bg-transparent",
       )}
     >
       <AchievementBadge icon={a.def.icon} unlocked={a.unlocked} />
@@ -127,7 +129,8 @@ export function Achievements() {
   }
   const unlocked = data.achievements.filter((a) => a.unlocked).length;
   return (
-    <div className="flex flex-col gap-4">
+    // Bento: the level hero, then one card per category with its achievements as tiles.
+    <div className="flex flex-col gap-6">
       <LevelHeader xp={data.xp} unlocked={unlocked} total={data.achievements.length} />
       {CATEGORIES.map((cat) => {
         const list = data.achievements
@@ -135,14 +138,9 @@ export function Achievements() {
           .sort((a, b) => Number(b.unlocked) - Number(a.unlocked));
         const got = list.filter((a) => a.unlocked).length;
         return (
-          <section key={cat} aria-labelledby={`cat-${cat}`} className="flex flex-col gap-3 pt-4">
-            <h2 id={`cat-${cat}`} className="flex items-baseline gap-2 text-title font-semibold text-ink">
-              {cat}
-              <span className="numeric text-label font-normal text-ink-muted">
-                {got} of {list.length}
-              </span>
-            </h2>
-            <ul className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <section key={cat} aria-labelledby={`cat-${cat}`} className="glass-card flex flex-col gap-5 p-6">
+            <CardHeader id={`cat-${cat}`} title={cat} pill={`${got} of ${list.length}`} />
+            <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               {list.map((a) => (
                 <AchievementCard key={a.id} a={a} />
               ))}

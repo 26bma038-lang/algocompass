@@ -69,9 +69,9 @@ export function RatingChart({
   })).filter((b) => b.to > lo && b.from < hi);
 
   return (
-    <section aria-labelledby="rating-chart-title" className="glass-card flex flex-col gap-3 p-5">
+    <section aria-labelledby="rating-chart-title" className="glass-card flex flex-col gap-4 p-6">
       <div className="flex items-baseline justify-between gap-4">
-        <h2 id="rating-chart-title" className="text-title font-semibold">
+        <h2 id="rating-chart-title" className="font-display text-headline font-semibold text-ink">
           Rating
         </h2>
         {lc.length > 0 && (

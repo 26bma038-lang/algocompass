@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { BookOpen, ExternalLink, Lock, X } from "lucide-react";
 import { cfProblemUrl, lcProblemUrl } from "@/adapters/links";
+import { Pill } from "@/components/CardHeader";
 import { MasteryRing } from "@/components/MasteryRing";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useTopicProblems, useTopicReport } from "@/data/queries";
@@ -33,12 +34,13 @@ const Ago = (ts: number) => {
 
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 
+/** One block of the panel, as a bento tile: a 16px title, an optional count pill, then the content. */
 function Section({ title, aside, children }: { title: string; aside?: ReactNode; children: ReactNode }) {
   return (
-    <section className="flex flex-col gap-3 pt-8">
-      <div className="flex items-baseline justify-between gap-3">
+    <section className="flex flex-col gap-3 rounded-lg border border-glass-border bg-glass p-5">
+      <div className="flex items-center justify-between gap-3">
         <h3 className="text-title font-semibold text-ink">{title}</h3>
-        {aside && <span className="text-label text-ink-muted">{aside}</span>}
+        {aside && <Pill>{aside}</Pill>}
       </div>
       {children}
     </section>
@@ -47,7 +49,7 @@ function Section({ title, aside, children }: { title: string; aside?: ReactNode;
 
 function Stat({ label, value, sub }: { label: string; value: ReactNode; sub?: ReactNode }) {
   return (
-    <div className="flex flex-col gap-0.5 rounded-md bg-abyss-sunken px-3.5 py-3">
+    <div className="flex flex-col gap-0.5 rounded-md bg-abyss-sunken px-4 py-3.5">
       <dt className="text-label text-ink-muted">{label}</dt>
       <dd className="numeric text-title font-semibold text-ink">{value}</dd>
       {sub && <dd className="text-label text-ink-muted">{sub}</dd>}
@@ -215,58 +217,56 @@ function PanelBody({ t, topics }: { t: TopicStrength; topics: readonly TopicStre
   const touched = t.solvedCount > 0;
 
   return (
-    <div className="px-6 pb-10">
-      {/* Strength */}
-      <div className="flex items-center gap-5 pt-2">
-        <div className="relative grid size-[96px] shrink-0 place-items-center">
-          <span className="absolute inset-0">
-            <MasteryRing score={t.score} status={t.status} size={96} stroke={5} />
-          </span>
-          {t.status === "Locked" ? (
-            <Lock aria-hidden className="size-5 text-ink-faint" strokeWidth={1.8} />
-          ) : (
-            <span className="numeric font-display text-display leading-none font-semibold text-ink">{touched ? t.score : "–"}</span>
-          )}
+    <div className="flex flex-col gap-4 px-6 pb-10">
+      {/* Strength: the panel's hero tile (ring, status, what it builds on, where it comes from). */}
+      <section aria-label="Strength" className="flex flex-col gap-4 rounded-lg border border-glass-border bg-glass p-5">
+        <div className="flex items-center gap-5">
+          <div className="relative grid size-[96px] shrink-0 place-items-center">
+            <span className="absolute inset-0">
+              <MasteryRing score={t.score} status={t.status} size={96} stroke={5} />
+            </span>
+            {t.status === "Locked" ? (
+              <Lock aria-hidden className="size-5 text-ink-faint" strokeWidth={1.8} />
+            ) : (
+              <span className="numeric font-display text-display leading-none font-semibold text-ink">{touched ? t.score : "–"}</span>
+            )}
+          </div>
+          <div className="flex min-w-0 flex-col gap-1">
+            <p className="font-display text-headline font-semibold text-ink">{t.status === "Untouched" ? "Not tried" : t.status}</p>
+            <p className="text-body-sm text-ink-muted">{statusSentence(t, prereqs.filter((p) => p.score < STATUS_THRESHOLDS.developing))}</p>
+          </div>
         </div>
-        <div className="flex min-w-0 flex-col gap-1">
-          <p className="text-title font-semibold text-ink">{t.status === "Untouched" ? "Not tried" : t.status}</p>
-          <p className="text-body-sm text-ink-muted">{statusSentence(t, prereqs.filter((p) => p.score < STATUS_THRESHOLDS.developing))}</p>
-        </div>
-      </div>
 
-      {prereqs.length > 0 && (
-        <div className="flex flex-wrap items-center gap-1.5 pt-4">
-          <span className="text-label text-ink-muted">Builds on</span>
-          {prereqs.map((p) => {
-            const ok = p.score >= STATUS_THRESHOLDS.developing;
-            return (
-              <button
-                key={p.topicId}
-                type="button"
-                onClick={() => openTopic(p.topicId)}
-                className={cn(
-                  "flex h-6 items-center gap-1.5 rounded-full border px-2.5 text-label transition-colors duration-[var(--dur-fast)] hover:border-glass-border-strong hover:text-ink",
-                  ok ? "border-glass-border bg-glass text-ink-muted" : "border-dashed border-glass-border-strong text-ink-muted",
-                )}
-              >
-                {p.name}
-                <span className="numeric text-ink">{p.solvedCount ? p.score : "–"}</span>
-                {!ok && <span className="sr-only">(below Developing)</span>}
-              </button>
-            );
-          })}
-        </div>
-      )}
+        {prereqs.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-label text-ink-muted">Builds on</span>
+            {prereqs.map((p) => {
+              const ok = p.score >= STATUS_THRESHOLDS.developing;
+              return (
+                <button
+                  key={p.topicId}
+                  type="button"
+                  onClick={() => openTopic(p.topicId)}
+                  className={cn(
+                    "flex h-6 items-center gap-1.5 rounded-full border px-2.5 text-label transition-colors duration-[var(--dur-fast)] hover:border-glass-border-strong hover:text-ink",
+                    ok ? "border-glass-border bg-glass text-ink-muted" : "border-dashed border-glass-border-strong text-ink-muted",
+                  )}
+                >
+                  {p.name}
+                  <span className="numeric text-ink">{p.solvedCount ? p.score : "–"}</span>
+                  {!ok && <span className="sr-only">(below Developing)</span>}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
-      {touched && (
-        <div className="pt-6">
-          <Breakdown t={t} />
-        </div>
-      )}
+        {touched && <Breakdown t={t} />}
+      </section>
 
       {touched && (
         <>
-          <dl className="grid grid-cols-2 gap-2 pt-6">
+          <dl className="grid grid-cols-2 gap-3">
             <Stat label="Solved" value={t.solvedCount} sub={`${t.cfSolved} Codeforces, ${t.lcSolved} LeetCode`} />
             <Stat label="Hardest Codeforces solve" value={t.maxCfRatingSolved ?? "–"} sub={t.maxCfRatingSolved ? "problem rating" : "no rated Codeforces solve yet"} />
             <Stat

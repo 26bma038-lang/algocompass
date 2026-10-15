@@ -53,9 +53,9 @@ function Group({ title, items, empty, untried }: { title: string; items: Standin
 /** "Where you stand": strongest topics, what to work on next, and blind spots at your rating (scores out of 100). */
 export function StandingCard({ report }: { report: TopicReport | undefined }) {
   return (
-    <section aria-labelledby="standing-title" className="glass-card flex flex-col gap-4 p-5">
+    <section aria-labelledby="standing-title" className="glass-card flex h-full flex-col gap-4 p-6">
       <div className="flex items-baseline justify-between gap-3">
-        <h2 id="standing-title" className="text-title font-semibold">
+        <h2 id="standing-title" className="font-display text-headline font-semibold text-ink">
           Where you stand
         </h2>
         <span className="text-label text-ink-muted">Strength / 100</span>

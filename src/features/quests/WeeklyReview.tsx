@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowDown, ArrowUp, Check, X } from "lucide-react";
 import { useStreak } from "@/components/shell/useStreak";
+import { CardHeader } from "@/components/CardHeader";
 import { Button } from "@/components/ui/button";
 import { usePrefs } from "@/data/prefs";
 import { useWeeklyReview } from "@/data/quests";
@@ -47,17 +48,18 @@ export function WeeklyReviewCard() {
   const hit = goalRows.filter((g) => g.value >= g.goal).length;
 
   return (
-    <section aria-labelledby="review-title" className="glass-card flex flex-col gap-3 p-5">
-      <div className="flex items-baseline justify-between gap-3">
-        <h2 id="review-title" className="text-title font-semibold text-ink">
-          Weekly review
-        </h2>
-        {!open && (
-          <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
-            Show
-          </Button>
-        )}
-      </div>
+    <section aria-labelledby="review-title" className="glass-card flex flex-col gap-4 p-6">
+      <CardHeader
+        id="review-title"
+        title="Weekly review"
+        actions={
+          !open && (
+            <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+              Show
+            </Button>
+          )
+        }
+      />
       {!open ? (
         <p className="text-body-sm text-ink-muted">Your week so far: solves, topics that improved, rating and goals. It opens here on its own on Sundays.</p>
       ) : !d ? (

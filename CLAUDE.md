@@ -68,7 +68,8 @@ App-wide: Ctrl+K command palette, Ctrl+R sync, `?` shortcut sheet, Ctrl+B sideba
 
 - **No confetti. Ever.** No XP popups on routine clicks, and no looping motion that isn't tied to data.
 - Quest completion and level-ups use a **restrained reward moment** that fits DESIGN.md: a short aura pulse (the accent Aura glow) on the quest card, plus the XP bar filling with a number ticker. Keep it within DESIGN.md's motion durations. Bigger ceremonies (up to 1.2s) are only for rank promotions (the "Aura Shift") and achievement unlocks. They can be skipped with a click or Esc, and they never block input.
-- The accent color is always the user's real current CF rank color (`--accent`). See "The Earned Light Rule" in DESIGN.md.
+- **Colour roles (v1.1):** the theme owns the accent (`--accent`, `--accent-2`: Neon Arcade by default, Ember, Ocean, picked in Settings). The user's real CF rank colour (`--rank`) is reserved for rank elements only: the rating number, the rank chip and rank progress. See "Themes and colour roles" in DESIGN.md.
+- **Layout (v1.1):** every screen is a bento grid (12 columns, 24px gaps, `glass-card` panels with 24px padding). Use `CardHeader` (`src/components/CardHeader.tsx`) for card titles (22px Chakra Petch), descriptions and count pills. See "Bento across the app" in DESIGN.md.
 
 ## Tooling rules
 

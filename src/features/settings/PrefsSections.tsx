@@ -71,7 +71,7 @@ function GoalsSection({ prefs }: { prefs: AppPrefs }) {
 
   return (
     <section aria-labelledby="goals-title" className="glass-card p-6">
-      <h2 id="goals-title" className="text-title font-semibold text-ink">
+      <h2 id="goals-title" className="font-display text-headline font-semibold text-ink">
         Weekly goals
       </h2>
       <p className="mt-1 max-w-[56ch] text-body text-ink-muted">
@@ -140,7 +140,7 @@ function NotificationsSection({ prefs }: { prefs: AppPrefs }) {
 
   return (
     <section aria-labelledby="notify-title" className="glass-card p-6">
-      <h2 id="notify-title" className="text-title font-semibold text-ink">
+      <h2 id="notify-title" className="font-display text-headline font-semibold text-ink">
         Notifications
       </h2>
       <p className="mt-1 max-w-[56ch] text-body text-ink-muted">Windows notifications. They still arrive while AlgoCompass is hidden in the tray.</p>
@@ -195,7 +195,7 @@ function StartupSection() {
   const unavailable = state.data === null;
   return (
     <section aria-labelledby="startup-title" className="glass-card p-6">
-      <h2 id="startup-title" className="text-title font-semibold text-ink">
+      <h2 id="startup-title" className="font-display text-headline font-semibold text-ink">
         Startup
       </h2>
       <div className="mt-6 flex flex-col">

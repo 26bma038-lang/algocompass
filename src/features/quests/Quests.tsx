@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Check, ScrollText } from "lucide-react";
+import { CardHeader } from "@/components/CardHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { ProblemRow } from "@/components/practice/ProblemRow";
 import { NumberTicker } from "@/components/ui/number-ticker";
@@ -51,23 +52,17 @@ function TodayQuestsCard() {
   const all = data.done === data.total;
   return (
     <section aria-labelledby="quests-title" className="glass-card flex flex-col gap-5 p-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="flex flex-col gap-1">
-          <h2 id="quests-title" className="font-display text-headline font-semibold text-ink">
-            Today's quests
-          </h2>
-          <p className="max-w-[60ch] text-body-sm text-ink-muted">
-            Picked from today's mix. They check themselves off when a sync sees the accepted submission.
-          </p>
-        </div>
-        <p className="flex items-center gap-1.5 text-body-sm text-ink-muted">
-          {all && <Check aria-hidden className="size-4 text-success" strokeWidth={2.4} />}
-          <span className="numeric font-display text-title font-semibold text-ink">
-            {data.done}/{data.total}
-          </span>
-          {all ? "All done for today" : "done"}
-        </p>
-      </div>
+      <CardHeader
+        id="quests-title"
+        title="Today's quests"
+        description="Picked from today's mix. They check themselves off when a sync sees the accepted submission."
+        pill={
+          <>
+            {all && <Check aria-hidden className="size-3.5 text-success" strokeWidth={2.4} />}
+            {all ? "All done today" : `${data.done}/${data.total} done`}
+          </>
+        }
+      />
       <ul className="flex flex-col gap-3">
         {data.quests.map((q) => (
           <QuestRow key={q.id} q={q}>
@@ -86,10 +81,8 @@ function LevelCard() {
   const data = useProgression().data?.xp;
   const lit = data?.level != null;
   return (
-    <section aria-labelledby="level-title" className="glass-card flex flex-col gap-3 p-5">
-      <h2 id="level-title" className="text-title font-semibold text-ink">
-        Level
-      </h2>
+    <section aria-labelledby="level-title" className="glass-card flex flex-col gap-4 p-6">
+      <CardHeader id="level-title" title="Level" />
       <p className="flex items-baseline gap-2">
         <span className={cn("numeric font-display text-display leading-none font-semibold", lit ? "text-ink" : "text-ink-faint")}>
           {lit ? <NumberTicker id="level" value={data.level!} format={plain} /> : "–"}
@@ -158,22 +151,22 @@ function WeeklyGoalsCard() {
   const goals = data?.goals;
   const daysLeft = data ? Math.max(0, Math.ceil((data.to - Date.now() / 1000) / 86_400)) : null;
   return (
-    <section aria-labelledby="goals-title" className="glass-card flex flex-col gap-4 p-5">
-      <div className="flex items-baseline justify-between gap-3">
-        <h2 id="goals-title" className="text-title font-semibold text-ink">
-          This week
-        </h2>
-        <span className="text-label text-ink-muted">
-          {daysLeft !== null && `${daysLeft} ${daysLeft === 1 ? "day" : "days"} left · `}
-          <Link to="/settings" className="underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
+    <section aria-labelledby="goals-title" className="glass-card flex flex-col gap-5 p-6">
+      <CardHeader
+        id="goals-title"
+        title="This week"
+        description="Weekly goals, Monday to Sunday. A problem counts in the week you first solve it."
+        pill={daysLeft !== null ? `${daysLeft} ${daysLeft === 1 ? "day" : "days"} left` : undefined}
+        actions={
+          <Link to="/settings" className="rounded-xs text-label text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
             Edit goals
           </Link>
-        </span>
-      </div>
+        }
+      />
       {!data || !goals ? (
         <p className="text-body-sm text-ink-muted">Loading this week…</p>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
           <GoalRing label="Codeforces problems" value={data.counts.cfProblems} goal={goals.cfProblems} dot="bg-platform-cf" />
           <GoalRing label="LeetCode problems" value={data.counts.lcProblems} goal={goals.lcProblems} dot="bg-platform-lc" />
           <GoalRing label="Contests" value={data.counts.contests} goal={goals.contests} />
@@ -195,12 +188,13 @@ export function Quests() {
     );
   }
   return (
-    <div className="grid grid-cols-12 gap-4">
-      <div className="col-span-12 flex flex-col gap-4 lg:col-span-8">
+    // Bento: today's quests lead (8), your level beside them (4); then the week's goals (8) and the review (4).
+    <div className="grid grid-cols-12 items-start gap-6">
+      <div className="col-span-12 flex flex-col gap-6 lg:col-span-8">
         <TodayQuestsCard />
         <WeeklyGoalsCard />
       </div>
-      <div className="col-span-12 flex flex-col gap-4 lg:col-span-4">
+      <div className="col-span-12 flex flex-col gap-6 lg:col-span-4">
         <LevelCard />
         <WeeklyReviewCard />
       </div>

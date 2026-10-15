@@ -175,68 +175,67 @@ function Legend() {
 }
 
 /**
- * The screen's answer to "what now?": the engine's work-on-next topics (with why, on hover and
- * in the panel), plus what rose since your last look. Sits above the canvas so it never covers nodes.
+ * The screen's answer to "what now?": the engine's work-on-next topics as tiles above the canvas,
+ * each with its reason in words (the same crosshair badge marks them on the tree). Opening one
+ * focuses the topic and opens Topic Detail.
  */
-function NextStrip({
-  items,
-  changes,
-  onPick,
-}: {
-  items: readonly StandingItem[];
-  changes: readonly { id: string; name: string; to: TopicStatus }[];
-  onPick: (id: string) => void;
-}) {
-  if (!items.length && !changes.length) return null;
+function NextTiles({ items, onPick }: { items: readonly StandingItem[]; onPick: (id: string) => void }) {
+  if (!items.length) return null;
   return (
-    <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
-      {items.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2">
-          <h2 className="flex items-center gap-1.5 text-label text-ink">
-            <span aria-hidden className="grid size-4 place-items-center rounded-full bg-ink">
-              <Crosshair className="size-3 text-abyss" strokeWidth={2.4} />
-            </span>
-            Work on next
-          </h2>
-          <ul className="flex flex-wrap gap-1.5">
-            {items.map((w) => (
-              <li key={w.topicId}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      onClick={() => onPick(w.topicId)}
-                      aria-description={w.reason}
-                      className="flex h-8 items-center gap-2 rounded-sm border border-glass-border bg-glass px-2.5 text-body-sm text-ink transition-colors duration-[var(--dur-fast)] hover:border-glass-border-strong hover:bg-glass-hover"
-                    >
-                      <span className="font-semibold">{w.name}</span>
-                      <span className="numeric font-display text-label font-semibold text-ink-muted">{w.score}</span>
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="max-w-[280px]">
-                    {w.reason}
-                  </TooltipContent>
-                </Tooltip>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-      {changes.length > 0 && (
-        <p className="text-label text-ink-muted">
-          Since your last look:{" "}
-          {changes.map((c, i) => (
-            <span key={c.id}>
-              {i > 0 && ", "}
-              <button type="button" onClick={() => onPick(c.id)} className="rounded-xs text-ink underline decoration-glass-border-strong underline-offset-4 hover:decoration-ink">
-                {c.name}
-              </button>{" "}
-              rose to {STATUS_WORD[c.to]}
-            </span>
-          ))}
-        </p>
-      )}
-    </div>
+    <section aria-labelledby="tree-next-title">
+      <h2 id="tree-next-title" className="sr-only">
+        Work on next
+      </h2>
+      <ul className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        {items.map((w) => (
+          <li key={w.topicId} className="min-w-0">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => onPick(w.topicId)}
+                  aria-description={w.reason}
+                  className="glass-card flex h-16 w-full items-center gap-3 px-4 text-left transition-[background-color,border-color] duration-[var(--dur-fast)] hover:border-glass-border-strong hover:bg-glass-hover"
+                >
+                  <span aria-hidden className="grid size-7 shrink-0 place-items-center rounded-full bg-ink">
+                    <Crosshair className="size-4 text-abyss" strokeWidth={2.4} />
+                  </span>
+                  <span className="flex min-w-0 flex-1 flex-col">
+                    <span className="flex items-baseline justify-between gap-2">
+                      <span className="truncate text-body font-semibold text-ink">{w.name}</span>
+                      <span className="numeric font-display text-body-sm font-semibold text-ink-muted">{w.score}</span>
+                    </span>
+                    <span className="truncate text-label text-ink-muted">{w.reason}</span>
+                  </span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-[300px]">
+                {w.reason}
+              </TooltipContent>
+            </Tooltip>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** What rose since your last look, in words (the unlock animation says it in motion). */
+function SinceLastLook({ changes, onPick }: { changes: readonly { id: string; name: string; to: TopicStatus }[]; onPick: (id: string) => void }) {
+  if (!changes.length) return null;
+  return (
+    <p className="text-label text-ink-muted">
+      Since your last look:{" "}
+      {changes.map((c, i) => (
+        <span key={c.id}>
+          {i > 0 && ", "}
+          <button type="button" onClick={() => onPick(c.id)} className="rounded-xs text-ink underline decoration-glass-border-strong underline-offset-4 hover:decoration-ink">
+            {c.name}
+          </button>{" "}
+          rose to {STATUS_WORD[c.to]}
+        </span>
+      ))}
+    </p>
   );
 }
 
@@ -412,130 +411,137 @@ function Tree({ report, seen }: { report: TopicReport; seen: Seen | null }) {
   );
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div role="group" aria-label="Show topics" className="flex flex-wrap items-center gap-1.5">
-          {FILTERS.map((f) => (
-            <Tooltip key={f.id}>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  aria-pressed={filter === f.id}
-                  onClick={() => setFilter(f.id)}
-                  className={cn(
-                    "flex h-8 items-center gap-1.5 rounded-full border px-3 text-label transition-colors duration-[var(--dur-fast)]",
-                    filter === f.id
-                      ? "border-accent bg-accent-soft text-ink"
-                      : "border-glass-border bg-glass text-ink-muted hover:border-glass-border-strong hover:text-ink",
-                  )}
-                >
-                  {f.label}
-                  <span className="numeric text-ink-muted">{counts[f.id]}</span>
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">{f.hint}</TooltipContent>
-            </Tooltip>
-          ))}
-        </div>
-        <label className="relative flex items-center">
-          <span className="sr-only">Find a topic or tag</span>
-          <Search aria-hidden className="pointer-events-none absolute left-2.5 size-4 text-ink-faint" strokeWidth={1.8} />
-          <input
-            ref={searchRef}
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && bestMatch) focusTopic(bestMatch.id, true);
-              if (e.key === "Escape" && query) {
-                e.preventDefault();
-                e.stopPropagation();
-                setQuery("");
-              }
-            }}
-            placeholder="Find a topic or tag"
-            className="h-8 w-[240px] rounded-sm border border-glass-border bg-abyss-sunken pr-14 pl-8 text-body-sm text-ink placeholder:text-ink-faint transition-colors duration-[var(--dur-fast)] hover:border-glass-border-strong focus-visible:border-accent [&::-webkit-search-cancel-button]:hidden"
-          />
-          {query ? (
-            <button type="button" aria-label="Clear search" onClick={() => setQuery("")} className="absolute right-1.5 grid size-5 place-items-center rounded-xs text-ink-muted hover:text-ink">
-              <X aria-hidden className="size-3.5" />
-            </button>
-          ) : (
-            <kbd aria-hidden className="pointer-events-none absolute right-2 rounded-xs border border-glass-border-strong px-1.5 text-label text-ink-muted">
-              /
-            </kbd>
-          )}
-        </label>
-      </div>
-      <NextStrip items={report.standing.weaknesses} changes={changes} onPick={(id) => focusTopic(id, true)} />
-      <p className="sr-only" aria-live="polite">
-        {query.trim()
-          ? noMatch
-            ? `No topic or tag matches ${query.trim()}.`
-            : `${visible.size} ${visible.size === 1 ? "topic matches" : "topics match"}. Press Enter to open ${bestMatch?.name ?? "the first"}.`
-          : changes.length
-            ? `Since your last look: ${changes.map((c) => `${c.name} rose to ${STATUS_WORD[c.to]}`).join(", ")}.`
-            : ""}
-      </p>
-
-      <div
-        ref={containerRef}
-        className="skill-tree glass-card relative h-[calc(100vh-var(--titlebar-h)-var(--topbar-h)-154px)] min-h-[440px] overflow-hidden"
+    // Bento: the work-on-next tiles (64px), then the canvas as the hero card. Above the card stays
+    // 154px (24 top + 64 tiles + 24 gap + 40 bottom + 2 ascent bar), matching its height calc.
+    <div className="flex flex-col gap-6">
+      <NextTiles items={report.standing.weaknesses} onPick={(id) => focusTopic(id, true)} />
+      <section
+        aria-label="Skill tree"
+        className="glass-card flex h-[calc(100vh-var(--titlebar-h)-var(--topbar-h)-154px)] min-h-[440px] flex-col overflow-hidden"
       >
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          nodeTypes={nodeTypes}
-          onInit={onInit}
-          onNodeMouseEnter={(_, n) => setHovered(n.id)}
-          onNodeMouseLeave={() => setHovered(null)}
-          minZoom={0.3}
-          maxZoom={1.6}
-          nodesDraggable={false}
-          nodesConnectable={false}
-          nodesFocusable={false}
-          edgesFocusable={false}
-          elementsSelectable={false}
-          zoomOnDoubleClick={false}
-          attributionPosition="top-left"
-          colorMode="dark"
-        >
-          <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="rgba(150, 172, 230, 0.12)" />
-          <Panel position="top-right" className="flex flex-col items-end gap-2">
-            <CanvasControls legendOpen={legendOpen} toggleLegend={() => setLegendOpen((v) => !v)} />
-            {legendOpen && <Legend />}
-          </Panel>
-          {noMatch && (
-            <Panel position="top-center" className="!top-1/3">
-              <div className={cn("flex items-center gap-3 px-4 py-3", plateCls)}>
-                <SearchX aria-hidden className="size-4 text-ink-muted" strokeWidth={1.8} />
-                <p className="text-body-sm text-ink">No topic or tag matches “{query.trim()}”.</p>
-                <Button variant="outline" size="sm" onClick={() => setQuery("")}>
-                  Clear search
-                </Button>
-              </div>
+        <div className="flex flex-col gap-2 border-b border-glass-border px-5 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div role="group" aria-label="Show topics" className="flex flex-wrap items-center gap-1.5">
+              {FILTERS.map((f) => (
+                <Tooltip key={f.id}>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      aria-pressed={filter === f.id}
+                      onClick={() => setFilter(f.id)}
+                      className={cn(
+                        "flex h-8 items-center gap-1.5 rounded-full border px-3 text-label transition-colors duration-[var(--dur-fast)]",
+                        filter === f.id
+                          ? "border-accent bg-accent-soft text-ink"
+                          : "border-glass-border bg-glass text-ink-muted hover:border-glass-border-strong hover:text-ink",
+                      )}
+                    >
+                      {f.label}
+                      <span className="numeric text-ink-muted">{counts[f.id]}</span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">{f.hint}</TooltipContent>
+                </Tooltip>
+              ))}
+            </div>
+            <label className="relative flex items-center">
+              <span className="sr-only">Find a topic or tag</span>
+              <Search aria-hidden className="pointer-events-none absolute left-2.5 size-4 text-ink-faint" strokeWidth={1.8} />
+              <input
+                ref={searchRef}
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && bestMatch) focusTopic(bestMatch.id, true);
+                  if (e.key === "Escape" && query) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setQuery("");
+                  }
+                }}
+                placeholder="Find a topic or tag"
+                className="h-8 w-[240px] rounded-sm border border-glass-border bg-abyss-sunken pr-14 pl-8 text-body-sm text-ink placeholder:text-ink-faint transition-colors duration-[var(--dur-fast)] hover:border-glass-border-strong focus-visible:border-accent [&::-webkit-search-cancel-button]:hidden"
+              />
+              {query ? (
+                <button type="button" aria-label="Clear search" onClick={() => setQuery("")} className="absolute right-1.5 grid size-5 place-items-center rounded-xs text-ink-muted hover:text-ink">
+                  <X aria-hidden className="size-3.5" />
+                </button>
+              ) : (
+                <kbd aria-hidden className="pointer-events-none absolute right-2 rounded-xs border border-glass-border-strong px-1.5 text-label text-ink-muted">
+                  /
+                </kbd>
+              )}
+            </label>
+          </div>
+          <SinceLastLook changes={changes} onPick={(id) => focusTopic(id, true)} />
+        </div>
+        <p className="sr-only" aria-live="polite">
+          {query.trim()
+            ? noMatch
+              ? `No topic or tag matches ${query.trim()}.`
+              : `${visible.size} ${visible.size === 1 ? "topic matches" : "topics match"}. Press Enter to open ${bestMatch?.name ?? "the first"}.`
+            : changes.length
+              ? `Since your last look: ${changes.map((c) => `${c.name} rose to ${STATUS_WORD[c.to]}`).join(", ")}.`
+              : ""}
+        </p>
+
+        <div ref={containerRef} className="skill-tree relative min-h-0 flex-1">
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            nodeTypes={nodeTypes}
+            onInit={onInit}
+            onNodeMouseEnter={(_, n) => setHovered(n.id)}
+            onNodeMouseLeave={() => setHovered(null)}
+            minZoom={0.3}
+            maxZoom={1.6}
+            nodesDraggable={false}
+            nodesConnectable={false}
+            nodesFocusable={false}
+            edgesFocusable={false}
+            elementsSelectable={false}
+            zoomOnDoubleClick={false}
+            attributionPosition="top-left"
+            colorMode="dark"
+          >
+            <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="rgba(150, 172, 230, 0.12)" />
+            <Panel position="top-right" className="flex flex-col items-end gap-2">
+              <CanvasControls legendOpen={legendOpen} toggleLegend={() => setLegendOpen((v) => !v)} />
+              {legendOpen && <Legend />}
             </Panel>
-          )}
-          {!legendOpen && (
-            <MiniMap
-              position="top-right"
-              pannable
-              zoomable
-              ariaLabel="Skill tree overview"
-              nodeBorderRadius={999}
-              nodeColor={(n) => {
-                const d = n.data as TopicFlowNode["data"];
-                if (d.dimmed) return "rgba(150, 172, 230, 0.10)";
-                if (d.workOnNext) return "var(--ink)";
-                return d.status === "Strong" || d.status === "Mastered" ? "var(--accent)" : d.status === "Locked" ? "rgba(150, 172, 230, 0.14)" : "rgba(150, 172, 230, 0.32)";
-              }}
-              maskColor="rgba(5, 8, 18, 0.62)"
-              bgColor="var(--abyss-raised)"
-              style={{ width: 156, height: 100, marginTop: 58 }}
-            />
-          )}
-        </ReactFlow>
-      </div>
+            {noMatch && (
+              <Panel position="top-center" className="!top-1/3">
+                <div className={cn("flex items-center gap-3 px-4 py-3", plateCls)}>
+                  <SearchX aria-hidden className="size-4 text-ink-muted" strokeWidth={1.8} />
+                  <p className="text-body-sm text-ink">No topic or tag matches “{query.trim()}”.</p>
+                  <Button variant="outline" size="sm" onClick={() => setQuery("")}>
+                    Clear search
+                  </Button>
+                </div>
+              </Panel>
+            )}
+            {!legendOpen && (
+              <MiniMap
+                position="top-right"
+                pannable
+                zoomable
+                ariaLabel="Skill tree overview"
+                nodeBorderRadius={999}
+                nodeColor={(n) => {
+                  const d = n.data as TopicFlowNode["data"];
+                  if (d.dimmed) return "rgba(150, 172, 230, 0.10)";
+                  if (d.workOnNext) return "var(--ink)";
+                  return d.status === "Strong" || d.status === "Mastered" ? "var(--accent)" : d.status === "Locked" ? "rgba(150, 172, 230, 0.14)" : "rgba(150, 172, 230, 0.32)";
+                }}
+                maskColor="rgba(5, 8, 18, 0.62)"
+                bgColor="var(--abyss-raised)"
+                style={{ width: 156, height: 100, marginTop: 58 }}
+              />
+            )}
+          </ReactFlow>
+        </div>
+      </section>
     </div>
   );
 }

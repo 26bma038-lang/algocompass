@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+import { CardHeader } from "@/components/CardHeader";
 import { ExternalLink } from "lucide-react";
 import { openExternal } from "@/lib/openExternal";
 import type { Contest } from "@/data/types";
@@ -29,12 +31,19 @@ export function ContestStrip({ contests }: { contests: readonly Contest[] }) {
   const shown = contests.slice(0, 4);
 
   return (
-    <section aria-labelledby="contests-title" className="flex flex-col gap-3">
-      <h2 id="contests-title" className="text-title font-semibold">
-        Later contests
-      </h2>
+    <section aria-labelledby="contests-title" className="glass-card flex h-full flex-col gap-4 p-6">
+      <CardHeader
+        id="contests-title"
+        title="Later contests"
+        pill={contests.length > 0 ? `${contests.length} upcoming` : undefined}
+        actions={
+          <Link to="/contests" className="rounded-xs text-label text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
+            All contests
+          </Link>
+        }
+      />
       {shown.length === 0 ? (
-        <p className="glass-card p-5 text-body-sm text-ink-muted">No other upcoming contests are listed yet.</p>
+        <p className="text-body-sm text-ink-muted">No other upcoming contests are listed yet.</p>
       ) : (
         <div className="grid grid-cols-2 gap-4">
           {shown.map((c) => (
@@ -42,7 +51,7 @@ export function ContestStrip({ contests }: { contests: readonly Contest[] }) {
               key={c.id}
               type="button"
               onClick={() => openContest(c.url)}
-              className="glass-card flex flex-col items-start gap-2 p-4 text-left transition-[background-color,border-color] duration-[var(--dur-fast)] hover:border-glass-border-strong hover:bg-glass-hover"
+              className="flex flex-col items-start gap-2 rounded-md border border-glass-border bg-abyss-sunken p-4 text-left transition-[background-color,border-color] duration-[var(--dur-fast)] hover:border-glass-border-strong hover:bg-glass-hover"
             >
               <span className="flex w-full items-center gap-1.5 text-label text-ink-muted">
                 <span aria-hidden className={cn("size-1.5 rounded-full", c.platform === "cf" ? "bg-platform-cf" : "bg-platform-lc")} />

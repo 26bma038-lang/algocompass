@@ -244,7 +244,7 @@ function LcCard({ lc }: { lc: LcStatsRow }) {
   if (!lc && !tracked) {
     return (
       <section aria-labelledby="lc-title" className="glass-card flex h-full flex-col gap-2 p-6">
-        <h2 id="lc-title" className="flex items-center gap-2 text-title font-semibold">
+        <h2 id="lc-title" className="flex items-center gap-2 font-display text-headline font-semibold text-ink">
           <span aria-hidden className="size-2 rounded-full bg-platform-lc" />
           LeetCode
         </h2>
@@ -268,7 +268,7 @@ function LcCard({ lc }: { lc: LcStatsRow }) {
   return (
     <section aria-labelledby="lc-title" className="glass-card flex h-full flex-col gap-3 p-6">
       <div className="flex items-center justify-between gap-3">
-        <h2 id="lc-title" className="flex items-center gap-2 text-title font-semibold">
+        <h2 id="lc-title" className="flex items-center gap-2 font-display text-headline font-semibold text-ink">
           <span aria-hidden className="size-2 rounded-full bg-platform-lc" />
           LeetCode
         </h2>

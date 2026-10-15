@@ -227,7 +227,7 @@ export function Welcome() {
       ) : (
         <section className="glass-card flex flex-col gap-4 p-6" aria-labelledby="first-sync-title">
           <div className="flex flex-col gap-1">
-            <h2 id="first-sync-title" className="text-title font-semibold text-ink">
+            <h2 id="first-sync-title" className="font-display text-headline font-semibold text-ink">
               {phase === "syncing" ? "Fetching your history…" : cfFailed ? "The first sync didn't finish" : "All set"}
             </h2>
             <p className="text-body-sm text-ink-muted">

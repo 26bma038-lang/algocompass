@@ -57,7 +57,7 @@ export function ActivityHeatmap({ activity }: { activity: readonly DailyActivity
   const summary = `${activeDays} active days in the last ${months} months`;
 
   return (
-    <section aria-labelledby="heatmap-title" className="glass-card flex flex-col gap-4 p-5">
+    <section aria-labelledby="heatmap-title" className="glass-card flex h-full flex-col gap-4 p-6">
       <div className="flex items-baseline justify-between gap-4">
         <h2 id="heatmap-title" className="font-display text-headline font-semibold">
           Activity
