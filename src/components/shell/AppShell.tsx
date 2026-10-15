@@ -11,6 +11,8 @@ import { useDesktopBridge } from "@/data/desktopBridge";
 import { useProgressionWatcher } from "@/data/progression";
 import { useQuestWatcher } from "@/data/quests";
 import { Ceremonies } from "@/features/achievements/Ceremonies";
+import { CommandPalette } from "./CommandPalette";
+import { ShortcutSheet } from "./ShortcutSheet";
 import { useSyncScheduler } from "@/data/syncStore";
 import { TopicPanel } from "@/features/topic/TopicPanel";
 
@@ -47,6 +49,8 @@ export function AppShell() {
       </div>
       <TopicPanel />
       <Ceremonies />
+      <CommandPalette />
+      <ShortcutSheet />
       <Toaster />
     </TooltipProvider>
   );

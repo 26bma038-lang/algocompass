@@ -1,6 +1,6 @@
 import { Link, useMatches, type Params } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { AlertTriangle, Check, CloudOff, Flame, RefreshCw, ScrollText } from "lucide-react";
+import { AlertTriangle, Check, CloudOff, Flame, RefreshCw, ScrollText, Search } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { useProgression } from "@/data/progression";
@@ -65,6 +65,30 @@ function StreakFlame({ streak }: { streak: Streak | null }) {
       </TooltipTrigger>
       <TooltipContent side="bottom">
         {!hasData ? "No streak yet" : state === "lit" ? `${days}-day streak, practiced today` : state === "pending" ? `${days}-day streak. Solve one problem today to keep it` : "No active streak"}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+/** Opens the Ctrl+K command palette. */
+function PaletteButton() {
+  const setOpen = useUiStore((s) => s.setPaletteOpen);
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          aria-label="Command palette"
+          aria-keyshortcuts="Control+K"
+          onClick={() => setOpen(true)}
+          className="grid size-8 place-items-center rounded-full text-ink-muted transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover hover:text-ink"
+        >
+          <Search aria-hidden className="size-4" strokeWidth={1.8} />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom" className="flex items-center gap-2">
+        Jump anywhere
+        <kbd className="numeric font-sans rounded-xs border border-glass-border-strong px-1 text-ink-muted">Ctrl K</kbd>
       </TooltipContent>
     </Tooltip>
   );
@@ -256,6 +280,7 @@ export function TopBar() {
       <div className="flex h-[var(--topbar-h)] items-center justify-between gap-4 px-6">
         <h1 className="truncate font-display text-headline font-semibold tracking-[-0.005em] text-ink">{title}</h1>
         <div className="flex shrink-0 items-center gap-1.5">
+          <PaletteButton />
           <SyncButton />
           <QuestChip />
           <StreakFlame streak={streak} />

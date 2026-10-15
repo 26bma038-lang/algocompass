@@ -20,6 +20,11 @@ interface UiState {
   rewards: string[];
   queueReward: (questIds: string[]) => void;
   clearReward: (questId: string) => void;
+  /** Ctrl+K command palette and the "?" shortcut sheet (not persisted). */
+  paletteOpen: boolean;
+  setPaletteOpen: (open: boolean) => void;
+  shortcutsOpen: boolean;
+  setShortcutsOpen: (open: boolean) => void;
   ceremony: Ceremony | null;
   startCeremony: (c: Ceremony) => void;
   endCeremony: () => void;
@@ -38,6 +43,10 @@ export const useUiStore = create<UiState>()(
       rewards: [],
       queueReward: (ids) => set((s) => ({ rewards: [...new Set([...s.rewards, ...ids])] })),
       clearReward: (id) => set((s) => ({ rewards: s.rewards.filter((r) => r !== id) })),
+      paletteOpen: false,
+      setPaletteOpen: (paletteOpen) => set({ paletteOpen }),
+      shortcutsOpen: false,
+      setShortcutsOpen: (shortcutsOpen) => set({ shortcutsOpen }),
       ceremony: null,
       startCeremony: (ceremony) => set({ ceremony }),
       endCeremony: () => set({ ceremony: null }),
