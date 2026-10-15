@@ -2,7 +2,9 @@
 
 ## Latest: v1.1.0, the redesign everywhere (Phase 11, 2026-10-15)
 
-**Shipped as v1.1.0** (tag `v1.1.0`, release https://github.com/26bma038-lang/algocompass/releases/tag/v1.1.0). `npm test` passes (287), `npm run build` is green, and `npm run tauri build` produced the 1.1.0 installers (sizes below).
+**Shipped as v1.1.0** (tag `v1.1.0`, release https://github.com/26bma038-lang/algocompass/releases/tag/v1.1.0). `npm test` passes (287), `npm run build` is green, and `npm run tauri build` produced the 1.1.0 installers (Rust release build 5m 35s):
+- `src-tauri\target\release\bundle\nsis\AlgoCompass_1.1.0_x64-setup.exe` (4.20 MiB)
+- `src-tauri\target\release\bundle\msi\AlgoCompass_1.1.0_x64_en-US.msi` (5.57 MiB)
 
 **What changed**
 1. **The redesign is merged** (`32a6c24`): three themes, rank colour only on rank elements, and the Home Base bento. The `redesign` worktree and branch are removed.
