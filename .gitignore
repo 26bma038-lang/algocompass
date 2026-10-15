@@ -28,3 +28,24 @@ dist-ssr
 .impeccable/live/
 .impeccable/hook.cache.json
 tmp/
+
+# Local app data: never commit. The real database and settings live in %APPDATA%\com.algocompass.app;
+# these catch copies made for debugging (e.g. inspecting the DB with node:sqlite).
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Secrets and signing material
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+
+# Local Claude Code settings (machine-specific permissions and paths)
+.claude/settings.local.json
