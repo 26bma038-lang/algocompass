@@ -83,8 +83,13 @@ export function useSetAttending() {
     mutationFn: async ({ contestId, attending }: { contestId: string; attending: boolean; name: string }) => {
       await (await getRepo()).setAttending(contestId, attending, Math.floor(Date.now() / 1000));
     },
-    onSuccess: async () => {
-      await client.invalidateQueries({ queryKey: ["db", "contests-screen"] });
+    onSuccess: async (_, v) => {
+      if (v.attending) toast(`Reminders set for ${v.name}`, { id: `attend-${v.contestId}`, description: "1 hour and 10 minutes before it starts, if contest reminders are on in Settings." });
+      // The Contests screen and the reminder schedule both read the marks.
+      await Promise.all([
+        client.invalidateQueries({ queryKey: ["db", "contests-screen"] }),
+        client.invalidateQueries({ queryKey: ["db", "reminder-contests"] }),
+      ]);
     },
     onError: (e) => toast.error("Couldn't save that", { description: e instanceof Error ? e.message : String(e) }),
   });

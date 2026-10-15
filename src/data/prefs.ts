@@ -56,11 +56,3 @@ export function useSavePrefs() {
   });
 }
 
-/** "20:00" → minutes after midnight; falls back to 20:00 on anything unreadable. */
-export function parseTime(hhmm: string): number {
-  const m = /^(\d{1,2}):(\d{2})$/.exec(hhmm);
-  if (!m) return 20 * 60;
-  const h = Math.min(23, Number(m[1]));
-  const min = Math.min(59, Number(m[2]));
-  return h * 60 + min;
-}

@@ -21,7 +21,9 @@
         "center": true,
         "decorations": false,
         "shadow": true,
-        "backgroundColor": "#070B16"
+        "backgroundColor": "#070B16",
+        "visible": false,
+        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --disable-background-timer-throttling --disable-renderer-backgrounding --disable-backgrounding-occluded-windows"
       }
     ],
     "security": {

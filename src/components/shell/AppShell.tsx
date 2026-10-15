@@ -7,6 +7,7 @@ import { TitleBar } from "./TitleBar";
 import { TopBar } from "./TopBar";
 import { useShortcuts } from "./useShortcuts";
 import { Toaster } from "@/components/ui/sonner";
+import { useDesktopBridge } from "@/data/desktopBridge";
 import { useQuestWatcher } from "@/data/quests";
 import { useSyncScheduler } from "@/data/syncStore";
 import { TopicPanel } from "@/features/topic/TopicPanel";
@@ -16,6 +17,7 @@ export function AppShell() {
   useShortcuts();
   useSyncScheduler();
   useQuestWatcher();
+  useDesktopBridge();
   return (
     <TooltipProvider delayDuration={250} skipDelayDuration={150}>
       <div className="relative flex h-full flex-col bg-abyss">
