@@ -8,6 +8,8 @@ import { LC_CURATED } from "./catalog";
 import { topicReportQuery } from "./queries";
 import { getRepo, useSyncStore } from "./syncStore";
 import { localDay } from "./sync";
+// Circular with ./quests (it reads the mix); safe because both only call each other inside functions.
+import { regenerateOpenQuests } from "./quests";
 
 /**
  * Recommender hooks. The engine is pure; this file feeds it from the SQLite cache and stores
@@ -117,7 +119,6 @@ export function useReshuffleMix() {
       if (items.length === 0) items = rec.generateMix();
       await repo.saveDailyMix({ day, generatedAt: Math.floor(Date.now() / 1000), items });
       // Open quests follow the new mix; completed ones stay earned.
-      const { regenerateOpenQuests } = await import("./quests");
       await regenerateOpenQuests(day, items.map((i) => ({ ...i, rec: rec.resolve(i), done: false })));
     },
     onSuccess: () => client.invalidateQueries({ queryKey: ["db", "mix"] }),

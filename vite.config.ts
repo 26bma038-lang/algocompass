@@ -9,6 +9,8 @@ const host = process.env.TAURI_DEV_HOST;
 // https://vite.dev/config/
 export default defineConfig(() => ({
   plugins: [react(), tailwindcss()],
+  // TAURI_ENV_* lets the desktop build drop browser-only code (the sql.js driver, src/data/db.ts).
+  envPrefix: ["VITE_", "TAURI_ENV_"],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),

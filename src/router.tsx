@@ -1,16 +1,20 @@
+import { lazy } from "react";
 import { createHashRouter, Navigate } from "react-router-dom";
 import { AppShell } from "@/components/shell/AppShell";
 import type { RouteHandle } from "@/components/shell/TopBar";
-import { Achievements } from "@/features/achievements/Achievements";
-import { Contests } from "@/features/contests/Contests";
 import { HomeBase } from "@/features/home/HomeBase";
-import { Practice } from "@/features/practice/Practice";
-import { Quests } from "@/features/quests/Quests";
-import { Settings } from "@/features/settings/Settings";
-import { SkillTree } from "@/features/skill-tree/SkillTree";
-import { TopicDetail } from "@/features/topic/TopicDetail";
-import { Debug } from "@/features/debug/Debug";
 import { humanizeTopic } from "@/lib/topics";
+
+// Home Base is the daily check-in, so it ships in the main chunk. Every other screen loads on first
+// visit (the Skill Tree brings @xyflow/react and dagre with it). AppShell suspends with a quiet line.
+const SkillTree = lazy(() => import("@/features/skill-tree/SkillTree").then((m) => ({ default: m.SkillTree })));
+const TopicDetail = lazy(() => import("@/features/topic/TopicDetail").then((m) => ({ default: m.TopicDetail })));
+const Practice = lazy(() => import("@/features/practice/Practice").then((m) => ({ default: m.Practice })));
+const Quests = lazy(() => import("@/features/quests/Quests").then((m) => ({ default: m.Quests })));
+const Contests = lazy(() => import("@/features/contests/Contests").then((m) => ({ default: m.Contests })));
+const Achievements = lazy(() => import("@/features/achievements/Achievements").then((m) => ({ default: m.Achievements })));
+const Settings = lazy(() => import("@/features/settings/Settings").then((m) => ({ default: m.Settings })));
+const Debug = lazy(() => import("@/features/debug/Debug").then((m) => ({ default: m.Debug })));
 
 const h = (title: RouteHandle["title"]): RouteHandle => ({ title });
 

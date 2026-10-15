@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -41,7 +42,9 @@ export function AppShell() {
                 transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
                 className="mx-auto w-full max-w-[1440px] px-6 pt-6 pb-10"
               >
-                <Outlet />
+                <Suspense fallback={<p className="text-body-sm text-ink-muted">Loading…</p>}>
+                  <Outlet />
+                </Suspense>
               </motion.div>
             </div>
           </main>

@@ -64,6 +64,8 @@ let driver: Promise<SqlDriver> | null = null;
 
 /** The app database: SQLite file via tauri-plugin-sql, or an in-memory sql.js DB in a plain browser. */
 export function getDb(): Promise<SqlDriver> {
-  driver ??= isTauri() ? tauriDriver() : browserDriver();
+  // `tauri build` sets TAURI_ENV_PLATFORM, so this folds to tauriDriver() and sql.js (with its 650 kB
+  // WASM) is left out of the desktop bundle. Plain `vite` keeps the browser driver for dev.
+  driver ??= import.meta.env.TAURI_ENV_PLATFORM ? tauriDriver() : isTauri() ? tauriDriver() : browserDriver();
   return driver;
 }

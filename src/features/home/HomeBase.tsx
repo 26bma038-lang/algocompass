@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { lazy, Suspense, type ReactNode } from "react";
 import { Check, Flame } from "lucide-react";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { flameState, streakAtRisk, useStreak } from "@/components/shell/useStreak";
@@ -11,7 +11,8 @@ import { bandForRating } from "@/lib/rank";
 import { cn } from "@/lib/utils";
 import { ActivityHeatmap } from "./ActivityHeatmap";
 import { ContestStrip, countdown, openContest, shortName, when } from "./ContestStrip";
-import { RatingChart } from "./RatingChart";
+// Recharts is the heaviest thing on Home Base; it loads right after the first paint.
+const RatingChart = lazy(() => import("./RatingChart").then((m) => ({ default: m.RatingChart })));
 import { StandingCard } from "./StandingCard";
 import { useNow } from "./useNow";
 import { WorkOnNext } from "./WorkOnNext";
@@ -262,7 +263,9 @@ export function HomeBase() {
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-12 flex flex-col gap-4 lg:col-span-8">
           <TodayCard />
-          <RatingChart cf={data?.ratingHistory ?? []} lc={data?.lcContests ?? []} rating={data?.cf?.rating ?? null} />
+          <Suspense fallback={<section aria-busy className="glass-card h-[300px] p-5" />}>
+            <RatingChart cf={data?.ratingHistory ?? []} lc={data?.lcContests ?? []} rating={data?.cf?.rating ?? null} />
+          </Suspense>
           <ActivityHeatmap activity={data?.activity ?? []} />
         </div>
         <div className="col-span-12 flex flex-col gap-4 lg:col-span-4">

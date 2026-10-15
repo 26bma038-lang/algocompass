@@ -3,6 +3,7 @@ import type { TableName } from "./repo";
 import type { CfUser } from "./types";
 import { getRepo } from "./syncStore";
 import { topicProblems } from "@/engine/topicProblems";
+import { LC_CURATED } from "./catalog";
 
 /** Read hooks over the local SQLite cache. Every key starts with "db" so a sync invalidates them all. */
 
@@ -37,12 +38,11 @@ export function useTopicProblems(topicId: string | null) {
     enabled: topicId !== null,
     queryFn: async () => {
       const repo = await getRepo();
-      const [cfSubmissions, lcRecentAc, lcProblems, manual, { LC_CURATED }] = await Promise.all([
+      const [cfSubmissions, lcRecentAc, lcProblems, manual] = await Promise.all([
         repo.getCfSubmissions(),
         repo.getLcRecentAc(),
         repo.getLcProblems(),
         repo.getManualSolves(),
-        import("./catalog"),
       ]);
       const curated = new Map(LC_CURATED.map((p) => [p.slug, p]));
       const manualLc = manual.flatMap((m) => {
