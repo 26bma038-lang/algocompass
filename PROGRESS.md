@@ -1,6 +1,86 @@
 # AlgoCompass progress log
 
-## Latest: Quests, Contests and Notifications, Phase 7 (2026-10-15)
+## Latest: Achievements, levels and progression, Phase 8 (2026-10-15)
+
+**Done: all three parts.** Each part is committed. `npm test` passes (273 tests: 24 new, replacing 2 old level tests), `npm run build` is green, and `npm run tauri dev` compiles and runs. In your real database, migration 5 is applied, and your first run recorded your level and 12 achievements quietly as the baseline.
+
+**You right now: Level 14, "Pattern Hunter"**
+- 1,642 XP in total, 128 of 191 XP to level 15 ("Greedy Adept").
+- 12 of 31 achievements unlocked:
+
+| Earned | Achievement |
+|---|---|
+| 24 Apr 2026 | Five Alive (5 problems in one day) |
+| 30 Apr 2026 | Into the Arena (first Codeforces round) |
+| 30 Apr 2026 | Big Climb (+50 in one round: your first round, +391) |
+| 1 May 2026 | Punching Up (solved above your rating) |
+| 2 May 2026 | Kindling (3-day streak) |
+| 3 May 2026 | Weekend Warrior |
+| 6 May 2026 | Week of Fire (7-day streak) |
+| 21 May 2026 | The Comeback (solved after 2+ weeks away) |
+| 10 Jul 2026 | Hard Mode (first LeetCode Hard) |
+| 19 Jul 2026 | Medium Rare (first LeetCode Medium) |
+| before tracking | Specialty (a Strong topic) |
+| before tracking | Branching Out (10 topics unlocked) |
+
+- **Closest next unlocks:**
+  - Arena Regular: 9 of 10 rounds. The WorldQuant round on Saturday does it.
+  - Century: 73 of 100 Codeforces solves.
+  - Pupil: 1008 of 1200.
+  - No Blind Spots: two left (Two pointers, Graph traversal).
+
+**What was built**
+1. **XP and levels** (`src/engine/xp.ts`, pure, 14 tests):
+   - **Codeforces solve:** 10 XP at your rating at the time, ×2 per +300 above it, ×½ per −300 below it, from 2 to 40 XP.
+   - **LeetCode solve:** Easy 5, Medium 12, Hard 25. The solves LeetCode hides (all but your 20 latest) count once, as one undated lump from its totals.
+   - **Contests:** 40 XP per Codeforces round, 25 per LeetCode contest.
+   - **Upsolve:** +10. It counts when a problem is accepted on a later day than a failed try, or comes from the contest upsolve list.
+   - **Quests:** unchanged (30 / 20 / 15), so a quest is worth about two more solves.
+   - **Active day:** 5 XP, +1 per day the streak has run (capped at +10).
+   - **Curve:** you reach level L at 25 × (L−1)^1.6 XP. Level 10 takes 840 XP, about three weeks of steady practice; level 20 takes 2,780 and level 30 takes 5,450.
+   - **Titles:** a new one every five levels. Novice Coder (1), Loop Apprentice (5), Pattern Hunter (10), Greedy Adept (15), Algorithm Smith (20), Graph Ranger (25), DP Alchemist (30), Segment Sage (35), Proof Knight (40), Code Archmage (50), Legend of the Judge (60).
+   - **Recomputed from your full history** on every sync, so the first run put you at level 14, not level 1.
+   - **Top bar:** the level badge's XP line fills toward the next level. Hovering it shows your title, XP to go, and today's XP by source.
+2. **Achievements** (`src/engine/achievements.ts`, 31 rules in 5 categories, 10 tests; Achievements screen):
+   - **Consistency:** first quest, 3/7/30/100-day streaks, 100 active days, 4 perfect quest weeks.
+   - **Codeforces:** first round, 10 and 25 rounds, first solve above your rating, +50 in one round, first upsolve, 100 solved, and reaching Pupil, Specialist and Expert.
+   - **LeetCode:** first Medium, first Hard, 50 and 100 solved, first contest.
+   - **Topics:** first Strong topic, first Mastered topic, 10 topics unlocked, all blind spots tried.
+   - **Fun:** night owl (midnight to 4 am), early bird (5 to 7 am), 5 problems in a day, weekend warrior, comeback after 2+ weeks.
+   - **Dates:** every rule dates its unlock from history when it can. When it can't (state-based topic rules, LeetCode solves LeetCode hides), the card says "Earned before tracking".
+   - **Never re-lock:** unlocks are recorded once (`achievements` table, migration 5), so a topic that decays below Strong stays earned.
+   - **Locked cards** are silhouettes with the hint and real progress ("Best streak 13/30", "Contests 9/10", "Best rating 1,008/1,200").
+3. **Moments** (`src/features/achievements/Ceremonies.tsx`):
+   - **Level-up:** a plate drops under the level badge with the number and a title wipe (done by 0.9s), and the badge flashes once.
+   - **Aura Shift on promotion:** `--accent` is now a registered CSS color, so a promotion crossfades the whole app from gray to Pupil green in 1.2s, with a "Promoted · Pupil" plate.
+   - **Never in the way:** both moments let clicks through, skip on any click or Esc, and snap under reduced motion.
+   - **Achievement unlock:** a toast with the badge. Unlocks found while the app is in the tray also send a Windows notification, and so do level-ups and promotions.
+   - **Preview:** the hidden Debug page (Ctrl+Shift+D) has "Ceremony previews": the Aura Shift (Newbie → Pupil) and a level-up. The preview puts your real Newbie gray back afterwards, which I checked.
+
+**Decisions (made without asking)**
+- **The first run is silent.** Your past is a baseline: level 14 and the 12 achievements were recorded without toasts or a level-up moment. From now on, only new progress is announced.
+- **More than 3 unlocks at once become one summary toast** ("12 achievements unlocked … View"), e.g. if the cache is rebuilt.
+- **Level and rank only move up for announcements.** A rating drop isn't a ceremony; the highest rank seen is remembered, so dropping back to Newbie and climbing again doesn't replay the Aura Shift.
+- **"Big Climb" counts your first round (+391).** That's what Codeforces recorded, though new accounts start from 0. I kept it rather than special-casing the first six rounds.
+- **"Perfect quest week" is strict:** all quests on all 7 days, Monday to Sunday.
+- **Achievements use the chamfered plate shape,** which DESIGN.md reserves for level and rank; I'm treating achievements as part of that family. Logged in DESIGN.md's new "Progression additions" block.
+
+**Impeccable critique** (one lightweight in-context pass, no sub-agents; Achievements and the top bar at 1100x700, including the tooltip, both moments and the toast)
+- **Fixed:**
+  - P1: at Newbie the accent is gray, so earned and locked cards differed mostly by border. Earned cards now carry a Success check plus "Earned <date>".
+  - P1: the toast badge overflowed Sonner's 16px icon slot.
+  - P2: a burst of unlocks would stack a dozen toasts (now one summary).
+- **Left as is (P3):** the level-up plate sits over the top-right of the content for 2.6s. It lets clicks through and skips on any click.
+
+**Blocked / needs Sahil**
+- Nothing is blocked. The Windows notification for an unlock while in the tray shows PowerShell's name in dev mode, as in Phase 7.
+
+**Suggested next step**
+Polish week: a full impeccable audit across all eight screens. Then a packaged build (`npm run tauri build`), so notifications carry AlgoCompass's own name and autostart can be tested end to end.
+
+---
+
+## Previous: Quests, Contests and Notifications, Phase 7 (2026-10-15)
 
 **Done: all four parts.** Each part is committed separately. `npm test` passes (251 tests, 37 new), `npm run build` is green, `cargo check` is clean, and `npm run tauri dev` compiles (Rust in 37s) and runs. In your real database, migration 4 is applied, today's 3 quests are stored, and 9 past Codeforces rounds have been looked up.
 

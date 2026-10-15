@@ -106,6 +106,8 @@ interface Seen {
   rank: number | null;
 }
 const SEEN_KEY = "progression-seen";
+/** Unlocks announced one toast each; beyond this they're batched. */
+const MAX_TOASTS = 3;
 
 const rankIndex = (rating: number) => RANK_BANDS.indexOf(bandForRating(rating).current);
 
@@ -134,12 +136,27 @@ export function useProgressionWatcher() {
 
         if (seen) {
           const hidden = document.visibilityState === "hidden";
-          for (const a of fresh) {
+          // A handful at most, one by one; more than that (e.g. a rebuilt cache) is one summary, not a flood.
+          if (fresh.length > MAX_TOASTS) {
+            const titles = fresh.map((a) => a.def.title);
+            toast(`${fresh.length} achievements unlocked`, {
+              id: "ach-batch",
+              description: `${titles.slice(0, 4).join(", ")}${titles.length > 4 ? ` and ${titles.length - 4} more` : ""}.`,
+              icon: createElement(AchievementBadge, { icon: "medal", unlocked: true, size: "sm" }),
+              duration: 8000,
+              classNames: { icon: "!h-7 !w-7 !mr-1" },
+              action: { label: "View", onClick: () => (window.location.hash = "#/achievements") },
+            });
+            if (hidden) void notify(`${fresh.length} achievements unlocked`, titles.join(", "));
+          }
+          for (const a of fresh.length > MAX_TOASTS ? [] : fresh) {
             toast(`Achievement unlocked: ${a.def.title}`, {
               id: `ach-${a.id}`,
               description: a.def.hint,
               icon: createElement(AchievementBadge, { icon: a.def.icon, unlocked: true, size: "sm" }),
               duration: 6000,
+              // Sonner's icon slot is 16px; the badge plate is 28px.
+              classNames: { icon: "!h-7 !w-7 !mr-1" },
             });
             if (hidden) void notify(`Achievement unlocked: ${a.def.title}`, a.def.hint);
           }

@@ -422,3 +422,12 @@ The honest "nothing here yet" pattern. A 40px accent-soft tile (12px radius) wit
 - **Do** show rating change as an arrow icon (Success up, Danger down) plus a signed number in Chakra Petch, with words for screen readers. Unrated rounds say "Unrated" in Dusk.
 - **Do** use the Switch (20x36 sunken pill, accent fill and an abyss thumb when on) for every on/off setting. The thumb's position carries the state, never color alone.
 - **Don't** show a total you can't vouch for: when a round's problem list is partial, show "1 solved" instead of "1 of 2".
+
+<!-- Appended 2026-10-15 (Achievements, levels and progression build). Additions only; nothing above changed. -->
+### Progression additions
+- **Do** use the chamfered plate for achievement badges too (48px, 9px clips; 28px in toasts): earned = accent-soft plate with an accent icon; locked = Abyss Sunken silhouette with a Dusk icon at 60%. Earned cards have a strong hairline and say "Earned <date>" (or "Earned before tracking") next to a Success check; locked cards have a dashed hairline, the hint, and a Dusk progress meter ("Best streak 13/30"). At Newbie the accent is gray, so the check and the words carry "earned", never the color.
+- **Do** make the level the hero number on Achievements, with the title in Chakra Petch headline in the accent and a 6px XP bar.
+- **Do** show the level badge's tooltip as a small Float panel: "Level N · Title", the XP bar and "X of Y XP to level N+1", then today's XP by source.
+- **Do** play the level-up moment as a Float plate under the level badge: the number, the title revealed with a left-to-right wipe (done by 0.9s), an accent line drawing in, and one flash on the badge plate. It leaves after 2.6s.
+- **Do** run the Aura Shift on promotion: `--accent` is a registered `<color>`, and `html.aura-shifting` crossfades it over 1.2s, so every accent surface repaints at once, with a wash of the new color from the top and a "Promoted · <Rank>" plate. Both moments use `pointer-events: none`; any click or Esc skips them and still reaches its target. Under reduced motion the color snaps.
+- **Don't** announce the past: the first evaluation records existing achievements and your level silently. More than three unlocks at once become one summary toast with a View action.
