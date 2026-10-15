@@ -60,6 +60,11 @@ A command palette to jump to any screen or topic, sync, or open today's mix or t
 
 ![Command palette](docs/screenshots/palette.png)
 
+### Settings
+Your handles, weekly goals (Codeforces problems, LeetCode problems and contests per week), a toggle for each notification with the evening reminder time, and launch on Windows startup.
+
+![Settings](docs/screenshots/settings.png)
+
 ### Desktop
 - Lives in the system tray, with a tray menu showing today's quest progress.
 - Can launch on Windows startup, minimized.

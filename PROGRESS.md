@@ -25,7 +25,7 @@
 **Part 2: README, license, package.json.**
 - **README.md rewritten for the public:**
   - Pitch, hero screenshot and download link.
-  - Why I built it, and a feature section per screen with screenshots (Home Base, Skill Tree, Topic Detail, Practice, Quests, Contests, Achievements, Ctrl+K palette, welcome screen).
+  - Why I built it, and a feature section per screen with screenshots (Home Base, Skill Tree, Topic Detail, Practice, Quests, Contests, Achievements, Settings, Ctrl+K palette, welcome screen).
   - How it works: adapters → SQLite → topic engine → recommender → screens, strength scoring (difficulty weighting, 90-day half-life, struggle penalty), and the unofficial LeetCode GraphQL endpoint.
   - Download with the SmartScreen note, build from source, tests, tech stack, project structure, roadmap (the Future ideas list), privacy, license.
 - **License, changed on the user's new instruction:** no open-source license file; MIT was dropped. The README's License section reads "© 2026 Sahil. All rights reserved…", and `package.json` has `"license": "UNLICENSED"`, plus `repository`, `homepage` and `description`.
