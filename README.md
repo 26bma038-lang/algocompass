@@ -1,71 +1,181 @@
 # AlgoCompass
 
-A Windows desktop compass for competitive programmers. AlgoCompass tracks your **Codeforces** and **LeetCode** practice, works out which topics are strong and which are weak, tells you what to study next, and keeps you consistent with daily quests, streaks and reminders.
+**Your competitive programming compass: one desktop app for Codeforces and LeetCode that finds your weak topics, tells you what to solve next, and keeps your streak alive.**
 
-**The Codeforces rating climb is the goal.** New topics are learned on LeetCode and sharpened on Codeforces until they're strong. The app reads your public profiles, so there is no account to make and nothing to log in to.
+![AlgoCompass Home Base](docs/screenshots/home.png)
 
-![Home Base](docs/screenshots/home.png)
+**[Download for Windows](https://github.com/26bma038-lang/algocompass/releases/latest)** · Windows 10/11 · free · no account needed
 
-## What it does
+## Why I built this
 
-- **Home Base:** the daily check-in. Your rating, streak, today's quests, what to work on next, and the next Codeforces round, all in one screen.
-- **Skill Tree:** 33 topics on a prerequisite graph, each with a mastery ring. Scores come from your own solves, weighted by difficulty and recency.
-- **Topic Detail:** one topic's strength, history, and recommended problems: LeetCode to learn it, Codeforces to sharpen it. Curated resources come with each topic.
-- **Practice:** a fresh Mix of the Day (3 Codeforces + 2 LeetCode), an Upsolve list, and problems for each weak topic.
-- **Quests:** three daily quests from your mix, weekly goals with progress rings, and a weekly review.
-- **Contests:** upcoming Codeforces rounds first and LeetCode contests below them, with countdowns, "I'll attend" reminders and your past results. Problems you didn't solve in a round go to Upsolve automatically.
-- **Achievements:** a level and title earned from your whole history, plus 31 achievements.
-- **Desktop:** runs from the tray, launches at startup if you want, sends Windows notifications 1 hour and 10 minutes before rounds and when your streak is at risk. Ctrl+K opens a command palette; press `?` for every shortcut.
+I practice on two sites. LeetCode is where I *learn* a topic (clean problems, good editorials), and Codeforces is where I *sharpen* it under contest pressure, which is where my rating lives. Neither site knows about the other, so there was no single answer to the questions I actually had every day:
 
-It works offline from a local SQLite cache and marks stale data as stale. It never invents numbers.
+- Which topics am I weak at, across **both** platforms?
+- What should I solve **next**: something to learn on LeetCode, or something to sharpen on Codeforces?
+- Am I staying consistent, or did I quietly skip three days?
 
-| | |
-|---|---|
-| ![Skill Tree](docs/screenshots/skill-tree.png) | ![Topic Detail](docs/screenshots/topic.png) |
-| ![Practice](docs/screenshots/practice.png) | ![Quests](docs/screenshots/quests.png) |
-| ![Contests](docs/screenshots/contests.png) | ![Achievements](docs/screenshots/achievements.png) |
+AlgoCompass answers those in a two-second glance, from the tray, without logins or uploads. The Codeforces rating climb is the goal; LeetCode is the classroom.
 
-## Install
+## Features
 
-1. Download `AlgoCompass_1.0.0_x64-setup.exe` (or the `.msi`) from the release.
-2. Run it. Windows SmartScreen may warn about an unsigned app: choose **More info → Run anyway**.
-3. Open **Settings** and enter your Codeforces handle and LeetCode username. The first sync takes about a minute (it caches the Codeforces problemset).
+### Home Base: the daily check-in
+Your Codeforces rating and progress to the next rank, the streak, today's quests, the one topic to work on next (with the two problems to start with), and the next Codeforces round. All of it fits in the window at 1100×700. The app's accent colour is your real Codeforces rank colour, and it changes when you get promoted.
 
-Requires Windows 10 or 11 with the WebView2 runtime (already installed on Windows 11; the installer fetches it on Windows 10 if needed).
+### Skill Tree
+33 topics on a prerequisite graph (built with React Flow). Each node has a mastery ring scored 0–100 from your own solves. Topics unlock as their prerequisites reach Developing, and the three most urgent ones are marked "Work on next".
+
+![Skill Tree](docs/screenshots/skill-tree.png)
+
+### Topic Detail
+Open any topic to see its strength and where it comes from (Codeforces vs LeetCode), hardest solve, struggle rate, what you've solved and what's still open. It also lists recommended problems (LeetCode to learn, Codeforces to sharpen) and curated resources (CP-Algorithms, USACO Guide, NeetCode, CSES and more).
+
+![Topic Detail](docs/screenshots/topic.png)
+
+### Practice: the recommender
+- **Mix of the Day:** 3 Codeforces problems, one for each of your weakest topics, rated just above your rating. Plus 2 LeetCode problems for the next topic you're learning.
+- **Upsolve:** problems you tried and never got accepted, and problems you didn't solve in a recent contest.
+- **By topic:** every weak topic with its own problems.
+
+Feedback (Skip / Too easy / Too hard) moves a topic's difficulty window up or down.
+
+![Practice](docs/screenshots/practice.png)
+
+### Quests
+Three daily quests drawn from your mix. They check themselves off when a sync sees the accepted submission. There are also weekly goals with progress rings, XP and levels, and a weekly review every Sunday.
+
+![Quests](docs/screenshots/quests.png)
+
+### Contests
+Upcoming Codeforces rounds come first, with LeetCode weekly and biweekly contests below them. Each shows a countdown, local start time, duration and division, plus a Register button. Mark "I'll attend" to get Windows reminders 1 hour and 10 minutes before. Past rounds show your rank, problems solved and rating change.
+
+![Contests](docs/screenshots/contests.png)
+
+### Achievements
+Your level and title (Novice Coder → Pattern Hunter → Algorithm Smith…), computed from your whole history, plus 31 achievements across Consistency, Codeforces, LeetCode, Topics and Fun. Locked ones show your progress, e.g. "Best streak 13/30". Rank promotions get a short "Aura Shift" moment; there's no confetti, ever.
+
+![Achievements](docs/screenshots/achievements.png)
+
+### Ctrl+K, everywhere
+A command palette to jump to any screen or topic, sync, or open today's mix or the next contest, all from the keyboard. Ctrl+R syncs and `?` lists every shortcut.
+
+![Command palette](docs/screenshots/palette.png)
+
+### Desktop
+- Lives in the system tray, with a tray menu showing today's quest progress.
+- Can launch on Windows startup, minimized.
+- Windows notifications fire even while the window is hidden: contest reminders, an evening "streak at risk" nudge, and quest completions.
+- Works offline from a local cache, and stale data is marked as stale.
+
+### First launch
+Enter your Codeforces handle (required) and LeetCode username (optional). Both are checked against the sites before the first sync starts, which takes about a minute.
+
+![Welcome screen](docs/screenshots/welcome.png)
+
+## How it works
+
+```
+Codeforces API ─┐                       ┌─ topic engine ─┐
+                ├─ adapters ─ SQLite ───┤                ├─ recommender ─ screens
+LeetCode GQL ───┘   (normalize)  (cache)└─ quests / XP ──┘
+```
+
+1. **Adapters** (`src/adapters`) are the only code that talks to the platforms. They turn Codeforces and LeetCode responses into shared domain types, so nothing else knows either site's response format.
+2. **Sync** stores everything in a local **SQLite** database:
+   - It runs on start, every 2 hours, or on demand.
+   - It's incremental: new submissions only, and the Codeforces problemset is cached for 24 hours.
+   - Each platform fails independently.
+3. **The topic engine** (`src/engine`, pure TypeScript, unit-tested) maps 38 Codeforces tags and 75 LeetCode tags onto 33 unified topics and scores each one 0–100:
+   - **Codeforces solves** are weighted by the problem's rating relative to yours: 1× at your rating, ×2 for every +300, clamped to 0.2–4×.
+   - **LeetCode solves** count Easy 1, Medium 2.5, Hard 5, at half weight (LeetCode is the classroom).
+   - **Recency:** every solve decays with a **90-day half-life**, so a topic you haven't touched in months fades.
+   - **Struggle:** a topic loses up to 30% for struggle (the share of your judged Codeforces submissions there that weren't accepted).
+   - **Mastered** additionally needs a solve at or above your rating.
+4. **The recommender** ranks topics by *how often they appear at your rating × weakness² × staleness*.
+   - A topic stays in **Learn** mode (LeetCode, a curated Easy → Medium path) until you have 5 solves in it.
+   - After that it's in **Sharpen** mode: unsolved Codeforces problems rated between your rating and +200, recent rounds first.
+5. **Screens** render it all (React, TanStack Query over the cache), and quests, XP and achievements are derived from the same history.
+
+**About LeetCode:** LeetCode has no public API, so AlgoCompass uses its **unofficial GraphQL endpoint** (the same one leetcode.com uses). It's isolated behind a single adapter that validates every field and fails soft. If LeetCode changes or blocks it, LeetCode data goes stale and everything else keeps working. LeetCode also only exposes your 20 most recent accepted solves, so older ones can be marked solved by hand.
+
+## Download and install
+
+1. Download `AlgoCompass_1.0.0_x64-setup.exe` (or the `.msi`) from the **[latest release](https://github.com/26bma038-lang/algocompass/releases/latest)**.
+2. Run it. The app isn't code-signed, so Windows SmartScreen will warn: click **More info → Run anyway**.
+3. Enter your Codeforces handle (and optionally your LeetCode username) on the welcome screen.
+
+Requires Windows 10 or 11 with the WebView2 runtime. It's already on Windows 11, and the installer fetches it on Windows 10 if needed.
 
 ## Build from source
 
-Prerequisites:
-- Node.js 20+ and npm
-- Rust (stable, MSVC toolchain)
-- Visual Studio Build Tools with **Desktop development with C++** and a **Windows 11 SDK**
+**Prerequisites**
+- [Node.js](https://nodejs.org/) 20 or newer, with npm
+- [Rust](https://rustup.rs/) (stable, MSVC toolchain)
+- [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) with **Desktop development with C++** and a **Windows 11 SDK**
 
 ```powershell
+git clone https://github.com/26bma038-lang/algocompass.git
+cd algocompass
 npm install
 npm run tauri dev      # run the desktop app with hot reload
-npm test               # type-check + unit tests (Vitest)
 npm run tauri build    # installers in src-tauri/target/release/bundle/{nsis,msi}
 ```
 
-Run Cargo and Tauri from PowerShell, not Git Bash. Git Bash's `link` shadows the MSVC linker.
+Use PowerShell (or cmd), not Git Bash, for the Tauri and Cargo commands. Git Bash's `link` shadows the MSVC linker.
 
-`npm run dev` serves the UI in a plain browser too. It then uses an in-memory SQLite (sql.js) and proxies LeetCode through Vite. That mode is handy for UI work; the desktop build uses tauri-plugin-sql.
+`npm run dev` also serves the UI in a plain browser. It uses an in-memory SQLite (sql.js) there and proxies LeetCode through Vite, which is handy for UI work.
 
-Other scripts:
-- `npm run test:live`: a full sync against the real APIs.
-- `npm run check:links`: verifies every curated resource and LeetCode problem link.
-- `npm run gen:lc-lists`: regenerates the curated LeetCode lists from `scripts/lc-lists.txt`.
+### Running tests
+
+```powershell
+npm test               # type-check + unit tests (Vitest)
+$env:CF_HANDLE="tourist"; $env:LC_HANDLE="<username>"; npm run test:live   # full sync against the real APIs
+npm run check:links    # verify every curated resource and LeetCode problem link
+```
+
+The unit tests cover the adapters (with stubbed fetch), sync against a real SQLite schema, and all of the engine: strength scoring, the recommender, quests, XP and levels, achievements, reminder scheduling, contests and the command palette ranking.
 
 ## Tech stack
 
-- **Shell:** Tauri 2 (Rust) with a frameless window, tray, and a reminder scheduler in Rust.
-- **UI:** React 18, Vite, TypeScript (strict), Tailwind v4, shadcn/ui (Radix), Framer Motion, Recharts, @xyflow/react, cmdk.
-- **State:** Zustand for app state and TanStack Query for cached data.
-- **Data:** tauri-plugin-sql (SQLite), tauri-plugin-http, tauri-plugin-store, tauri-plugin-notification, tauri-plugin-autostart.
-- **Sources:** the official Codeforces API, and LeetCode's unofficial GraphQL API. LeetCode is isolated behind an adapter that fails soft, so a LeetCode outage only affects LeetCode data.
+- **Shell:** [Tauri 2](https://tauri.app/) (Rust) with a frameless window, a system tray, and a reminder scheduler in Rust.
+- **UI:** React 18, Vite, TypeScript (strict), Tailwind CSS v4, shadcn/ui (Radix), Framer Motion, Recharts, React Flow (@xyflow/react), cmdk.
+- **State:** Zustand for app state, TanStack Query for the data cache.
+- **Tauri plugins:** sql (SQLite), http, store, notification, autostart, opener.
+- **Data sources:** the official Codeforces API and LeetCode's unofficial GraphQL endpoint.
 
-The code is layered: `src/adapters` talks to the platforms; `src/data` handles the SQLite cache, sync and query hooks; `src/engine` holds the pure analysis logic (strength, recommender, quests, XP, achievements), all unit-tested; and `src/features` has one folder per screen. The visual system ("The Rank Aura", where the accent color is your real Codeforces rank color) is specified in [DESIGN.md](DESIGN.md).
+## Project structure
+
+```
+src/
+  adapters/      Codeforces + LeetCode clients (the only code that touches the network)
+  data/          SQLite schema access, sync, settings, TanStack Query hooks
+  engine/        Pure analysis: topics, strength, recommender, quests, XP, achievements, reminders
+  features/      One folder per screen (home, skill-tree, topic, practice, quests, contests,
+                 achievements, settings, onboarding)
+  components/    Shell (title bar, sidebar, top bar, palette) and shadcn/ui primitives
+src-tauri/
+  src/lib.rs     Window, tray, plugins, reminder scheduler
+  migrations/    SQLite schema migrations
+  capabilities/  Permission scope (only codeforces.com/api and leetcode.com/graphql)
+docs/screenshots README images
+DESIGN.md        The visual system ("The Rank Aura")
+```
+
+## Roadmap
+
+- **AI coach:** a weekly plan in plain words from your topic report and contest results, plus explanations of *why* a submission got WA.
+- **Revision queue:** spaced repetition for problems you struggled with, resurfacing at 3, 7 and 21 days.
+- **Friends comparison:** add a few Codeforces handles and compare ratings, topic strengths and weekly solves.
+- **Problem notes:** the key idea and the mistake for each problem, searchable from the palette.
+- **Rating predictor:** expected rating change during a live round, and a projection toward your next rank.
+- **Mobile companion:** a read-only phone view of the streak, today's quests and the next round.
 
 ## Privacy
 
-Everything stays on your machine. AlgoCompass only calls `codeforces.com/api` and `leetcode.com/graphql`, and the Tauri capability scope enforces that.
+Everything stays on your computer.
+- Your data lives in a local SQLite database and settings file in `%APPDATA%\com.algocompass.app`.
+- The app only calls `codeforces.com/api` and `leetcode.com/graphql`, to read your **public** profiles. The Tauri permission scope enforces that.
+- No accounts, no analytics, no telemetry, and nothing is uploaded anywhere.
+
+## License
+
+© 2026 Sahil. All rights reserved. You may view the code and download the app for personal use, but you may not copy, modify or redistribute the code without permission.

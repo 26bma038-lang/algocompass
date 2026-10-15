@@ -2,6 +2,13 @@
   "name": "algocompass",
   "private": true,
   "version": "1.0.0",
+  "description": "Desktop app that tracks Codeforces + LeetCode, finds your weak topics, and keeps you consistent",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/26bma038-lang/algocompass.git"
+  },
+  "homepage": "https://github.com/26bma038-lang/algocompass#readme",
   "type": "module",
   "scripts": {
     "dev": "vite",

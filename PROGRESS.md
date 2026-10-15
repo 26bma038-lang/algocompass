@@ -22,7 +22,26 @@
   - Your handles no longer read as config in CLAUDE.md, PRODUCT.md or the design-system sample (`.impeccable/design.json`). PROGRESS.md history, test fixtures and README screenshots keep them, as you allowed.
 - **Tests:** 10 new in `src/data/onboarding.test.ts`: defaults, resolve/adopt, handle checks, LeetCode skip, no wipe. Also driven end to end in a fresh browser profile: bad handles show both errors, then a real handle syncs and lands on Home Base.
 
-## Latest: v1.0.0 release, Phase 9 (2026-10-15)
+**Part 2: README, license, package.json.**
+- **README.md rewritten for the public:**
+  - Pitch, hero screenshot and download link.
+  - Why I built it, and a feature section per screen with screenshots (Home Base, Skill Tree, Topic Detail, Practice, Quests, Contests, Achievements, Ctrl+K palette, welcome screen).
+  - How it works: adapters → SQLite → topic engine → recommender → screens, strength scoring (difficulty weighting, 90-day half-life, struggle penalty), and the unofficial LeetCode GraphQL endpoint.
+  - Download with the SmartScreen note, build from source, tests, tech stack, project structure, roadmap (the Future ideas list), privacy, license.
+- **License, changed on the user's new instruction:** no open-source license file; MIT was dropped. The README's License section reads "© 2026 Sahil. All rights reserved…", and `package.json` has `"license": "UNLICENSED"`, plus `repository`, `homepage` and `description`.
+- **Palette fix:** typing "sort" listed Keyboard shortcuts above Sorting, because cmdk keeps groups in order. While searching, the palette is now one flat ranked list. The palette and welcome screenshots were re-taken.
+
+**Step 0 (before the parallel run): email hidden.**
+- Author and committer email on all 22 commits was rewritten to `322038294+26bma038-lang@users.noreply.github.com` (GitHub user ID 322038294), with names and dates kept, using `git filter-branch --env-filter … --tag-name-filter cat`. The backup refs were deleted and the reflog expired.
+- `git log --all` shows only the noreply address, with zero matches for the university email.
+- This repo's `user.email` is set to the noreply address.
+
+**Parts 3–6: build, tag, push, GitHub release.**
+- They run right after this commit: `npm run tauri build`, `git tag -f v1.0.0` on the final commit, push `master` and `v1.0.0` to `origin`, then `gh release create` with the .exe and .msi, and the repo description and topics. The outcome is in the session report.
+- The `redesign` branch (a separate worktree) is never pushed.
+- **Remote:** the GitHub repo already existed, was empty, and is **private**. Changing visibility wasn't part of the instructions, so it stays private. Until it's public, only you can see the repo, the README and the release download links. To publish: `gh repo edit 26bma038-lang/algocompass --visibility public --accept-visibility-change-consequences`.
+
+## Previous: v1.0.0 release, Phase 9 (2026-10-15)
 
 **AlgoCompass 1.0.0 is built and tagged.** Each part is committed. `npm test` passes (277 tests), `npm run build` is green, and `npm run tauri build` produced the installers:
 - `src-tauri/target/release/bundle/nsis/AlgoCompass_1.0.0_x64-setup.exe` (4.19 MiB, NSIS installer, recommended)
