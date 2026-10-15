@@ -144,9 +144,9 @@ function PastList({ past }: { past: PastContest[] }) {
           <thead>
             <tr className="text-label text-ink-muted">
               <th className="pb-2 font-medium">Contest</th>
-              <th className="pb-2 text-right font-medium">Solved</th>
-              <th className="pb-2 text-right font-medium">Rank</th>
-              <th className="pb-2 text-right font-medium">Rating</th>
+              <th className="pb-2 pl-3 text-right font-medium">Solved</th>
+              <th className="pb-2 pl-4 text-right font-medium">Rank</th>
+              <th className="pb-2 pl-4 text-right font-medium">Rating</th>
             </tr>
           </thead>
           <tbody>
@@ -160,7 +160,7 @@ function PastList({ past }: { past: PastContest[] }) {
                   </span>
                   <span className="pl-3.5 text-label text-ink-muted">{dateOnly(p.startTime)}</span>
                 </td>
-                <td className="numeric py-2.5 text-right text-body-sm text-ink">
+                <td className="numeric py-2.5 pl-3 text-right text-body-sm whitespace-nowrap text-ink">
                   {p.solved !== null ? (
                     <>
                       {p.solved}
@@ -170,7 +170,7 @@ function PastList({ past }: { past: PastContest[] }) {
                     <span className="text-ink-faint">–</span>
                   )}
                 </td>
-                <td className="numeric py-2.5 text-right text-body-sm text-ink">{p.rank !== null ? p.rank.toLocaleString() : <span className="text-ink-faint">–</span>}</td>
+                <td className="numeric py-2.5 pl-4 text-right text-body-sm whitespace-nowrap text-ink">{p.rank !== null ? p.rank.toLocaleString() : <span className="text-ink-faint">–</span>}</td>
                 <td className="py-2.5 pl-4 text-right">
                   <Delta d={p.delta} />
                   {p.newRating !== null && <span className="numeric block text-label text-ink-muted">{p.newRating}</span>}

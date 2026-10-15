@@ -49,83 +49,88 @@ function QuestsTile() {
  * Lead card: the 2-second answer. Did I practice today, is the streak at risk,
  * what's the one thing to do, and when is the next Codeforces round.
  */
-function TodayCard({ nextCf }: { nextCf: Contest | undefined }) {
+function TodayCard() {
   const streak = useStreak();
   const state = flameState(streak);
   const atRisk = streakAtRisk(streak);
-  const nowMs = useNow();
 
   return (
-    <section aria-labelledby="today-title" className="glass-card grid grid-cols-1 gap-6 p-6 md:grid-cols-[minmax(0,1fr)_auto]">
-      <div className="flex flex-col gap-5">
-        <div className="flex items-center gap-4">
-          <span
-            className={cn(
-              "grid size-14 shrink-0 place-items-center rounded-md",
-              state === "lit" ? "bg-[color-mix(in_oklab,var(--ember)_16%,transparent)]" : "bg-abyss-sunken",
-              atRisk && "animate-[ember-breathe_2s_ease-in-out_infinite]",
-            )}
-          >
-            <Flame
-              aria-hidden
-              className={cn("size-7", state === "none" ? "text-ink-faint" : "text-ember")}
-              fill={state === "lit" ? "url(#ember-gradient)" : "none"}
-              strokeWidth={1.7}
-            />
-          </span>
-          <div className="min-w-0">
-            <h2 id="today-title" className="flex items-baseline gap-2 text-ink">
-              <span className="numeric font-display text-display leading-none font-semibold">
-                {streak ? <NumberTicker id="streak" value={streak.current} format={plain} /> : "–"}
+    <section aria-labelledby="today-title" className="glass-card flex flex-col gap-4 p-5">
+      {/* One line: the streak and what it needs today. */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <span
+          className={cn(
+            "grid size-11 shrink-0 place-items-center rounded-md",
+            state === "lit" ? "bg-[color-mix(in_oklab,var(--ember)_16%,transparent)]" : "bg-abyss-sunken",
+            atRisk && "animate-[ember-breathe_2s_ease-in-out_infinite]",
+          )}
+        >
+          <Flame
+            aria-hidden
+            className={cn("size-6", state === "none" ? "text-ink-faint" : "text-ember")}
+            fill={state === "lit" ? "url(#ember-gradient)" : "none"}
+            strokeWidth={1.7}
+          />
+        </span>
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <h2 id="today-title" className="flex items-baseline gap-2 text-ink">
+            <span className="numeric font-display text-display leading-none font-semibold">
+              {streak ? <NumberTicker id="streak" value={streak.current} format={plain} /> : "–"}
+            </span>
+            <span className="text-body font-medium text-ink-muted">day streak</span>
+          </h2>
+          <p className="flex flex-wrap items-center gap-x-1.5 text-body-sm">
+            {!streak ? (
+              <span className="text-ink-muted">Waiting for the first sync</span>
+            ) : state === "lit" ? (
+              <>
+                <Check aria-hidden className="size-4 text-success" strokeWidth={2.4} />
+                <span>Practiced today</span>
+                <span className="text-ink-muted">· {plural(streak.todayCount, "solve")} so far</span>
+              </>
+            ) : state === "pending" ? (
+              <span className={atRisk ? "text-warning" : "text-ink"}>
+                Solve one problem today to keep your {streak.current}-day streak
+                {atRisk ? ". It ends at midnight." : "."}
               </span>
-              <span className="text-body font-medium text-ink-muted">day streak</span>
-            </h2>
-            <p className="mt-2 flex flex-wrap items-center gap-x-1.5 text-body">
-              {!streak ? (
-                <span className="text-ink-muted">Waiting for the first sync</span>
-              ) : state === "lit" ? (
-                <>
-                  <Check aria-hidden className="size-4 text-success" strokeWidth={2.4} />
-                  <span>Practiced today</span>
-                  <span className="text-ink-muted">· {plural(streak.todayCount, "solve")} so far</span>
-                </>
-              ) : state === "pending" ? (
-                <span className={atRisk ? "text-warning" : "text-ink"}>
-                  Solve one problem today to keep your {streak.current}-day streak
-                  {atRisk ? ". It ends at midnight." : "."}
-                </span>
-              ) : (
-                <span className="text-ink">Solve one problem today to start a streak.</span>
-              )}
-            </p>
-          </div>
+            ) : (
+              <span className="text-ink">Solve one problem today to start a streak.</span>
+            )}
+          </p>
         </div>
-        <WorkOnNext />
         {streak && <p className="text-body-sm text-ink-muted">Longest streak: {plural(streak.longest, "day")}</p>}
       </div>
-
-      <div className="flex flex-col gap-3 self-start md:w-[230px]">
-      {nextCf && (
-        <button
-          type="button"
-          onClick={() => openContest(nextCf.url)}
-          className="flex w-full flex-col items-start gap-1.5 rounded-md border border-glass-border bg-abyss-sunken p-4 text-left transition-colors duration-[var(--dur-fast)] hover:border-glass-border-strong"
-        >
-          <span className="flex items-center gap-1.5 text-label text-ink-muted">
-            <span aria-hidden className="size-1.5 rounded-full bg-platform-cf" />
-            Next Codeforces round
-          </span>
-          <span className="numeric font-display text-headline font-semibold text-ink">{countdown(nextCf.startTime, nowMs)}</span>
-          <span className="text-body-sm text-ink">{shortName(nextCf)}</span>
-          <span className="text-label text-ink-muted">
-            {when(nextCf.startTime)}
-            <span className="sr-only"> (opens in browser)</span>
-          </span>
-        </button>
-      )}
-      <QuestsTile />
+      {/* The two things to do today, side by side. */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_250px]">
+        <WorkOnNext />
+        <QuestsTile />
       </div>
     </section>
+  );
+}
+
+/** The next Codeforces round, at the foot of the rating card: the round is where the rating moves. */
+function NextRound({ c }: { c: Contest }) {
+  const nowMs = useNow();
+  return (
+    <button
+      type="button"
+      onClick={() => openContest(c.url)}
+      className="flex w-full flex-col items-start gap-1 rounded-md border border-glass-border bg-abyss-sunken p-3 text-left transition-colors duration-[var(--dur-fast)] hover:border-glass-border-strong"
+    >
+      <span className="flex w-full items-center justify-between gap-2 text-label text-ink-muted">
+        <span className="flex items-center gap-1.5">
+          <span aria-hidden className="size-1.5 rounded-full bg-platform-cf" />
+          Next round
+        </span>
+        <span className="numeric font-display text-title font-semibold text-ink">{countdown(c.startTime, nowMs)}</span>
+      </span>
+      <span className="line-clamp-1 text-body-sm text-ink">{shortName(c)}</span>
+      <span className="text-label text-ink-muted">
+        {when(c.startTime)}
+        <span className="sr-only"> (opens in browser)</span>
+      </span>
+    </button>
   );
 }
 
@@ -139,12 +144,12 @@ function Stat({ label, value }: { label: string; value: ReactNode }) {
 }
 
 /** The one hero number on Home Base (DESIGN.md): your Codeforces rating. */
-function CfCard({ cf, solved, history }: { cf: CfUser | null; solved: number; history: readonly CfRatingChange[] }) {
+function CfCard({ cf, solved, history, nextCf }: { cf: CfUser | null; solved: number; history: readonly CfRatingChange[]; nextCf: Contest | undefined }) {
   const band = cf?.rating != null ? bandForRating(cf.rating) : null;
   const last = history[history.length - 1];
   const lastDelta = last ? last.newRating - last.oldRating : null;
   return (
-    <section aria-labelledby="cf-title" className="glass-card flex flex-col gap-4 p-6">
+    <section aria-labelledby="cf-title" className="glass-card flex flex-col gap-4 p-5">
       <div className="flex items-center justify-between gap-3">
         <h2 id="cf-title" className="flex items-center gap-2 text-title font-semibold">
           <span aria-hidden className="size-2 rounded-full bg-platform-cf" />
@@ -188,6 +193,7 @@ function CfCard({ cf, solved, history }: { cf: CfUser | null; solved: number; hi
           }
         />
       </dl>
+      {nextCf && <NextRound c={nextCf} />}
     </section>
   );
 }
@@ -255,12 +261,12 @@ export function HomeBase() {
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-12 flex flex-col gap-4 lg:col-span-8">
-          <TodayCard nextCf={nextCf} />
+          <TodayCard />
           <RatingChart cf={data?.ratingHistory ?? []} lc={data?.lcContests ?? []} rating={data?.cf?.rating ?? null} />
           <ActivityHeatmap activity={data?.activity ?? []} />
         </div>
         <div className="col-span-12 flex flex-col gap-4 lg:col-span-4">
-          <CfCard cf={data?.cf ?? null} solved={data?.cfSolved ?? 0} history={data?.ratingHistory ?? []} />
+          <CfCard cf={data?.cf ?? null} solved={data?.cfSolved ?? 0} history={data?.ratingHistory ?? []} nextCf={nextCf} />
           <LcCard lc={data?.lcStats ?? null} />
           <StandingCard report={report.data} />
         </div>
