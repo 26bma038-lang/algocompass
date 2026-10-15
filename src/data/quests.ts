@@ -15,11 +15,14 @@ import type { ResolvedMixItem } from "@/engine/recommender";
 import { TOPIC_BY_ID, topicsForTags } from "@/engine/topics";
 import { notify } from "@/lib/desktop";
 import { LC_CURATED } from "./catalog";
+import { improvedTopics, ratingAt, ratingChange, strengthsAt } from "@/engine/review";
 import { readPrefs, usePrefs } from "./prefs";
+import { topicReportQuery } from "./queries";
+import { queryClient } from "./queryClient";
 import { useLocalDay, useMixOfTheDay } from "./recommendations";
 import type { Repo } from "./repo";
 import { getRepo, useSyncStore } from "./syncStore";
-import type { ManualSolve, Platform } from "./types";
+import type { LcProfile, ManualSolve, Platform } from "./types";
 import { useUiStore } from "./uiStore";
 
 /** Quests, XP, weekly goals and manual solve marks, fed from the SQLite cache. Keys start with "db". */
@@ -214,4 +217,53 @@ export function useMarkSolved() {
     },
     onError: (e) => toast.error("Couldn't save that", { description: e instanceof Error ? e.message : String(e) }),
   });
+}
+
+/** Everything the weekly review shows, for the week so far (Monday 00:00 → now). */
+export function useWeeklyReview(enabled: boolean) {
+  const day = useLocalDay();
+  return useQuery({
+    queryKey: ["db", "weekly-review", day],
+    enabled,
+    queryFn: async () => {
+      const repo = await getRepo();
+      const report = await queryClient.fetchQuery(topicReportQuery);
+      const [cfSubmissions, lcRecentAc, lcProblems, lcTagCounts, lcProfile, manualSolves, ratingHistory, contestResults, lcContests, activity] = await Promise.all([
+        repo.getCfSubmissions(),
+        repo.getLcRecentAc(),
+        repo.getLcProblems(),
+        repo.getLcTagCounts(),
+        repo.getProfile<LcProfile>("lc"),
+        repo.getManualSolves(),
+        repo.getCfRatingHistory(),
+        repo.getContestResults(),
+        repo.getLcContestHistory(),
+        repo.getDailyActivity(),
+      ]);
+      const from = weekStart(new Date());
+      const to = weekEnd(from);
+      const prevFrom = weekStart(new Date((from - 3 * 86_400) * 1000));
+      const input = { cfSubmissions, lcRecentAc, manualSolves, ratingHistory, contestResults, lcContests };
+      const before = strengthsAt(
+        { now: from, cfRating: null, cfSubmissions, lcSolved: lcProfile?.data.solved ?? null, lcTagCounts, lcProblems, lcRecentAc },
+        from,
+        ratingAt(ratingHistory, from),
+      );
+      const activeDays = new Set(activity.filter((a) => a.count > 0 && a.day >= localDayKey(from) && a.day < localDayKey(to)).map((a) => a.day)).size;
+      return {
+        from,
+        to,
+        counts: weekCounts(input, from, to),
+        lastWeek: weekCounts(input, prevFrom, from),
+        improved: improvedTopics(before, report.topics),
+        rating: ratingChange(ratingHistory, from, to),
+        activeDays,
+      };
+    },
+  });
+}
+
+function localDayKey(t: number): string {
+  const d = new Date(t * 1000);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }

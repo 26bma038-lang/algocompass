@@ -176,3 +176,21 @@ describe("contests", async () => {
     expect(todo.map((t) => t.contestId)).toEqual([5]);
   });
 });
+
+describe("weekly review", async () => {
+  const { improvedTopics, ratingAt, ratingChange } = await import("./review");
+  const ts = (topicId: string, score: number) => ({ topicId, name: topicId, score }) as never;
+  it("lists topics that rose, biggest gain first", () => {
+    expect(improvedTopics([ts("a", 10), ts("b", 30), ts("c", 50)], [ts("a", 25), ts("b", 32), ts("c", 40)]).map((t) => t.topicId)).toEqual(["a", "b"]);
+  });
+  it("sums rating changes rated inside the week", () => {
+    const h = [
+      { contestId: 1, contestName: "", rank: 1, oldRating: 900, newRating: 950, at: 10 },
+      { contestId: 2, contestName: "", rank: 1, oldRating: 950, newRating: 930, at: 20 },
+      { contestId: 3, contestName: "", rank: 1, oldRating: 930, newRating: 990, at: 30 },
+    ];
+    expect(ratingChange(h, 15, 40)).toEqual({ delta: 40, rounds: 2 });
+    expect(ratingAt(h, 15)).toBe(950);
+    expect(ratingAt(h, 5)).toBeNull();
+  });
+});
