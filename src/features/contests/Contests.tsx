@@ -1,20 +1,16 @@
-import { lazy, Suspense, useId } from "react";
+import { useId } from "react";
 import { ArrowDown, ArrowUp, ExternalLink, Swords } from "lucide-react";
 import { CardHeader } from "@/components/CardHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { formatDuration, useContestsData, useSetAttending, type PastContest } from "@/data/contests";
-import { useHomeData } from "@/data/queries";
 import type { Contest } from "@/data/types";
 import { contestDivision, registerUrl } from "@/engine/contests";
 import { countdown, shortName, when } from "@/features/home/ContestStrip";
 import { useNow } from "@/features/home/useNow";
 import { openExternal } from "@/lib/openExternal";
 import { cn } from "@/lib/utils";
-
-// The full rating history lives here (Home Base has the sparkline). Recharts loads only on this screen.
-const RatingChart = lazy(() => import("@/features/home/RatingChart").then((m) => ({ default: m.RatingChart })));
 
 const PLATFORM = { cf: "Codeforces", lc: "LeetCode" } as const;
 const dot = (p: Contest["platform"]) => (p === "cf" ? "bg-platform-cf" : "bg-platform-lc");
@@ -188,12 +184,6 @@ function PastList({ past }: { past: PastContest[] }) {
   );
 }
 
-/** Your rating over every rated round (Codeforces, plus LeetCode contest rating once you have one). */
-function ContestRating() {
-  const { data } = useHomeData();
-  return <RatingChart cf={data?.ratingHistory ?? []} lc={data?.lcContests ?? []} rating={data?.cf?.rating ?? null} />;
-}
-
 /** Contests: Codeforces first and biggest, LeetCode below it, then your history. */
 export function Contests() {
   const { data, isLoading } = useContestsData();
@@ -210,7 +200,7 @@ export function Contests() {
   const lc = data.upcoming.filter((c) => c.platform === "lc");
   const [next, ...laterCf] = cf;
   return (
-    // Bento: the next Codeforces round leads; upcoming rounds (7) beside your history (5); then the rating chart.
+    // Bento: the next Codeforces round leads; upcoming rounds (7) beside your history (5). The rating chart lives in Progress.
     <div className="grid grid-cols-12 items-start gap-6">
       {next && (
         <div className="col-span-12">
@@ -223,11 +213,6 @@ export function Contests() {
       </div>
       <div className="col-span-12 xl:col-span-5">
         <PastList past={data.past} />
-      </div>
-      <div className="col-span-12">
-        <Suspense fallback={<section aria-busy className="glass-card h-[300px] p-6" />}>
-          <ContestRating />
-        </Suspense>
       </div>
     </div>
   );

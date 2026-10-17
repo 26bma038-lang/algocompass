@@ -1,6 +1,9 @@
 import type { ReactNode } from "react";
 import { Check, Flame } from "lucide-react";
 import { Link } from "react-router-dom";
+import { CardHeader } from "@/components/CardHeader";
+import { ProblemRow } from "@/components/practice/ProblemRow";
+import { useMixOfTheDay } from "@/data/recommendations";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { flameState, streakAtRisk, useStreak } from "@/components/shell/useStreak";
 import { useHomeData, useTopicReport } from "@/data/queries";
@@ -175,7 +178,7 @@ function TodayQuest({ q }: { q: QuestState }) {
   );
 }
 
-/** Today: the streak and today's quests. "Am I on track?" in one card. */
+/** Today's quests and the streak. "Am I on track?" in one card. */
 function TodayCard() {
   const streak = useStreak();
   const state = flameState(streak);
@@ -183,19 +186,7 @@ function TodayCard() {
   const { data } = useTodayQuests();
   return (
     <section aria-labelledby="today-title" className="glass-card flex h-full flex-col gap-4 p-6">
-      <div className="flex items-center justify-between gap-3">
-        <h2 id="today-title" className="font-display text-headline font-semibold text-ink">
-          Today
-        </h2>
-        {data && (
-          <Link
-            to="/quests"
-            className="numeric rounded-full bg-accent-soft px-3 py-1 text-label font-semibold text-ink transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover"
-          >
-            {data.done}/{data.total} quests
-          </Link>
-        )}
-      </div>
+      <CardHeader id="today-title" title="Today's quests" pill={data ? `${data.done}/${data.total} done` : undefined} />
       <div className="flex items-center gap-3">
         <span
           className={cn(
@@ -232,6 +223,37 @@ function TodayCard() {
       ) : (
         <p className="text-body-sm text-ink-muted">Today's quests appear after the first sync.</p>
       )}
+    </section>
+  );
+}
+
+/** Today's mix, compact: the problems to open right now. The full card (feedback, New mix) is in Practice. */
+function TodayMixCard() {
+  const mix = useMixOfTheDay();
+  const items = (mix.data?.items ?? []).filter((i) => i.rec !== null);
+  const done = items.filter((i) => i.done).length;
+  return (
+    <section aria-labelledby="mix-title" className="glass-card flex h-full flex-col gap-3 p-6">
+      <CardHeader
+        id="mix-title"
+        title="Today's mix"
+        description="Codeforces to sharpen, LeetCode to learn. The same set until midnight."
+        pill={items.length > 0 ? `${done}/${items.length} solved` : undefined}
+      />
+      {items.length > 0 ? (
+        <ul className="-mx-2 flex flex-col">
+          {items.map((i) => (
+            <ProblemRow key={i.problemId} p={i.rec!} done={i.done} density="compact" chips={false} feedback={[]} />
+          ))}
+        </ul>
+      ) : (
+        <p className="text-body-sm text-ink-muted">
+          {mix.isLoading ? "Picking today's problems…" : "Today's mix is picked as soon as your first sync finishes."}
+        </p>
+      )}
+      <Link to="/practice" className="mt-auto self-start text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
+        More to solve in Practice
+      </Link>
     </section>
   );
 }
@@ -302,10 +324,11 @@ function LcCard({ lc }: { lc: LcStatsRow }) {
 }
 
 /**
- * Home Base as a bento grid: the rating hero, then the two things to do today (Work on next and
- * Today), then activity and LeetCode, then contests and where you stand.
+ * Today (v1.2, was Home Base) as a bento grid. "What do I do today?" comes first: today's quests and
+ * streak beside today's mix. Then the rating hero, Work on next and LeetCode, activity and standing,
+ * and the later contests.
  */
-export function HomeBase() {
+export function Today() {
   const { data, isLoading } = useHomeData();
   const report = useTopicReport();
   const upcoming = data?.upcoming ?? [];
@@ -315,6 +338,12 @@ export function HomeBase() {
 
   return (
     <div className="grid grid-cols-12 gap-6">
+      <div className="col-span-12 lg:col-span-5">
+        <TodayCard />
+      </div>
+      <div className="col-span-12 lg:col-span-7">
+        <TodayMixCard />
+      </div>
       <div className="col-span-12">
         <HeroCard cf={data?.cf ?? null} solved={data?.cfSolved ?? 0} history={data?.ratingHistory ?? []} nextCf={nextCf} />
       </div>
@@ -322,19 +351,16 @@ export function HomeBase() {
         <WorkOnNext />
       </div>
       <div className="col-span-12 lg:col-span-5">
-        <TodayCard />
+        <LcCard lc={data?.lcStats ?? null} />
       </div>
       <div className="col-span-12 lg:col-span-8">
         <ActivityHeatmap activity={data?.activity ?? []} />
       </div>
       <div className="col-span-12 lg:col-span-4">
-        <LcCard lc={data?.lcStats ?? null} />
-      </div>
-      <div className="col-span-12 lg:col-span-8">
-        <ContestStrip contests={upcoming.filter((c) => c !== nextCf)} />
-      </div>
-      <div className="col-span-12 lg:col-span-4">
         <StandingCard report={report.data} />
+      </div>
+      <div className="col-span-12">
+        <ContestStrip contests={upcoming.filter((c) => c !== nextCf)} />
       </div>
     </div>
   );

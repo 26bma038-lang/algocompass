@@ -16,7 +16,7 @@ const GROUPS: { title: string; keys: [string, string][] }[] = [
   },
   { title: "Screens", keys: ALL_NAV.map((n) => [`Ctrl ${n.shortcut}`, n.label]) },
   {
-    title: "Skill Tree",
+    title: "Progress · Topics map",
     keys: [
       ["/", "Search topics"],
       ["Enter", "Open the best match"],

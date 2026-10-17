@@ -316,8 +316,8 @@ function PanelBody({ t, topics }: { t: TopicStrength; topics: readonly TopicStre
 }
 
 /**
- * Topic Detail: a non-modal side panel (Float plane) over any screen. Opens from a Skill Tree node
- * or any topic on Home Base; clicking another topic swaps it in place. Esc or × closes it and
+ * Topic Detail: a non-modal side panel (Float plane) over any screen. Opens from a Topics map node
+ * or any topic on Today; clicking another topic swaps it in place. Esc or × closes it and
  * returns focus to where you were.
  */
 export function TopicPanel() {

@@ -145,7 +145,7 @@ export function useProgressionWatcher() {
               icon: createElement(AchievementBadge, { icon: "medal", unlocked: true, size: "sm" }),
               duration: 8000,
               classNames: { icon: "!h-7 !w-7 !mr-1" },
-              action: { label: "View", onClick: () => (window.location.hash = "#/achievements") },
+              action: { label: "View", onClick: () => (window.location.hash = "#/progress/achievements") },
             });
             if (hidden) void notify(`${fresh.length} achievements unlocked`, titles.join(", "));
           }

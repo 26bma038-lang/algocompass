@@ -50,7 +50,7 @@ export function useSavePrefs() {
     },
     onSuccess: (saved) => {
       client.setQueryData(prefsKey, saved);
-      // Goals feed the Quests screen; notification settings feed the reminder schedule.
+      // Goals feed Progress → Overview; notification settings feed the reminder schedule.
       void client.invalidateQueries({ queryKey: ["db", "goals"] });
     },
   });

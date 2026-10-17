@@ -131,7 +131,7 @@ function TopicChips({ p, max = 2 }: { p: RowProblem; max?: number }) {
 
 /**
  * One recommended problem. `comfortable` (Practice) shows topic chips and an Open button;
- * `compact` (Home Base, Topic Detail) folds the actions behind hover/focus to fit 440px.
+ * `compact` (Today, Topic Detail) folds the actions behind hover/focus to fit 440px.
  * Feedback goes to the topic the problem was recommended for (or its first topic).
  */
 export function ProblemRow({

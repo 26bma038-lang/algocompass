@@ -78,6 +78,21 @@ export function onTraySync(handler: () => void): () => void {
   };
 }
 
+/** A screen picked from the tray menu ("Today", "Practice", …): the route to open. */
+export function onTrayNavigate(handler: (path: string) => void): () => void {
+  if (!isTauri()) return () => undefined;
+  let un: UnlistenFn | null = null;
+  let cancelled = false;
+  void listen<string>("tray-navigate", (e) => handler(e.payload)).then((fn) => {
+    if (cancelled) fn();
+    else un = fn;
+  });
+  return () => {
+    cancelled = true;
+    un?.();
+  };
+}
+
 export async function autostartEnabled(): Promise<boolean | null> {
   if (!isTauri()) return null;
   const { isEnabled } = await import("@tauri-apps/plugin-autostart");

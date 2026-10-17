@@ -1,4 +1,4 @@
-import { Link, useMatches, type Params } from "react-router-dom";
+import { Link, useLocation, useMatches, type Params } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { AlertTriangle, Check, CloudOff, Flame, RefreshCw, ScrollText, Search } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -10,6 +10,7 @@ import { XP_KIND_LABEL, type XpSummary } from "@/engine/xp";
 import { syncStatus, useSyncStore } from "@/data/syncStore";
 import { cn } from "@/lib/utils";
 import { AscentBar } from "./AscentBar";
+import { navItemFor } from "./nav";
 import { useRankAccent } from "./useRankAccent";
 import { flameState, useStreak } from "./useStreak";
 import type { Streak } from "@/engine/activity";
@@ -33,7 +34,7 @@ const plain = (n: number) => String(Math.round(n));
 const chipLink =
   "flex h-8 items-center gap-1.5 rounded-full px-2.5 transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover";
 
-/** Streak flame → Quests. Same flame rule as Home Base (useStreak.flameState). */
+/** Streak flame → Today. Same flame rule as the Today card (useStreak.flameState). */
 function StreakFlame({ streak }: { streak: Streak | null }) {
   const state = flameState(streak);
   const days = streak?.current ?? null;
@@ -42,8 +43,8 @@ function StreakFlame({ streak }: { streak: Streak | null }) {
     <Tooltip>
       <TooltipTrigger asChild>
         <Link
-          to="/quests"
-          aria-label={hasData ? `Streak: ${days} ${days === 1 ? "day" : "days"}. Open quests` : "Streak: no practice data yet. Open quests"}
+          to="/"
+          aria-label={hasData ? `Streak: ${days} ${days === 1 ? "day" : "days"}. Open Today` : "Streak: no practice data yet. Open Today"}
           className={chipLink}
         >
           <Flame
@@ -94,7 +95,7 @@ function PaletteButton() {
   );
 }
 
-/** Today's quest progress ("2/3") → Quests. Sits right before the streak flame. */
+/** Today's quest progress ("2/3") → Today. Sits right before the streak flame. */
 function QuestChip() {
   const { data } = useTodayQuests();
   if (!data) return null;
@@ -102,7 +103,7 @@ function QuestChip() {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Link to="/quests" aria-label={`Quests: ${data.done} of ${data.total} done today. Open quests`} className={chipLink}>
+        <Link to="/" aria-label={`Quests: ${data.done} of ${data.total} done today. Open Today`} className={chipLink}>
           {all ? (
             <Check aria-hidden className="size-4 text-success" strokeWidth={2.4} />
           ) : (
@@ -119,7 +120,7 @@ function QuestChip() {
 }
 
 /**
- * Level badge → Achievements. The one chamfered shape in the system (DESIGN.md Shapes).
+ * Level badge → Progress. The one chamfered shape in the system (DESIGN.md Shapes).
  * The clip-path lives on an inner plate so the link's focus ring isn't clipped.
  * Unlit (glass) until a real level exists: the Earned Light Rule.
  */
@@ -132,8 +133,8 @@ function LevelBadge({ xp }: { xp: XpSummary | undefined }) {
     <Tooltip>
       <TooltipTrigger asChild>
         <Link
-          to="/achievements"
-          aria-label={hasData ? `Level ${level}, ${xp!.title}. Open achievements` : "Level: none yet. Open achievements"}
+          to="/progress"
+          aria-label={hasData ? `Level ${level}, ${xp!.title}. Open Progress` : "Level: none yet. Open Progress"}
           className="group rounded-xs"
         >
           <span
@@ -272,13 +273,17 @@ function SyncButton() {
 
 export function TopBar() {
   const title = useScreenTitle();
+  const subtitle = navItemFor(useLocation().pathname)?.description;
   const rating = useRankAccent();
   const streak = useStreak();
   const xp = useProgression().data?.xp;
   return (
     <div className="relative shrink-0">
       <div className="flex h-[var(--topbar-h)] items-center justify-between gap-4 px-6">
-        <h1 className="truncate font-display text-headline font-semibold tracking-[-0.005em] text-ink">{title}</h1>
+        <div className="flex min-w-0 flex-col">
+          <h1 className="truncate font-display text-headline leading-tight font-semibold tracking-[-0.005em] text-ink">{title}</h1>
+          {subtitle && <p className="truncate text-body-sm text-ink-muted">{subtitle}</p>}
+        </div>
         <div className="flex shrink-0 items-center gap-1.5">
           <PaletteButton />
           <SyncButton />

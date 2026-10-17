@@ -89,7 +89,7 @@ export const ACHIEVEMENTS: readonly AchievementDef[] = [
   // Topics
   { id: "topic_strong", category: "Topics", title: "Specialty", hint: "Bring a topic to Strong.", icon: "brain" },
   { id: "topic_mastered", category: "Topics", title: "Mastery", hint: "Master a topic (needs a solve at or above your rating).", icon: "crown" },
-  { id: "topics_unlocked_10", category: "Topics", title: "Branching Out", hint: "Unlock 10 topics on the Skill Tree.", icon: "tree" },
+  { id: "topics_unlocked_10", category: "Topics", title: "Branching Out", hint: "Unlock 10 topics on the Topics map.", icon: "tree" },
   { id: "blind_spots_tried", category: "Topics", title: "No Blind Spots", hint: "Solve a problem in every topic common at your rating.", icon: "compass" },
   // Fun
   { id: "night_owl", category: "Fun", title: "Night Owl", hint: "Get an accepted solve between midnight and 4 am.", icon: "moon" },

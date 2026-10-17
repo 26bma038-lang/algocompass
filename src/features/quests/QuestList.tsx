@@ -66,7 +66,7 @@ function QuestMark({ q }: { q: QuestState }) {
 
 const statusText = (q: QuestState) => (q.done ? "Done" : `${q.progress} of ${q.target}`);
 
-/** One quest. `compact` is the Home Base checklist line; the full row lives on the Quests screen. */
+/** One quest. `compact` is the Today checklist line; the full row is the TodayQuestsCard row. */
 export function QuestRow({ q, compact = false, children }: { q: QuestState; compact?: boolean; children?: React.ReactNode }) {
   const pulse = useRewardPulse(q.id);
   if (compact) {

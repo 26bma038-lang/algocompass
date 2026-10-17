@@ -29,6 +29,7 @@ function SidebarLink({
     <NavLink
       to={item.to}
       aria-label={expanded ? undefined : item.label}
+      data-tour={item.to}
       onMouseEnter={() => onHover(item.to)}
       onFocus={() => onHover(item.to)}
       className={cn(
@@ -82,15 +83,16 @@ function SidebarLink({
     </NavLink>
   );
 
-  if (expanded) return link;
+  // Hover or focus: what the screen is for, in one line (and the name, when the rail is collapsed).
   return (
     <Tooltip>
       <TooltipTrigger asChild>{link}</TooltipTrigger>
-      <TooltipContent side="right" className="flex items-center gap-2">
-        {item.label}
-        <kbd className="numeric rounded-xs border border-glass-border-strong px-1 text-label text-ink-muted">
-          Ctrl {item.shortcut}
-        </kbd>
+      <TooltipContent side="right" className="flex max-w-[260px] flex-col gap-1 p-3">
+        <span className="flex items-center justify-between gap-3 font-semibold text-ink">
+          {item.label}
+          <kbd className="numeric rounded-xs border border-glass-border-strong px-1 text-label font-normal text-ink-muted">Ctrl {item.shortcut}</kbd>
+        </span>
+        <span className="text-label text-ink-muted">{item.description}</span>
       </TooltipContent>
     </Tooltip>
   );

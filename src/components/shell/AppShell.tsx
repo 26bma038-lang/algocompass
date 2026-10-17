@@ -14,6 +14,7 @@ import { useQuestWatcher } from "@/data/quests";
 import { Ceremonies } from "@/features/achievements/Ceremonies";
 import { CommandPalette } from "./CommandPalette";
 import { ShortcutSheet } from "./ShortcutSheet";
+import { TipTour } from "./TipTour";
 import { useSyncScheduler } from "@/data/syncStore";
 import { TopicPanel } from "@/features/topic/TopicPanel";
 import { useHandlesState } from "@/data/onboarding";
@@ -87,6 +88,7 @@ function MainShell() {
       <Ceremonies />
       <CommandPalette />
       <ShortcutSheet />
+      <TipTour />
       <Toaster />
     </TooltipProvider>
   );

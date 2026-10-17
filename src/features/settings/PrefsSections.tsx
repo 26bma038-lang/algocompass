@@ -75,7 +75,7 @@ function GoalsSection({ prefs }: { prefs: AppPrefs }) {
         Weekly goals
       </h2>
       <p className="mt-1 max-w-[56ch] text-body text-ink-muted">
-        Progress rings on the Quests screen. Weeks run Monday to Sunday. A problem counts in the week you first solve it.
+        Progress rings on Progress → Overview. Weeks run Monday to Sunday. A problem counts in the week you first solve it.
       </p>
       <form
         onSubmit={onSubmit}

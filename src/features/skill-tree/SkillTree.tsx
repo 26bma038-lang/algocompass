@@ -412,12 +412,13 @@ function Tree({ report, seen }: { report: TopicReport; seen: Seen | null }) {
 
   return (
     // Bento: the work-on-next tiles (64px), then the canvas as the hero card. Above the card stays
-    // 154px (24 top + 64 tiles + 24 gap + 40 bottom + 2 ascent bar), matching its height calc.
+    // 154px (24 top + 64 tiles + 24 gap + 40 bottom + 2 ascent bar), matching its height calc. Inside
+    // Progress, --tree-above adds the tab row.
     <div className="flex flex-col gap-6">
       <NextTiles items={report.standing.weaknesses} onPick={(id) => focusTopic(id, true)} />
       <section
         aria-label="Skill tree"
-        className="glass-card flex h-[calc(100vh-var(--titlebar-h)-var(--topbar-h)-154px)] min-h-[440px] flex-col overflow-hidden"
+        className="glass-card flex h-[calc(100vh-var(--titlebar-h)-var(--topbar-h)-154px-var(--tree-above,0px))] min-h-[440px] flex-col overflow-hidden"
       >
         <div className="flex flex-col gap-2 border-b border-glass-border px-5 py-3">
           <div className="flex flex-wrap items-center justify-between gap-3">

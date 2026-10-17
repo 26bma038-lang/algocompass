@@ -72,8 +72,8 @@ export function StandingCard({ report }: { report: TopicReport | undefined }) {
             empty="None. You've tried everything common at your rating."
             untried
           />
-          <Link to="/skill-tree" className="text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
-            All {report.topics.length} topics in the Skill Tree
+          <Link to="/progress/topics" className="text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
+            All {report.topics.length} topics on the Topics map
           </Link>
         </>
       )}

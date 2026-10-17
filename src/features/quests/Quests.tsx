@@ -1,17 +1,18 @@
+/**
+ * Quest and goal cards. Since v1.2 there is no Quests screen: today's quests live on Today, and
+ * the level and weekly goals on Progress.
+ */
 import { Link } from "react-router-dom";
-import { Check, ScrollText } from "lucide-react";
+import { Check } from "lucide-react";
 import { CardHeader } from "@/components/CardHeader";
-import { EmptyState } from "@/components/EmptyState";
 import { ProblemRow } from "@/components/practice/ProblemRow";
 import { NumberTicker } from "@/components/ui/number-ticker";
-import { useTopicReport } from "@/data/queries";
 import { useProgression } from "@/data/progression";
 import { useTodayQuests, useWeeklyGoals } from "@/data/quests";
 import { useMixOfTheDay } from "@/data/recommendations";
 import type { QuestState } from "@/engine/quests";
 import { cn } from "@/lib/utils";
 import { QuestBar, QuestRow } from "./QuestList";
-import { WeeklyReviewCard } from "./WeeklyReview";
 
 const plain = (n: number) => String(Math.round(n));
 
@@ -31,7 +32,7 @@ function QuestProblems({ q }: { q: QuestState }) {
   );
 }
 
-function TodayQuestsCard() {
+export function TodayQuestsCard() {
   const { data, isLoading } = useTodayQuests();
   if (isLoading || data === undefined) {
     return (
@@ -77,7 +78,7 @@ function TodayQuestsCard() {
   );
 }
 
-function LevelCard() {
+export function LevelCard() {
   const data = useProgression().data?.xp;
   const lit = data?.level != null;
   return (
@@ -146,7 +147,7 @@ export function GoalRing({ label, value, goal, dot }: { label: string; value: nu
   );
 }
 
-function WeeklyGoalsCard() {
+export function WeeklyGoalsCard() {
   const { data } = useWeeklyGoals();
   const goals = data?.goals;
   const daysLeft = data ? Math.max(0, Math.ceil((data.to - Date.now() / 1000) / 86_400)) : null;
@@ -173,31 +174,5 @@ function WeeklyGoalsCard() {
         </div>
       )}
     </section>
-  );
-}
-
-/** Quests: today's three quests first, then the week's goals, your level and the weekly review. */
-export function Quests() {
-  const report = useTopicReport();
-  if (report.isLoading) return <p className="text-body-sm text-ink-muted">Loading your quests…</p>;
-  if (!report.data?.hasData) {
-    return (
-      <EmptyState icon={ScrollText} title="No quests yet">
-        Daily quests come from your Mix of the Day and earn XP toward your level. They start once your solve history has synced.
-      </EmptyState>
-    );
-  }
-  return (
-    // Bento: today's quests lead (8), your level beside them (4); then the week's goals (8) and the review (4).
-    <div className="grid grid-cols-12 items-start gap-6">
-      <div className="col-span-12 flex flex-col gap-6 lg:col-span-8">
-        <TodayQuestsCard />
-        <WeeklyGoalsCard />
-      </div>
-      <div className="col-span-12 flex flex-col gap-6 lg:col-span-4">
-        <LevelCard />
-        <WeeklyReviewCard />
-      </div>
-    </div>
   );
 }
