@@ -33,6 +33,7 @@ import {
 } from "@/engine/skillTree";
 import type { StandingItem } from "@/engine/standing";
 import { STATUS_THRESHOLDS, type TopicStatus } from "@/engine/strength";
+import { useSchemeStore } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import { layoutTree, NODE_H, NODE_W } from "./layout";
 import { STATUS_WORD, TopicNode, type TopicFlowNode } from "./TopicNode";
@@ -154,8 +155,8 @@ function Legend() {
           </li>
         ))}
         <li className="flex items-center gap-2 text-label text-ink-muted">
-          <span aria-hidden className="grid size-4 place-items-center rounded-full bg-ink">
-            <Crosshair className="size-3 text-abyss" strokeWidth={2.4} />
+          <span aria-hidden className="grid size-4 place-items-center rounded-full bg-accent">
+            <Crosshair className="size-3 text-accent-ink" strokeWidth={2.4} />
           </span>
           <span className="text-ink">Work on next</span>
         </li>
@@ -195,17 +196,17 @@ function NextTiles({ items, onPick }: { items: readonly StandingItem[]; onPick: 
                   type="button"
                   onClick={() => onPick(w.topicId)}
                   aria-description={w.reason}
-                  className="glass-card flex h-16 w-full items-center gap-3 px-4 text-left transition-[background-color,border-color] duration-[var(--dur-fast)] hover:border-glass-border-strong hover:bg-glass-hover"
+                  className="glass-card flex h-20 w-full items-center gap-3 px-4 text-left transition-[background-color,border-color] duration-[var(--dur-fast)] hover:border-glass-border-strong hover:bg-glass-hover"
                 >
-                  <span aria-hidden className="grid size-7 shrink-0 place-items-center rounded-full bg-ink">
-                    <Crosshair className="size-4 text-abyss" strokeWidth={2.4} />
+                  <span aria-hidden className="grid size-7 shrink-0 place-items-center rounded-full bg-accent">
+                    <Crosshair className="size-4 text-accent-ink" strokeWidth={2.4} />
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col">
                     <span className="flex items-baseline justify-between gap-2">
                       <span className="truncate text-body font-semibold text-ink">{w.name}</span>
                       <span className="numeric font-display text-body-sm font-semibold text-ink-muted">{w.score}</span>
                     </span>
-                    <span className="truncate text-label text-ink-muted">{w.reason}</span>
+                    <span className="line-clamp-2 text-label text-ink-muted">{w.reason}</span>
                   </span>
                 </button>
               </TooltipTrigger>
@@ -245,6 +246,7 @@ function Tree({ report, seen }: { report: TopicReport; seen: Seen | null }) {
   const [query, setQuery] = useState("");
   const [hovered, setHovered] = useState<string | null>(null);
   const [legendOpen, setLegendOpen] = useState(false);
+  const scheme = useSchemeStore((st) => st.scheme);
   const openTopicId = useUiStore((s) => s.openTopicId);
   const openTopic = useUiStore((s) => s.openTopic);
   const { setCenter, getZoom } = useReactFlow();
@@ -412,13 +414,13 @@ function Tree({ report, seen }: { report: TopicReport; seen: Seen | null }) {
 
   return (
     // Bento: the work-on-next tiles (64px), then the canvas as the hero card. Above the card stays
-    // 154px (24 top + 64 tiles + 24 gap + 40 bottom + 2 ascent bar), matching its height calc. Inside
+    // 170px (24 top + 80 tiles + 24 gap + 40 bottom + 2 ascent bar), matching its height calc. Inside
     // Progress, --tree-above adds the tab row.
     <div className="flex flex-col gap-6">
       <NextTiles items={report.standing.weaknesses} onPick={(id) => focusTopic(id, true)} />
       <section
         aria-label="Skill tree"
-        className="glass-card flex h-[calc(100vh-var(--titlebar-h)-var(--topbar-h)-154px-var(--tree-above,0px))] min-h-[440px] flex-col overflow-hidden"
+        className="glass-card flex h-[calc(100vh-var(--titlebar-h)-var(--topbar-h)-170px-var(--tree-above,0px))] min-h-[440px] flex-col overflow-hidden"
       >
         <div className="flex flex-col gap-2 border-b border-glass-border px-5 py-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -503,8 +505,8 @@ function Tree({ report, seen }: { report: TopicReport; seen: Seen | null }) {
             edgesFocusable={false}
             elementsSelectable={false}
             zoomOnDoubleClick={false}
-            attributionPosition="top-left"
-            colorMode="dark"
+            proOptions={{ hideAttribution: true }}
+            colorMode={scheme}
           >
             <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="var(--tree-dots)" />
             <Panel position="top-right" className="flex flex-col items-end gap-2">
@@ -524,7 +526,8 @@ function Tree({ report, seen }: { report: TopicReport; seen: Seen | null }) {
             )}
             {!legendOpen && (
               <MiniMap
-                position="top-right"
+                // Bottom-right, clear of the controls and the tree's top rows; hidden below 1280px (globals.css).
+                position="bottom-right"
                 pannable
                 zoomable
                 ariaLabel="Skill tree overview"
@@ -537,7 +540,7 @@ function Tree({ report, seen }: { report: TopicReport; seen: Seen | null }) {
                 }}
                 maskColor="var(--tree-mask)"
                 bgColor="var(--abyss-raised)"
-                style={{ width: 156, height: 100, marginTop: 58 }}
+                style={{ width: 156, height: 100 }}
               />
             )}
           </ReactFlow>

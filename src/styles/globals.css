@@ -317,6 +317,12 @@
   stroke: var(--glass-border-strong);
   stroke-width: 1;
 }
+/* The minimap would cover nodes on narrow canvases; it shows from 1280px up. */
+@media (max-width: 1279px) {
+  .skill-tree .react-flow__minimap {
+    display: none;
+  }
+}
 .skill-tree .react-flow__panel {
   margin: 12px;
 }
