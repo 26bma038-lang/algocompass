@@ -506,7 +506,7 @@ function Tree({ report, seen }: { report: TopicReport; seen: Seen | null }) {
             attributionPosition="top-left"
             colorMode="dark"
           >
-            <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="rgba(150, 172, 230, 0.12)" />
+            <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="var(--tree-dots)" />
             <Panel position="top-right" className="flex flex-col items-end gap-2">
               <CanvasControls legendOpen={legendOpen} toggleLegend={() => setLegendOpen((v) => !v)} />
               {legendOpen && <Legend />}
@@ -531,11 +531,11 @@ function Tree({ report, seen }: { report: TopicReport; seen: Seen | null }) {
                 nodeBorderRadius={999}
                 nodeColor={(n) => {
                   const d = n.data as TopicFlowNode["data"];
-                  if (d.dimmed) return "rgba(150, 172, 230, 0.10)";
+                  if (d.dimmed) return "var(--tree-edge-dim)";
                   if (d.workOnNext) return "var(--ink)";
-                  return d.status === "Strong" || d.status === "Mastered" ? "var(--accent)" : d.status === "Locked" ? "rgba(150, 172, 230, 0.14)" : "rgba(150, 172, 230, 0.32)";
+                  return d.status === "Strong" || d.status === "Mastered" ? "var(--accent)" : d.status === "Locked" ? "var(--tree-edge-faint)" : "var(--tree-edge)";
                 }}
-                maskColor="rgba(5, 8, 18, 0.62)"
+                maskColor="var(--tree-mask)"
                 bgColor="var(--abyss-raised)"
                 style={{ width: 156, height: 100, marginTop: 58 }}
               />

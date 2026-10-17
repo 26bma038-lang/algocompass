@@ -345,7 +345,7 @@
 @property --rank {
   syntax: "<color>";
   inherits: true;
-  initial-value: #5b8cff;
+  initial-value: #6b95ff;
 }
 html.aura-shifting {
   transition: --rank 1200ms var(--ease-move);
@@ -363,60 +363,121 @@ html.aura-shifting {
 
 
 /* ---------------------------------------------------------------------------------------------
-   Themes (redesign). The theme owns the chrome: ground, glass, ink tint, and a two-tone accent
-   (--accent primary, --accent-2 secondary). Neon Arcade is the default. Selectors also match any
-   element, so a [data-theme] wrapper previews a theme (the Settings swatches).
-   Contrast (checked with scripts in PROGRESS.md): ink/muted/faint ≥ 4.5:1 on ground and glass,
-   accent and accent-2 ≥ 3:1 on ground, accent-ink on accent ≥ 4.5:1.
+   Themes (v1.2 simplify): Dark and Light. "System" (the default) resolves to one of them in
+   src/lib/theme.ts and follows Windows live. The theme owns the chrome (ground, glass, ink, one
+   restrained accent) and also re-tunes the rank colours, state hues, shadows and the ambient glow
+   so they hold up on white. Selectors also match any element, so a [data-theme] wrapper previews a
+   theme (the Settings swatches).
+   Contrast (WCAG AA, checked with the script noted in PROGRESS.md): ink, muted and faint >= 4.5:1
+   on ground, raised, sunken and glass; accent, state, platform and rank colours >= 4.5:1 on all
+   four; accent-ink on accent >= 4.5:1.
    --------------------------------------------------------------------------------------------- */
 :root,
-[data-theme="neon-arcade"] {
-  --abyss: #0b0816;
-  --abyss-raised: #120e24;
-  --abyss-sunken: #07050f;
-  --glass: rgba(34, 24, 66, 0.55);
-  --glass-hover: rgba(46, 33, 88, 0.66);
-  --glass-border: rgba(186, 166, 255, 0.12);
-  --glass-border-strong: rgba(186, 166, 255, 0.24);
-  --ink: #eeeafb;
-  --ink-muted: #ada6cc;
-  --ink-faint: #918ab5;
-  --accent: #a274ff;
-  --accent-2: #2ee6f2;
-  --accent-ink: #0b0816;
-  --nebula-deep: #3a1c7a;
+[data-theme="dark"] {
+  --abyss: #0a0a0c;
+  --abyss-raised: #131316;
+  --abyss-sunken: #060607;
+  --glass: rgba(23, 23, 27, 0.62);
+  --glass-hover: rgba(36, 36, 42, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-strong: rgba(255, 255, 255, 0.16);
+  --ink: #f4f4f5;
+  --ink-muted: #a1a1aa;
+  --ink-faint: #8b8b94;
+  --accent: #8b9bff;
+  --accent-2: #b4beff;
+  --accent-ink: #0a0a0c;
+  --nebula-deep: #1d2350;
+
+  --rank-newbie: #a4acbd;
+  --rank-pupil: #4cdb84;
+  --rank-specialist: #27d5c7;
+  --rank-expert: #6b95ff;
+  --rank-candidate-master: #bc7dff;
+  --rank-master: #ff9b3d;
+  --rank-grandmaster: #ff5f6d;
+
+  --success: #6ee7a8;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --platform-cf: #7fa2ff;
+  --platform-lc: #ffa116;
+  --ember: #ff8a3d;
+  --ember-core: #ffd27a;
+
+  --accent-soft: color-mix(in oklab, var(--accent) 14%, transparent);
+  --accent-line: color-mix(in oklab, var(--accent) 45%, transparent);
+  --accent-glow: color-mix(in oklab, var(--accent) 50%, transparent);
+  --rank-glow: color-mix(in oklab, var(--rank) 50%, transparent);
+  --shadow-slab: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 12px 32px -16px rgba(0, 0, 0, 0.8);
+  --shadow-float: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 24px 64px -20px rgba(0, 0, 0, 0.9);
+  --overlay: rgba(0, 0, 0, 0.6);
+
+  /* Ambient glow: three accent blobs and an edge vignette (AmbientBackground). */
+  --ambient-a: 0.14;
+  --ambient-b: 0.08;
+  --ambient-c: 0.3;
+  --ambient-vignette: color-mix(in oklab, var(--abyss-sunken) 70%, transparent);
+
+  /* Topics map (React Flow) */
+  --tree-dots: rgba(255, 255, 255, 0.1);
+  --tree-edge: rgba(255, 255, 255, 0.32);
+  --tree-edge-faint: rgba(255, 255, 255, 0.14);
+  --tree-edge-dim: rgba(255, 255, 255, 0.1);
+  --tree-mask: rgba(6, 6, 7, 0.62);
 }
 
-[data-theme="ember"] {
-  --abyss: #121010;
-  --abyss-raised: #1a1615;
-  --abyss-sunken: #0b0909;
-  --glass: rgba(46, 36, 32, 0.55);
-  --glass-hover: rgba(62, 48, 42, 0.66);
-  --glass-border: rgba(255, 210, 170, 0.11);
-  --glass-border-strong: rgba(255, 210, 170, 0.22);
-  --ink: #f5eee8;
-  --ink-muted: #bdb0a6;
-  --ink-faint: #9e9188;
-  --accent: #ff9550;
-  --accent-2: #ffcb47;
-  --accent-ink: #160e0a;
-  --nebula-deep: #5a2a12;
-}
+[data-theme="light"] {
+  --abyss: #f6f6f7;
+  --abyss-raised: #ffffff;
+  --abyss-sunken: #ececef;
+  --glass: rgba(255, 255, 255, 0.78);
+  --glass-hover: rgba(236, 236, 241, 0.92);
+  --glass-border: rgba(17, 17, 20, 0.09);
+  --glass-border-strong: rgba(17, 17, 20, 0.17);
+  --ink: #111114;
+  --ink-muted: #4f4f58;
+  --ink-faint: #63636c;
+  /* The same indigo as Dark, darkened for contrast on white. */
+  --accent: #3a4bd0;
+  --accent-2: #4654cc;
+  --accent-ink: #ffffff;
+  --nebula-deep: #c7ccf5;
 
-[data-theme="ocean"] {
-  --abyss: #051320;
-  --abyss-raised: #091b2c;
-  --abyss-sunken: #030d17;
-  --glass: rgba(16, 40, 62, 0.55);
-  --glass-hover: rgba(22, 54, 82, 0.66);
-  --glass-border: rgba(140, 210, 240, 0.11);
-  --glass-border-strong: rgba(140, 210, 240, 0.22);
-  --ink: #e6f2f8;
-  --ink-muted: #9db7c9;
-  --ink-faint: #809db2;
-  --accent: #2dd4bf;
-  --accent-2: #4da3ff;
-  --accent-ink: #04121c;
-  --nebula-deep: #0b3b66;
+  /* Codeforces rank colours, darkened so the rank chip and rating stay readable on white. */
+  --rank-newbie: #5f6675;
+  --rank-pupil: #127a3a;
+  --rank-specialist: #0b7268;
+  --rank-expert: #2a55cf;
+  --rank-candidate-master: #8336d0;
+  --rank-master: #a64a00;
+  --rank-grandmaster: #c41f30;
+
+  --success: #13703a;
+  --warning: #a35200;
+  --danger: #c62828;
+  --platform-cf: #3656c9;
+  --platform-lc: #a34a07;
+  --ember: #e2560b;
+  --ember-core: #f59e0b;
+
+  --accent-soft: color-mix(in oklab, var(--accent) 10%, transparent);
+  --accent-line: color-mix(in oklab, var(--accent) 38%, transparent);
+  --accent-glow: color-mix(in oklab, var(--accent) 28%, transparent);
+  --rank-glow: color-mix(in oklab, var(--rank) 28%, transparent);
+  --shadow-slab: 0 1px 2px rgba(17, 17, 26, 0.05), 0 10px 28px -16px rgba(17, 17, 26, 0.16);
+  --shadow-float: 0 1px 3px rgba(17, 17, 26, 0.08), 0 24px 56px -20px rgba(17, 17, 26, 0.26);
+  --overlay: rgba(17, 17, 20, 0.28);
+
+  /* On white the glow is a faint wash of tint, not light: lower, softer, no dark vignette. */
+  --ambient-a: 0.1;
+  --ambient-b: 0.07;
+  --ambient-c: 0.45;
+  --ambient-vignette: transparent;
+
+  --tree-dots: rgba(17, 17, 20, 0.12);
+  --tree-edge: rgba(17, 17, 20, 0.3);
+  --tree-edge-faint: rgba(17, 17, 20, 0.14);
+  --tree-edge-dim: rgba(17, 17, 20, 0.08);
+  --tree-mask: rgba(246, 246, 247, 0.7);
 }

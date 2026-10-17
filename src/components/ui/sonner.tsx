@@ -1,10 +1,12 @@
 import { Toaster as Sonner, type ToasterProps } from "sonner";
+import { useSchemeStore } from "@/lib/theme";
 
 /** shadcn-style Sonner toaster on DESIGN.md's Float plane. */
 export function Toaster(props: ToasterProps) {
+  const scheme = useSchemeStore((st) => st.scheme);
   return (
     <Sonner
-      theme="dark"
+      theme={scheme}
       position="bottom-right"
       offset={20}
       toastOptions={{
