@@ -1,6 +1,80 @@
 # AlgoCompass progress log
 
-## Latest: v1.1.0, the redesign everywhere (Phase 11, 2026-10-15)
+## Latest: simplify, branch `simplify` (2026-10-17, not merged or released)
+
+**Why:** the first outside user (a friend) said the app was too complex and hard to navigate, and asked for white and black themes. This branch is waiting for your review: nothing is merged, tagged or released, and the version is still 1.1.0.
+
+`npm test` passes (294, including 7 new), `npm run build` is green, `cargo check` is clean, and `npm run tauri dev` compiles and launches the app.
+
+**Part 1: seven screens become four** (`5c8b651`, plus `0260d26` removing stray build files)
+- **Today** (Ctrl+1, `/`) was Home Base. The top row is now Today's quests + streak beside a compact **Today's mix**, so "what do I do today?" is answered above the fold at 1100x700. Below that: the rating hero with the next round, Work on next and LeetCode, then activity and standing, then later contests.
+- **Practice** (Ctrl+2) is unchanged: today's mix with feedback and New mix, Upsolve, and By topic (the topic recommendations).
+- **Progress** (Ctrl+3) has three tabs, each with its own route:
+  - **Overview** (`/progress`): rating chart, Level, This week (goals) and the Weekly review.
+  - **Topics map** (`/progress/topics`): the Skill Tree, at full height.
+  - **Achievements** (`/progress/achievements`).
+- **Contests** (Ctrl+4): same content, except the rating chart, which moved to Progress (see decisions).
+- **Redirects:** `/skill-tree` → `/progress/topics`, `/achievements` → `/progress/achievements`, `/quests` → `/`. `/topics/:id` deep links open the panel on the Topics map. The unlock toast's "View" goes to `/progress/achievements`.
+- **Sidebar:** labels show by default, and everyone gets them once through a persisted-state migration (Ctrl+B still collapses). Hovering an item shows its one-line description and shortcut.
+- **Subtitle:** every screen has one under its title, from the same descriptions in `nav.ts`. The top bar grew from 48px to 64px to fit it.
+- **Renamed everywhere else:**
+  - The Ctrl+K palette shows the new names, plus "Topics map" and "Achievements" entries. Old names still match ("skill tree", "quests", "home"…).
+  - The `?` sheet, onboarding ("Open Today"), the achievement hint, the Settings goals copy, and the top-bar chips: quests and streak → Today, level → Progress.
+- **Tray:** new links to Today, Practice, Progress and Contests. They open the window on that screen through a `tray-navigate` event.
+- **Tip tour** (`TipTour.tsx`): four steps, one per screen. Each step outlines that screen's sidebar item and navigates to it. It is non-modal, and ×, Skip or Esc ends it.
+  - It runs once, both after onboarding and for existing users on their first launch of this version (pref `tipTourSeen` < `TOUR_VERSION`).
+- **The game layer is untouched:** XP, levels, achievements, ceremonies, glow, ambient background and the Aura Shift are the same components. Only where they live changed.
+
+**Part 2: Light, Dark, System** (`ba290ee`)
+- Neon Arcade, Ember and Ocean are replaced by **System** (the default, follows Windows live through `prefers-color-scheme`), **Light** and **Dark**.
+- **Dark:** near-black `#0A0A0C` with white ink.
+- **Light:** off-white `#F6F6F7` and white cards, with near-black ink.
+- **Accent:** one restrained indigo, `#8B9BFF` in Dark and `#3A4BD0` in Light.
+- **Light re-tunes everything else for white:**
+  - rank colours, darker so the rank chip and rating stay readable;
+  - success, warning, danger and the platform dots;
+  - shadows, softer;
+  - accent glow, lower;
+  - the ambient nebula (`--ambient-*`), a faint wash with no vignette;
+  - the Topics map's dots, edges and minimap mask (`--tree-*`);
+  - toasts, which follow the resolved scheme.
+- **Contrast:** `scripts/check-contrast.mjs` checks every text, accent, state, platform and rank token against ground, raised, sunken and glass in both themes. All are ≥ 4.5:1 (WCAG AA).
+- **Migration:**
+  - A saved `neon-arcade` / `ember` / `ocean` (in the settings store or the localStorage mirror) becomes `system` and is written back.
+  - Nothing else in settings or the database is touched.
+- **Settings:** the picker has three swatches. System shows a half-light, half-dark swatch.
+- **Window colour:** the native window's background colour is now `#0A0A0C`.
+
+**Part 3: check** (`impeccable` critique, one in-context pass)
+- **Screenshots:** 21 in `docs/screenshots/simplify/`. They cover all 4 screens (Progress with each tab) and Settings in Dark and Light at 1100x700, plus the welcome screen, the four tour steps, the palette and the shortcut sheet. They were captured in browser mode and switched live through the System theme, which exercises the follow-Windows path.
+- **Fixed (P1):** in Light, earned achievement tiles were sunken grey and read as *disabled*, while locked ones looked brighter. Earned tiles are now raised white with a slab shadow in Light.
+- **Fixed (P2):** Today's quests "1/3 done" pill wrapped under the title in the 5-column card. It now has an inline header.
+- **Checked, fine:**
+  - The Topics map canvas, edges and minimap in both themes.
+  - The rating chart's bands and lines on white.
+  - The heatmap, the switches, the Contests countdown and the Settings form.
+  - No console errors in the run.
+  - All three legacy redirects land on the right tab.
+- **Left as is (P2):**
+  - The tour card sits next to the sidebar item and can cover the screen subtitle while it's open. It's transient and moves with each step.
+  - The React Flow attribution still shows on the map, as before.
+
+**Decisions** (made without asking, as requested)
+- **The rating chart lives only in Progress → Overview** and is no longer at the bottom of Contests. The brief puts it in Progress, and showing it twice works against simplifying. Contests keeps every round and result. Today keeps the sparkline.
+- **`/quests` redirects to Today, not Progress.** Daily quests are what most people meant by Quests. The weekly goals and review are one click away in Progress.
+- **There is no separate "Topic recommendations" card in Practice.** Practice's "By topic" already is that list, and Today has "Work on next". Adding another card would have added complexity.
+- **Today's quests is still the compact card** (streak + quest rows). The full quest rows with their problems duplicated Today's mix, which now sits beside them.
+- **The tour ships as version 1**, with no dimming overlay, so it never blocks the app (the Gamification "never block input" rule).
+- **The tray links emit an event** rather than giving Rust its own route table, so routes stay in `nav.ts`.
+- **One accent hue, indigo**, because it is calm on both grounds and distinct from every platform and state colour. `--accent-2` is a lighter or darker tint of it, so the old two-tone accent didn't need code changes.
+- **The custom title bar** already used tokens, so it themes without code changes. The native window background (seen for a frame before the web view paints) is dark in both themes.
+- **Running `npm run tauri dev` opened your real install's data folder.** If you had a v1.1 theme saved, it has been migrated to System, and the tip tour will show on next launch until dismissed. That migration is the intended behaviour.
+
+**To preview:** `git checkout simplify`, then `npm run tauri dev` (from PowerShell). To see the tour again, delete `tipTourSeen` from the settings store, or bump `TOUR_VERSION`.
+
+---
+
+## Previous: v1.1.0, the redesign everywhere (Phase 11, 2026-10-15)
 
 **Shipped as v1.1.0** (tag `v1.1.0`, release https://github.com/26bma038-lang/algocompass/releases/tag/v1.1.0). `npm test` passes (287), `npm run build` is green, and `npm run tauri build` produced the 1.1.0 installers (Rust release build 5m 35s):
 - `src-tauri\target\release\bundle\nsis\AlgoCompass_1.1.0_x64-setup.exe` (4.20 MiB)

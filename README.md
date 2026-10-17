@@ -2,7 +2,7 @@
 
 **Your competitive programming compass: one desktop app for Codeforces and LeetCode that finds your weak topics, tells you what to solve next, and keeps your streak alive.**
 
-![AlgoCompass Home Base](docs/screenshots/home.png)
+![AlgoCompass: Today](docs/screenshots/today.png)
 
 **[Download for Windows](https://github.com/26bma038-lang/algocompass/releases/latest)** · Windows 10/11 · free · no account needed
 
@@ -16,52 +16,51 @@ I practice on two sites. LeetCode is where I *learn* a topic (clean problems, go
 
 AlgoCompass answers those in a two-second glance, from the tray, without logins or uploads. The Codeforces rating climb is the goal; LeetCode is the classroom.
 
-## Features
+#### Features
 
-### Home Base: the daily check-in
-A bento grid that answers "am I on track today?" at a glance:
+Four screens with plain names: **Today, Practice, Progress, Contests**, plus Settings. A short tip tour shows you around on first launch.
+
+![The tip tour](docs/screenshots/tour.png)
+
+### Today: the daily check-in
+Answers "what do I do today?" at a glance:
+- **At the top:** today's three quests with your streak, beside today's mix (the problems to open right now).
 - **The hero:** your Codeforces rating in your real rank colour, a rating sparkline, progress to the next rank, and a countdown to the next round.
-- **Today's two cards:** the topic to work on next (with the two problems to start with), and your streak with today's quests.
-- **Below:** your activity heatmap, LeetCode, the later contests, and where you stand.
+- **Below:** the topic to work on next, LeetCode, your activity heatmap, where you stand, and the later contests.
 
-The hero and both cards fit in the window at 1100×700.
+### Practice: what to solve
+- **Today's mix:** 3 Codeforces problems, one for each of your weakest topics, rated just above your rating. Plus 2 LeetCode problems for the next topic you're learning.
+- **Upsolve:** problems you tried and never got accepted, and problems you didn't solve in a recent contest.
+- **By topic:** every weak topic with its own problems.
 
-### Skill Tree
-33 topics on a prerequisite graph (built with React Flow). Each node has a mastery ring scored 0–100 from your own solves. Topics unlock as their prerequisites reach Developing. The three most urgent ones lead the screen as "Work on next" tiles, each with its reason.
+Feedback (Skip / Too easy / Too hard) moves a topic's difficulty window up or down. Quests are picked from the mix and check themselves off when a sync sees the accepted submission.
 
-![Skill Tree](docs/screenshots/skill-tree.png)
+![Practice](docs/screenshots/practice.png)
+
+### Progress: how you're growing
+Three tabs:
+- **Overview:** your full rating chart against the rank bands, your level and XP, weekly goals with progress rings, and a weekly review every Sunday.
+- **Topics map:** 33 topics on a prerequisite graph (built with React Flow). Each node has a mastery ring scored 0–100 from your own solves. Topics unlock as their prerequisites reach Developing. The three most urgent ones lead as "Work on next" tiles, each with its reason.
+- **Achievements:** your level and title (Novice Coder → Pattern Hunter → Algorithm Smith…), plus 31 achievements across Consistency, Codeforces, LeetCode, Topics and Fun. Locked ones show your progress, e.g. "Best streak 13/30". Rank promotions get a short "Aura Shift" moment; there's no confetti, ever.
+
+![Progress overview](docs/screenshots/progress.png)
+
+![Topics map](docs/screenshots/topics-map.png)
+
+![Achievements](docs/screenshots/achievements.png)
 
 ### Topic Detail
 Open any topic to see its strength and where it comes from (Codeforces vs LeetCode), hardest solve, struggle rate, what you've solved and what's still open. It also lists recommended problems (LeetCode to learn, Codeforces to sharpen) and curated resources (CP-Algorithms, USACO Guide, NeetCode, CSES and more).
 
 ![Topic Detail](docs/screenshots/topic.png)
 
-### Practice: the recommender
-- **Mix of the Day:** 3 Codeforces problems, one for each of your weakest topics, rated just above your rating. Plus 2 LeetCode problems for the next topic you're learning.
-- **Upsolve:** problems you tried and never got accepted, and problems you didn't solve in a recent contest.
-- **By topic:** every weak topic with its own problems.
-
-Feedback (Skip / Too easy / Too hard) moves a topic's difficulty window up or down.
-
-![Practice](docs/screenshots/practice.png)
-
-### Quests
-Three daily quests drawn from your mix. They check themselves off when a sync sees the accepted submission. There are also weekly goals with progress rings, XP and levels, and a weekly review every Sunday.
-
-![Quests](docs/screenshots/quests.png)
-
 ### Contests
-Upcoming Codeforces rounds come first, with LeetCode weekly and biweekly contests below them. Each shows a countdown, local start time, duration and division, plus a Register button. Mark "I'll attend" to get Windows reminders 1 hour and 10 minutes before. Past rounds show your rank, problems solved and rating change, and a full rating chart shows every rated round against the rank bands.
+Upcoming Codeforces rounds come first, with LeetCode weekly and biweekly contests below them. Each shows a countdown, local start time, duration and division, plus a Register button. Mark "I'll attend" to get Windows reminders 1 hour and 10 minutes before. Past rounds show your rank, problems solved and rating change.
 
 ![Contests](docs/screenshots/contests.png)
 
-### Achievements
-Your level and title (Novice Coder → Pattern Hunter → Algorithm Smith…), computed from your whole history, plus 31 achievements across Consistency, Codeforces, LeetCode, Topics and Fun. Locked ones show your progress, e.g. "Best streak 13/30". Rank promotions get a short "Aura Shift" moment; there's no confetti, ever.
-
-![Achievements](docs/screenshots/achievements.png)
-
 ### Ctrl+K, everywhere
-A command palette to jump to any screen or topic, sync, or open today's mix or the next contest, all from the keyboard. Ctrl+R syncs and `?` lists every shortcut.
+A command palette to jump to any screen or topic, sync, or open today's mix or the next contest, all from the keyboard. Ctrl+1–4 switch screens, Ctrl+R syncs and `?` lists every shortcut.
 
 ![Command palette](docs/screenshots/palette.png)
 
@@ -73,15 +72,15 @@ A command palette to jump to any screen or topic, sync, or open today's mix or t
 
 ![Settings](docs/screenshots/settings.png)
 
-### Themes
-Three vibrant themes: **Neon Arcade** (electric violet and cyan, the default), **Ember** (orange and gold on charcoal) and **Ocean** (teal and bright blue on navy). Every theme is contrast-checked for readability. Your Codeforces rank colour stays on the things it belongs to: your rating, your rank and your progress to the next rank.
+### Light and Dark
+**System** (the default) follows your Windows light/dark setting and switches with it; you can also pin **Light** or **Dark**. Both are contrast-checked to WCAG AA, including the Codeforces rank colours, which stay on the things they belong to: your rating, your rank and your progress to the next rank.
 
-| Ember | Ocean |
+| Light | Dark |
 |---|---|
-| ![Ember theme](docs/screenshots/theme-ember.png) | ![Ocean theme](docs/screenshots/theme-ocean.png) |
+| ![Light theme](docs/screenshots/theme-light.png) | ![Dark theme](docs/screenshots/theme-dark.png) |
 
-### Desktop
-- Lives in the system tray, with a tray menu showing today's quest progress.
+# Desktop
+- Lives in the system tray, with a tray menu showing today's quest progress and links to each screen.
 - Can launch on Windows startup, minimized.
 - Windows notifications fire even while the window is hidden: contest reminders, an evening "streak at risk" nudge, and quest completions.
 - Works offline from a local cache, and stale data is marked as stale.

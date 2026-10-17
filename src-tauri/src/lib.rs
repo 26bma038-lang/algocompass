@@ -175,6 +175,13 @@ pub fn run() {
         .setup(|app| {
             let open = MenuItem::with_id(app, "open", "Open AlgoCompass", true, None::<&str>)?;
             let sync = MenuItem::with_id(app, "sync", "Sync now", true, None::<&str>)?;
+            // The four screens (v1.2): open the window straight on one of them.
+            let screens = [
+                MenuItem::with_id(app, "go:/", "Today", true, None::<&str>)?,
+                MenuItem::with_id(app, "go:/practice", "Practice", true, None::<&str>)?,
+                MenuItem::with_id(app, "go:/progress", "Progress", true, None::<&str>)?,
+                MenuItem::with_id(app, "go:/contests", "Contests", true, None::<&str>)?,
+            ];
             // Informational line, updated by the frontend.
             let status = MenuItem::with_id(app, "status", "Quests: after the first sync", false, None::<&str>)?;
             let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
@@ -183,6 +190,11 @@ pub fn run() {
                 &[
                     &open,
                     &sync,
+                    &PredefinedMenuItem::separator(app)?,
+                    &screens[0],
+                    &screens[1],
+                    &screens[2],
+                    &screens[3],
                     &PredefinedMenuItem::separator(app)?,
                     &status,
                     &PredefinedMenuItem::separator(app)?,
@@ -201,7 +213,12 @@ pub fn run() {
                         let _ = app.emit("tray-sync", ());
                     }
                     "quit" => app.exit(0),
-                    _ => {}
+                    id => {
+                        if let Some(path) = id.strip_prefix("go:") {
+                            show_main_window(app);
+                            let _ = app.emit("tray-navigate", path.to_string());
+                        }
+                    }
                 })
                 .on_tray_icon_event(|tray, event| {
                     if let TrayIconEvent::Click {

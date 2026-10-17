@@ -14,7 +14,7 @@ Tauri 2 + React 18 + Vite + TypeScript (strict), Tailwind, shadcn/ui, Framer Mot
 
 ## Users
 
-A single user per install: a competitive programmer who enters their own Codeforces handle (required) and LeetCode username (optional) on first launch. They open the app as a **quick daily check-in**, usually from the tray. They look at the streak, today's quest and their rating progress, then close it. Visits last seconds, not minutes. Deeper Skill Tree and topic exploration is occasional.
+A single user per install: a competitive programmer who enters their own Codeforces handle (required) and LeetCode username (optional) on first launch. They open the app as a **quick daily check-in**, usually from the tray. They look at the streak, today's quest and their rating progress, then close it. Visits last seconds, not minutes. Deeper Topics map and topic exploration is occasional.
 
 ## Product Purpose
 
@@ -35,14 +35,14 @@ AlgoCompass is one personal compass across both platforms, with distinct roles f
 
 ## Capabilities and Constraints
 
-- Screens: Home Base, Skill Tree, Topic Detail, Quests, Contests, Achievements, Settings.
+- Screens (v1.2): Today, Practice, Progress (Overview · Topics map · Achievements), Contests, Settings, and the Topic Detail side panel.
 - Platform API calls go only through adapters.
 - Open (undecided): the exact recommendation algorithm, quest and XP economy rules, and the achievement catalogue.
 
 ## Brand Commitments
 
 - The name is "AlgoCompass". The visual identity is "Skill Tree RPG" (the user pinned it).
-- The app wears a vibrant theme the user picks (Neon Arcade, Ember or Ocean). The user's current Codeforces rank colour marks their rank: the rating number, the rank chip and progress to the next rank.
+- The app wears a clean Light or Dark theme (System by default, following Windows) with one restrained indigo accent. The user's current Codeforces rank colour marks their rank: the rating number, the rank chip and progress to the next rank.
 
 ## Evidence on Hand
 

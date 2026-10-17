@@ -241,7 +241,7 @@ export function Welcome() {
           <SyncProgress withLc={lcHandle.trim() !== ""} />
           {phase === "done" && (
             <div className="flex items-center gap-3">
-              <Button onClick={enter}>Open Home Base</Button>
+              <Button onClick={enter}>Open Today</Button>
               {cfFailed && (
                 <Button variant="outline" onClick={() => void useSyncStore.getState().run()}>
                   Try the sync again

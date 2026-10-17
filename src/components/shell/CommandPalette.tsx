@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Command } from "cmdk";
-import { CalendarClock, Keyboard, PanelLeft, RefreshCw, Search, Target, type LucideIcon } from "lucide-react";
+import { CalendarClock, Keyboard, Network, PanelLeft, RefreshCw, Search, Target, Trophy, type LucideIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useHomeData } from "@/data/queries";
 import { useSyncStore } from "@/data/syncStore";
@@ -50,6 +50,13 @@ interface Entry {
   onSelect: () => void;
 }
 
+/** Old (v1.1) screen names, so searching for them still finds where the content went. */
+const SCREEN_KEYWORDS: Record<string, string[]> = {
+  "/": ["home", "home base", "quests", "daily", "streak"],
+  "/practice": ["problems", "mix", "upsolve", "recommendations"],
+  "/progress": ["rating", "level", "xp", "weekly goals", "weekly review"],
+};
+
 const GROUPS: Entry["group"][] = ["Actions", "Screens", "Topics"];
 /** In the flat search list, each row says what it is. */
 const KIND: Record<Entry["group"], string> = { Actions: "Action", Screens: "Screen", Topics: "Topic" };
@@ -73,13 +80,15 @@ export function CommandPalette() {
 
   const entries: Entry[] = [
     { key: "sync", group: "Actions", icon: RefreshCw, label: "Sync now", kbd: "Ctrl R", keywords: ["refresh", "update"], onSelect: run(() => void useSyncStore.getState().run()) },
-    { key: "mix", group: "Actions", icon: Target, label: "Open today's mix", hint: "Practice", keywords: ["problems", "daily"], onSelect: run(() => navigate("/practice")) },
+    { key: "mix", group: "Actions", icon: Target, label: "Open today's mix", hint: "Today", keywords: ["problems", "daily"], onSelect: run(() => navigate("/")) },
     ...(nextContest
       ? [{ key: "contest", group: "Actions" as const, icon: CalendarClock, label: "Open next contest", hint: shortName(nextContest), keywords: ["round", "register", "codeforces"], onSelect: run(() => openExternal(nextContest.url)) }]
       : []),
     { key: "keys", group: "Actions", icon: Keyboard, label: "Keyboard shortcuts", kbd: "?", keywords: ["help", "keys"], onSelect: run(() => setShortcuts(true)) },
     { key: "sidebar", group: "Actions", icon: PanelLeft, label: "Toggle sidebar", kbd: "Ctrl B", onSelect: run(toggleSidebar) },
-    ...ALL_NAV.map((n): Entry => ({ key: n.to, group: "Screens", icon: n.icon, label: n.label, kbd: keyLabel(n.shortcut), keywords: ["go", "screen"], onSelect: run(() => navigate(n.to)) })),
+    ...ALL_NAV.map((n): Entry => ({ key: n.to, group: "Screens", icon: n.icon, label: n.label, kbd: keyLabel(n.shortcut), keywords: ["go", "screen", ...(SCREEN_KEYWORDS[n.to] ?? [])], onSelect: run(() => navigate(n.to)) })),
+    { key: "tab-topics", group: "Screens", icon: Network, label: "Topics map", hint: "Progress", keywords: ["skill tree", "graph", "mastery"], onSelect: run(() => navigate("/progress/topics")) },
+    { key: "tab-achievements", group: "Screens", icon: Trophy, label: "Achievements", hint: "Progress", keywords: ["badges", "unlocks", "level", "xp"], onSelect: run(() => navigate("/progress/achievements")) },
     ...TOPICS.map((t): Entry => ({ key: t.id, group: "Topics", icon: topicIcon(t.id), label: t.name, keywords: [...t.cfTags, ...t.lcTags, "topic"], onSelect: run(() => openTopic(t.id)) })),
   ];
   const row = (e: Entry, flat: boolean) => (

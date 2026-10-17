@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useStreak } from "@/components/shell/useStreak";
 import { buildSchedule, streakCheckAt } from "@/engine/notifications";
-import { onTraySync, pushSchedule, setTrayStatus } from "@/lib/desktop";
+import { useNavigate } from "react-router-dom";
+import { onTrayNavigate, onTraySync, pushSchedule, setTrayStatus } from "@/lib/desktop";
 import { usePrefs } from "./prefs";
 import { useTodayQuests } from "./quests";
 import { getRepo, useSyncStore } from "./syncStore";
@@ -25,7 +26,7 @@ function useTick(ms: number): number {
  * Wires the app to the desktop shell. Mounted once in the app shell:
  * - pushes the reminder schedule to Rust whenever contests, "I'll attend", the streak or settings change;
  * - syncs shortly before the evening streak reminder;
- * - keeps the tray's "Quests 1/3" line current and answers its "Sync now".
+ * - keeps the tray's "Quests 1/3" line current and answers its "Sync now" and screen links.
  */
 export function useDesktopBridge() {
   const prefs = usePrefs().data;
@@ -74,4 +75,7 @@ export function useDesktopBridge() {
   }, [quests?.done, quests?.total]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => onTraySync(() => void useSyncStore.getState().run()), []);
+
+  const navigate = useNavigate();
+  useEffect(() => onTrayNavigate((path) => navigate(path)), [navigate]);
 }

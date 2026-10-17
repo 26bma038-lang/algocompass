@@ -86,10 +86,12 @@ function TopicNodeView({ data }: NodeProps<TopicFlowNode>) {
             )}
           </span>
           {data.workOnNext && (
-            <span aria-hidden className="absolute -top-1.5 -right-2.5 grid size-6 place-items-center">
+            // "Work on next" marker (one of the three topics in the tiles above): an accent target, labelled.
+            <span title="Work on next" className="absolute -top-1.5 -right-2.5 grid size-6 place-items-center">
               <span className="absolute size-6 rounded-full bg-accent opacity-50 motion-safe:animate-[next-pulse_2.4s_var(--ease-out)_infinite]" />
-              <span className="relative grid size-6 place-items-center rounded-full border-2 border-abyss bg-ink">
-                <Crosshair className="size-3.5 text-abyss" strokeWidth={2.4} />
+              <span className="relative grid size-6 place-items-center rounded-full border-2 border-abyss-raised bg-accent">
+                <Crosshair aria-hidden className="size-3.5 text-accent-ink" strokeWidth={2.4} />
+                <span className="sr-only">Work on next</span>
               </span>
             </span>
           )}

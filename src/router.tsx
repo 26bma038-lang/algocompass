@@ -1,16 +1,18 @@
 import { lazy } from "react";
 import { createHashRouter, Navigate } from "react-router-dom";
 import { AppShell } from "@/components/shell/AppShell";
+import { LEGACY_REDIRECTS } from "@/components/shell/nav";
 import type { RouteHandle } from "@/components/shell/TopBar";
-import { HomeBase } from "@/features/home/HomeBase";
+import { Today } from "@/features/home/Today";
 import { humanizeTopic } from "@/lib/topics";
 
-// Home Base is the daily check-in, so it ships in the main chunk. Every other screen loads on first
-// visit (the Skill Tree brings @xyflow/react and dagre with it). AppShell suspends with a quiet line.
+// Today is the daily check-in, so it ships in the main chunk. Every other screen loads on first
+// visit (the Topics map brings @xyflow/react and dagre with it). AppShell suspends with a quiet line.
 const SkillTree = lazy(() => import("@/features/skill-tree/SkillTree").then((m) => ({ default: m.SkillTree })));
 const TopicDetail = lazy(() => import("@/features/topic/TopicDetail").then((m) => ({ default: m.TopicDetail })));
 const Practice = lazy(() => import("@/features/practice/Practice").then((m) => ({ default: m.Practice })));
-const Quests = lazy(() => import("@/features/quests/Quests").then((m) => ({ default: m.Quests })));
+const Progress = lazy(() => import("@/features/progress/Progress").then((m) => ({ default: m.Progress })));
+const ProgressOverview = lazy(() => import("@/features/progress/Progress").then((m) => ({ default: m.ProgressOverview })));
 const Contests = lazy(() => import("@/features/contests/Contests").then((m) => ({ default: m.Contests })));
 const Achievements = lazy(() => import("@/features/achievements/Achievements").then((m) => ({ default: m.Achievements })));
 const Settings = lazy(() => import("@/features/settings/Settings").then((m) => ({ default: m.Settings })));
@@ -23,19 +25,28 @@ export const router = createHashRouter([
   {
     element: <AppShell />,
     children: [
-      { index: true, element: <HomeBase />, handle: h("Home Base") },
-      { path: "skill-tree", element: <SkillTree />, handle: h("Skill Tree") },
+      { index: true, element: <Today />, handle: h("Today") },
+      { path: "practice", element: <Practice />, handle: h("Practice") },
+      {
+        path: "progress",
+        element: <Progress />,
+        handle: h("Progress"),
+        children: [
+          { index: true, element: <ProgressOverview /> },
+          { path: "topics", element: <SkillTree /> },
+          { path: "achievements", element: <Achievements /> },
+        ],
+      },
       {
         path: "topics/:topicId?",
         element: <TopicDetail />,
         handle: h((p) => (p.topicId ? humanizeTopic(p.topicId) : "Topic Detail")),
       },
-      { path: "practice", element: <Practice />, handle: h("Practice") },
-      { path: "quests", element: <Quests />, handle: h("Quests") },
       { path: "contests", element: <Contests />, handle: h("Contests") },
-      { path: "achievements", element: <Achievements />, handle: h("Achievements") },
       { path: "settings", element: <Settings />, handle: h("Settings") },
       { path: "debug", element: <Debug />, handle: h("Debug") },
+      // v1.1 screens that moved: redirect so nothing breaks.
+      ...Object.entries(LEGACY_REDIRECTS).map(([from, to]) => ({ path: from.slice(1), element: <Navigate to={to} replace /> })),
       { path: "*", element: <Navigate to="/" replace /> },
     ],
   },

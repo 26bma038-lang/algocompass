@@ -33,7 +33,8 @@ interface UiState {
 export const useUiStore = create<UiState>()(
   persist(
     (set) => ({
-      sidebarExpanded: false,
+      // Labels on by default (v1.2): plain names are the point of the simplified nav.
+      sidebarExpanded: true,
       toggleSidebar: () => set((s) => ({ sidebarExpanded: !s.sidebarExpanded })),
       openTopicId: null,
       openTopic: (id) => set({ openTopicId: id }),
@@ -51,6 +52,12 @@ export const useUiStore = create<UiState>()(
       startCeremony: (ceremony) => set({ ceremony }),
       endCeremony: () => set({ ceremony: null }),
     }),
-    { name: "algocompass-ui", partialize: (s) => ({ sidebarExpanded: s.sidebarExpanded }) },
+    {
+      name: "algocompass-ui",
+      partialize: (s) => ({ sidebarExpanded: s.sidebarExpanded }),
+      // v1 → v2 (simplify): everyone starts with labels showing once; Ctrl+B still collapses it.
+      version: 2,
+      migrate: (persisted, version) => (version < 2 ? { ...(persisted as object), sidebarExpanded: true } : persisted) as Pick<UiState, "sidebarExpanded">,
+    },
   ),
 );
