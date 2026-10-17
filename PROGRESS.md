@@ -1,6 +1,22 @@
 # AlgoCompass progress log
 
-## Latest: simplify, branch `simplify` (2026-10-17, not merged or released)
+## Latest: v1.2.0, simplify (2026-10-17)
+
+**Released as v1.2.0:** `simplify` was merged into master, and the version was bumped in package.json, tauri.conf.json and Cargo.toml. `npm test` passes (294) and `npm run tauri build` produced:
+- `src-tauri	argeteleaseundle
+sisAlgoCompass_1.2.0_x64-setup.exe` (4.20 MiB)
+- `src-tauri	argeteleaseundlemsiAlgoCompass_1.2.0_x64_en-US.msi` (5.58 MiB)
+
+**Topics map fixes before release** (`f6fd72d`):
+- The minimap moved to the bottom-right and is hidden below 1280px wide, where it covered nodes such as Brute force.
+- The React Flow attribution is hidden (`proOptions.hideAttribution`).
+- **The black ⊗ on Sorting was the "Work on next" marker** (Sorting is one of the three Work on next topics). It was a tiny crosshair in a black circle and read as "cancel" in Light. It is now an accent-coloured target, labelled "Work on next", matching the tiles and the legend.
+- Tile reasons wrap to two lines. The tiles are 80px high, and the canvas height calc now subtracts 170px.
+- The React Flow `colorMode` follows the theme.
+
+**README:** describes the four screens and Light/Dark, with fresh 1280x800 shots (today, practice, progress, topics-map, achievements, topic, contests, palette, settings, tour, welcome, theme-light, theme-dark). The old home, quests, skill-tree and Ember/Ocean shots are removed.
+
+### Simplify branch log (merged above)
 
 **Why:** the first outside user (a friend) said the app was too complex and hard to navigate, and asked for white and black themes. This branch is waiting for your review: nothing is merged, tagged or released, and the version is still 1.1.0.
 
