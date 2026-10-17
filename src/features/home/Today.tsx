@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Check, Flame } from "lucide-react";
 import { Link } from "react-router-dom";
-import { CardHeader } from "@/components/CardHeader";
+import { CardHeader, Pill } from "@/components/CardHeader";
 import { ProblemRow } from "@/components/practice/ProblemRow";
 import { useMixOfTheDay } from "@/data/recommendations";
 import { NumberTicker } from "@/components/ui/number-ticker";
@@ -186,7 +186,17 @@ function TodayCard() {
   const { data } = useTodayQuests();
   return (
     <section aria-labelledby="today-title" className="glass-card flex h-full flex-col gap-4 p-6">
-      <CardHeader id="today-title" title="Today's quests" pill={data ? `${data.done}/${data.total} done` : undefined} />
+      {/* Inline header (not CardHeader): its 256px title minimum would push the pill under the title in 5 columns. */}
+      <div className="flex items-center justify-between gap-3">
+        <h2 id="today-title" className="font-display text-headline font-semibold text-ink">
+          Today's quests
+        </h2>
+        {data && (
+          <Pill>
+            {data.done}/{data.total} done
+          </Pill>
+        )}
+      </div>
       <div className="flex items-center gap-3">
         <span
           className={cn(

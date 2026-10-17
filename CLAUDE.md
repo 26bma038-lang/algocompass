@@ -41,25 +41,27 @@ src-tauri/         Rust side: window, tray, plugin registration, capabilities/pe
 - Data flow: adapters → `data/` (cache in SQLite) → `engine/` (pure analysis) → features (rendering). The app works offline from the cache, and stale data is marked as stale.
 - Never fabricate numbers. If real data is missing, show an honest empty or stale state.
 
-## Screens (all built, v1.0.0)
+## Screens (v1.2 simplify: four screens)
 
 | Screen | Purpose |
 |---|---|
-| **Home Base** (Ctrl+1) | Daily check-in. CF rating with the next round, the streak, Work on next, today's quests above the fold at 1100x700, then the rating chart, activity and standing. It must answer "am I on track today?" in about 2 seconds. |
-| **Skill Tree** (Ctrl+2) | Topic graph (@xyflow/react). Nodes show mastery rings. |
-| **Topic Detail** | A side panel over any screen: one topic's strength, history, recommended LC (learn) and CF (sharpen) problems, resources. |
-| **Practice** (Ctrl+3) | Mix of the Day, Upsolve, problems by topic. |
-| **Quests** (Ctrl+4) | Three daily quests from the mix, weekly goals, level, weekly review. |
-| **Contests** (Ctrl+5) | Upcoming CF rounds first, LC contests secondary, "I'll attend" reminders, past results. |
-| **Achievements** (Ctrl+6) | Level and title, 31 achievements. |
-| **Settings** (Ctrl+,) | Handles, weekly goals, notifications, launch on startup. |
+| **Today** (Ctrl+1, `/`) | Daily check-in. Today's quests + streak beside today's mix at the top, then the CF rating hero with the next round, Work on next, LeetCode, activity, standing and later contests. It must answer "what do I do today?" in about 2 seconds. |
+| **Practice** (Ctrl+2) | What to solve: today's mix (with feedback and New mix), Upsolve, problems by topic. |
+| **Progress** (Ctrl+3) | Tabs, each its own route: **Overview** (`/progress`: rating chart, level, weekly goals, weekly review) · **Topics map** (`/progress/topics`: the Skill Tree canvas) · **Achievements** (`/progress/achievements`). |
+| **Contests** (Ctrl+4) | Upcoming CF rounds first, LC contests secondary, "I'll attend" reminders, past results. |
+| **Topic Detail** | A side panel over any screen. `/topics/:id` deep links open it on the Topics map. |
+| **Settings** (Ctrl+,) | Handles, theme, weekly goals, notifications, launch on startup. Bottom of the sidebar. |
+
+- Nav lives in `src/components/shell/nav.ts` (labels, shortcuts, one-line descriptions used for the sidebar hover hint and the subtitle under each title). v1.1 routes (`/skill-tree`, `/quests`, `/achievements`) redirect via `LEGACY_REDIRECTS`; keep them.
+- The sidebar shows labels by default. A one-time 4-step tip tour (`TipTour.tsx`, pref `tipTourSeen`) introduces the screens; bump `TOUR_VERSION` to show it again after a nav change.
+- The tray menu has links to the four screens (`tray-navigate` event).
 
 App-wide: Ctrl+K command palette, Ctrl+R sync, `?` shortcut sheet, Ctrl+B sidebar, Ctrl+Shift+D hidden Debug page (raw tables, ceremony previews).
 
 ## Build and performance rules
 
 - Run cargo/tauri from **PowerShell**, never Git Bash (its `link` shadows MSVC's linker).
-- Every screen except Home Base is `React.lazy` in `src/router.tsx`; keep new screens lazy. Recharts on Home Base is lazy too.
+- Every screen except Today is `React.lazy` in `src/router.tsx`; keep new screens lazy. Recharts (Progress → Overview) is lazy too.
 - `import.meta.env.TAURI_ENV_PLATFORM` (via `envPrefix` in vite.config.ts) is set by the Tauri CLI. Use it to keep browser-only code (the sql.js driver) out of the desktop bundle.
 - Never edit an applied migration in `src-tauri/migrations/` (sqlx checksums them). Add a new one.
 - The bundle identifier stays `com.algocompass.app`: the user's data folder is named after it (see PROGRESS.md, v1.0).
@@ -68,7 +70,7 @@ App-wide: Ctrl+K command palette, Ctrl+R sync, `?` shortcut sheet, Ctrl+B sideba
 
 - **No confetti. Ever.** No XP popups on routine clicks, and no looping motion that isn't tied to data.
 - Quest completion and level-ups use a **restrained reward moment** that fits DESIGN.md: a short aura pulse (the accent Aura glow) on the quest card, plus the XP bar filling with a number ticker. Keep it within DESIGN.md's motion durations. Bigger ceremonies (up to 1.2s) are only for rank promotions (the "Aura Shift") and achievement unlocks. They can be skipped with a click or Esc, and they never block input.
-- **Colour roles (v1.1):** the theme owns the accent (`--accent`, `--accent-2`: Neon Arcade by default, Ember, Ocean, picked in Settings). The user's real CF rank colour (`--rank`) is reserved for rank elements only: the rating number, the rank chip and rank progress. See "Themes and colour roles" in DESIGN.md.
+- **Themes and colour roles (v1.2):** Light, Dark, or System (default; follows Windows live) in `src/lib/theme.ts`, tokens on `<html data-theme="light|dark">` in globals.css. One restrained indigo accent (`--accent`). Old theme ids migrate to System. The user's real CF rank colour (`--rank`) is reserved for rank elements only (rating number, rank chip, rank progress) and has a darker set in Light. Every new colour must be a token with a value for both themes and meet WCAG AA; never hard-code dark-only colours. See "Light and Dark (v1.2)" in DESIGN.md.
 - **Layout (v1.1):** every screen is a bento grid (12 columns, 24px gaps, `glass-card` panels with 24px padding). Use `CardHeader` (`src/components/CardHeader.tsx`) for card titles (22px Chakra Petch), descriptions and count pills. See "Bento across the app" in DESIGN.md.
 
 ## Tooling rules

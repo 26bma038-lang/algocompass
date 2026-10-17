@@ -482,3 +482,35 @@ Every screen uses the Home Base bento from the redesign.
   - **Skill Tree:** the three Work on next topics as 64px tiles with their reasons, then the canvas as the hero card, with filters and search in its header. The space above the canvas stays 154px, so it keeps its full height at 1100x700.
   - **Topic Detail:** inside the 440px panel, a hero tile (ring, status in headline, builds on, the Codeforces/LeetCode split), four stat tiles, then Upsolve, Solved, Recommended and Resources as cards with count pills.
   - **Home Base:** every card follows the same header rule (Later contests is now a card with sunken contest tiles).
+
+## Light and Dark (v1.2 simplify)
+
+This section supersedes the three colour themes (Neon Arcade, Ember, Ocean) and the frontmatter ground/ink/glass values above where they differ; `src/styles/globals.css` holds the live tokens.
+
+**Why:** the first outside user found the app too complex and asked for plain white and black themes. The game layer (XP, levels, achievements, glow, ambient background, the Aura Shift) is unchanged; only the palette and where screens live changed.
+
+### Themes
+
+- **System** (default) resolves to Light or Dark from `prefers-color-scheme` and follows Windows live. **Light** and **Dark** are fixed. Saved v1.1 theme ids migrate to System.
+- **Dark:** near-black ground `#0A0A0C`, raised `#131316`, sunken `#060607`, white ink `#F4F4F5` (muted `#A1A1AA`, faint `#8B8B94`), neutral white-alpha glass borders. One restrained accent, indigo `#8B9BFF`; `--accent-2` is a lighter tint of it, not a second hue.
+- **Light:** off-white ground `#F6F6F7`, white raised, sunken `#ECECEF`, near-black ink `#111114` (muted `#4F4F58`, faint `#63636C`). The same indigo darkened to `#3A4BD0` with white `--accent-ink`.
+- **Contrast:** every text token, the accent, state hues (success, warning, danger), platform dots and all seven rank colours are ≥ 4.5:1 on ground, raised, sunken and glass in both themes.
+
+### Rank colours on white
+
+Light redefines the rank palette darker (newbie `#5F6675`, pupil `#127A3A`, specialist `#0B7268`, expert `#2A55CF`, candidate master `#8336D0`, master `#A64A00`, grandmaster `#C41F30`). `--rank` still points at a rank token, so the Aura Shift crossfade works unchanged in both themes.
+
+### Glow and ambient on white
+
+- Light lowers `--accent-soft` (10%), `--accent-line` (38%) and `--accent-glow` (28%), so the Aura and quest pulse read as a soft tint, not a smudge.
+- Shadows in Light are short neutral drops (`--shadow-slab`, `--shadow-float`), with no inset highlight.
+- The ambient nebula reads its strength from `--ambient-a/b/c`; Light uses a faint tint wash and drops the edge vignette (`--ambient-vignette: transparent`).
+- Topics map: `--tree-dots`, `--tree-edge*` and `--tree-mask` are per-theme tokens. Toasts follow the resolved scheme.
+- Earned achievement tiles are sunken in Dark but raised white with a slab shadow in Light (sunken grey reads as disabled on white).
+
+### Navigation (v1.2)
+
+- Four screens with plain names: **Today, Practice, Progress, Contests**, then Settings at the bottom. Labels show by default; hovering an item shows a one-line description, and the same line is the subtitle under each screen title (body-sm, ink-muted). The top bar is 64px for the two lines.
+- Progress uses a segmented tab row (Overview · Topics map · Achievements): a glass track with a 40px height, the active tab in `accent-soft`. The Topics map subtracts the row through `--tree-above`.
+- The tip tour is a Float-plane card beside the sidebar with an accent outline (`shadow-aura`) on the item it describes. No dimming, never blocks input, Esc or Skip ends it.
+

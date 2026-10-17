@@ -28,7 +28,10 @@ function AchievementCard({ a }: { a: AchievementView }) {
       className={cn(
         "flex gap-4 rounded-md border p-4",
         // Tiles inside the category card: earned ones are solid sunken tiles, locked ones a dashed outline.
-        a.unlocked ? "border-glass-border-strong bg-abyss-sunken" : "border-dashed border-glass-border bg-transparent",
+        // In Light, sunken grey would read as disabled, so earned tiles are raised white with a slab shadow.
+        a.unlocked
+          ? "border-glass-border-strong bg-abyss-sunken [[data-theme=light]_&]:bg-abyss-raised [[data-theme=light]_&]:shadow-slab"
+          : "border-dashed border-glass-border bg-transparent",
       )}
     >
       <AchievementBadge icon={a.def.icon} unlocked={a.unlocked} />
