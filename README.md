@@ -198,4 +198,4 @@ Everything stays on your computer.
 
 ## License
 
-© 2026 Sahil. All rights reserved. You may view the code and download the app for personal use, but you may not copy, modify or redistribute the code without permission.
+Copyright (c) 2026 Sahil. All rights reserved. You may view the source code and download and use the released app for personal, non-commercial purposes. No part of the source code may be copied, modified, distributed, or used in other projects without prior written permission. See [LICENSE](LICENSE). Contributions: see [CONTRIBUTING.md](CONTRIBUTING.md).
