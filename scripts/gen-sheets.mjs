@@ -337,7 +337,7 @@ const SHEETS = [
     id: "blind-75",
     name: "Blind 75",
     short: "Blind 75",
-    creator: "Yangshun Tay (original Blind post, 2018)",
+    creator: "Yangshun Tay (Blind, 2018)",
     sourceUrl: "https://www.teamblind.com/post/New-Year-Gift---Curated-List-of-Top-75-LeetCode-Questions-to-Save-Your-Time-OaM1orEU",
     sectionLabel: "Section",
     load: async () =>

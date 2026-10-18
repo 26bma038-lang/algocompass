@@ -7,16 +7,36 @@ import { readPref, writePref } from "@/data/settings";
 import { useUiStore } from "@/data/uiStore";
 import { PRIMARY_NAV } from "./nav";
 
-/** Bump to show the tour again after a future navigation change. */
-export const TOUR_VERSION = 1;
+/** Bump to show the tour again after a future navigation change. v2 (v1.3): the Sheets step. */
+export const TOUR_VERSION = 2;
 const PREF_KEY = "tipTourSeen";
 
-const COPY: Record<string, string> = {
-  "/": "Start here every day. Today's quests, today's mix and your streak are at the top, so you know what to do in a couple of seconds.",
-  "/practice": "When you want more: today's mix with feedback, Codeforces problems to upsolve, and problems for each topic you're working on.",
-  "/progress": "How you're growing. Your rating chart, level and weekly goals, the Topics map, and your achievements, as three tabs.",
-  "/contests": "Upcoming Codeforces rounds first, LeetCode contests below. Turn on \"I'll attend\" for a reminder before it starts.",
-};
+export interface TourStep {
+  /** The sidebar item it points at (its data-tour attribute). */
+  anchor: string;
+  /** Where the step navigates. */
+  to: string;
+  title: string;
+  shortcut: string;
+  body: string;
+}
+
+const NAV = Object.fromEntries(PRIMARY_NAV.map((n) => [n.to, n]));
+
+/** One step per screen, plus Sheets (a Practice tab, so it points at Practice). */
+export const TOUR_STEPS: TourStep[] = [
+  { anchor: "/", to: "/", title: "Today", shortcut: NAV["/"]!.shortcut, body: "Start here every day. Today's quests, today's mix and your streak are at the top, so you know what to do in a couple of seconds." },
+  { anchor: "/practice", to: "/practice", title: "Practice", shortcut: NAV["/practice"]!.shortcut, body: "When you want more: today's mix with feedback, Codeforces problems to upsolve, and problems for each topic you're working on." },
+  {
+    anchor: "/practice",
+    to: "/practice/sheets",
+    title: "Sheets",
+    shortcut: NAV["/practice"]!.shortcut,
+    body: "Follow a sheet like Striver's A2Z or NeetCode 150. Problems you solve on LeetCode or Codeforces tick themselves, in every sheet that has them.",
+  },
+  { anchor: "/progress", to: "/progress", title: "Progress", shortcut: NAV["/progress"]!.shortcut, body: "How you're growing. Your rating chart, level and weekly goals, the Topics map, and your achievements, as three tabs." },
+  { anchor: "/contests", to: "/contests", title: "Contests", shortcut: NAV["/contests"]!.shortcut, body: "Upcoming Codeforces rounds first, LeetCode contests below. Turn on \"I'll attend\" for a reminder before it starts." },
+];
 
 /** Whether the tour should run: once per TOUR_VERSION, after onboarding and for existing users alike. */
 export async function shouldShowTour(): Promise<boolean> {
@@ -25,7 +45,7 @@ export async function shouldShowTour(): Promise<boolean> {
 }
 
 /**
- * The one-time tip tour (v1.2): four steps, one per screen, each pointing at its sidebar item.
+ * The one-time tip tour: one step per screen plus Sheets (v1.3), each pointing at its sidebar item.
  * Non-modal and skippable (×, Skip or Esc); it never blocks input.
  */
 export function TipTour() {
@@ -34,7 +54,7 @@ export function TipTour() {
   const [rect, setRect] = useState<DOMRect | null>(null);
   const navigate = useNavigate();
   const expanded = useUiStore((s) => s.sidebarExpanded);
-  const item = PRIMARY_NAV[step]!;
+  const item = TOUR_STEPS[step]!;
 
   useEffect(() => {
     let alive = true;
@@ -47,7 +67,7 @@ export function TipTour() {
   // Point at the step's sidebar item; follow the sidebar as it expands or the window resizes.
   useLayoutEffect(() => {
     if (!open) return;
-    const measure = () => setRect(document.querySelector(`[data-tour="${item.to}"]`)?.getBoundingClientRect() ?? null);
+    const measure = () => setRect(document.querySelector(`[data-tour="${item.anchor}"]`)?.getBoundingClientRect() ?? null);
     measure();
     const t = window.setTimeout(measure, 320); // after the sidebar's spring settles
     window.addEventListener("resize", measure);
@@ -55,7 +75,7 @@ export function TipTour() {
       window.clearTimeout(t);
       window.removeEventListener("resize", measure);
     };
-  }, [open, item.to, expanded]);
+  }, [open, item.anchor, expanded]);
 
   const finish = () => {
     setOpen(false);
@@ -73,9 +93,9 @@ export function TipTour() {
 
   const go = (n: number) => {
     setStep(n);
-    navigate(PRIMARY_NAV[n]!.to);
+    navigate(TOUR_STEPS[n]!.to);
   };
-  const last = step === PRIMARY_NAV.length - 1;
+  const last = step === TOUR_STEPS.length - 1;
 
   return (
     <AnimatePresence>
@@ -106,10 +126,10 @@ export function TipTour() {
             <div className="flex items-start justify-between gap-3">
               <div className="flex flex-col gap-0.5">
                 <span className="numeric text-label text-ink-muted">
-                  Tip {step + 1} of {PRIMARY_NAV.length}
+                  Tip {step + 1} of {TOUR_STEPS.length}
                 </span>
                 <h2 id="tour-title" className="font-display text-headline font-semibold text-ink">
-                  {item.label}
+                  {item.title}
                 </h2>
               </div>
               <button
@@ -122,9 +142,11 @@ export function TipTour() {
               </button>
             </div>
             <p id="tour-body" className="mt-2 text-body-sm text-ink-muted">
-              {COPY[item.to]}
+              {item.body}
             </p>
-            <p className="mt-2 text-label text-ink-faint">Ctrl {item.shortcut} jumps here from anywhere.</p>
+            <p className="mt-2 text-label text-ink-faint">
+              {item.to === item.anchor ? `Ctrl ${item.shortcut} jumps here from anywhere.` : `A tab in Practice (Ctrl ${item.shortcut}).`}
+            </p>
             <div className="mt-4 flex items-center justify-between gap-2">
               <button type="button" onClick={finish} className="rounded-xs text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
                 Skip

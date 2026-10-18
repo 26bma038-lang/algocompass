@@ -1,7 +1,7 @@
 ﻿import { describe, expect, it } from "vitest";
 import type { StoredQuest } from "@/data/types";
 import { weekCounts, weekEnd, weekStart } from "./goals";
-import { CONSISTENCY_TARGET, evaluateQuests, generateQuests, newlyCompleted, QUEST_XP, type QuestMixItem, type SolveEvent } from "./quests";
+import { CONSISTENCY_TARGET, evaluateQuests, generateQuests, newlyCompleted, QUEST_XP, sheetQuest, type QuestMixItem, type SolveEvent } from "./quests";
 
 const names: Record<string, string> = { sorting: "Sorting", greedy: "Greedy", "two-pointers": "Two pointers" };
 const name = (id: string) => names[id] ?? id;
@@ -180,5 +180,31 @@ describe("weekly review", async () => {
     expect(ratingChange(h, 15, 40)).toEqual({ delta: 40, rounds: 2 });
     expect(ratingAt(h, 15)).toBe(950);
     expect(ratingAt(h, 5)).toBeNull();
+  });
+});
+
+describe("sheet quest (v1.3)", () => {
+  const q = { ...sheetQuest({ id: "striver-a2z", short: "A2Z", nextKey: "lc:two-sum" }), completedAt: null };
+  const members = (id: string) => (id === "striver-a2z" ? new Set(["lc:two-sum", "lc:3sum", "tuf:pattern-1", "cf:4-A"]) : undefined);
+
+  it("asks for one problem from the followed sheet", () => {
+    expect(q).toMatchObject({ id: "sheet", kind: "sheet", title: "Solve 1 problem from A2Z", target: 1, sheetId: "striver-a2z", problemIds: ["lc:two-sum"], xp: QUEST_XP.sheet });
+  });
+
+  it("counts a LeetCode or Codeforces solve of any problem in the sheet, and a hand-ticked sheet-only problem", () => {
+    expect(evaluateQuests([q], [lc("3sum", [])], members)[0]!.done).toBe(true);
+    expect(evaluateQuests([q], [cf("4-A", [], 800)], members)[0]!.done).toBe(true);
+    expect(evaluateQuests([q], [{ platform: "sheet", problemId: "tuf:pattern-1", at: 1, topics: [], rating: null }], members)[0]!.done).toBe(true);
+  });
+
+  it("ignores problems outside the sheet", () => {
+    expect(evaluateQuests([q], [lc("valid-anagram", [])], members)[0]!.done).toBe(false);
+  });
+
+  it("a hand-ticked sheet problem also counts toward 'any 2 problems', but not the platform topic quests", () => {
+    const tick: SolveEvent = { platform: "sheet", problemId: "gfg:x", at: 1, topics: [], rating: null };
+    const s = evaluateQuests(stored(), [tick, lc("b", [])]);
+    expect(s.find((x) => x.id === "any_solves")!.done).toBe(true);
+    expect(s.find((x) => x.id === "lc_topic")!.done).toBe(false);
   });
 });

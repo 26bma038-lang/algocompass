@@ -449,6 +449,18 @@ export class Repo {
     );
   }
 
+  /** Adds one quest to the day (the sheet quest), keeping any already stored under that id. */
+  async addQuest(day: string, q: QuestSpec) {
+    await this.db.execute(
+      "INSERT INTO daily_quests (day, quest_id, spec_json, xp, completed_at) VALUES ($1, $2, $3, $4, NULL) ON CONFLICT(day, quest_id) DO NOTHING",
+      [day, q.id, json(q), q.xp],
+    );
+  }
+
+  async deleteOpenQuest(day: string, questId: string) {
+    await this.db.execute("DELETE FROM daily_quests WHERE day = $1 AND quest_id = $2 AND completed_at IS NULL", [day, questId]);
+  }
+
   async completeQuest(day: string, questId: string, at: number) {
     await this.db.execute("UPDATE daily_quests SET completed_at = $1 WHERE day = $2 AND quest_id = $3 AND completed_at IS NULL", [at, day, questId]);
   }

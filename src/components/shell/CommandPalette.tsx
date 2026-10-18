@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Command } from "cmdk";
-import { CalendarClock, Keyboard, Network, PanelLeft, RefreshCw, Search, Target, Trophy, type LucideIcon } from "lucide-react";
+import { CalendarClock, GraduationCap, Keyboard, ListChecks, Network, PanelLeft, RefreshCw, Search, Target, Trophy, type LucideIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useHomeData } from "@/data/queries";
 import { useSyncStore } from "@/data/syncStore";
@@ -89,6 +89,8 @@ export function CommandPalette() {
     ...ALL_NAV.map((n): Entry => ({ key: n.to, group: "Screens", icon: n.icon, label: n.label, kbd: keyLabel(n.shortcut), keywords: ["go", "screen", ...(SCREEN_KEYWORDS[n.to] ?? [])], onSelect: run(() => navigate(n.to)) })),
     { key: "tab-topics", group: "Screens", icon: Network, label: "Topics map", hint: "Progress", keywords: ["skill tree", "graph", "mastery"], onSelect: run(() => navigate("/progress/topics")) },
     { key: "tab-achievements", group: "Screens", icon: Trophy, label: "Achievements", hint: "Progress", keywords: ["badges", "unlocks", "level", "xp"], onSelect: run(() => navigate("/progress/achievements")) },
+    { key: "tab-sheets", group: "Screens", icon: ListChecks, label: "Sheets", hint: "Practice", keywords: ["striver", "a2z", "sde", "neetcode", "blind 75", "babbar", "450", "list"], onSelect: run(() => navigate("/practice/sheets")) },
+    { key: "tab-path", group: "Screens", icon: GraduationCap, label: "Beginner Path", hint: "Practice", keywords: ["learn", "lessons", "videos", "start", "beginner"], onSelect: run(() => navigate("/practice/path")) },
     ...TOPICS.map((t): Entry => ({ key: t.id, group: "Topics", icon: topicIcon(t.id), label: t.name, keywords: [...t.cfTags, ...t.lcTags, "topic"], onSelect: run(() => openTopic(t.id)) })),
   ];
   const row = (e: Entry, flat: boolean) => (

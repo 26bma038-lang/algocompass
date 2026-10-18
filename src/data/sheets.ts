@@ -24,7 +24,10 @@ import type { Repo } from "./repo";
  * a sync re-ticks everything on its own.
  */
 
-/** Display order. The Beginner Path (Part 4) is listed first when it exists. */
+/** The Beginner Path's id as a sheet (src/data/path.ts registers it). */
+export const PATH_SHEET_ID = "beginner-path";
+
+/** Display order. The Beginner Path is listed first. */
 export const SHEET_IDS = ["striver-a2z", "striver-sde", "neetcode-150", "blind-75", "babbar-450"] as const;
 
 // Each sheet is its own chunk: Today loads only the one you follow.

@@ -1,6 +1,9 @@
-import { useState, type ReactNode } from "react";
+import { Suspense, useState, type ReactNode } from "react";
+import { Outlet } from "react-router-dom";
 import { RefreshCw, Target } from "lucide-react";
 import { CardHeader, Pill } from "@/components/CardHeader";
+import { SegmentedTabs } from "@/components/SegmentedTabs";
+import { usePrefs } from "@/data/prefs";
 import { EmptyState } from "@/components/EmptyState";
 import { ModeBadge } from "@/components/practice/ModeBadge";
 import { ProblemRow } from "@/components/practice/ProblemRow";
@@ -232,8 +235,8 @@ function ByTopicCard({ rec, avoid }: { rec: Recommender; avoid: ReadonlySet<stri
   );
 }
 
-/** Practice: today's mix first, then what to upsolve, then problems for each weak topic. */
-export function Practice() {
+/** Practice → Today's mix: today's mix first, then what to upsolve, then problems for each weak topic. */
+export function PracticeMix() {
   const report = useTopicReport();
   const rec = useRecommender();
   const mix = useMixOfTheDay();
@@ -271,3 +274,29 @@ export function Practice() {
   );
 }
 
+
+/**
+ * Practice (v1.3): tabs, each its own route. Smart mode leads with today's mix; Beginner mode leads
+ * with the Beginner Path. Sheets sit in both.
+ */
+export function Practice() {
+  const beginner = usePrefs().data?.mode === "beginner";
+  const tabs = beginner
+    ? [
+        { to: "/practice/path", label: "Beginner Path" },
+        { to: "/practice/sheets", label: "Sheets" },
+        { to: "/practice/mix", label: "Today's mix" },
+      ]
+    : [
+        { to: "/practice", label: "Today's mix", end: true },
+        { to: "/practice/sheets", label: "Sheets" },
+      ];
+  return (
+    <div className="flex flex-col gap-6">
+      <SegmentedTabs label="Practice sections" tabs={tabs} />
+      <Suspense fallback={<p className="text-body-sm text-ink-muted">Loading…</p>}>
+        <Outlet />
+      </Suspense>
+    </div>
+  );
+}

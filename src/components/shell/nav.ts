@@ -15,7 +15,7 @@ export interface NavItem {
 /** The four screens (simplify, v1.2). Plain names, in the order you use them. */
 export const PRIMARY_NAV: NavItem[] = [
   { to: "/", label: "Today", icon: Sun, shortcut: "1", description: "What to do today: quests, today's mix, your streak and rating" },
-  { to: "/practice", label: "Practice", icon: Target, shortcut: "2", description: "What to solve: today's mix, upsolves and problems by topic" },
+  { to: "/practice", label: "Practice", icon: Target, shortcut: "2", description: "What to solve: today's mix, sheets like Striver A2Z, upsolves and problems by topic" },
   { to: "/progress", label: "Progress", icon: LineChart, shortcut: "3", description: "How you're growing: rating, level, weekly goals, topics and achievements", alsoActiveOn: ["/topics"] },
   { to: "/contests", label: "Contests", icon: CalendarDays, shortcut: "4", description: "Upcoming rounds, reminders and your past results" },
 ];

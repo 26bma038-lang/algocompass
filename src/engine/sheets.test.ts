@@ -130,6 +130,12 @@ describe("smart next", () => {
     expect(nextInSheet(long, () => false, new Map([["dp", 1]]))?.problem.key).toBe("lc:p0");
   });
 
+  it("passes over a LeetCode Premium problem while free ones are near, but still offers it when it's all that's left", () => {
+    const prem = sheet("p", [[p("lc:locked", ["graphs"], { premium: true }), p("lc:free", ["arrays-hashing"])]]);
+    expect(nextInSheet(prem, () => false, new Map([["graphs", 1]]))?.problem.key).toBe("lc:free");
+    expect(nextInSheet(prem, (k) => k === "lc:free")?.problem.key).toBe("lc:locked");
+  });
+
   it("skips duplicates and solved problems, and is null when the sheet is done", () => {
     expect(nextInSheet(s, (k) => ["lc:a", "lc:b", "lc:c"].includes(k))?.problem.key).toBe("lc:d");
     expect(nextInSheet(s, () => true)).toBeNull();

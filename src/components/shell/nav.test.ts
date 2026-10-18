@@ -31,3 +31,14 @@ describe("navigation (v1.2 simplify)", () => {
     expect(navItemFor("/debug")).toBeUndefined();
   });
 });
+
+describe("tip tour (v1.3)", () => {
+  it("is version 2, with a Sheets step after Practice that points at Practice and opens the Sheets tab", async () => {
+    const { TOUR_STEPS, TOUR_VERSION } = await import("./TipTour");
+    expect(TOUR_VERSION).toBe(2);
+    expect(TOUR_STEPS.map((s) => s.title)).toEqual(["Today", "Practice", "Sheets", "Progress", "Contests"]);
+    const sheets = TOUR_STEPS[2]!;
+    expect([sheets.anchor, sheets.to]).toEqual(["/practice", "/practice/sheets"]);
+    for (const s of TOUR_STEPS) expect(PRIMARY_NAV.some((n) => n.to === s.anchor)).toBe(true);
+  });
+});

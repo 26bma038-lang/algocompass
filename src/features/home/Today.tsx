@@ -9,6 +9,8 @@ import { flameState, streakAtRisk, useStreak } from "@/components/shell/useStrea
 import { useHomeData, useTopicReport } from "@/data/queries";
 import { useTodayQuests } from "@/data/quests";
 import { useHandles } from "@/data/settings";
+import { usePrefs } from "@/data/prefs";
+import { FollowedSheetCard } from "@/features/sheets/FollowedSheetCard";
 import type { CfRatingChange, CfUser, Contest } from "@/data/types";
 import type { QuestState } from "@/engine/quests";
 import { QuestBar, useRewardPulse } from "@/features/quests/QuestList";
@@ -268,7 +270,17 @@ function TodayMixCard() {
   );
 }
 
-type LcStatsRow = NonNullable<ReturnType<typeof useHomeData>["data"]>["lcStats"];
+function FollowedSheetSlot() {
+  const followed = usePrefs().data?.followedSheet;
+  if (!followed) return null;
+  return (
+    <div className="col-span-12">
+      <FollowedSheetCard />
+    </div>
+  );
+}
+
+type LcStatsRow =NonNullable<ReturnType<typeof useHomeData>["data"]>["lcStats"];
 
 /** LeetCode is the classroom: a compact secondary card. */
 function LcCard({ lc }: { lc: LcStatsRow }) {
@@ -354,6 +366,8 @@ export function Today() {
       <div className="col-span-12 lg:col-span-7">
         <TodayMixCard />
       </div>
+      {/* The sheet you follow (v1.3): renders nothing when you don't follow one. */}
+      <FollowedSheetSlot />
       <div className="col-span-12">
         <HeroCard cf={data?.cf ?? null} solved={data?.cfSolved ?? 0} history={data?.ratingHistory ?? []} nextCf={nextCf} />
       </div>

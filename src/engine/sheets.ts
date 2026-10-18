@@ -162,6 +162,8 @@ export function sectionKeys(sheet: Sheet, from: number, to: number): string[] {
 export const NEXT_WINDOW = 8;
 /** How much a weak topic counts against sheet order (order alone is worth 0 to 1). */
 export const WEAK_WEIGHT = 0.6;
+/** LeetCode Premium problems drop this much (more than any weak-topic boost, so free ones nearby win). */
+export const PREMIUM_PENALTY = 1;
 
 export interface NextPick {
   problem: SheetProblem;
@@ -204,7 +206,8 @@ export function nextInSheet(
         weakTopic = t;
       }
     }
-    const score = 1 - i / NEXT_WINDOW + WEAK_WEIGHT * weak;
+    // LeetCode Premium problems are locked for most people: suggest them only when nothing free is near.
+    const score = 1 - i / NEXT_WINDOW + WEAK_WEIGHT * weak - (c.problem.premium ? PREMIUM_PENALTY : 0);
     if (score > bestScore + 1e-9) {
       bestScore = score;
       best = { ...c, weakTopic: i === 0 ? null : weakTopic };

@@ -11,6 +11,10 @@ import { humanizeTopic } from "@/lib/topics";
 const SkillTree = lazy(() => import("@/features/skill-tree/SkillTree").then((m) => ({ default: m.SkillTree })));
 const TopicDetail = lazy(() => import("@/features/topic/TopicDetail").then((m) => ({ default: m.TopicDetail })));
 const Practice = lazy(() => import("@/features/practice/Practice").then((m) => ({ default: m.Practice })));
+const PracticeIndex = lazy(() => import("@/features/practice/PracticeIndex").then((m) => ({ default: m.PracticeIndex })));
+const PracticeMix = lazy(() => import("@/features/practice/Practice").then((m) => ({ default: m.PracticeMix })));
+const SheetList = lazy(() => import("@/features/sheets/SheetList").then((m) => ({ default: m.SheetList })));
+const SheetView = lazy(() => import("@/features/sheets/SheetView").then((m) => ({ default: m.SheetView })));
 const Progress = lazy(() => import("@/features/progress/Progress").then((m) => ({ default: m.Progress })));
 const ProgressOverview = lazy(() => import("@/features/progress/Progress").then((m) => ({ default: m.ProgressOverview })));
 const Contests = lazy(() => import("@/features/contests/Contests").then((m) => ({ default: m.Contests })));
@@ -26,7 +30,17 @@ export const router = createHashRouter([
     element: <AppShell />,
     children: [
       { index: true, element: <Today />, handle: h("Today") },
-      { path: "practice", element: <Practice />, handle: h("Practice") },
+      {
+        path: "practice",
+        element: <Practice />,
+        handle: h("Practice"),
+        children: [
+          { index: true, element: <PracticeIndex /> },
+          { path: "mix", element: <PracticeMix /> },
+          { path: "sheets", element: <SheetList /> },
+          { path: "sheets/:sheetId", element: <SheetView /> },
+        ],
+      },
       {
         path: "progress",
         element: <Progress />,

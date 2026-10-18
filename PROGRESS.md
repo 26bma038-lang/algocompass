@@ -43,7 +43,42 @@ Not merged or released: waiting for your review.
 - **Cross-sheet:** status is per key, so one solve ticks every sheet that lists the problem.
 - **Reusing Mark solved:** a single manual tick on a LeetCode (or Codeforces) problem is also written to `manual_solves`, so it counts for quests, goals, XP and recommendations, exactly like Mark solved. Unticking removes it again.
 - **Bulk imports** ("I've finished Steps 1–5") only write `sheet_ticks`. They don't count as today's solves, quests or XP, but the recommender does treat those LeetCode problems as solved. Undo in the toast restores any ticks the import replaced.
-- **Tests:** `src/engine/sheets.test.ts` and `src/data/sheets.test.ts` (27). They cover cross-sheet auto-ticks, manual ticks, bulk ticks with undo, unticking an auto tick, distinct-problem progress, smart next, notes and data validation.
+- **Tests:** `src/engine/sheets.test.ts` and `src/data/sheets.test.ts` (27, 28 with Part 3's premium rule). They cover cross-sheet auto-ticks, manual ticks, bulk ticks with undo, unticking an auto tick, distinct-problem progress, smart next, notes and data validation.
+
+### Part 3: Sheets UI and smart next
+- **Practice now has tabs**, each its own route like Progress's:
+  - Today's mix (`/practice`, also at `/practice/mix`);
+  - Sheets (`/practice/sheets`);
+  - one sheet at `/practice/sheets/:id`.
+  The tab row is a shared `SegmentedTabs` component, which Progress uses too. Still four screens.
+- **Design (frontend-design):** it stays inside DESIGN.md's tokens. The one new visual element is the **section strip**: one chamfered segment per step, day or topic, each filling with the accent as that section gets done. It echoes the run meter and the level plate. The section holding "Next in this sheet" stands taller, so position says "you are here" without colour. On a sheet page each segment is a button that opens and scrolls to its section. I rejected a grid of identical sheet cards (the SaaS-kit default) for one lead card plus a dense list.
+- **Sheets tab:**
+  - The sheet you follow leads: name, "Sheet by …" credit linking the original, %, strip, Next in this sheet, Following.
+  - Then "All sheets" as rows: name, credit, strip, %, done/total and Follow.
+  - The LeetCode 20-solve limit is explained under the list.
+- **A sheet page:**
+  - **Header card:** credit and fetch month, % with the split ("6 synced, 1 by hand, 90 imported"), the clickable strip, the honest LeetCode-limit line, Follow, and **Mark sections done**. That last one is an inline panel: "I've finished [Step 1] through [Step 5]", with a live count of what it will tick.
+  - **Next in this sheet:** a sunken tile with the problem, its step, the weak topic that picked it (if any), "Open on LeetCode", and "Solve on LeetCode to tick automatically."
+  - **Toolbar:** search over titles, the source's wording and your notes; All / Unsolved / Solved; Easy / Medium / Hard; Expand / Collapse all.
+  - **Sections:** collapsible cards with a numbered tile, "4/30" and a bar (or "Done" with a check). Sub-sections (A2Z's "FAQs (Medium)") appear as quiet headings.
+  - **Rows:** a one-click tick box, the title (plus "Premium"), a second line with the tick's source ("Solved on LeetCode" / "Ticked by hand" / "Imported") or where it opens, the source's own wording, a note preview, the topic chip, difficulty, the note button and Open.
+  - **Notes** open inline under the row and save when you leave the box (Ctrl+Enter or Esc saves and closes). They're private to SQLite.
+- **Open** prefers LeetCode, then Codeforces, then takeUforward, GFG or Code360. Its tooltip says "Solve on LeetCode to tick automatically" or "Opens takeUforward. Tick it here once you've solved it."
+- **Smart next** (`nextInSheet`) looks at the next 8 unsolved problems in sheet order. Each scores 1 → 0 by position, plus 0.6 × the weakness of its weakest topic from the topic engine (Weak 1, Developing 0.6, Not tried 0.3, Strong 0.1, Mastered 0). LeetCode Premium problems drop by 1, so a free one nearby always wins, but premium is still offered when it's all that's left. With no topic data it's plain order.
+- **Today:** a full-width card under the quests and mix row, shown only when you follow a sheet: "A2Z 22%", the strip, "Next: <problem>" with its step, and Open.
+- **Daily quest from the sheet:** following a sheet adds "Solve 1 problem from A2Z" (+20 XP) to today's quests. Any LeetCode or Codeforces solve of a problem in that sheet counts, as does a hand tick on a sheet-only problem (GFG, takeUforward). The quest is reconciled whenever quests load, so following or unfollowing midday adds or drops today's open sheet quest, and a completed one stays earned. Hand ticks of sheet-only problems also count toward "Solve any 2 problems today". Bulk imports never count.
+- **Tour:** `TOUR_VERSION` 2, with a new Sheets step after Practice. It outlines the Practice item and opens the Sheets tab. Everyone sees the five-step tour once more.
+- **Ctrl+K** has new Sheets and Beginner Path entries ("striver", "neetcode", "babbar"… match). Practice's subtitle mentions sheets.
+- **Checked in the browser**, Dark and Light at 1100x700, with real synced data:
+  - 6 A2Z problems auto-ticked from real solves;
+  - a hand tick completed the sheet quest and unlocked an achievement;
+  - a bulk import of Steps 1–3 ticked 90 and offered Undo, and today's quests didn't move;
+  - smart next jumped to a prefix-sums problem in Step 4.
+  It also caught a bug: newer Chromium returns a Promise from `scrollIntoView`, so an arrow-body effect returned it and React crashed on cleanup. Fixed.
+
+**Decisions (Part 3)**
+- **Sheets is a Practice tab**, not a fifth screen, as asked. Beginner mode adds a Beginner Path tab first (Part 4), and `/practice` sends beginners there.
+- **Source quirks are kept.** takeUforward links some different items to the same LeetCode problem (Step 4's "Longest subarray with sum K" and "Largest subarray with sum 0" both link LeetCode 325). They share that key, so one tick covers both rows. Section counts say "4 problems" for 5 rows.
 
 ## Latest: v1.2.0, simplify (2026-10-17)
 
