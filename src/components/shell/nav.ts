@@ -1,10 +1,10 @@
-import { CalendarDays, LineChart, Settings, Sun, Target, type LucideIcon } from "lucide-react";
+import { CalendarDays, GraduationCap, LineChart, Settings, Sun, Target, type LucideIcon } from "lucide-react";
 
 export interface NavItem {
   to: string;
   label: string;
   icon: LucideIcon;
-  /** Key pressed with Ctrl to jump here. */
+  /** Key pressed with Ctrl to jump here. Screens get theirs from their place in the sidebar (navFor). */
   shortcut: string;
   /** One line on what the screen is for: the sidebar hover hint and the subtitle under the title. */
   description: string;
@@ -12,18 +12,54 @@ export interface NavItem {
   beginnerDescription?: string;
   /** Extra path prefixes that also mark this item active (Topic Detail deep links live under Progress). */
   alsoActiveOn?: string[];
+  /** A small "New" badge beside the label (Contests, the first time it appears in Beginner mode). */
+  badge?: string;
 }
 
-/** The four screens (simplify, v1.2). Plain names, in the order you use them. */
-export const PRIMARY_NAV: NavItem[] = [
-  { to: "/", label: "Today", icon: Sun, shortcut: "1", description: "What to do today: quests, today's mix, your streak and rating", beginnerDescription: "Your next lesson on the Beginner Path, and today's quests" },
-  { to: "/practice", label: "Practice", icon: Target, shortcut: "2", description: "What to solve: today's mix, sheets like Striver A2Z, upsolves and problems by topic", beginnerDescription: "The Beginner Path's lessons, sheets like Striver A2Z, and today's mix" },
-  { to: "/progress", label: "Progress", icon: LineChart, shortcut: "3", description: "How you're growing: rating, level, weekly goals, topics and achievements", alsoActiveOn: ["/topics"] },
-  { to: "/contests", label: "Contests", icon: CalendarDays, shortcut: "4", description: "Upcoming rounds, reminders and your past results" },
-];
+type Screen = Omit<NavItem, "shortcut">;
 
-export const SETTINGS_NAV: NavItem = { to: "/settings", label: "Settings", icon: Settings, shortcut: ",", description: "Handles, theme, weekly goals, notifications and startup" };
+/** The five screens (v1.3: Learn joins Today, Practice, Progress and Contests). Plain names. */
+export const SCREENS = {
+  today: { to: "/", label: "Today", icon: Sun, description: "What to do today: quests, today's mix, your streak and rating", beginnerDescription: "Your next lesson on the Beginner Path, and today's quests" },
+  learn: {
+    to: "/learn",
+    label: "Learn",
+    icon: GraduationCap,
+    description: "Video lessons for every topic, weakest first, and the Beginner Path",
+    beginnerDescription: "The Beginner Path's lessons and a video for every topic",
+  },
+  practice: {
+    to: "/practice",
+    label: "Practice",
+    icon: Target,
+    description: "What to solve: today's mix, sheets like Striver A2Z, upsolves and problems by topic",
+    beginnerDescription: "Sheets like Striver A2Z, and today's mix of problems",
+  },
+  progress: { to: "/progress", label: "Progress", icon: LineChart, description: "How you're growing: rating, level, weekly goals, topics and achievements", alsoActiveOn: ["/topics"] },
+  contests: { to: "/contests", label: "Contests", icon: CalendarDays, description: "Upcoming rounds, reminders and your past results" },
+} satisfies Record<string, Screen>;
 
+export const SETTINGS_NAV: NavItem = { to: "/settings", label: "Settings", icon: Settings, shortcut: ",", description: "Handles, mode, theme, weekly goals, notifications and startup" };
+
+export type NavMode = "smart" | "beginner";
+
+/**
+ * The sidebar for a mode, with Ctrl+1… in sidebar order.
+ * - Smart: Today · Practice · Learn · Progress · Contests.
+ * - Beginner: Today · Learn · Practice · Progress, and Contests once the Beginner Path's Recursion
+ *   step is done (`contestsUnlocked`), with a "New" badge until it's been opened (`contestsNew`).
+ */
+export function navFor(mode: NavMode, opts: { contestsUnlocked?: boolean; contestsNew?: boolean } = {}): NavItem[] {
+  const s = SCREENS;
+  const screens: Screen[] =
+    mode === "beginner"
+      ? [s.today, s.learn, s.practice, s.progress, ...(opts.contestsUnlocked ? [{ ...s.contests, badge: opts.contestsNew ? "New" : undefined }] : [])]
+      : [s.today, s.practice, s.learn, s.progress, s.contests];
+  return screens.map((n, i) => ({ ...n, shortcut: String(i + 1) }));
+}
+
+/** Every screen in smart order (shortcuts as in smart mode): for lookups that don't depend on the mode. */
+export const PRIMARY_NAV: NavItem[] = navFor("smart");
 export const ALL_NAV = [...PRIMARY_NAV, SETTINGS_NAV];
 
 /** Routes from v1.1 and their new home, so old links and muscle memory still land somewhere sensible. */
@@ -31,9 +67,25 @@ export const LEGACY_REDIRECTS: Record<string, string> = {
   "/skill-tree": "/progress/topics",
   "/quests": "/",
   "/achievements": "/progress/achievements",
+  // v1.3: the Beginner Path moved from a Practice tab to Learn.
+  "/practice/path": "/learn",
 };
 
-export function isNavItemActive(item: NavItem, pathname: string) {
+/** Lessons moved with it: /practice/path/:step → /learn/path/:step. */
+export const lessonPath = (stepId: string) => `/learn/path/${stepId}`;
+export const LEGACY_LESSON_PREFIX = "/practice/path/";
+export function legacyLessonRedirect(pathname: string): string | null {
+  if (!pathname.startsWith(LEGACY_LESSON_PREFIX)) return null;
+  const step = pathname.slice(LEGACY_LESSON_PREFIX.length).replace(/\/+$/, "");
+  return step ? lessonPath(step) : "/learn";
+}
+
+/** Learn, filtered to one topic's videos (Topic Detail, sheet sections, Ctrl+K). */
+export const learnTopicPath = (topicId: string) => `/learn?topic=${encodeURIComponent(topicId)}`;
+/** One library video, in the big player. */
+export const watchPath = (videoId: string) => `/learn/watch/${videoId}`;
+
+export function isNavItemActive(item: Pick<NavItem, "to" | "alsoActiveOn">, pathname: string) {
   if (item.to === "/") return pathname === "/";
   return [item.to, ...(item.alsoActiveOn ?? [])].some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
@@ -44,6 +96,6 @@ export function navItemFor(pathname: string): NavItem | undefined {
 }
 
 /** The one-line description for the current mode. */
-export function describe(item: NavItem, beginner: boolean): string {
+export function describe(item: Pick<NavItem, "description" | "beginnerDescription">, beginner: boolean): string {
   return (beginner && item.beginnerDescription) || item.description;
 }

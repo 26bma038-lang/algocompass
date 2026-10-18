@@ -1,17 +1,20 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSyncStore } from "@/data/syncStore";
 import { useUiStore } from "@/data/uiStore";
-import { ALL_NAV } from "./nav";
+import { useNav } from "./useNav";
 
 /**
- * App-wide accelerators: Ctrl+1–6 screens, Ctrl+, settings, Ctrl+B sidebar, Ctrl+K the command
+ * App-wide accelerators: Ctrl+1–5 screens (in sidebar order, so they follow the mode), Ctrl+, settings, Ctrl+B sidebar, Ctrl+K the command
  * palette, Ctrl+R sync (instead of reloading the webview), "?" the shortcut sheet, and Ctrl+Shift+D
  * the hidden Debug page.
  */
 export function useShortcuts() {
   const navigate = useNavigate();
   const toggleSidebar = useUiStore((s) => s.toggleSidebar);
+  const all = useNav().all;
+  const nav = useRef(all);
+  nav.current = all;
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -50,7 +53,7 @@ export function useShortcuts() {
         toggleSidebar();
         return;
       }
-      const item = ALL_NAV.find((n) => n.shortcut === e.key);
+      const item = nav.current.find((n) => n.shortcut === e.key);
       if (item) {
         e.preventDefault();
         navigate(item.to);

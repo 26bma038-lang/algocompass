@@ -53,8 +53,8 @@ function StartHereCard() {
         ) : (
           <Button onClick={() => navigate("/practice/sheets")}>Pick a sheet</Button>
         )}
-        <Link to="/practice/path" className="text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
-          See all {total} steps
+        <Link to="/learn" className="text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
+          See all {total} steps in Learn
         </Link>
       </div>
     </section>

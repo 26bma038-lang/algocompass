@@ -2,9 +2,9 @@ import { useUpdatePrefs, usePrefs, type VideoLang } from "@/data/prefs";
 import type { PathView as View } from "@/data/path";
 import { cn } from "@/lib/utils";
 
-/** Small pieces the Path view, lessons, Today and Settings share (kept out of the lazy Path chunk). */
+/** Small pieces Learn, lessons, Today and Settings share (kept out of the lazy Learn chunk). */
 
-export const lessonPath = (stepId: string) => `/practice/path/${stepId}`;
+export { lessonPath } from "@/components/shell/nav";
 
 /** English or Hindi lesson videos. Saved as a pref; Settings has the same switch. */
 export function LangToggle() {

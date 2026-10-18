@@ -20,12 +20,32 @@ export const watchUrl = (id: string) => `https://www.youtube.com/watch?v=${id}`;
  * always there too, for when the embed can't play (offline, or a video that blocks embedding).
  * Videos are never downloaded or rehosted.
  */
-export function VideoPlayer({ video, watched }: { video: Video; watched: boolean }) {
-  const [playing, setPlaying] = useState(false);
+export function VideoPlayer({
+  video,
+  watched,
+  autoStart = false,
+  onPlay,
+  frameOnly = false,
+}: {
+  video: Video;
+  watched: boolean;
+  /** Start playing straight away (you picked this video, e.g. from the library). */
+  autoStart?: boolean;
+  /** Called when playback starts (Learn remembers the last video). */
+  onPlay?: () => void;
+  /** Just the 16:9 frame: the page lays out the title and actions itself (the lesson page). */
+  frameOnly?: boolean;
+}) {
+  const [playing, setPlaying] = useState(autoStart);
+  const play = () => {
+    setPlaying(true);
+    onPlay?.();
+  };
   const [thumbFailed, setThumbFailed] = useState(false);
   return (
     <div className="flex flex-col gap-3">
       <div className="relative aspect-video overflow-hidden rounded-md bg-abyss-sunken">
+        {/* Thumbnails are 480x360 (hqdefault); maxres isn't there for every video. */}
         {playing ? (
           <iframe
             src={`https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1&rel=0`}
@@ -36,10 +56,10 @@ export function VideoPlayer({ video, watched }: { video: Video; watched: boolean
             className="absolute inset-0 size-full border-0"
           />
         ) : (
-          <button type="button" onClick={() => setPlaying(true)} aria-label={`Play ${video.title}`} className="group absolute inset-0 grid place-items-center">
+          <button type="button" onClick={play} aria-label={`Play ${video.title}`} className="group absolute inset-0 grid place-items-center">
             {!thumbFailed && (
               <img
-                src={`https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`}
+                src={thumbUrl(video.id)}
                 alt=""
                 loading="lazy"
                 onError={() => setThumbFailed(true)}
@@ -58,21 +78,20 @@ export function VideoPlayer({ video, watched }: { video: Video; watched: boolean
           </button>
         )}
       </div>
-      <div className="flex flex-col gap-3">
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <span className="text-body font-semibold text-ink">{video.title}</span>
-          <span className="text-body-sm text-ink-muted">
-            {video.channel}, {video.minutes} min
-          </span>
+      {!frameOnly && (
+        <div className="flex flex-col gap-3">
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <span className="text-body font-semibold text-ink">{video.title}</span>
+            <span className="text-body-sm text-ink-muted">
+              {video.channel}, {video.minutes} min
+            </span>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <WatchedButton videoId={video.id} watched={watched} />
+            <YouTubeButton id={video.id} />
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <WatchedButton videoId={video.id} watched={watched} />
-          <Button variant="ghost" size="sm" onClick={() => openExternal(watchUrl(video.id))}>
-            <ExternalLink aria-hidden />
-            Watch on YouTube
-          </Button>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -100,3 +119,16 @@ export function WatchedButton({ videoId, watched, compact = false }: { videoId: 
     </Button>
   );
 }
+
+/** Opens the video on youtube.com in the browser (for when the embed can't play). */
+export function YouTubeButton({ id }: { id: string }) {
+  return (
+    <Button variant="ghost" size="sm" onClick={() => openExternal(watchUrl(id))}>
+      <ExternalLink aria-hidden />
+      Watch on YouTube
+    </Button>
+  );
+}
+
+/** YouTube's thumbnail for a video (no request to YouTube beyond the image, CSP allows i.ytimg.com). */
+export const thumbUrl = (id: string, size: "mq" | "hq" = "hq") => `https://i.ytimg.com/vi/${id}/${size}default.jpg`;

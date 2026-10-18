@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, useLayoutEffect, useRef } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -57,6 +57,12 @@ export function AppShell() {
 
 function MainShell() {
   const { pathname } = useLocation();
+  // A new screen starts at the top (the scroll area outlives route changes). Screens that land
+  // somewhere specific (Learn filtered to a topic) scroll after this.
+  const scroller = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    scroller.current?.scrollTo({ top: 0 });
+  }, [pathname]);
   useShortcuts();
   useSyncScheduler();
   useQuestWatcher();
@@ -73,7 +79,7 @@ function MainShell() {
           <Sidebar />
           <main className="flex min-w-0 flex-1 flex-col">
             <TopBar />
-            <div className="min-h-0 flex-1 overflow-y-auto">
+            <div ref={scroller} className="min-h-0 flex-1 overflow-y-auto">
               {/* Route change: a quick settle, never a blocking exit animation. */}
               <motion.div
                 key={pathname}

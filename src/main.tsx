@@ -6,7 +6,7 @@ import { MotionConfig } from "framer-motion";
 import { queryClient } from "@/data/queryClient";
 import { applyRankAccent, FALLBACK_RANK_TOKEN } from "@/lib/rank";
 import { initTheme, useThemeStore } from "@/lib/theme";
-import { router } from "@/router";
+import { getRouter } from "@/router";
 import "@/styles/globals.css";
 
 // Pre-sync fallback accent (DESIGN.md: expert blue until a real rank is known).
@@ -18,7 +18,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <MotionConfig reducedMotion="user">
-        <RouterProvider router={router} />
+        <RouterProvider router={getRouter()} />
       </MotionConfig>
     </QueryClientProvider>
   </React.StrictMode>,

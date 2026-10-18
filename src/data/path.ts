@@ -1,8 +1,10 @@
 import { useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { CONTESTS_MILESTONE_STEP } from "@/engine/learn";
 import { pathState, type BeginnerPath, type PathState } from "@/engine/path";
 import { problemStatus } from "@/engine/sheets";
+import { readPrefs } from "./prefs";
 import { buildSolveIndex } from "./sheets";
 import { getRepo } from "./syncStore";
 import { useUiStore } from "./uiStore";
@@ -72,9 +74,16 @@ export function usePathWatcher() {
         const last = data.newlyDone[data.newlyDone.length - 1]!;
         const i = data.path.steps.findIndex((s) => s.id === last);
         const next = data.path.steps[i + 1];
+        // Beginner mode: finishing Recursion is the "ready for contests" milestone (Contests joins the sidebar).
+        const contests = data.newlyDone.includes(CONTESTS_MILESTONE_STEP) && (await readPrefs()).mode === "beginner";
         toast(`Step ${i + 1} done: ${data.path.steps[i]!.title}`, {
           id: `path-${last}`,
-          description: next ? `Step ${i + 2}, ${next.title}, is unlocked.` : "That's the whole Beginner Path. Pick a sheet to keep going.",
+          description: [
+            next ? `Step ${i + 2}, ${next.title}, is unlocked.` : "That's the whole Beginner Path. Pick a sheet to keep going.",
+            contests ? "You're ready for contests: Contests is now in the sidebar." : "",
+          ]
+            .filter(Boolean)
+            .join(" "),
         });
         await client.invalidateQueries({ queryKey: pathKey });
       } finally {

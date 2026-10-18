@@ -277,13 +277,12 @@ export function PracticeMix() {
 
 /**
  * Practice (v1.3): tabs, each its own route. Smart mode leads with today's mix; Beginner mode leads
- * with the Beginner Path. Sheets sit in both.
+ * with Sheets (the Beginner Path's lessons live in Learn).
  */
 export function Practice() {
   const beginner = usePrefs().data?.mode === "beginner";
   const tabs = beginner
     ? [
-        { to: "/practice/path", label: "Beginner Path" },
         { to: "/practice/sheets", label: "Sheets" },
         { to: "/practice/mix", label: "Today's mix" },
       ]
