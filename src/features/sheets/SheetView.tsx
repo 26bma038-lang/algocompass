@@ -1,10 +1,12 @@
 import { memo, useEffect, useId, useMemo, useRef, useState } from "react";
-import { Check, ChevronDown, ChevronLeft, ListChecks, NotebookPen, Search, X } from "lucide-react";
+import { Check, ChevronDown, ChevronLeft, ListChecks, NotebookPen, PlayCircle, Search, X } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { EmptyState } from "@/components/EmptyState";
+import { learnTopicPath } from "@/components/shell/nav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { RESOURCES } from "@/data/catalog";
 import { usePrefs } from "@/data/prefs";
 import { isSheetId, useBulkTick, useSaveNote, useSheet, useSheetNotes, type SheetView as View } from "@/data/sheets";
 import { useUiStore } from "@/data/uiStore";
@@ -247,51 +249,65 @@ function SectionCard({
   const seen = new Set<string>();
   return (
     <section id={`section-${index}`} className="glass-card scroll-mt-4 overflow-hidden">
-      <h3>
-        <button
-          type="button"
-          aria-expanded={open}
-          aria-controls={bodyId}
-          onClick={onToggle}
-          className="flex w-full items-center gap-4 px-6 py-4 text-left transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover"
-        >
-          <span className="numeric grid size-8 shrink-0 place-items-center rounded-sm bg-abyss-sunken font-display text-body font-semibold text-ink-muted">
-            {index + 1}
-          </span>
-          <span className="flex min-w-0 flex-1 flex-col">
-            <span className="truncate text-title font-semibold text-ink">{section.title}</span>
-            <span className="text-label text-ink-muted">
-              {sheet.sectionLabel} {index + 1}, {distinctKeys(section.problems).length} problems
+      <div className="flex items-center">
+        <h3 className="min-w-0 flex-1">
+          <button
+            type="button"
+            aria-expanded={open}
+            aria-controls={bodyId}
+            onClick={onToggle}
+            className="flex w-full items-center gap-4 px-6 py-4 text-left transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover"
+          >
+            <span className="numeric grid size-8 shrink-0 place-items-center rounded-sm bg-abyss-sunken font-display text-body font-semibold text-ink-muted">
+              {index + 1}
             </span>
-          </span>
-          <span className="flex shrink-0 items-center gap-3">
-            {progress.total > 0 && progress.done === progress.total ? (
-              <span className="flex items-center gap-1 text-body-sm text-ink">
-                <Check aria-hidden className="size-4 text-success" strokeWidth={2.4} />
-                Done
+            <span className="flex min-w-0 flex-1 flex-col">
+              <span className="truncate text-title font-semibold text-ink">{section.title}</span>
+              <span className="text-label text-ink-muted">
+                {sheet.sectionLabel} {index + 1}, {distinctKeys(section.problems).length} problems
               </span>
-            ) : (
-              <span className="numeric text-body-sm text-ink-muted">
-                {progress.done}/{progress.total}
-              </span>
-            )}
-            <span
-              role="meter"
-              aria-label={`${section.title} progress`}
-              aria-valuemin={0}
-              aria-valuemax={progress.total}
-              aria-valuenow={progress.done}
-              className="relative block h-1.5 w-28 overflow-hidden rounded-full bg-glass-border-strong"
-            >
+            </span>
+            <span className="flex shrink-0 items-center gap-3">
+              {progress.total > 0 && progress.done === progress.total ? (
+                <span className="flex items-center gap-1 text-body-sm text-ink">
+                  <Check aria-hidden className="size-4 text-success" strokeWidth={2.4} />
+                  Done
+                </span>
+              ) : (
+                <span className="numeric text-body-sm text-ink-muted">
+                  {progress.done}/{progress.total}
+                </span>
+              )}
               <span
-                className="absolute inset-0 origin-left rounded-full bg-accent transition-transform duration-[var(--dur-slow)] ease-out-quint"
-                style={{ transform: `scaleX(${progress.total ? progress.done / progress.total : 0})` }}
-              />
+                role="meter"
+                aria-label={`${section.title} progress`}
+                aria-valuemin={0}
+                aria-valuemax={progress.total}
+                aria-valuenow={progress.done}
+                className="relative block h-1.5 w-28 overflow-hidden rounded-full bg-glass-border-strong"
+              >
+                <span
+                  className="absolute inset-0 origin-left rounded-full bg-accent transition-transform duration-[var(--dur-slow)] ease-out-quint"
+                  style={{ transform: `scaleX(${progress.total ? progress.done / progress.total : 0})` }}
+                />
+              </span>
+              <ChevronDown aria-hidden className={cn("size-4 text-ink-muted transition-transform duration-[var(--dur-fast)]", open && "rotate-180")} />
             </span>
-            <ChevronDown aria-hidden className={cn("size-4 text-ink-muted transition-transform duration-[var(--dur-fast)]", open && "rotate-180")} />
-          </span>
-        </button>
-      </h3>
+          </button>
+        </h3>
+        {/* v1.3: the section's topic in Learn (beside the toggle, never inside it). */}
+        {sectionTopic && (RESOURCES[sectionTopic]?.videos.length ?? 0) > 0 && (
+          <Link
+            to={learnTopicPath(sectionTopic)}
+            aria-label={`Learn this topic: ${topicName(sectionTopic)} videos`}
+            title={`${topicName(sectionTopic)} videos in Learn`}
+            className="mr-4 flex h-8 shrink-0 items-center gap-1.5 rounded-sm px-2 text-body-sm text-ink-muted transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover hover:text-ink"
+          >
+            <PlayCircle aria-hidden className="size-4" strokeWidth={1.8} />
+            Learn this topic
+          </Link>
+        )}
+      </div>
       {open && (
         <div id={bodyId} className="flex flex-col gap-2 px-3 pb-3">
           {groups.map((g, gi) => (

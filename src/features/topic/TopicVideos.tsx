@@ -1,31 +1,39 @@
 import { useState } from "react";
-import { Check, Play } from "lucide-react";
+import { Check, Play, PlayCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { learnTopicPath } from "@/components/shell/nav";
+import { Button } from "@/components/ui/button";
 import { RESOURCES, type TopicVideo } from "@/data/catalog";
 import { useWatchedVideos } from "@/data/path";
 import { usePrefs } from "@/data/prefs";
+import { useUiStore } from "@/data/uiStore";
 import { VideoPlayer } from "@/features/path/VideoPlayer";
 import { cn } from "@/lib/utils";
 
 const ROLE: Record<TopicVideo["role"], string> = { intro: "Intro", lecture: "Full lecture", walkthrough: "Problem walkthrough" };
 const LANG_NAME = { en: "English", hi: "Hindi" } as const;
 
+/** How many videos the panel previews before "Watch lessons" (v1.3: the full list lives in Learn). */
+const PREVIEW = 2;
+
 /**
- * Topic Detail → Watch: the topic's videos in your lesson language first (intro, full lecture,
- * problem walkthrough), the other language one click away. Pick one and it plays here, in the
- * privacy-enhanced YouTube embed.
+ * Topic Detail → Watch: a short preview of the topic's videos in your lesson language (pick one and
+ * it plays here, in the privacy-enhanced YouTube embed), and "Watch lessons", which opens Learn
+ * filtered to this topic with every video in both languages.
  */
 export function TopicVideos({ topicId }: { topicId: string }) {
   const lang = usePrefs().data?.videoLang ?? "en";
   const watched = useWatchedVideos().data ?? new Map<string, number>();
-  const [showOther, setShowOther] = useState(false);
   const [playing, setPlaying] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const closeTopic = useUiStore((s) => s.closeTopic);
   const all = RESOURCES[topicId]?.videos ?? [];
   if (!all.length) return null;
   const other = lang === "en" ? "hi" : "en";
   const mine = all.filter((v) => v.lang === lang);
   const rest = all.filter((v) => v.lang === other);
-  // No video in your language: show the others straight away, and say so.
-  const shown = mine.length ? (showOther ? [...mine, ...rest] : mine) : rest;
+  // No video in your language: preview the others, and say so.
+  const shown = (mine.length ? mine : rest).slice(0, PREVIEW);
   const current = all.find((v) => v.id === playing);
   return (
     <div className="flex flex-col gap-2">
@@ -61,15 +69,18 @@ export function TopicVideos({ topicId }: { topicId: string }) {
           );
         })}
       </ul>
-      {mine.length > 0 && rest.length > 0 && (
-        <button
-          type="button"
-          onClick={() => setShowOther((s) => !s)}
-          className="self-start rounded-xs text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink"
-        >
-          {showOther ? `Hide ${LANG_NAME[other]} videos` : `Also in ${LANG_NAME[other]} (${rest.length})`}
-        </button>
-      )}
+      <Button
+        variant="outline"
+        size="sm"
+        className="self-start"
+        onClick={() => {
+          closeTopic();
+          navigate(learnTopicPath(topicId));
+        }}
+      >
+        <PlayCircle aria-hidden />
+        Watch lessons
+      </Button>
     </div>
   );
 }
