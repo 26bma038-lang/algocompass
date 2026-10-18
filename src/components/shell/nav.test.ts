@@ -62,14 +62,14 @@ describe("navigation (v1.3: Learn)", () => {
 });
 
 describe("tip tour (v1.3)", () => {
-  it("is version 3: beginners meet Learn first; smart mode adds Learn after Sheets", async () => {
+  it("is version 3: beginners meet Learn first and end on Today; smart mode adds Learn after Sheets", async () => {
     const { tourSteps, TOUR_VERSION } = await import("./TipTour");
     expect(TOUR_VERSION).toBe(3);
     const beginner = tourSteps(navFor("beginner"), "beginner");
-    expect(beginner.map((s) => s.title)).toEqual(["Learn", "Today", "Practice", "Progress"]);
+    expect(beginner.map((s) => s.title)).toEqual(["Learn", "Practice", "Progress", "Today"]);
     expect(beginner[0]!.shortcut).toBe("2");
     // Contests joins the beginner tour only once it's in the sidebar.
-    expect(tourSteps(navFor("beginner", { contestsUnlocked: true }), "beginner").slice(-1)[0]!.title).toBe("Contests");
+    expect(tourSteps(navFor("beginner", { contestsUnlocked: true }), "beginner").map((s) => s.title)).toEqual(["Learn", "Practice", "Progress", "Contests", "Today"]);
     const smart = tourSteps(navFor("smart"), "smart");
     expect(smart.map((s) => s.title)).toEqual(["Today", "Practice", "Sheets", "Learn", "Progress", "Contests"]);
     expect([smart[2]!.anchor, smart[2]!.to]).toEqual(["/practice", "/practice/sheets"]);

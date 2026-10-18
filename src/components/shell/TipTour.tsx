@@ -38,7 +38,7 @@ const PROGRESS: StepText = { anchor: "/progress", to: "/progress", title: "Progr
 const CONTESTS: StepText = { anchor: "/contests", to: "/contests", title: "Contests", body: "Upcoming Codeforces rounds first, LeetCode contests below. Turn on \"I'll attend\" for a reminder before it starts." };
 
 const B_LEARN: StepText = { ...LEARN, body: "Your lessons live here. Continue learning picks up where you left off, and the Beginner Path's 14 steps take you from loops to dynamic programming, with videos in English or Hindi." };
-const B_TODAY: StepText = { ...TODAY, body: "Start here every day. Start here opens your next lesson in one click, with today's quests beside it." };
+const B_TODAY: StepText = { ...TODAY, body: "Come back here every day. Start here opens your next lesson in one click, with today's quests beside it. Ready? Press it now." };
 const B_PRACTICE: StepText = { ...PRACTICE, to: "/practice/sheets", body: "Sheets like Striver's A2Z for when you want more problems. Problems you solve tick themselves in every sheet that has them." };
 const B_PROGRESS: StepText = { ...PROGRESS, body: "Your level, weekly goals, the Topics map and your achievements. Contests join the sidebar once you finish the Recursion step." };
 
@@ -47,7 +47,7 @@ const B_PROGRESS: StepText = { ...PROGRESS, body: "Your level, weekly goals, the
  * where lessons are); smart mode keeps its order and adds Learn after Sheets.
  */
 export function tourSteps(nav: readonly NavItem[], mode: "smart" | "beginner"): TourStep[] {
-  const steps = mode === "beginner" ? [B_LEARN, B_TODAY, B_PRACTICE, B_PROGRESS, CONTESTS] : [TODAY, PRACTICE, SHEETS, LEARN, PROGRESS, CONTESTS];
+  const steps = mode === "beginner" ? [B_LEARN, B_PRACTICE, B_PROGRESS, CONTESTS, B_TODAY] : [TODAY, PRACTICE, SHEETS, LEARN, PROGRESS, CONTESTS];
   return steps.flatMap((st) => {
     const item = nav.find((n) => n.to === st.anchor);
     return item ? [{ ...st, shortcut: item.shortcut }] : [];

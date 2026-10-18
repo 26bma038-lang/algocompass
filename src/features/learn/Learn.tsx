@@ -294,7 +294,7 @@ function LibraryCard({ groups }: { groups: TopicGroup[] }) {
     <section ref={ref} id="library" aria-labelledby="library-title" className="glass-card col-span-12 flex scroll-mt-4 flex-col gap-5 p-6">
       <CardHeader id="library-title" title="Video library" description={`${count} videos across ${groups.length} topics, each checked on YouTube.${order}`} pill={`${watched.size} watched`} />
       <div className="flex flex-wrap items-center gap-3">
-        <div className="relative w-72">
+        <div className="relative min-w-52 flex-1 basis-52">
           <label htmlFor={searchId} className="sr-only">
             Search topics and video titles
           </label>
@@ -329,7 +329,7 @@ function LibraryCard({ groups }: { groups: TopicGroup[] }) {
           id={topicSelectId}
           value={topic ?? ""}
           onChange={(e) => setTopic(e.target.value || null)}
-          className="h-[38px] rounded-sm border border-glass-border bg-abyss-sunken px-3 text-body-sm text-ink hover:border-glass-border-strong"
+          className="h-[38px] w-44 rounded-sm border border-glass-border bg-abyss-sunken px-3 text-body-sm text-ink hover:border-glass-border-strong"
         >
           <option value="">All topics</option>
           {groups.map((g) => (

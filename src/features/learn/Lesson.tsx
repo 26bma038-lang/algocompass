@@ -343,12 +343,11 @@ export function Lesson() {
 
   return (
     <div className="grid grid-cols-12 items-start gap-6">
-      <div className="col-span-12 flex flex-wrap items-center justify-between gap-3">
-        <Breadcrumb crumbs={crumbs} />
-        <LangToggle />
-      </div>
-
       <section id="watch" aria-labelledby="lesson-title" className={cn("col-span-12 flex scroll-mt-4 flex-col gap-4 rounded-lg", pulse && "aura-pulse")}>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Breadcrumb crumbs={crumbs} />
+          <LangToggle />
+        </div>
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <span className="numeric text-body-sm text-ink-muted">
             Step {index + 1} of {total}
@@ -358,8 +357,8 @@ export function Lesson() {
           </h2>
           <p className="text-body-sm text-ink-muted">{step.subtitle}</p>
         </div>
-        {/* As wide as the column allows while the title, controls and Next bar still fit on screen. */}
-        <div className="mx-auto w-full" style={{ maxWidth: "min(1120px, calc((100vh - 340px) * 16 / 9))" }}>
+        {/* As wide as the column allows while its title row and the Next bar still fit on screen (1100x700 included). */}
+        <div className="mx-auto w-full" style={{ maxWidth: "min(1120px, calc((100vh - 380px) * 16 / 9))" }}>
           <VideoPlayer key={current.id} video={current} watched={view.watched.has(current.id)} frameOnly />
           <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
             <div className="flex min-w-0 flex-col gap-0.5">

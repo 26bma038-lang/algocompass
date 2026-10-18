@@ -101,7 +101,8 @@ function MainShell() {
       <CommandPalette />
       <ShortcutSheet />
       <TipTour />
-      <Toaster />
+      {/* On a lesson, toasts sit above the sticky Next bar so they never cover the button. */}
+      <Toaster offset={pathname.startsWith("/learn/path/") ? { bottom: 104, right: 20 } : 20} />
     </TooltipProvider>
   );
 }
