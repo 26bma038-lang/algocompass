@@ -5,12 +5,14 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AmbientBackground } from "./AmbientBackground";
 import { Sidebar } from "./Sidebar";
 import { TitleBar } from "./TitleBar";
+import { PreviewBanner } from "./PreviewBanner";
 import { TopBar } from "./TopBar";
 import { useShortcuts } from "./useShortcuts";
 import { Toaster } from "@/components/ui/sonner";
 import { useDesktopBridge } from "@/data/desktopBridge";
 import { useProgressionWatcher } from "@/data/progression";
 import { useQuestWatcher } from "@/data/quests";
+import { usePathWatcher } from "@/data/path";
 import { Ceremonies } from "@/features/achievements/Ceremonies";
 import { CommandPalette } from "./CommandPalette";
 import { ShortcutSheet } from "./ShortcutSheet";
@@ -31,6 +33,7 @@ export function AppShell() {
       <div className="relative flex h-full flex-col bg-abyss">
         <AmbientBackground />
         <TitleBar />
+        <PreviewBanner />
       </div>
     );
   }
@@ -40,6 +43,7 @@ export function AppShell() {
         <div className="relative flex h-full flex-col bg-abyss">
           <AmbientBackground />
           <TitleBar />
+          <PreviewBanner />
           <main className="relative z-10 min-h-0 flex-1 overflow-y-auto px-6">
             <Welcome />
           </main>
@@ -56,6 +60,7 @@ function MainShell() {
   useShortcuts();
   useSyncScheduler();
   useQuestWatcher();
+  usePathWatcher();
   useDesktopBridge();
   useProgressionWatcher();
   return (
@@ -63,6 +68,7 @@ function MainShell() {
       <div className="relative flex h-full flex-col bg-abyss">
         <AmbientBackground />
         <TitleBar />
+        <PreviewBanner />
         <div className="relative z-10 flex min-h-0 flex-1">
           <Sidebar />
           <main className="flex min-w-0 flex-1 flex-col">

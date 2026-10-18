@@ -8,14 +8,16 @@ export interface NavItem {
   shortcut: string;
   /** One line on what the screen is for: the sidebar hover hint and the subtitle under the title. */
   description: string;
+  /** The same line in Beginner mode (v1.3), when the screen leads with something else. */
+  beginnerDescription?: string;
   /** Extra path prefixes that also mark this item active (Topic Detail deep links live under Progress). */
   alsoActiveOn?: string[];
 }
 
 /** The four screens (simplify, v1.2). Plain names, in the order you use them. */
 export const PRIMARY_NAV: NavItem[] = [
-  { to: "/", label: "Today", icon: Sun, shortcut: "1", description: "What to do today: quests, today's mix, your streak and rating" },
-  { to: "/practice", label: "Practice", icon: Target, shortcut: "2", description: "What to solve: today's mix, sheets like Striver A2Z, upsolves and problems by topic" },
+  { to: "/", label: "Today", icon: Sun, shortcut: "1", description: "What to do today: quests, today's mix, your streak and rating", beginnerDescription: "Your next lesson on the Beginner Path, and today's quests" },
+  { to: "/practice", label: "Practice", icon: Target, shortcut: "2", description: "What to solve: today's mix, sheets like Striver A2Z, upsolves and problems by topic", beginnerDescription: "The Beginner Path's lessons, sheets like Striver A2Z, and today's mix" },
   { to: "/progress", label: "Progress", icon: LineChart, shortcut: "3", description: "How you're growing: rating, level, weekly goals, topics and achievements", alsoActiveOn: ["/topics"] },
   { to: "/contests", label: "Contests", icon: CalendarDays, shortcut: "4", description: "Upcoming rounds, reminders and your past results" },
 ];
@@ -39,4 +41,9 @@ export function isNavItemActive(item: NavItem, pathname: string) {
 /** The nav item a path belongs to (for the subtitle under the screen title). */
 export function navItemFor(pathname: string): NavItem | undefined {
   return ALL_NAV.find((n) => isNavItemActive(n, pathname));
+}
+
+/** The one-line description for the current mode. */
+export function describe(item: NavItem, beginner: boolean): string {
+  return (beginner && item.beginnerDescription) || item.description;
 }

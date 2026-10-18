@@ -14,6 +14,8 @@ import {
   type TickRow,
 } from "@/engine/sheets";
 import type { TopicReport } from "@/engine/report";
+import { pathAsSheet, type BeginnerPath } from "@/engine/path";
+import { readPrefs } from "./prefs";
 import { topicReportQuery } from "./queries";
 import { getRepo } from "./syncStore";
 import type { Repo } from "./repo";
@@ -24,47 +26,40 @@ import type { Repo } from "./repo";
  * a sync re-ticks everything on its own.
  */
 
-/** The Beginner Path's id as a sheet (src/data/path.ts registers it). */
+/** The Beginner Path's id as a sheet: its steps are the sections (src/data/path/beginner-path.json). */
 export const PATH_SHEET_ID = "beginner-path";
 
-/** Display order. The Beginner Path is listed first. */
+/** The bundled sheets, in display order. */
 export const SHEET_IDS = ["striver-a2z", "striver-sde", "neetcode-150", "blind-75", "babbar-450"] as const;
 
 // Each sheet is its own chunk: Today loads only the one you follow.
-const LOADERS: Record<string, () => Promise<{ default: unknown }>> = {
-  "striver-a2z": () => import("./sheets/striver-a2z.json"),
-  "striver-sde": () => import("./sheets/striver-sde.json"),
-  "neetcode-150": () => import("./sheets/neetcode-150.json"),
-  "blind-75": () => import("./sheets/blind-75.json"),
-  "babbar-450": () => import("./sheets/babbar-450.json"),
+const LOADERS: Record<string, () => Promise<Sheet>> = {
+  [PATH_SHEET_ID]: () => import("./path/beginner-path.json").then((m) => pathAsSheet(m.default as unknown as BeginnerPath)),
+  "striver-a2z": () => import("./sheets/striver-a2z.json").then((m) => m.default as Sheet),
+  "striver-sde": () => import("./sheets/striver-sde.json").then((m) => m.default as Sheet),
+  "neetcode-150": () => import("./sheets/neetcode-150.json").then((m) => m.default as Sheet),
+  "blind-75": () => import("./sheets/blind-75.json").then((m) => m.default as Sheet),
+  "babbar-450": () => import("./sheets/babbar-450.json").then((m) => m.default as Sheet),
 };
-
-/** Extra sheets registered at runtime (the Beginner Path, built from its lessons). */
-const EXTRA = new Map<string, () => Promise<Sheet>>();
-export function registerSheet(id: string, load: () => Promise<Sheet>) {
-  EXTRA.set(id, load);
-}
 
 const cache = new Map<string, Promise<Sheet>>();
 export function loadSheet(id: string): Promise<Sheet> {
   let p = cache.get(id);
   if (!p) {
-    const extra = EXTRA.get(id);
     const loader = LOADERS[id];
-    if (extra) p = extra();
-    else if (loader) p = loader().then((m) => m.default as Sheet);
-    else return Promise.reject(new Error(`Unknown sheet "${id}"`));
-    cache.set(id, p);
+    if (!loader) return Promise.reject(new Error(`Unknown sheet "${id}"`));
+    cache.set(id, (p = loader()));
   }
   return p;
 }
 
 export function isSheetId(id: string | null | undefined): id is string {
-  return !!id && (id in LOADERS || EXTRA.has(id));
+  return !!id && id in LOADERS;
 }
 
-export function allSheetIds(): string[] {
-  return [...EXTRA.keys(), ...SHEET_IDS];
+/** Every sheet the Sheets tab lists: the Beginner Path first in Beginner mode, last otherwise. */
+export function allSheetIds(beginner = false): string[] {
+  return beginner ? [PATH_SHEET_ID, ...SHEET_IDS] : [...SHEET_IDS, PATH_SHEET_ID];
 }
 
 // ---------- what's solved ----------
@@ -135,7 +130,7 @@ export function useSheets() {
     structuralSharing: false,
     queryFn: async ({ client }) => {
       const [sheets, idx, report] = await Promise.all([
-        Promise.all(allSheetIds().map(loadSheet)),
+        readPrefs().then((p) => Promise.all(allSheetIds(p.mode === "beginner").map(loadSheet))),
         buildSolveIndex(await getRepo()),
         client.fetchQuery(topicReportQuery),
       ]);

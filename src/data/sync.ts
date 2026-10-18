@@ -138,10 +138,10 @@ async function syncCodeforces(deps: SyncDeps, now: () => number): Promise<Platfo
   const result: PlatformSyncResult = { platform: "cf", ok: true, offline: false, errors: [], steps: [] };
   const ctx: StepCtx = { repo, now, retryDelaysMs: deps.retryDelaysMs ?? NETWORK_RETRY_DELAYS_MS, onStep: deps.onStep };
 
-  // Defense in depth: an empty handle is "not set", never a handle change that clears history.
+  // No handle (Beginner mode makes it optional): nothing to sync. Defense in depth: an empty handle is
+  // "not set", never a handle change that clears history.
   if (!handle.trim()) {
-    result.ok = false;
-    result.errors.push("No Codeforces handle");
+    result.steps.push({ kind: "cf:user", status: "skipped", items: 0, message: "No Codeforces handle" });
     return result;
   }
   const stored = await repo.getProfile("cf");

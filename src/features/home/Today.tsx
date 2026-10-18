@@ -11,6 +11,7 @@ import { useTodayQuests } from "@/data/quests";
 import { useHandles } from "@/data/settings";
 import { usePrefs } from "@/data/prefs";
 import { FollowedSheetCard } from "@/features/sheets/FollowedSheetCard";
+import { BeginnerToday } from "./BeginnerToday";
 import type { CfRatingChange, CfUser, Contest } from "@/data/types";
 import type { QuestState } from "@/engine/quests";
 import { QuestBar, useRewardPulse } from "@/features/quests/QuestList";
@@ -181,7 +182,7 @@ function TodayQuest({ q }: { q: QuestState }) {
 }
 
 /** Today's quests and the streak. "Am I on track?" in one card. */
-function TodayCard() {
+function TodayCard({ withStreak = true }: { withStreak?: boolean }) {
   const streak = useStreak();
   const state = flameState(streak);
   const atRisk = streakAtRisk(streak);
@@ -199,33 +200,36 @@ function TodayCard() {
           </Pill>
         )}
       </div>
-      <div className="flex items-center gap-3">
-        <span
-          className={cn(
-            "grid size-10 shrink-0 place-items-center rounded-md",
-            state === "lit" ? "bg-[color-mix(in_oklab,var(--ember)_16%,transparent)]" : "bg-abyss-sunken",
-            atRisk && "animate-[ember-breathe_2s_ease-in-out_infinite]",
-          )}
-        >
-          <Flame
-            aria-hidden
-            className={cn("size-5", state === "none" ? "text-ink-faint" : "text-ember")}
-            fill={state === "lit" ? "url(#ember-gradient)" : "none"}
-            strokeWidth={1.7}
-          />
-        </span>
-        <p className="min-w-0 text-body-sm">
-          <span className="numeric font-display text-title font-semibold text-ink">{streak ? streak.current : "–"}</span>
-          <span className="text-ink-muted"> day streak, </span>
-          {!streak ? (
-            <span className="text-ink-muted">waiting for the first sync</span>
-          ) : state === "lit" ? (
-            <span className="text-ink">practiced today ({plural(streak.todayCount, "solve")})</span>
-          ) : (
-            <span className={atRisk ? "text-warning" : "text-ink"}>solve one problem to {streak.current > 0 ? "keep it" : "start one"}</span>
-          )}
-        </p>
-      </div>
+      {/* Beginner mode without a handle has no activity to count, so no empty streak line. */}
+      {withStreak && (
+        <div className="flex items-center gap-3">
+          <span
+            className={cn(
+              "grid size-10 shrink-0 place-items-center rounded-md",
+              state === "lit" ? "bg-[color-mix(in_oklab,var(--ember)_16%,transparent)]" : "bg-abyss-sunken",
+              atRisk && "animate-[ember-breathe_2s_ease-in-out_infinite]",
+            )}
+          >
+            <Flame
+              aria-hidden
+              className={cn("size-5", state === "none" ? "text-ink-faint" : "text-ember")}
+              fill={state === "lit" ? "url(#ember-gradient)" : "none"}
+              strokeWidth={1.7}
+            />
+          </span>
+          <p className="min-w-0 text-body-sm">
+            <span className="numeric font-display text-title font-semibold text-ink">{streak ? streak.current : "–"}</span>
+            <span className="text-ink-muted"> day streak, </span>
+            {!streak ? (
+              <span className="text-ink-muted">waiting for the first sync</span>
+            ) : state === "lit" ? (
+              <span className="text-ink">practiced today ({plural(streak.todayCount, "solve")})</span>
+            ) : (
+              <span className={atRisk ? "text-warning" : "text-ink"}>solve one problem to {streak.current > 0 ? "keep it" : "start one"}</span>
+            )}
+          </p>
+        </div>
+      )}
       {data ? (
         <ul className="flex flex-col gap-2">
           {data.quests.map((q) => (
@@ -351,6 +355,14 @@ function LcCard({ lc }: { lc: LcStatsRow }) {
  * and the later contests.
  */
 export function Today() {
+  const prefs = usePrefs();
+  // Wait for the mode, so a beginner never sees the smart layout flash first.
+  if (prefs.isLoading) return null;
+  if (prefs.data?.mode === "beginner") return <BeginnerToday quests={(connected) => <TodayCard withStreak={connected} />} />;
+  return <SmartToday />;
+}
+
+function SmartToday() {
   const { data, isLoading } = useHomeData();
   const report = useTopicReport();
   const upcoming = data?.upcoming ?? [];

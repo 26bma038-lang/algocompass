@@ -13,6 +13,8 @@ const TopicDetail = lazy(() => import("@/features/topic/TopicDetail").then((m) =
 const Practice = lazy(() => import("@/features/practice/Practice").then((m) => ({ default: m.Practice })));
 const PracticeIndex = lazy(() => import("@/features/practice/PracticeIndex").then((m) => ({ default: m.PracticeIndex })));
 const PracticeMix = lazy(() => import("@/features/practice/Practice").then((m) => ({ default: m.PracticeMix })));
+const PathView = lazy(() => import("@/features/path/PathView").then((m) => ({ default: m.PathView })));
+const Lesson = lazy(() => import("@/features/path/Lesson").then((m) => ({ default: m.Lesson })));
 const SheetList = lazy(() => import("@/features/sheets/SheetList").then((m) => ({ default: m.SheetList })));
 const SheetView = lazy(() => import("@/features/sheets/SheetView").then((m) => ({ default: m.SheetView })));
 const Progress = lazy(() => import("@/features/progress/Progress").then((m) => ({ default: m.Progress })));
@@ -39,6 +41,8 @@ export const router = createHashRouter([
           { path: "mix", element: <PracticeMix /> },
           { path: "sheets", element: <SheetList /> },
           { path: "sheets/:sheetId", element: <SheetView /> },
+          { path: "path", element: <PathView /> },
+          { path: "path/:stepId", element: <Lesson /> },
         ],
       },
       {

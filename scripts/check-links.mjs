@@ -182,5 +182,9 @@ if (!quiet) console.log(`ok    ${lcOk}/${problems.length} curated LeetCode probl
 const { checkSheets } = await import("./lib/check-sheets.mjs");
 failures += await checkSheets({ root, report, quiet, deep: process.argv.includes("--deep") });
 
+// ---- 5. Beginner Path problems and every video (oEmbed: 200, title and channel match). ----
+const { checkMedia } = await import("./lib/check-media.mjs");
+failures += await checkMedia({ root, report, quiet });
+
 console.log(failures ? `\n${failures} problem(s) found.` : "\nAll links verified.");
 process.exit(failures ? 1 : 0);

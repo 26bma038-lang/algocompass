@@ -1,4 +1,5 @@
-import { Link, useLocation, useMatches, type Params } from "react-router-dom";
+import { Link, useLocation, useMatches, type Params, useNavigate } from "react-router-dom";
+import { hasAnyHandle, useHandles } from "@/data/settings";
 import { useEffect, useState } from "react";
 import { AlertTriangle, Check, CloudOff, Flame, RefreshCw, ScrollText, Search } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -10,7 +11,8 @@ import { XP_KIND_LABEL, type XpSummary } from "@/engine/xp";
 import { syncStatus, useSyncStore } from "@/data/syncStore";
 import { cn } from "@/lib/utils";
 import { AscentBar } from "./AscentBar";
-import { navItemFor } from "./nav";
+import { describe, navItemFor } from "./nav";
+import { usePrefs } from "@/data/prefs";
 import { useRankAccent } from "./useRankAccent";
 import { flameState, useStreak } from "./useStreak";
 import type { Streak } from "@/engine/activity";
@@ -211,6 +213,8 @@ const PLATFORM = { cf: "Codeforces", lc: "LeetCode" } as const;
 /** Manual sync control + status: syncing / synced Xm ago / offline, will retry / incomplete. */
 function SyncButton() {
   const { syncing, lastResult, lastFinishedAt, run } = useSyncStore();
+  const handles = useHandles();
+  const navigate = useNavigate();
   const [nowMs, setNowMs] = useState(() => Date.now());
   useEffect(() => {
     const t = window.setInterval(() => setNowMs(Date.now()), 60_000);
@@ -237,6 +241,27 @@ function SyncButton() {
     partial: `${names(failed)} failed. Click to retry`,
     ok: "Sync now",
   }[status];
+
+  // Beginner mode with no handles: nothing to sync, so point at where to add one instead.
+  if (handles.data && !hasAnyHandle(handles.data)) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            onClick={() => navigate("/settings")}
+            className="flex h-8 items-center gap-1.5 rounded-full px-2.5 text-label text-ink-muted transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover hover:text-ink"
+          >
+            <RefreshCw aria-hidden className="size-3.5" strokeWidth={1.8} />
+            <span>No handles yet</span>
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom" className="max-w-[280px]">
+          Add a LeetCode or Codeforces username in Settings and your solves tick themselves
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
 
   return (
     <Tooltip>
@@ -273,7 +298,9 @@ function SyncButton() {
 
 export function TopBar() {
   const title = useScreenTitle();
-  const subtitle = navItemFor(useLocation().pathname)?.description;
+  const beginner = usePrefs().data?.mode === "beginner";
+  const navItem = navItemFor(useLocation().pathname);
+  const subtitle = navItem && describe(navItem, beginner);
   const rating = useRankAccent();
   const streak = useStreak();
   const xp = useProgression().data?.xp;

@@ -8,6 +8,7 @@ import { useUiStore } from "@/data/uiStore";
 import { bandForRating, RANK_BANDS } from "@/lib/rank";
 import { titleForLevel } from "@/engine/xp";
 import { cn } from "@/lib/utils";
+import { PREVIEW, startPreview } from "@/lib/sandbox";
 
 const time = (s: number) => new Date(s * 1000).toLocaleString();
 
@@ -75,6 +76,31 @@ function TopicReportSection() {
   );
 }
 
+/**
+ * Preview a profile without touching your real data: the app reloads on a separate, wiped database
+ * and in-memory settings (src/lib/sandbox.ts). Exit from the banner at the top.
+ */
+function ProfilePreviews() {
+  return (
+    <section className="glass-card flex flex-wrap items-center gap-3 p-5">
+      <div className="mr-auto flex flex-col gap-0.5">
+        <h2 className="text-title font-semibold">Preview a profile</h2>
+        <p className="max-w-[68ch] text-body-sm text-ink-muted">
+          {PREVIEW
+            ? "A preview is running. Exit it from the banner at the top."
+            : "Reloads on a separate, empty database and in-memory settings. Your real data, settings, reminders and tray stay as they are."}
+        </p>
+      </div>
+      <Button size="sm" disabled={!!PREVIEW} onClick={() => startPreview("beginner")}>
+        Preview a fresh beginner
+      </Button>
+      <Button size="sm" variant="outline" disabled={!!PREVIEW} onClick={() => startPreview("welcome")}>
+        Preview first launch
+      </Button>
+    </section>
+  );
+}
+
 /** Previews of the progression moments. They change nothing: your real rank comes back after. */
 function CeremonyPreviews() {
   const start = useUiStore((s) => s.startCeremony);
@@ -106,6 +132,7 @@ export function Debug() {
 
   return (
     <div className="flex flex-col gap-6">
+      <ProfilePreviews />
       <CeremonyPreviews />
       <section className="glass-card flex flex-wrap items-center gap-3 p-5">
         <h2 className="mr-auto text-title font-semibold">Sync</h2>

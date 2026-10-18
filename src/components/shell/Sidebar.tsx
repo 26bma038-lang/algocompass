@@ -1,11 +1,12 @@
 import { useState } from "react";
+import { usePrefs } from "@/data/prefs";
 import { NavLink, useLocation } from "react-router-dom";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useUiStore } from "@/data/uiStore";
 import { cn } from "@/lib/utils";
-import { isNavItemActive, PRIMARY_NAV, SETTINGS_NAV, type NavItem } from "./nav";
+import { isNavItemActive, PRIMARY_NAV, SETTINGS_NAV, type NavItem, describe } from "./nav";
 
 // Pattern adapted from 21st.dev animated sidebars (spring icon-rail collapse, traveling
 // hover highlight, shared-layout active indicator), rebuilt on DESIGN.md tokens.
@@ -84,6 +85,7 @@ function SidebarLink({
   );
 
   // Hover or focus: what the screen is for, in one line (and the name, when the rail is collapsed).
+  const beginner = usePrefs().data?.mode === "beginner";
   return (
     <Tooltip>
       <TooltipTrigger asChild>{link}</TooltipTrigger>
@@ -92,7 +94,7 @@ function SidebarLink({
           {item.label}
           <kbd className="numeric rounded-xs border border-glass-border-strong px-1 text-label font-normal text-ink-muted">Ctrl {item.shortcut}</kbd>
         </span>
-        <span className="text-label text-ink-muted">{item.description}</span>
+        <span className="text-label text-ink-muted">{describe(item, beginner)}</span>
       </TooltipContent>
     </Tooltip>
   );

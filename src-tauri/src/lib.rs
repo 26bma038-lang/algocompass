@@ -15,6 +15,9 @@ use tauri_plugin_store::StoreExt;
 
 /// Must match `DB_URL` in src/data/db.ts.
 const DB_URL: &str = "sqlite:algocompass.db";
+/// Debug → preview profile (src/lib/sandbox.ts): a separate database with the same schema, so a
+/// preview never touches the real one. Must match `PREVIEW_DB_URL` in src/data/db.ts.
+const PREVIEW_DB_URL: &str = "sqlite:algocompass-preview.db";
 
 /// Passed by the autostart entry: start hidden in the tray.
 const MINIMIZED_ARG: &str = "--minimized";
@@ -173,6 +176,7 @@ pub fn run() {
         .plugin(
             tauri_plugin_sql::Builder::new()
                 .add_migrations(DB_URL, migrations())
+                .add_migrations(PREVIEW_DB_URL, migrations())
                 .build(),
         )
         .plugin(tauri_plugin_opener::init())

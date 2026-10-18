@@ -1,4 +1,5 @@
 import { invoke, isTauri } from "@tauri-apps/api/core";
+import { PREVIEW } from "./sandbox";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 
 /**
@@ -21,6 +22,7 @@ async function canNotify(): Promise<boolean> {
 
 /** A Windows toast. Fails soft: a blocked notification never breaks the caller. */
 export async function notify(title: string, body: string): Promise<void> {
+  if (PREVIEW) return; // A preview profile never reaches the OS.
   try {
     if (!(await canNotify())) return;
     const { sendNotification } = await import("@tauri-apps/plugin-notification");
@@ -43,7 +45,8 @@ export interface ScheduledReminder {
 
 /** Replaces the whole reminder schedule. Rust remembers what it already fired, across restarts. */
 export async function pushSchedule(items: readonly ScheduledReminder[]): Promise<void> {
-  if (!isTauri()) return;
+  // A preview profile must not replace your real reminder schedule.
+  if (!isTauri() || PREVIEW) return;
   try {
     // Make sure permission was asked before the first reminder is due.
     if (items.length) await canNotify();
@@ -55,7 +58,7 @@ export async function pushSchedule(items: readonly ScheduledReminder[]): Promise
 
 /** The tray menu's status line ("Quests 1/3") and tooltip. */
 export async function setTrayStatus(text: string): Promise<void> {
-  if (!isTauri()) return;
+  if (!isTauri() || PREVIEW) return;
   try {
     await invoke("set_tray_status", { text });
   } catch {
@@ -101,6 +104,7 @@ export async function autostartEnabled(): Promise<boolean | null> {
 
 export async function setAutostart(on: boolean): Promise<void> {
   if (!isTauri()) throw new Error("Launch on startup only works in the desktop app");
+  if (PREVIEW) throw new Error("Not changed in a preview profile: exit the preview to change it");
   const { enable, disable } = await import("@tauri-apps/plugin-autostart");
   await (on ? enable() : disable());
 }

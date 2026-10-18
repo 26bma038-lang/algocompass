@@ -4,7 +4,7 @@ import type { LeetCodeAdapter } from "@/adapters/leetcode";
 import { AdapterError } from "@/adapters/http";
 import { memoryRepo } from "@/test/sqljs";
 import { checkHandles, describeFailure } from "./onboarding";
-import { DEFAULT_HANDLES, resolveHandles, type Handles } from "./settings";
+import { DEFAULT_HANDLES, hasAnyHandle, resolveAppHandles, resolveHandles, type Handles } from "./settings";
 import { syncAll } from "./sync";
 
 const cfUser = (handle: string) => ({ handle, rating: 1008, maxRating: 1008, rank: "newbie", maxRank: "newbie", avatar: null, registeredAt: 1 });
@@ -97,11 +97,45 @@ describe("sync without handles", () => {
     expect(lc.getProfile).not.toHaveBeenCalled();
   });
 
-  it("never treats an empty Codeforces handle as a handle change (no wipe)", async () => {
+  it("skips Codeforces when the handle is empty (optional in Beginner mode), and never treats it as a handle change (no wipe)", async () => {
     const repo = await memoryRepo();
     await repo.saveProfile("cf", "enkrid", cfUser("enkrid"), 1);
     const res = await run(repo, { codeforces: "", leetcode: "" });
-    expect(res.cf.ok).toBe(false);
+    expect(res.cf.ok).toBe(true);
+    expect(res.cf.steps).toEqual([expect.objectContaining({ kind: "cf:user", status: "skipped" })]);
     expect((await repo.getProfile("cf"))?.handle).toBe("enkrid");
+  });
+});
+
+describe("resolveAppHandles (v1.3: Beginner mode, handles optional)", () => {
+  const src = (saved: Handles | null, onboarded: boolean, all: Handles = DEFAULT_HANDLES) => ({
+    readSaved: async () => saved,
+    write: async () => undefined,
+    onboarded: async () => onboarded,
+    readAll: async () => all,
+  });
+
+  it("shows the welcome screen on a fresh install (nothing saved, not onboarded)", async () => {
+    expect(await resolveAppHandles({ ...src(null, false), repo: await memoryRepo() })).toBeNull();
+  });
+
+  it("lets an onboarded beginner in with no handles at all", async () => {
+    expect(await resolveAppHandles({ ...src(null, true), repo: await memoryRepo() })).toEqual({ codeforces: "", leetcode: "" });
+  });
+
+  it("gives an onboarded beginner their LeetCode-only handles", async () => {
+    const lcOnly = { codeforces: "", leetcode: "someone" };
+    expect(await resolveAppHandles({ ...src(null, true, lcOnly), repo: await memoryRepo() })).toEqual(lcOnly);
+  });
+
+  it("leaves existing smart-mode installs exactly as before (their Codeforces handle wins, no flag needed)", async () => {
+    const h = { codeforces: "enkrid", leetcode: "xfO61DFAh6" };
+    expect(await resolveAppHandles({ ...src(h, false), repo: await memoryRepo() })).toEqual(h);
+  });
+
+  it("knows when there's nothing to sync", () => {
+    expect(hasAnyHandle({ codeforces: "", leetcode: "" })).toBe(false);
+    expect(hasAnyHandle({ codeforces: "", leetcode: "x" })).toBe(true);
+    expect(hasAnyHandle(null)).toBe(false);
   });
 });

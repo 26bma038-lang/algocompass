@@ -76,6 +76,50 @@ Not merged or released: waiting for your review.
   - smart next jumped to a prefix-sums problem in Step 4.
   It also caught a bug: newer Chromium returns a Promise from `scrollIntoView`, so an arrow-body effect returned it and React crashed on cleanup. Fixed.
 
+### Part 4: Beginner Path and mode choice
+- **Onboarding** (`Welcome.tsx`) is one form:
+  1. "New to DSA?" as two radio cards ("Yes, I'm new" / "No, I already practise");
+  2. the video language (English / Hindi);
+  3. handles.
+  - **Beginner:** both handles are optional. "Start learning" checks any handle you typed, saves, and opens Today right away. The first sync runs in the background, so a beginner is learning in under a minute.
+  - **Smart:** the flow from before (Codeforces required, first sync with its step list).
+  Both modes set a new `onboarded` flag, so a beginner with no handles never sees the welcome screen again. Existing installs don't need the flag: their Codeforces handle already gets them past onboarding.
+- **Mode, language and followed sheet** are prefs: `mode` (smart by default, so **existing users stay in smart mode**), `videoLang` and `followedSheet`. Settings has a new **Mode** card (Beginner / Smart, plus the lesson video language). In Beginner mode Settings marks the Codeforces handle optional, and removing it clears its cache (otherwise the old profile would be re-adopted on start).
+- **Sync without handles:** an empty Codeforces handle is now a skipped step (it used to be a failed one). It still never counts as a handle change, so nothing is wiped. With no handles at all, sync doesn't run, and the top bar says "No handles yet" with a link to Settings instead of "Not synced".
+- **Beginner Path** (`src/data/path/beginner-path.json`, `src/engine/path.ts`, `src/data/path.ts`) has 14 steps in the agreed order: Basics → Arrays → Strings → Hashing → Two Pointers → Sliding Window → Stack and Queue → Binary Search → Recursion → Linked List → Trees → Graphs → Greedy → Dynamic Programming.
+  - **Each step is a lesson:**
+    - **Watch:** one main video plus 1–2 extras per language.
+    - **Read:** five lines, in my own words: when to use it, the idea (2 lines), common mistakes (2 lines).
+    - **Solve:** 4–5 problems, the first 3 required.
+  - **Problems** are LeetCode Easy and free, plus two Codeforces bonus problems (4A Watermelon, 230A Dragons). All are verified, and titles and difficulty come from the platforms (`npm run fill:media`).
+  - **Topics:** each step maps to unified topics (basics → implementation and math, hashing → arrays-hashing, sliding window → two-pointers…), so the topic engine and Topics map stay consistent.
+  - **As a sheet:** the path is exposed as a sheet (steps are sections), so ticks, cross-sheet matching and the daily sheet quest all work on it. Two Sum in the path is the same key as in A2Z.
+  - **Unlocking:** a step is done when its main video (either language) is marked watched and its required problems are solved. That unlocks the next. Done steps are recorded in `path_steps`, so they never re-lock if you untick something later. Steps unlock strictly in order: solving a later step's problems early doesn't skip ahead.
+  - **Finishing a step** plays the restrained reward (the aura pulse on the step) once, with a toast naming what unlocked. No confetti.
+- **Path view** (Practice → Beginner Path, `/practice/path`): steps done (n/14), the section strip with one segment per step (the current one filling as you watch and solve), Continue, the language toggle, and the 14 steps as a list (Done / the next action / Locked).
+- **Lesson page** (`/practice/path/:step`):
+  - **Header:** "Step 3 of 14", the title, and two status pills (main video watched; n/3 required problems).
+  - **1. Watch:** the player, Mark as watched, Watch on YouTube, and the extras (play them in place).
+  - **2. Read:** the five lines.
+  - **3. Solve:** tick boxes, required or extra, LeetCode or Codeforces, and Open.
+  - **States:** a done step shows "Step done. Step 4 is unlocked" with Go to step 4. A locked step shows only Read, with "Locked. It opens when step 3 is done" and a button to the current step.
+- **Today in Beginner mode** (`BeginnerToday.tsx`) leads with one big **Start here** card: "Step 3 of 14: Hashing", the subtitle, "Watch 12 min · then solve 2 problems", the 14-step strip and **one primary button**. Today's quests sit beside it; they work without handles, since hand ticks count. The streak line only appears once a handle is connected. There's no rating hero, chart, heatmap or contest card. Until you add a handle, a small card explains how solves can tick themselves.
+- **In Beginner mode,** Practice leads with the Beginner Path tab (Path · Sheets · Today's mix), and `/practice` lands there. Screen subtitles and sidebar hints have beginner wording. The path counts as the followed sheet for the daily quest ("Solve 1 problem from Beginner Path").
+- **Debug → Preview a profile.** "Preview a fresh beginner" and "Preview first launch" reload the app on a **separate database** (`sqlite:algocompass-preview.db`, migrated like the real one and wiped on entry; in-memory in the browser) and **in-memory settings**. While a preview runs:
+  - the reminder schedule, tray text, notifications, autostart and the theme mirror are never written;
+  - a banner under the title bar says it's a preview and offers Exit preview.
+- **Tests:**
+  - `src/engine/path.test.ts` (25): the path's shape, unlocking, re-lock safety, order, rewards once, the Start here line;
+  - `src/data/prefs.test.ts` (4): mode switching, and existing installs staying smart;
+  - `onboarding.test.ts` (+5): onboarded beginners with no handles or LeetCode only, smart installs unchanged.
+
+**Decisions (Part 4)**
+- **Required problems:** 3 per step, with 1–2 more as extra practice. "Required problems" needed a number, and 3 keeps a step to roughly a sitting.
+- **Main video:** the main video in either language counts as watched. Switching language shouldn't undo progress.
+- **Locked steps can be read but not worked:** Read is shown, Watch and Solve aren't. That way the order means something without hiding what's coming.
+- **Quests for beginners without handles** stay on Today, because hand ticks complete them and the top bar already counts them. Only the streak line waits for a handle, since there's no activity to count.
+- **Subtitles:** Today and Practice have beginner-mode subtitles, so they don't promise a rating that isn't there.
+
 **Decisions (Part 3)**
 - **Sheets is a Practice tab**, not a fifth screen, as asked. Beginner mode adds a Beginner Path tab first (Part 4), and `/practice` sends beginners there.
 - **Source quirks are kept.** takeUforward links some different items to the same LeetCode problem (Step 4's "Longest subarray with sum K" and "Largest subarray with sum 0" both link LeetCode 325). They share that key, so one tick covers both rows. Section counts say "4 problems" for 5 rows.

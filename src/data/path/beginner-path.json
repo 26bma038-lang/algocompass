@@ -1,0 +1,480 @@
+{
+  "$comment": "The AlgoCompass Beginner Path: 14 steps, each a lesson (Watch, Read, Solve). Hand-curated. Video titles and channels are filled from YouTube oEmbed by scripts/fill-media.mjs (npm run fill:media; never typed by hand); minutes come from YouTube's own listing. Problems are verified by npm run check:links (LeetCode GraphQL, Codeforces problemset.problems). `required` problems plus the main video in either language finish a step.",
+  "id": "beginner-path",
+  "name": "AlgoCompass Beginner Path",
+  "short": "Beginner Path",
+  "creator": "AlgoCompass",
+  "steps": [
+    {
+      "id": "basics",
+      "title": "Basics",
+      "subtitle": "Complexity and loops",
+      "topics": ["implementation", "math"],
+      "read": {
+        "when": "Always: every solution is loops and conditions, and complexity tells you whether it's fast enough before you submit.",
+        "idea": [
+          "Count how many times the innermost line runs as the input grows: one loop over n is O(n), a loop inside a loop is O(n²).",
+          "About 10⁸ simple operations run in a second, so with n = 10⁵ an O(n²) idea is too slow and you need O(n) or O(n log n)."
+        ],
+        "mistakes": [
+          "Off-by-one loop bounds (< vs <=) and forgetting the empty or single-element input.",
+          "Integer overflow when sums or products pass about 2·10⁹: use long long (C++) or long (Java)."
+        ]
+      },
+      "videos": {
+        "en": [
+          { "id": "rv_ZacJYRFA", "role": "main", "minutes": 15, "title": "Big-O Notation - Everything you Need for Coding Interviews", "channel": "NeetCode" },
+          { "id": "9TlHvipP5yA", "role": "extra", "minutes": 10, "title": "1.5.1 Time Complexity #1", "channel": "Abdul Bari" },
+          { "id": "zUUkiEllHG0", "role": "extra", "minutes": 13, "title": "Introduction to Big-O", "channel": "WilliamFiset" }
+        ],
+        "hi": [
+          { "id": "bQssdSrSGNE", "role": "main", "minutes": 22, "title": "Basics of Time Complexity and Space Complexity | Java | Complete Placement Course | Lecture 9", "channel": "Apna College" },
+          { "id": "IlIn_D1RT7M", "role": "extra", "minutes": 10, "title": "2.4 Introduction to Loops in C++ programming | Guaranteed Placement Course | Lecture 2.4", "channel": "Apna College" },
+          { "id": "M0tgJaQAo60", "role": "extra", "minutes": 27, "title": "Time Complexity Analysis and Constraints | Competitive Programming Course | EP 10", "channel": "Luv" }
+        ]
+      },
+      "problems": [
+        { "key": "lc:fizz-buzz", "title": "Fizz Buzz", "difficulty": "Easy", "topics": ["implementation", "math", "strings"], "lc": "fizz-buzz", "required": true },
+        { "key": "lc:running-sum-of-1d-array", "title": "Running Sum of 1d Array", "difficulty": "Easy", "topics": ["implementation", "math", "arrays-hashing", "prefix-sums"], "lc": "running-sum-of-1d-array", "required": true },
+        { "key": "lc:richest-customer-wealth", "title": "Richest Customer Wealth", "difficulty": "Easy", "topics": ["implementation", "math", "arrays-hashing"], "lc": "richest-customer-wealth", "required": true },
+        { "key": "cf:4-A", "title": "Watermelon", "difficulty": null, "rating": 800, "topics": ["implementation", "math", "brute-force"], "cf": "4-A", "required": false }
+      ]
+    },
+    {
+      "id": "arrays",
+      "title": "Arrays",
+      "subtitle": "Indexing, traversal and in-place updates",
+      "topics": ["arrays-hashing"],
+      "read": {
+        "when": "The input is a list of numbers and you need to scan, count, rearrange or update it.",
+        "idea": [
+          "One pass with a few variables (a running count, the best so far) solves most easy array problems in O(n).",
+          "To change an array in place, keep a write index that only moves when you keep an element."
+        ],
+        "mistakes": [
+          "Reading a[i + 1] or a[i - 1] past the ends of the array.",
+          "Changing the array while you still need its old values: copy them first or write behind the read index."
+        ]
+      },
+      "videos": {
+        "en": [
+          { "id": "PEnFFiQe1pM", "role": "main", "minutes": 12, "title": "Dynamic and Static Arrays", "channel": "WilliamFiset" },
+          { "id": "37E9ckMDdTk", "role": "extra", "minutes": 43, "title": "Find Second Largest Element in Array | Remove duplicates from Sorted Array | Arrays Intro Video", "channel": "take U forward" }
+        ],
+        "hi": [
+          { "id": "PyTK_g1l8V8", "role": "main", "minutes": 13, "title": "8.1 Introduction to Arrays in C++ | Guaranteed Placement Course", "channel": "Apna College" },
+          { "id": "13ocRMSJy5M", "role": "extra", "minutes": 13, "title": "8.2 Searching in Arrays | Linear and Binary Search | C++ Placement Course |", "channel": "Apna College" }
+        ]
+      },
+      "problems": [
+        { "key": "lc:concatenation-of-array", "title": "Concatenation of Array", "difficulty": "Easy", "topics": ["arrays-hashing", "implementation"], "lc": "concatenation-of-array", "required": true },
+        { "key": "lc:max-consecutive-ones", "title": "Max Consecutive Ones", "difficulty": "Easy", "topics": ["arrays-hashing"], "lc": "max-consecutive-ones", "required": true },
+        { "key": "lc:move-zeroes", "title": "Move Zeroes", "difficulty": "Easy", "topics": ["arrays-hashing", "two-pointers"], "lc": "move-zeroes", "required": true },
+        { "key": "lc:remove-duplicates-from-sorted-array", "title": "Remove Duplicates from Sorted Array", "difficulty": "Easy", "topics": ["arrays-hashing", "two-pointers"], "lc": "remove-duplicates-from-sorted-array", "required": false }
+      ]
+    },
+    {
+      "id": "strings",
+      "title": "Strings",
+      "subtitle": "Characters, building and comparing",
+      "topics": ["strings"],
+      "read": {
+        "when": "The input is text: words, characters, palindromes, prefixes.",
+        "idea": [
+          "A string is an array of characters, so the array patterns (one pass, indexes from both ends) carry over.",
+          "Build new strings with a list or StringBuilder, then join once, instead of adding to a string in a loop."
+        ],
+        "mistakes": [
+          "Mixing up characters and their codes: 'a' - 'a' is 0, and upper and lower case differ.",
+          "Repeated string concatenation in a loop, which can quietly turn O(n) into O(n²)."
+        ]
+      },
+      "videos": {
+        "en": [
+          { "id": "9UtInBqnCgA", "role": "main", "minutes": 12, "title": "Valid Anagram - Leetcode 242 - Python", "channel": "NeetCode" },
+          { "id": "wiGpQwVHdE0", "role": "extra", "minutes": 7, "title": "Longest Substring Without Repeating Characters - Leetcode 3 - Python", "channel": "NeetCode" }
+        ],
+        "hi": [
+          { "id": "W8hPsBquD6Y", "role": "main", "minutes": 24, "title": "13. Strings in C++  | Guaranteed Placement Course | Lecture 13", "channel": "Apna College" },
+          { "id": "1pVI0yiEBR8", "role": "extra", "minutes": 12, "title": "13.2 Strings Challenges | C++ Placement Course", "channel": "Apna College" }
+        ]
+      },
+      "problems": [
+        { "key": "lc:length-of-last-word", "title": "Length of Last Word", "difficulty": "Easy", "topics": ["strings"], "lc": "length-of-last-word", "required": true },
+        { "key": "lc:reverse-string", "title": "Reverse String", "difficulty": "Easy", "topics": ["strings", "two-pointers"], "lc": "reverse-string", "required": true },
+        { "key": "lc:longest-common-prefix", "title": "Longest Common Prefix", "difficulty": "Easy", "topics": ["strings", "arrays-hashing", "tries"], "lc": "longest-common-prefix", "required": true },
+        { "key": "lc:is-subsequence", "title": "Is Subsequence", "difficulty": "Easy", "topics": ["strings", "two-pointers", "dp"], "lc": "is-subsequence", "required": false }
+      ]
+    },
+    {
+      "id": "hashing",
+      "title": "Hashing",
+      "subtitle": "Sets and maps for instant lookups",
+      "topics": ["arrays-hashing"],
+      "read": {
+        "when": "You keep asking \"have I seen this before?\" or \"how many times does this appear?\"",
+        "idea": [
+          "A hash set answers \"seen it?\" and a hash map stores a count or an index, both in O(1) on average.",
+          "Two Sum's trick: for each number, look up the partner you need before you store the number itself."
+        ],
+        "mistakes": [
+          "Reading a missing key: in C++ map[k] silently creates it, so use count or find first.",
+          "Using a hash map where a 26-slot array would do for lowercase letters."
+        ]
+      },
+      "videos": {
+        "en": [
+          { "id": "2E54GqF0H4s", "role": "main", "minutes": 17, "title": "Hash table hash function", "channel": "WilliamFiset" },
+          { "id": "KLlXCFG5TnA", "role": "extra", "minutes": 8, "title": "Two Sum - Leetcode 1 - HashMap - Python", "channel": "NeetCode" }
+        ],
+        "hi": [
+          { "id": "efET3lxYCkM", "role": "main", "minutes": 19, "title": "Pre-Computation Techniques Basics & Hashing | Competitive Programming Course | EP 12", "channel": "Luv" },
+          { "id": "gUrfXZ0hqoA", "role": "extra", "minutes": 24, "title": "Everything about C++ STL MAPS - Part 1 | Competitive Programming Course | Episode 25", "channel": "Luv" }
+        ]
+      },
+      "problems": [
+        { "key": "lc:contains-duplicate", "title": "Contains Duplicate", "difficulty": "Easy", "topics": ["arrays-hashing", "sorting"], "lc": "contains-duplicate", "required": true },
+        { "key": "lc:valid-anagram", "title": "Valid Anagram", "difficulty": "Easy", "topics": ["arrays-hashing", "strings", "sorting"], "lc": "valid-anagram", "required": true },
+        { "key": "lc:two-sum", "title": "Two Sum", "difficulty": "Easy", "topics": ["arrays-hashing"], "lc": "two-sum", "required": true },
+        { "key": "lc:first-unique-character-in-a-string", "title": "First Unique Character in a String", "difficulty": "Easy", "topics": ["arrays-hashing", "strings", "stacks-queues"], "lc": "first-unique-character-in-a-string", "required": false },
+        { "key": "lc:ransom-note", "title": "Ransom Note", "difficulty": "Easy", "topics": ["arrays-hashing", "strings"], "lc": "ransom-note", "required": false }
+      ]
+    },
+    {
+      "id": "two-pointers",
+      "title": "Two Pointers",
+      "subtitle": "Two indexes moving through the input",
+      "topics": ["two-pointers"],
+      "read": {
+        "when": "The array is sorted, or you compare things from both ends (palindromes, pairs that add up to a target).",
+        "idea": [
+          "Start one index at each end and move the one that can only make the answer better, so each step drops a candidate.",
+          "That turns the O(n²) check of every pair into one O(n) pass."
+        ],
+        "mistakes": [
+          "Stopping at left < right versus left <= right: decide whether both may point at the same element.",
+          "Using it on unsorted input where moving a pointer doesn't tell you anything."
+        ]
+      },
+      "videos": {
+        "en": [
+          { "id": "UuiTKBwPgAo", "role": "main", "minutes": 13, "title": "Container with Most Water - Leetcode 11 - Python", "channel": "NeetCode" },
+          { "id": "cQ1Oz4ckceM", "role": "extra", "minutes": 8, "title": "TWO SUM II - Amazon Coding Interview Question - Leetcode 167 - Python", "channel": "NeetCode" }
+        ],
+        "hi": [
+          { "id": "EbkMABpP52U", "role": "main", "minutes": 32, "title": "Container with Most Water Problem | Brute & Optimal Solution | Two Pointer Approach - Leetcode 11", "channel": "Apna College" },
+          { "id": "BCLfxQja9dI", "role": "extra", "minutes": 6, "title": "Two Pointers | Three Sum Problem | C++ Placement Course | Lecture 26.1", "channel": "Apna College" }
+        ]
+      },
+      "problems": [
+        { "key": "lc:valid-palindrome", "title": "Valid Palindrome", "difficulty": "Easy", "topics": ["two-pointers", "strings"], "lc": "valid-palindrome", "required": true },
+        { "key": "lc:squares-of-a-sorted-array", "title": "Squares of a Sorted Array", "difficulty": "Easy", "topics": ["two-pointers", "arrays-hashing", "sorting"], "lc": "squares-of-a-sorted-array", "required": true },
+        { "key": "lc:merge-sorted-array", "title": "Merge Sorted Array", "difficulty": "Easy", "topics": ["two-pointers", "arrays-hashing", "sorting"], "lc": "merge-sorted-array", "required": true },
+        { "key": "lc:reverse-vowels-of-a-string", "title": "Reverse Vowels of a String", "difficulty": "Easy", "topics": ["two-pointers", "strings"], "lc": "reverse-vowels-of-a-string", "required": false }
+      ]
+    },
+    {
+      "id": "sliding-window",
+      "title": "Sliding Window",
+      "subtitle": "The best contiguous stretch",
+      "topics": ["two-pointers"],
+      "read": {
+        "when": "The question asks about a contiguous subarray or substring: longest, shortest, or the best sum of size k.",
+        "idea": [
+          "Keep a window [left, right]: grow it by moving right, and shrink it from the left only when it breaks the rule.",
+          "Update the window's sum or counts as elements enter and leave, instead of recomputing them each time."
+        ],
+        "mistakes": [
+          "Recomputing the whole window on every step, which is O(n·k) again.",
+          "Forgetting to undo the leaving element's effect (its count or its share of the sum) when left moves."
+        ]
+      },
+      "videos": {
+        "en": [
+          { "id": "gqXU1UyA8pk", "role": "main", "minutes": 21, "title": "Longest Repeating Character Replacement - Leetcode 424 - Python", "channel": "NeetCode" },
+          { "id": "1pkOgXD63yU", "role": "extra", "minutes": 9, "title": "Sliding Window: Best Time to Buy and Sell Stock - Leetcode 121 - Python", "channel": "NeetCode" }
+        ],
+        "hi": [
+          { "id": "EHCGAZBbB88", "role": "main", "minutes": 23, "title": "Sliding Window Introduction Identification And Types", "channel": "Aditya Verma" },
+          { "id": "LV-BgyeH8yo", "role": "extra", "minutes": 16, "title": "Variable Size Sliding Window General Format", "channel": "Aditya Verma" }
+        ]
+      },
+      "problems": [
+        { "key": "lc:maximum-average-subarray-i", "title": "Maximum Average Subarray I", "difficulty": "Easy", "topics": ["two-pointers", "arrays-hashing"], "lc": "maximum-average-subarray-i", "required": true },
+        { "key": "lc:best-time-to-buy-and-sell-stock", "title": "Best Time to Buy and Sell Stock", "difficulty": "Easy", "topics": ["two-pointers", "arrays-hashing", "dp"], "lc": "best-time-to-buy-and-sell-stock", "required": true },
+        { "key": "lc:contains-duplicate-ii", "title": "Contains Duplicate II", "difficulty": "Easy", "topics": ["two-pointers", "arrays-hashing"], "lc": "contains-duplicate-ii", "required": true },
+        { "key": "lc:minimum-difference-between-highest-and-lowest-of-k-scores", "title": "Minimum Difference Between Highest and Lowest of K Scores", "difficulty": "Easy", "topics": ["two-pointers", "arrays-hashing", "sorting"], "lc": "minimum-difference-between-highest-and-lowest-of-k-scores", "required": false }
+      ]
+    },
+    {
+      "id": "stack-queue",
+      "title": "Stack and Queue",
+      "subtitle": "Last in first out, first in first out",
+      "topics": ["stacks-queues"],
+      "read": {
+        "when": "Things open and close in matching pairs (brackets, undo), or each element needs the next greater one.",
+        "idea": [
+          "A stack holds what's still open: push when something starts, pop when it ends, and the top is always the most recent.",
+          "A queue serves in arrival order, which is what BFS needs later."
+        ],
+        "mistakes": [
+          "Popping or reading the top of an empty stack.",
+          "Not checking that the stack is empty at the end (an unclosed bracket is still invalid)."
+        ]
+      },
+      "videos": {
+        "en": [
+          { "id": "WTzjTskDFMg", "role": "main", "minutes": 11, "title": "Valid Parentheses - Stack - Leetcode 20 - Python", "channel": "NeetCode" },
+          { "id": "L3ud3rXpIxA", "role": "extra", "minutes": 12, "title": "Stack Introduction", "channel": "WilliamFiset" }
+        ],
+        "hi": [
+          { "id": "P1bAPZg5uaE", "role": "main", "minutes": 16, "title": "1 Stack Introduction And Identification", "channel": "Aditya Verma" },
+          { "id": "JvuaAgDar1c", "role": "extra", "minutes": 10, "title": "Stack Data Structure - Introduction | C++ Placement Course | Lecture 23.1", "channel": "Apna College" }
+        ]
+      },
+      "problems": [
+        { "key": "lc:valid-parentheses", "title": "Valid Parentheses", "difficulty": "Easy", "topics": ["stacks-queues", "strings"], "lc": "valid-parentheses", "required": true },
+        { "key": "lc:baseball-game", "title": "Baseball Game", "difficulty": "Easy", "topics": ["stacks-queues", "arrays-hashing", "implementation"], "lc": "baseball-game", "required": true },
+        { "key": "lc:implement-queue-using-stacks", "title": "Implement Queue using Stacks", "difficulty": "Easy", "topics": ["stacks-queues", "design"], "lc": "implement-queue-using-stacks", "required": true },
+        { "key": "lc:next-greater-element-i", "title": "Next Greater Element I", "difficulty": "Easy", "topics": ["stacks-queues", "arrays-hashing"], "lc": "next-greater-element-i", "required": false }
+      ]
+    },
+    {
+      "id": "binary-search",
+      "title": "Binary Search",
+      "subtitle": "Halve the search space",
+      "topics": ["binary-search"],
+      "read": {
+        "when": "The data is sorted, or the answer has a yes/no test that flips once (too small … big enough).",
+        "idea": [
+          "Look at the middle, decide which half can still hold the answer, and throw the other half away: O(log n).",
+          "Write the loop around one invariant, like \"the answer is always inside [lo, hi]\"."
+        ],
+        "mistakes": [
+          "Endless loops from mixing up lo = mid with lo = mid + 1.",
+          "Overflow in (lo + hi) / 2 on big values: use lo + (hi - lo) / 2."
+        ]
+      },
+      "videos": {
+        "en": [
+          { "id": "s4DPM8ct1pI", "role": "main", "minutes": 10, "title": "Binary Search - Leetcode 704 - Python", "channel": "NeetCode" },
+          { "id": "GU7DpgHINWQ", "role": "extra", "minutes": 28, "title": "Binary Search tutorial (C++ and Python)", "channel": "Errichto Algorithms" },
+          { "id": "MHf6awe89xw", "role": "extra", "minutes": 33, "title": "BS-1. Binary Search Introduction | Real Life Example | Iterative | Recursive | Overflow Cases", "channel": "take U forward" }
+        ],
+        "hi": [
+          { "id": "QNGL_t_o_QA", "role": "main", "minutes": 13, "title": "2 Binary Search", "channel": "Aditya Verma" },
+          { "id": "j7NodO9HIbk", "role": "extra", "minutes": 5, "title": "1 Binary Search Format Introduction", "channel": "Aditya Verma" }
+        ]
+      },
+      "problems": [
+        { "key": "lc:binary-search", "title": "Binary Search", "difficulty": "Easy", "topics": ["binary-search", "arrays-hashing"], "lc": "binary-search", "required": true },
+        { "key": "lc:search-insert-position", "title": "Search Insert Position", "difficulty": "Easy", "topics": ["binary-search", "arrays-hashing"], "lc": "search-insert-position", "required": true },
+        { "key": "lc:sqrtx", "title": "Sqrt(x)", "difficulty": "Easy", "topics": ["binary-search", "math"], "lc": "sqrtx", "required": true },
+        { "key": "lc:first-bad-version", "title": "First Bad Version", "difficulty": "Easy", "topics": ["binary-search", "interactive"], "lc": "first-bad-version", "required": false },
+        { "key": "lc:guess-number-higher-or-lower", "title": "Guess Number Higher or Lower", "difficulty": "Easy", "topics": ["binary-search", "interactive"], "lc": "guess-number-higher-or-lower", "required": false }
+      ]
+    },
+    {
+      "id": "recursion",
+      "title": "Recursion",
+      "subtitle": "Functions that call themselves",
+      "topics": ["recursion-backtracking"],
+      "read": {
+        "when": "A problem is made of smaller copies of itself: a tree, a sequence like Fibonacci, all choices of something.",
+        "idea": [
+          "Trust the function: assume it already works for smaller inputs, and write only how to combine those answers.",
+          "Every recursive function needs a base case that stops it, checked before the recursive calls."
+        ],
+        "mistakes": [
+          "A missing or wrong base case, which recurses forever (stack overflow).",
+          "Recomputing the same calls again and again (plain Fibonacci is exponential); that's what DP fixes later."
+        ]
+      },
+      "videos": {
+        "en": [
+          { "id": "yVdKa8dnKiE", "role": "main", "minutes": 23, "title": "Re 1. Introduction to Recursion | Recursion Tree | Stack Space | Strivers A2Z DSA Course", "channel": "take U forward" },
+          { "id": "dDokMfPpfu4", "role": "extra", "minutes": 10, "title": "Recursion for Beginners - Fibonacci Numbers", "channel": "NeetCode" }
+        ],
+        "hi": [
+          { "id": "d59iXqly5FY", "role": "main", "minutes": 16, "title": "Recursion from Scratch | Beginners Tutorial | Competitive Programming Course | Ep 17", "channel": "Luv" },
+          { "id": "kHi1DUhp9kM", "role": "extra", "minutes": 33, "title": "Recursion Introduction and Identification", "channel": "Aditya Verma" }
+        ]
+      },
+      "problems": [
+        { "key": "lc:fibonacci-number", "title": "Fibonacci Number", "difficulty": "Easy", "topics": ["recursion-backtracking", "math", "dp"], "lc": "fibonacci-number", "required": true },
+        { "key": "lc:power-of-two", "title": "Power of Two", "difficulty": "Easy", "topics": ["recursion-backtracking", "math", "bitmasks"], "lc": "power-of-two", "required": true },
+        { "key": "lc:n-th-tribonacci-number", "title": "N-th Tribonacci Number", "difficulty": "Easy", "topics": ["recursion-backtracking", "math", "dp"], "lc": "n-th-tribonacci-number", "required": true },
+        { "key": "lc:power-of-three", "title": "Power of Three", "difficulty": "Easy", "topics": ["recursion-backtracking", "math"], "lc": "power-of-three", "required": false }
+      ]
+    },
+    {
+      "id": "linked-list",
+      "title": "Linked List",
+      "subtitle": "Nodes and next pointers",
+      "topics": ["linked-lists"],
+      "read": {
+        "when": "The input is a linked list, or you need cheap inserts and removes in the middle of a sequence.",
+        "idea": [
+          "Walk with a pointer, and keep a prev pointer whenever you need to relink (reversing a list is just that).",
+          "A dummy head node removes the special case of changing the first node."
+        ],
+        "mistakes": [
+          "Losing the rest of the list by overwriting next before saving it.",
+          "Not handling an empty list or a single node."
+        ]
+      },
+      "videos": {
+        "en": [
+          { "id": "G0_I-ZF0S38", "role": "main", "minutes": 11, "title": "Reverse Linked List - Iterative AND Recursive - Leetcode 206 - Python", "channel": "NeetCode" },
+          { "id": "Nq7ok-OyEpg", "role": "extra", "minutes": 45, "title": "L1. Introduction to LinkedList | Traversal | Length | Search an Element", "channel": "take U forward" }
+        ],
+        "hi": [
+          { "id": "Crqgl10aIGQ", "role": "main", "minutes": 15, "title": "Introduction to Linked List | C++ Placement Course | Lecture 22", "channel": "Apna College" },
+          { "id": "t7YaoQOFXzk", "role": "extra", "minutes": 20, "title": "How to Reverse a Linked List? | Iterative + Recursive | Java Placement Course", "channel": "Apna College" }
+        ]
+      },
+      "problems": [
+        { "key": "lc:reverse-linked-list", "title": "Reverse Linked List", "difficulty": "Easy", "topics": ["linked-lists", "recursion-backtracking"], "lc": "reverse-linked-list", "required": true },
+        { "key": "lc:middle-of-the-linked-list", "title": "Middle of the Linked List", "difficulty": "Easy", "topics": ["linked-lists", "two-pointers"], "lc": "middle-of-the-linked-list", "required": true },
+        { "key": "lc:merge-two-sorted-lists", "title": "Merge Two Sorted Lists", "difficulty": "Easy", "topics": ["linked-lists", "recursion-backtracking"], "lc": "merge-two-sorted-lists", "required": true },
+        { "key": "lc:linked-list-cycle", "title": "Linked List Cycle", "difficulty": "Easy", "topics": ["linked-lists", "arrays-hashing", "two-pointers"], "lc": "linked-list-cycle", "required": false }
+      ]
+    },
+    {
+      "id": "trees",
+      "title": "Trees",
+      "subtitle": "Binary trees and traversals",
+      "topics": ["trees"],
+      "read": {
+        "when": "The input is a tree, or data has a parent and child shape (folders, expressions).",
+        "idea": [
+          "Most tree answers are recursion: solve the left subtree, solve the right one, combine at the node.",
+          "Preorder, inorder and postorder only differ in when you look at the node: before, between or after its children."
+        ],
+        "mistakes": [
+          "Forgetting the null child, which is the base case of almost every tree function.",
+          "Mixing up depth (from the root down) and height (from the node down to a leaf)."
+        ]
+      },
+      "videos": {
+        "en": [
+          { "id": "hTM3phVI6YQ", "role": "main", "minutes": 17, "title": "Maximum Depth of Binary Tree - 3 Solutions - Leetcode 104 - Python", "channel": "NeetCode" },
+          { "id": "_ANrF3FJm7I", "role": "extra", "minutes": 10, "title": "L1. Introduction to Trees | Types of Trees", "channel": "take U forward" },
+          { "id": "jmy0LaGET1I", "role": "extra", "minutes": 10, "title": "L4. Binary Tree Traversals in Binary Tree | BFS | DFS", "channel": "take U forward" }
+        ],
+        "hi": [
+          { "id": "67zlUtAr2LE", "role": "main", "minutes": 16, "title": "Binary Tree Traversals| Preorder, Inorder, Postorder Traversal | C++ Placement Course | Lecture 27.2", "channel": "Apna College" },
+          { "id": "_jKa4gycZTw", "role": "extra", "minutes": 10, "title": "Binary Tree Introduction | C++ Placement Course | Lecture 27.1", "channel": "Apna College" }
+        ]
+      },
+      "problems": [
+        { "key": "lc:maximum-depth-of-binary-tree", "title": "Maximum Depth of Binary Tree", "difficulty": "Easy", "topics": ["trees", "graphs"], "lc": "maximum-depth-of-binary-tree", "required": true },
+        { "key": "lc:binary-tree-inorder-traversal", "title": "Binary Tree Inorder Traversal", "difficulty": "Easy", "topics": ["trees", "stacks-queues", "graphs"], "lc": "binary-tree-inorder-traversal", "required": true },
+        { "key": "lc:invert-binary-tree", "title": "Invert Binary Tree", "difficulty": "Easy", "topics": ["trees", "graphs"], "lc": "invert-binary-tree", "required": true },
+        { "key": "lc:same-tree", "title": "Same Tree", "difficulty": "Easy", "topics": ["trees", "graphs"], "lc": "same-tree", "required": false },
+        { "key": "lc:symmetric-tree", "title": "Symmetric Tree", "difficulty": "Easy", "topics": ["trees", "graphs"], "lc": "symmetric-tree", "required": false }
+      ]
+    },
+    {
+      "id": "graphs",
+      "title": "Graphs",
+      "subtitle": "BFS and DFS",
+      "topics": ["graphs"],
+      "read": {
+        "when": "Things are connected: cities and roads, cells of a grid, people and friendships.",
+        "idea": [
+          "DFS goes as deep as it can before backing up (recursion or a stack); BFS goes level by level with a queue.",
+          "Mark a node visited the moment you add it, so it's processed once: O(nodes + edges)."
+        ],
+        "mistakes": [
+          "Not marking visited, or marking it too late, so nodes get queued twice or the search loops forever.",
+          "Running off the grid: check row and column bounds before reading a neighbouring cell."
+        ]
+      },
+      "videos": {
+        "en": [
+          { "id": "pcKY4hjDrxk", "role": "main", "minutes": 19, "title": "5.1 Graph Traversals - BFS & DFS -Breadth First Search and Depth First Search", "channel": "Abdul Bari" },
+          { "id": "oDqjPvD54Ss", "role": "extra", "minutes": 7, "title": "Breadth First Search Algorithm | Shortest Path | Graph Theory", "channel": "WilliamFiset" },
+          { "id": "7fujbpJ0LB4", "role": "extra", "minutes": 10, "title": "Depth First Search Algorithm | Graph Theory", "channel": "WilliamFiset" }
+        ],
+        "hi": [
+          { "id": "b5kij1Akf9I", "role": "main", "minutes": 24, "title": "Lecture 86: BFS Traversal in Graph || C++ Placement Series", "channel": "CodeHelp - by Babbar" },
+          { "id": "aJa3U-hydXc", "role": "extra", "minutes": 14, "title": "Lecture 87: DFS Traversal in Graph || C++ Placement Series", "channel": "CodeHelp - by Babbar" }
+        ]
+      },
+      "problems": [
+        { "key": "lc:flood-fill", "title": "Flood Fill", "difficulty": "Easy", "topics": ["graphs", "arrays-hashing"], "lc": "flood-fill", "required": true },
+        { "key": "lc:find-if-path-exists-in-graph", "title": "Find if Path Exists in Graph", "difficulty": "Easy", "topics": ["graphs", "dsu"], "lc": "find-if-path-exists-in-graph", "required": true },
+        { "key": "lc:find-the-town-judge", "title": "Find the Town Judge", "difficulty": "Easy", "topics": ["graphs", "arrays-hashing"], "lc": "find-the-town-judge", "required": true },
+        { "key": "lc:island-perimeter", "title": "Island Perimeter", "difficulty": "Easy", "topics": ["graphs", "arrays-hashing"], "lc": "island-perimeter", "required": false }
+      ]
+    },
+    {
+      "id": "greedy",
+      "title": "Greedy",
+      "subtitle": "Take the best choice now",
+      "topics": ["greedy"],
+      "read": {
+        "when": "A locally best choice never needs to be undone: biggest coin first, earliest-ending meeting first.",
+        "idea": [
+          "Sort by the right key, then make the obvious choice at each step and never look back.",
+          "Before coding, try to break it with a small counterexample; if you can, it needs DP instead."
+        ],
+        "mistakes": [
+          "Sorting by the wrong key (start time instead of end time is the classic one).",
+          "Trusting a greedy idea that only works on the sample tests."
+        ]
+      },
+      "videos": {
+        "en": [
+          { "id": "ARvQcqJ_-NY", "role": "main", "minutes": 12, "title": "3. Greedy Method -  Introduction", "channel": "Abdul Bari" },
+          { "id": "Yan0cv2cLy8", "role": "extra", "minutes": 16, "title": "Jump Game - Greedy - Leetcode 55", "channel": "NeetCode" }
+        ],
+        "hi": [
+          { "id": "DHr-Mn_vzs0", "role": "main", "minutes": 9, "title": "Activity Selection Problem - Greedy Algorithm | C++ Placement Course | Lecture 33.3", "channel": "Apna College" },
+          { "id": "bDPtZO_Skyc", "role": "extra", "minutes": 3, "title": "Greedy Algorithm - Introduction | C++ Placement Course Lecture 33.1", "channel": "Apna College" },
+          { "id": "IUQRh7SJwEM", "role": "extra", "minutes": 6, "title": "Indian Coin Change - Greedy Algorithm | C++ Placement Course | Lecture 33.2", "channel": "Apna College" }
+        ]
+      },
+      "problems": [
+        { "key": "lc:assign-cookies", "title": "Assign Cookies", "difficulty": "Easy", "topics": ["greedy", "arrays-hashing", "two-pointers", "sorting"], "lc": "assign-cookies", "required": true },
+        { "key": "lc:lemonade-change", "title": "Lemonade Change", "difficulty": "Easy", "topics": ["greedy", "arrays-hashing"], "lc": "lemonade-change", "required": true },
+        { "key": "lc:maximum-units-on-a-truck", "title": "Maximum Units on a Truck", "difficulty": "Easy", "topics": ["greedy", "arrays-hashing", "sorting"], "lc": "maximum-units-on-a-truck", "required": true },
+        { "key": "cf:230-A", "title": "Dragons", "difficulty": null, "rating": 1000, "topics": ["greedy", "sorting"], "cf": "230-A", "required": false }
+      ]
+    },
+    {
+      "id": "dp",
+      "title": "Dynamic Programming",
+      "subtitle": "Remember answers to subproblems",
+      "topics": ["dp"],
+      "read": {
+        "when": "Recursion would solve the same subproblem many times, and you want a count, a minimum or a maximum.",
+        "idea": [
+          "Define dp[i] in one sentence (\"the number of ways to reach step i\"), then write how it's built from smaller i.",
+          "Fill the table from the base cases up, or keep the recursion and cache each answer (memoization)."
+        ],
+        "mistakes": [
+          "A fuzzy definition of dp[i]: if you can't say it in one sentence, the transition will be wrong.",
+          "Wrong base cases or table size (n versus n + 1)."
+        ]
+      },
+      "videos": {
+        "en": [
+          { "id": "YBSt1jYwVfU", "role": "main", "minutes": 20, "title": "Dynamic Programming lecture #1 - Fibonacci, iteration vs recursion", "channel": "Errichto Algorithms" },
+          { "id": "Y0lT9Fck7qI", "role": "extra", "minutes": 18, "title": "Climbing Stairs - Dynamic Programming - Leetcode 70 - Python", "channel": "NeetCode" }
+        ],
+        "hi": [
+          { "id": "nqowUJzG-iM", "role": "main", "minutes": 14, "title": "Dynamic Programming | Introduction", "channel": "Aditya Verma" },
+          { "id": "u7DdPBAJttU", "role": "extra", "minutes": 22, "title": "Introduction to Dynamic Programming | Tutorial | CP Course | EP 90", "channel": "Luv" }
+        ]
+      },
+      "problems": [
+        { "key": "lc:climbing-stairs", "title": "Climbing Stairs", "difficulty": "Easy", "topics": ["dp", "math"], "lc": "climbing-stairs", "required": true },
+        { "key": "lc:min-cost-climbing-stairs", "title": "Min Cost Climbing Stairs", "difficulty": "Easy", "topics": ["dp", "arrays-hashing"], "lc": "min-cost-climbing-stairs", "required": true },
+        { "key": "lc:pascals-triangle", "title": "Pascal's Triangle", "difficulty": "Easy", "topics": ["dp", "arrays-hashing"], "lc": "pascals-triangle", "required": true },
+        { "key": "lc:counting-bits", "title": "Counting Bits", "difficulty": "Easy", "topics": ["dp", "bitmasks"], "lc": "counting-bits", "required": false }
+      ]
+    }
+  ]
+}

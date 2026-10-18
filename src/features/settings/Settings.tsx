@@ -6,19 +6,20 @@ import { Label } from "@/components/ui/label";
 import { useHandles, useSaveHandles, type Handles } from "@/data/settings";
 import { getRepo, useSyncStore } from "@/data/syncStore";
 import { PrefsSections } from "./PrefsSections";
+import { usePrefs } from "@/data/prefs";
 
 // Codeforces handles: 3–24 chars of letters, digits, underscore, dot, hyphen.
 const CF_HANDLE = /^[A-Za-z0-9_.-]{3,24}$/;
 // LeetCode usernames: letters, digits, underscore, hyphen.
 const LC_HANDLE = /^[A-Za-z0-9_-]{1,40}$/;
 
-function validate(h: Handles): Partial<Record<keyof Handles, string>> {
+function validate(h: Handles, cfRequired: boolean): Partial<Record<keyof Handles, string>> {
   const errors: Partial<Record<keyof Handles, string>> = {};
   const cf = h.codeforces.trim();
   const lc = h.leetcode.trim();
-  if (!cf) errors.codeforces = "Enter your Codeforces handle.";
-  else if (!CF_HANDLE.test(cf))
-    errors.codeforces = "Use 3–24 letters, digits, dots, hyphens or underscores.";
+  // Codeforces is required in smart mode and optional in Beginner mode (v1.3).
+  if (!cf && cfRequired) errors.codeforces = "Enter your Codeforces handle.";
+  else if (cf && !CF_HANDLE.test(cf)) errors.codeforces = "Use 3–24 letters, digits, dots, hyphens or underscores.";
   // LeetCode is optional: empty means "don't track LeetCode".
   if (lc && !LC_HANDLE.test(lc)) errors.leetcode = "Use letters, digits, hyphens or underscores.";
   return errors;
@@ -70,6 +71,7 @@ function HandleField({
 
 export function Settings() {
   const { data: saved, isLoading } = useHandles();
+  const beginner = usePrefs().data?.mode === "beginner";
   const save = useSaveHandles();
   const [draft, setDraft] = useState<Handles | null>(null);
   const [errors, setErrors] = useState<Partial<Record<keyof Handles, string>>>({});
@@ -96,7 +98,7 @@ export function Settings() {
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!draft) return;
-    const found = validate(draft);
+    const found = validate(draft, !beginner);
     setErrors(found);
     if (Object.keys(found).length > 0) return;
     save.mutate(draft, {
@@ -105,6 +107,8 @@ export function Settings() {
         setJustSaved(true);
         // LeetCode removed: drop its cached data now (sync never clears on an empty username).
         if (saved?.leetcode && !clean.leetcode) await (await getRepo()).clearPlatform("lc");
+        // Codeforces removed (only possible in Beginner mode): same, or the cached profile would be adopted again.
+        if (saved?.codeforces && !clean.codeforces) await (await getRepo()).clearPlatform("cf");
         // Handles changed: re-sync (the sync clears the old handle's history first).
         void useSyncStore.getState().run();
       },
@@ -135,7 +139,7 @@ export function Settings() {
           >
             <div className="grid grid-cols-2 gap-4">
               <HandleField
-                label="Codeforces handle"
+                label={beginner ? "Codeforces handle (optional)" : "Codeforces handle"}
                 hint="Used for rating, contests and sharpening practice."
                 dotClass="bg-platform-cf"
                 value={draft.codeforces}

@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { PREVIEW } from "./sandbox";
 import { readPref, writePref } from "@/data/settings";
 
 /**
@@ -90,10 +91,13 @@ export const useThemeStore = create<ThemeState>((set) => ({
   setTheme: (id) => {
     apply(id);
     set({ theme: id });
-    try {
-      localStorage.setItem(MIRROR_KEY, id);
-    } catch {
-      // The store below still persists it.
+    // A preview profile keeps its theme to itself (its settings live in memory).
+    if (!PREVIEW) {
+      try {
+        localStorage.setItem(MIRROR_KEY, id);
+      } catch {
+        // The store below still persists it.
+      }
     }
     void writePref(PREF_KEY, id);
   },
