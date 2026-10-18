@@ -25,7 +25,7 @@ export const recommenderQuery = queryOptions({
     const repo = await getRepo();
     // fetchQuery, not ensureQueryData: after a sync invalidates the report, this waits for the fresh one.
     const report = await client.fetchQuery(topicReportQuery);
-    const [cfProfile, cfProblems, cfSubmissions, contestTimes, lcRecentAc, feedback, manual, upsolveQueue] = await Promise.all([
+    const [cfProfile, cfProblems, cfSubmissions, contestTimes, lcRecentAc, feedback, manual, upsolveQueue, sheetTicks] = await Promise.all([
       repo.getProfile<CfUser>("cf"),
       repo.getCfProblems(),
       repo.getCfSubmissions(),
@@ -34,6 +34,7 @@ export const recommenderQuery = queryOptions({
       repo.getFeedback(),
       repo.getManualSolves(),
       repo.getUpsolveQueue(),
+      repo.getSheetTicks(),
     ]);
     const cfRating = cfProfile?.data.rating ?? null;
     return createRecommender({
@@ -46,7 +47,12 @@ export const recommenderQuery = queryOptions({
       contestTimes,
       lcCurated: LC_CURATED,
       // Manual marks count as solved: LeetCode only shows the 20 most recent solves.
-      lcSolved: new Set([...lcRecentAc.map((r) => r.slug), ...manual.filter((m) => m.platform === "lc").map((m) => m.problemId)]),
+      // Sheet ticks too (bulk imports included): a problem you ticked in a sheet isn't recommended again.
+      lcSolved: new Set([
+        ...lcRecentAc.map((r) => r.slug),
+        ...manual.filter((m) => m.platform === "lc").map((m) => m.problemId),
+        ...sheetTicks.filter((t) => t.state === "done" && t.key.startsWith("lc:")).map((t) => t.key.slice(3)),
+      ]),
       feedback,
       upsolveQueue,
     });

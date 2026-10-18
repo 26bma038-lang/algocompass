@@ -28,6 +28,23 @@ Not merged or released: waiting for your review.
 - **No other app's data.** Nothing comes from Codolio or any other tracker. Only the creators' own sources are used.
 - **Love Babbar 450** is mostly GeeksforGeeks (370 distinct) plus 21 LeetCode links. Those GFG problems can't tick automatically: manual and bulk ticks cover them. I didn't add LeetCode equivalents the sheet doesn't link, because that would be guessing.
 
+### Part 2: sheet progress and ticking
+- **Migration `0006_sheets.sql`** (new, nothing applied was edited) adds four tables:
+  - `sheet_ticks`: hand ticks per problem key: done (manual or bulk) or undone;
+  - `sheet_notes`;
+  - `video_watched`;
+  - `path_steps`: Beginner Path steps, recorded once when done.
+- **`src/engine/sheets.ts`** (pure) holds the tick resolution, progress over distinct problems, bulk section ranges and smart next. `src/data/sheets.ts` builds the solve index from the cache and has the hooks and mutations.
+- **How a problem's tick is decided:**
+  1. If you unticked it, it's not done, unless LeetCode or Codeforces shows a solve newer than the untick.
+  2. If a sync has seen it solved, it's done (auto). LeetCode is matched by slug and Codeforces by `contestId-index`, from every accepted submission ever cached.
+  3. If you ticked it by hand, it's done (manual or bulk).
+  4. If you used Mark solved anywhere in the app, it's done (manual).
+- **Cross-sheet:** status is per key, so one solve ticks every sheet that lists the problem.
+- **Reusing Mark solved:** a single manual tick on a LeetCode (or Codeforces) problem is also written to `manual_solves`, so it counts for quests, goals, XP and recommendations, exactly like Mark solved. Unticking removes it again.
+- **Bulk imports** ("I've finished Steps 1–5") only write `sheet_ticks`. They don't count as today's solves, quests or XP, but the recommender does treat those LeetCode problems as solved. Undo in the toast restores any ticks the import replaced.
+- **Tests:** `src/engine/sheets.test.ts` and `src/data/sheets.test.ts` (27). They cover cross-sheet auto-ticks, manual ticks, bulk ticks with undo, unticking an auto tick, distinct-problem progress, smart next, notes and data validation.
+
 ## Latest: v1.2.0, simplify (2026-10-17)
 
 **Released as v1.2.0:** `simplify` was merged into master, and the version was bumped in package.json, tauri.conf.json and Cargo.toml. `npm test` passes (294) and `npm run tauri build` produced:
