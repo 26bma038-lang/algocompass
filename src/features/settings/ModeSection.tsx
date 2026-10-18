@@ -2,7 +2,7 @@ import { GraduationCap, Target } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useHandles } from "@/data/settings";
 import { useUpdatePrefs, type AppMode, type AppPrefs } from "@/data/prefs";
-import { LangToggle } from "@/features/path/PathView";
+import { LangToggle } from "@/features/path/shared";
 import { cn } from "@/lib/utils";
 
 const MODES: { id: AppMode; title: string; body: string; icon: typeof Target }[] = [

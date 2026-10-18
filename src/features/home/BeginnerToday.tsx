@@ -5,7 +5,7 @@ import { usePrefs } from "@/data/prefs";
 import { hasAnyHandle, useHandles } from "@/data/settings";
 import { PATH_SHEET_ID } from "@/data/sheets";
 import { mainVideo, nextAction } from "@/engine/path";
-import { lessonPath, stripProgress } from "@/features/path/PathView";
+import { lessonPath, stripProgress } from "@/features/path/shared";
 import { useRewardPulse } from "@/features/quests/QuestList";
 import { FollowedSheetCard } from "@/features/sheets/FollowedSheetCard";
 import { SectionStrip } from "@/features/sheets/SectionStrip";

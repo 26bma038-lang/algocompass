@@ -2,7 +2,48 @@
 
 ## In progress: v1.3, Sheets + Beginner Path + video lessons (branch `v1.3`)
 
-Not merged or released: waiting for your review.
+Not merged or released, and the version is still 1.2.0: waiting for your review.
+
+### Summary
+- **Sheets** (Practice → Sheets), all built from the creators' original sources and verified. You can follow one: it's pinned first, shows on Today with its next problem, and adds a daily quest.
+
+  | Sheet | Problems |
+  |---|---|
+  | Striver's A2Z | 436 |
+  | Striver's SDE Sheet | 151 |
+  | NeetCode 150 | 150 |
+  | Blind 75 | 75 |
+  | Love Babbar 450 | 419 |
+
+- **Ticking:**
+  - **Auto:** problems tick themselves from LeetCode and Codeforces solves, in every sheet that lists them.
+  - **By hand:** one click for GFG, takeUforward and Code360 problems (it reuses Mark solved for LeetCode problems).
+  - **Mark sections done** imports finished steps, with Undo.
+  - Ticks can be unticked and say where they came from.
+- **Sheet page extras:** smart **Next in this sheet** (sheet order weighted toward your weak topics, skipping Premium), private searchable **notes**, filters and search.
+- **Beginner Path and Beginner mode:**
+  - **Onboarding** asks "New to DSA?" and the video language (English or Hindi). Beginners need no handles and start on Step 1 in well under a minute.
+  - **The path:** 14 lessons (watch, read five lines, solve 3–5 easy problems) that unlock in order.
+  - **Today in Beginner mode** is one Start here card ("Step 3 of 14: Hashing · Watch 12 min · then solve 2 problems").
+  - **Existing installs stay in smart mode,** unchanged.
+- **Video lessons:** 147 YouTube videos (196 uses across lessons and topics) in English and Hindi. Every one is verified by oEmbed with an exact title and channel, and plays inside the app (youtube-nocookie). Topic Detail leads with them. Mark as watched is stored in SQLite.
+- **Checks:**
+  - `npm test`: 362 passing (75 new).
+  - `npm run check:links`: passes (articles, 1,281 sheet problems, 59 path problems, 147 videos).
+  - `npm run build`: green.
+  - **`npm run tauri dev`:** the embedded video **played in the real Tauri window** under the new CSP (`currentTime` 5.9 s → 9.0 s, no player or CSP errors), and **your real data was intact** (smart mode, rating 1008, Level 14).
+
+**Partial or unverified:** none of the sheets are partial, and every video and problem is verified. Thin spots:
+- Six advanced topics have only one video per language: geometry (English only), game theory, interactive, constructive, prefix sums and number theory.
+- Four topics have no Hindi video: probability, geometry, advanced graphs, design.
+- Three lesson main videos fall outside 10–25 min (details in Part 5).
+- Video **language** is labelled by channel. It can't be checked through an API; I left out channels whose language I couldn't vouch for.
+
+**To preview:**
+1. `git checkout v1.3`, then `npm run tauri dev` from PowerShell.
+2. Your real profile opens in smart mode. The five-step tour shows once, because `TOUR_VERSION` is now 2.
+3. To see a fresh beginner without touching your data: Ctrl+Shift+D (Debug) → **Preview a fresh beginner**, or **Preview first launch** for the new welcome screen. Exit from the banner.
+4. Sheets: Practice → Sheets → Follow this sheet.
 
 ### Part 1: sheet data
 - `scripts/gen-sheets.mjs` (`npm run gen:sheets`) builds `src/data/sheets/<id>.json` from each sheet's original source, in the source's order with its sections:
@@ -139,6 +180,37 @@ Not merged or released: waiting for your review.
   - `object-src 'none'`, `base-uri 'self'`.
   - `devCsp` adds Vite's websocket and inline script for `tauri dev`.
   - No capability change was needed. The iframe gets no IPC, and Watch on YouTube uses the opener plugin the app already has.
+
+### Part 6: check
+- **Tests:** 362 pass (75 new):
+  - `engine/sheets.test.ts`: auto-tick matching across sheets, manual and bulk ticks, unticking, distinct progress, smart next and Premium;
+  - `data/sheets.test.ts`: real-schema ticking and undo, notes, sheet data validation;
+  - `engine/path.test.ts`: step unlocking, re-lock safety, order, path data validation;
+  - `data/prefs.test.ts`: mode switching, existing installs staying smart;
+  - `onboarding.test.ts`: beginners with no handles;
+  - `quests.test.ts`: the sheet quest;
+  - `catalog.test.ts`: video data;
+  - `nav.test.ts`: tour v2.
+- **`npm run check:links` passes:** articles and lists, 1,281 sheet problems (336 LeetCode slugs), 59 Beginner Path problems (2 Codeforces), and 147 videos with exact titles and channels. `--deep` also passed all 607 takeUforward links.
+- **`npm run tauri dev`** (Rust built in 1m 13s; run with WebView2's remote-debugging port so I could drive the real window):
+  - **Real data intact:** smart mode, rating 1008, Level 14, the usual Today. I only took a screenshot and didn't dismiss the new tour, so nothing was written to your settings.
+  - **Video playback:** tested inside the Debug beginner preview. The main Basics video played in the embedded player under the new CSP, with `currentTime` advancing 5.9 s → 9.0 s, not paused, no player error and no CSP violations. The only console noise is WebView2's harmless Tracking Prevention notes on googlevideo storage. The fallback button was never needed, so it stays as a convenience.
+  - **Preview isolation:** the preview wrote only to `algocompass-preview.db`. After Exit preview, your real Today came back unchanged.
+- **Impeccable critique** (one in-context pass; **degraded: single context**, because you asked for no background agents, and the skill's two sub-agents would have been background agents). It covered Sheets, a sheet page, Today in Beginner mode, the Path view and a lesson, in Light and Dark at 1100x700. The detector was clean on all new UI files. Fixed:
+  - **P1:** the followed sheet appeared twice (lead card and list). The list is now "Other sheets".
+  - **P1:** on a lesson, the header pushed the video below the fold at 1100x700. The header is tighter (the pills already say what's left), and the play button is now above the fold.
+  - **P2:** every row repeated its section's topic chip. A chip now shows only for a topic beyond the section's.
+  - **P2:** in Beginner mode, today's quests included a recommender topic quest that competed with Start here. Beginner quests are now the path quest plus consistency.
+  - **P2:** the built-in Beginner Path's credit linked out to GitHub. It's now plain "Built into AlgoCompass: lessons with videos".
+  - **P2:** a locked step's only card said "2. Read". It's now "Read ahead".
+  - Questions skipped: you asked for no questions.
+- **Build:** `npm run build` warned that the Path view, imported by Today's Beginner card, wasn't really lazy. Its shared pieces moved to `features/path/shared.tsx`, and the warning is gone.
+- **Screenshots:** 21 in `docs/screenshots/v1.3/`, at 1100x700 in Light and Dark: welcome, Today in Beginner and smart mode, the Path, lessons (open, solve, locked), Sheets (pick and following), a sheet page (header, rows, Mark sections done), Settings → Mode, and Topic Detail → Watch. Captured in browser mode on a real sync of your handles.
+- **Docs:**
+  - **CLAUDE.md:** the v1.3 screens, modes, sheet, path and video rules, the CSP and the preview.
+  - **DESIGN.md:** appended "Sheets, Beginner Path and lessons (v1.3)".
+  - **PRODUCT.md:** beginners and sheet followers are now target users, plus a new principle ("no decision before the first step").
+  - **README:** a "New in v1.3" section, sheet credits, the new first-launch flow, scripts and privacy.
 
 **Decisions (Part 4)**
 - **Required problems:** 3 per step, with 1–2 more as extra practice. "Required problems" needed a number, and 3 keeps a step to roughly a sitting.

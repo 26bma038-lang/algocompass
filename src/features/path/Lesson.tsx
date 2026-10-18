@@ -12,7 +12,7 @@ import { problemStatus } from "@/engine/sheets";
 import { useRewardPulse } from "@/features/quests/QuestList";
 import { OpenButton, sourceLabel, TickBox } from "@/features/sheets/parts";
 import { cn } from "@/lib/utils";
-import { LangToggle, lessonPath } from "./PathView";
+import { LangToggle, lessonPath } from "./shared";
 import { VideoPlayer, WatchedButton } from "./VideoPlayer";
 
 function videosFor(step: PathStep, lang: VideoLang): PathVideo[] {
