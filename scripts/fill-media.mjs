@@ -7,7 +7,7 @@
 // Usage: npm run fill:media   (then npm run check:links verifies the result)
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { cfProblemset, lcQuestions, pool, ytOembed } from "./lib/platforms.mjs";
+import { cfProblemset, get, lcQuestions, pool, ytOembed } from "./lib/platforms.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const PATH_FILE = `${root}src/data/path/beginner-path.json`;
@@ -32,6 +32,17 @@ console.log(`Asking YouTube oEmbed about ${ids.length} videos…`);
 const meta = new Map(ids.map((id, i) => [id, i]));
 const answers = await pool(ids, 6, (id) => ytOembed(id));
 const byId = new Map(ids.map((id) => [id, answers[meta.get(id)]]));
+// Lengths: oEmbed has none, so read lengthSeconds from the watch page itself.
+const lengths = await pool(ids, 6, async (id) => {
+  try {
+    const html = await (await get(`https://www.youtube.com/watch?v=${id}&hl=en`)).text();
+    const s = Number(html.match(/"lengthSeconds":"(\d+)"/)?.[1]);
+    return Number.isFinite(s) && s > 0 ? Math.max(1, Math.round(s / 60)) : null;
+  } catch {
+    return null;
+  }
+});
+const minutesById = new Map(ids.map((id, i) => [id, lengths[i]]));
 let removed = 0;
 for (const list of videoLists) {
   for (let i = list.length - 1; i >= 0; i--) {
@@ -45,6 +56,9 @@ for (const list of videoLists) {
     }
     v.title = m.title;
     v.channel = m.author;
+    const minutes = minutesById.get(v.id);
+    if (minutes) v.minutes = minutes;
+    else if (!v.minutes) console.error(`WARN ${v.id}: no length found`);
   }
 }
 

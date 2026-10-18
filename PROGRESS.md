@@ -113,6 +113,33 @@ Not merged or released: waiting for your review.
   - `src/data/prefs.test.ts` (4): mode switching, and existing installs staying smart;
   - `onboarding.test.ts` (+5): onboarded beginners with no handles or LeetCode only, smart installs unchanged.
 
+### Part 5: video lessons
+- **Every video ID came from YouTube itself:** its own search and playlist listings for the channels you named, plus the videos already in `resources.json`. None was typed from memory.
+- **`npm run fill:media`** fills each video's **title and channel from oEmbed** and its **length from the watch page** (`lengthSeconds`), so I never typed any of them. Videos oEmbed refuses (deleted, private or not embeddable) are removed and reported. It removed **2**: Errichto's "Algorithms Lecture #1 - Sums and Expected Value" and "#2 - EV and Sums of Small Powers" (HTTP 401, embedding disabled). Probability uses Khan Academy, Colin Galen and NeetCode instead.
+- **`npm run check:links`** now checks every video: oEmbed 200, with an exact match on title and author_name (`scripts/lib/check-media.mjs`). It passes for **147 videos (196 uses)**, along with the Beginner Path's 59 problems, the sheets and every article link.
+- **`resources.json` upgraded:** videos moved out of the learn and deeper tiers into a `videos` list per topic (id, lang en/hi, role intro / full lecture / problem walkthrough, minutes, title, channel). Coverage:
+  - 32 of 33 topics have 2–6 videos, with English in all 33 and Hindi in 29.
+  - Thin spots, where nothing better and embeddable came up: geometry (1, English), game theory and interactive (1 + 1), constructive (1 + 1), prefix sums and number theory (1 English each, plus Hindi).
+  - No Hindi for probability, geometry, advanced graphs or design.
+- **Channels:**
+  - **Path lessons** use only the channels you named. English: takeUforward, NeetCode, Errichto, William Fiset, Abdul Bari. Hindi: CodeHelp, Aditya Verma, Apna College, Luv.
+  - **Topic videos** add a few others for advanced topics: Colin Galen, Gaurav Sen, TLE Eliminators, Pepcoding, College Wallah, Simple Quant, Khan Academy.
+  - **Languages are labelled by the channel's language.** I dropped videos whose language I couldn't vouch for (Vivek Gupta, Yash Poonia, Harisam Sharma, Rachit Jain).
+- **Main videos are 10–25 minutes,** with three exceptions (lengths from YouTube): English Binary Search (NeetCode, 10 min), Hindi Two Pointers (Apna College, 32 min) and Hindi Greedy (Apna College, 9 min). No named Hindi channel has a 10–25 minute video on those two.
+- **In-app player** (`VideoPlayer.tsx`):
+  - A thumbnail (`i.ytimg.com`) with a play button. Nothing loads from YouTube until you press it.
+  - Then the **youtube-nocookie.com** embed (`referrerpolicy="strict-origin-when-cross-origin"`).
+  - **Watch on YouTube** is always next to it and opens the browser. Nothing is downloaded or rehosted.
+  - **Mark as watched** is stored in `video_watched`.
+- **Topic Detail → Resources** now leads with **Watch**: the topic's videos in your language (Intro / Full lecture / Problem walkthrough, channel, minutes, a check when watched). One click plays it in the panel, and "Also in Hindi/English" shows the rest.
+- **Tauri CSP** (looked up via context7): `csp` was `null`, so it's now a real policy:
+  - `default-src 'self' ipc: http://ipc.localhost`, `connect-src ipc: http://ipc.localhost`, `script-src 'self'`;
+  - `style-src 'self' 'unsafe-inline'` (framer-motion and React Flow set inline styles);
+  - `img-src 'self' data: blob: https://i.ytimg.com`, `frame-src https://www.youtube-nocookie.com`;
+  - `object-src 'none'`, `base-uri 'self'`.
+  - `devCsp` adds Vite's websocket and inline script for `tauri dev`.
+  - No capability change was needed. The iframe gets no IPC, and Watch on YouTube uses the opener plugin the app already has.
+
 **Decisions (Part 4)**
 - **Required problems:** 3 per step, with 1–2 more as extra practice. "Required problems" needed a number, and 3 keeps a step to roughly a sitting.
 - **Main video:** the main video in either language counts as watched. Switching language shouldn't undo progress.

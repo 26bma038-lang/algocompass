@@ -5,15 +5,31 @@ import { LC_CURATED, LC_LISTS, RESOURCES } from "./catalog";
 
 /** Offline shape checks. Whether the links resolve is `npm run check:links` (network). */
 describe("resources.json", () => {
-  it("covers every topic with learn (article + video), practice and deeper", () => {
+  it("covers every topic with learn (an article), practice, deeper and videos", () => {
     for (const t of TOPICS) {
       const r = RESOURCES[t.id];
       expect(r, t.id).toBeDefined();
-      expect(r!.learn.map((x) => x.kind).sort(), t.id).toEqual(["article", "video"]);
+      expect(r!.learn.map((x) => x.kind), t.id).toEqual(["article"]);
       expect(r!.practice.length, t.id).toBeGreaterThan(0);
-      expect(r!.deeper.length, t.id).toBeGreaterThan(0);
+      // Go deeper may be a video now: then the topic has a lecture or walkthrough in videos.
+      expect(r!.deeper.length > 0 || r!.videos.some((v) => v.role !== "intro"), t.id).toBe(true);
+      // v1.3: videos sit in their own list, at least one in English, each filled from YouTube.
+      expect(r!.videos.some((v) => v.lang === "en"), t.id).toBe(true);
+      for (const v of r!.videos) {
+        expect(v.id, t.id).toMatch(/^[\w-]{11}$/);
+        expect(["en", "hi"]).toContain(v.lang);
+        expect(["intro", "lecture", "walkthrough"]).toContain(v.role);
+        expect(v.title && v.channel && v.minutes > 0, `${t.id} ${v.id}`).toBeTruthy();
+      }
+      expect([...r!.learn, ...r!.practice, ...r!.deeper].some((x) => x.kind === "video"), t.id).toBe(false);
     }
     expect(Object.keys(RESOURCES).sort()).toEqual(TOPICS.map((t) => t.id).sort());
+  });
+
+  it("gives most topics 2 to 3 videos, in both languages where good ones exist", () => {
+    const counts = Object.values(RESOURCES).map((r) => r.videos.length);
+    expect(counts.filter((n) => n >= 2).length).toBeGreaterThanOrEqual(30);
+    expect(Object.values(RESOURCES).filter((r) => r.videos.some((v) => v.lang === "hi")).length).toBeGreaterThanOrEqual(28);
   });
 
   it("uses https URLs only", () => {
