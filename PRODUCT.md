@@ -39,7 +39,8 @@ AlgoCompass is one personal compass across both platforms, with distinct roles f
 
 ## Capabilities and Constraints
 
-- Screens (v1.2): Today, Practice, Progress (Overview · Topics map · Achievements), Contests, Settings, and the Topic Detail side panel. v1.3 adds tabs inside Practice (Today's mix · Sheets · Beginner Path), not new screens.
+- Screens (v1.3): Today, Practice (Today's mix · Sheets), Learn (Continue learning, the Beginner Path, every video by topic), Progress (Overview · Topics map · Achievements), Contests, Settings, and the Topic Detail side panel. Learn became its own screen because a beginner couldn't find the lectures inside a Practice tab or the Topic Detail panel.
+- Beginner mode's sidebar is Today · Learn · Practice · Progress. Contests joins it once the Beginner Path's Recursion step is done ("ready for contests").
 - Two modes (v1.3): Smart (default; every install from before v1.3 stays here) and Beginner. They're chosen at onboarding and changeable in Settings.
 - Sheets come only from each creator's own published list, credited with a link to the original. No other tracker's (e.g. Codolio's) data, text or design is used.
 - Videos are YouTube embeds (youtube-nocookie.com), verified by oEmbed. They're never downloaded or rehosted.

@@ -4,6 +4,101 @@
 
 Not merged or released, and the version is still 1.2.0: waiting for your review.
 
+### v1.3 Learn: a top-level screen for every lesson (2026-10-18)
+
+**Why:** you couldn't find where to watch the lectures. In smart mode the Beginner Path tab didn't show at all, and topic videos were hidden in the Topic Detail side panel.
+
+**Summary**
+- **Learn** is a new top-level screen (`/learn`, lazy), in the sidebar in both modes:
+  - **Smart mode:** Today · Practice · **Learn** · Progress · Contests.
+  - **Beginner mode:** Today · **Learn** · Practice · Progress. **Contests** stays hidden until the Recursion step (step 9) is done. Then it appears with a **New** badge, and a toast says "You're ready for contests". The badge clears the first time you open Contests.
+  - Ctrl+1–5 follow the sidebar order in each mode. The shortcut sheet, Ctrl+K, the tour and the tray menu were all updated.
+- **What's on Learn**, top to bottom:
+  1. **Continue learning:** your current lesson or last video, with its progress, and one button to resume.
+  2. **The Beginner Path roadmap:** 14 steps, marked done, current or locked. It moved here from Practice.
+  3. **The video library:** 147 videos across 33 topics (lessons plus `resources.json`), grouped by topic. It has an English / Hindi / Both filter, Not watched yet, a topic picker, lengths, channels and ✓ Watched. In smart mode your weak topics come first.
+  4. **Search** across topic names, video titles and channels.
+- **Lesson focus mode** (`/learn/path/:step`):
+  - A breadcrumb (Learn › Beginner Path › Step N) with Back.
+  - A big video sized to the window, then Read and Solve.
+  - A sticky bar with Watch → Read → Solve checkmarks and **one Next button**: I've watched the video → I've read it → Open problem 1 of 3: … → I solved … → … → **Next step: Arrays**.
+- **A single-video page** (`/learn/watch/:id`) plays the video big, with the topic's other videos below.
+- **Links into Learn:**
+  - Today's Start here opens the lesson directly.
+  - Topic Detail has a two-video preview and a **Watch lessons** button.
+  - Every sheet section has **Learn this topic**.
+  - In Ctrl+K, typing a topic offers **Watch (topic) videos**.
+  - The tour is v3, and beginners meet Learn first.
+- **Old routes still work:** `/practice/path` → `/learn` and `/practice/path/:step` → `/learn/path/:step`. In Beginner mode Practice is now Sheets · Today's mix.
+
+**Checked**
+- **`npm test`:** 384 pass (22 new):
+  - `engine/learn.test.ts`: library build and dedupe, ordering per mode, filters and search, continue learning, the contests milestone, the Next flow;
+  - `components/shell/nav.test.ts`: nav per mode, shortcuts, the New badge, redirects, tour v3;
+  - `router.test.ts`: the new routes and redirects matched against the real route table;
+  - `data/learn.test.ts`: continue-learning history that survives a restart.
+- **Build:** `npm run build` is green, and Learn, Lesson and Watch are their own lazy chunks. The main chunk grew 1.2 KB (its 500 KB warning was already there before this work). `cargo check` passes after the tray change.
+- **The beginner's first day, walked in the "Preview a fresh beginner" sandbox** (browser mode, Light and Dark, 1100x700). Today showed one primary button, Start the lesson. It opened Step 1, and Next walked the whole lesson: watched → read → Open Fizz Buzz (LeetCode opened) → I solved Fizz Buzz → … ×3 → Next step: Arrays. Back returned to Step 1, and Learn's Continue learning showed Step 2. No decisions and no dead ends, once two were fixed (below).
+- **First launch as a beginner** (Preview first launch): "Yes, I'm new" → Start learning → the tour goes Learn → Practice → Progress → Today and ends on Start here.
+- **The contests milestone, end to end:** I finished steps 1–9 through the Next button. After step 8 the sidebar had no Contests. After step 9 it read "Contests New", and the toast said "You're ready for contests: Contests is now in the sidebar". Ctrl+5 opened Contests and cleared the badge. Collapsed, the badge is a dot on the icon.
+- **Smart mode, with a real sync of your handles** (browser mode, not your desktop data):
+  - Learn is one click from the sidebar (or Ctrl+3).
+  - Continue learning suggests a video from your weakest topic (Two pointers & sliding window).
+  - The library leads with Two pointers, Prefix sums, Stacks & queues…
+  - Playing a video makes it the thing Continue learning resumes.
+  - Ctrl+K "binary search" offers Binary search, then Watch Binary search videos. Both that and Topic Detail → Watch lessons land on `/learn?topic=binary-search`.
+  - NeetCode 150 has 18 "Learn this topic" links.
+  - `/practice/path/hashing` redirects to `/learn/path/hashing`.
+
+**Fixed after the walk-through and the critique**
+- **P0:** the "Step 1 done" toast sat right on top of the sticky Next button, so "Next step" couldn't be clicked for about 4 seconds. On lesson pages, toasts now sit above the bar.
+- **P1:** a beginner's tour ended on Progress, away from Start here. It now ends on Today.
+- **P1:** at 1100x700 the lesson video's title and Mark as watched sat under the Next bar. The header is tighter, and the video is sized to the window.
+- **P2:** the library toolbar wrapped the topic picker onto its own row at 1100px. It's one row now.
+- **Also:** a new screen now opens scrolled to the top. Going from a lesson to the next one used to start halfway down the page.
+
+**Impeccable critique** (one pass; **degraded: single context**, because you asked for no background agents):
+- **Covered:** Learn, the lesson page, the watch page and the sidebar in both modes, Light and Dark at 1100x700.
+- **Score:** 32/40 (Good).
+- **Detector:** 0 findings on the new UI files.
+- **Open, P3:** when two steps finish within seconds, the two stacked toasts can cover a Solve row's Open button. In real use steps finish far apart.
+- Questions skipped: you asked for no questions.
+
+**Screenshots:** 34 in `docs/screenshots/v1.3/learn/`:
+- Today and Learn in Beginner mode;
+- a lesson at start, read, solve and done;
+- Learn and the library in smart mode;
+- the watch page and the topic filter;
+- Contests unlocked (expanded and collapsed);
+- the tour (beginner and smart);
+- Ctrl+K, Topic Detail → Watch lessons, a sheet's Learn this topic, and the shortcut sheet.
+
+**Decisions (Learn)**
+- **Shortcuts follow the sidebar,** so Learn is Ctrl+2 for beginners and Ctrl+3 in smart mode. That way Ctrl+N always matches the Nth item you see. In Beginner mode Ctrl+5 does nothing until Contests appears.
+- **Contests stays reachable** in Beginner mode by URL and from the tray. Only the sidebar hides it. The tray menu is static (built in Rust), so it lists all five screens in smart order; making it follow the mode would need a new IPC call for little gain.
+- **The New badge** is stored as the setting `contestsSeen`. It's set the first time `/contests` opens after the milestone, from anywhere.
+- **The milestone is "Recursion done"** using the path's own rule: main video watched and the 3 required problems solved. Recorded steps never re-lock, so Contests never disappears again.
+- **A single-video page** (`/learn/watch/:id`) wasn't asked for. Continue learning needed somewhere to resume a video in one click, and a big player there matches the lesson page. Picking a video there starts it playing; lesson videos still wait for a click, so nothing loads from YouTube until you ask.
+- **Continue learning** resumes whichever is more recent, the last lesson or the last video. A finished lesson resumes at the current step instead. With no history:
+  - Beginner mode starts Step 1.
+  - Smart mode suggests the first unwatched video (in your language) from your weakest topic.
+  - Smart mode without topic data falls back to the path.
+- **History is a setting, not SQLite** (`learn`: last lesson, last video, lessons read). That needed no migration, and a Debug preview keeps it in memory.
+- **Read now has a record:** "I've read it" adds the step to `learn.read`, which gives Read its checkmark. Unlocking is unchanged (main video watched + required problems solved).
+- **"I've watched the video"** marks the main video in your current language, the same as Mark as watched. **"I solved …"** is a hand tick, exactly like the tick box (it also writes `manual_solves`). Problems that a sync has already ticked are skipped.
+- **The library's language filter** is English / Hindi / Both. It defaults to your lesson language but doesn't change it. Settings and the lesson's toggle still own that pref.
+- **The roadmap is open in Beginner mode and folded in smart mode,** so the library sits near the fold for smart users. The breadcrumb's "Beginner Path" (`/learn#path`) opens it.
+- **Library topics:** lesson videos join every topic their step teaches (Basics shows under Implementation and Math). A video listed by both a lesson and `resources.json` appears once per topic, as the lesson. Beginner mode orders topics by step, then the step's own topic order.
+- **Topic Detail** previews 2 videos in your language. The old "Also in Hindi" toggle gave way to **Watch lessons**, because Learn shows both languages.
+- **"Learn this topic"** uses the section's most common lead topic (the same rule as the row chips). It only shows when that topic has videos, and it sits beside the section toggle, not inside it.
+- **Beginner mode's Practice** is now Sheets · Today's mix, and `/practice` lands on Sheets, since the lessons moved to Learn.
+- **Tour v3:**
+  - Beginners: Learn → Practice → Progress → (Contests) → Today. Learn comes first, as asked, and Today comes last, so "Got it" leaves them on Start here.
+  - Smart mode: Today → Practice → Sheets → Learn → Progress → Contests.
+- **The route table** is exported as `routes`, and the router is created by `getRouter()`, so tests can match paths without a browser.
+- **No 21st.dev component:** the breadcrumb and the New badge are a few lines each, built from the existing `Pill` and tokens.
+
+
 ### Summary
 - **Sheets** (Practice → Sheets), all built from the creators' original sources and verified. You can follow one: it's pinned first, shows on Today with its next problem, and adds a daily quest.
 
@@ -41,7 +136,7 @@ Not merged or released, and the version is still 1.2.0: waiting for your review.
 
 **To preview:**
 1. `git checkout v1.3`, then `npm run tauri dev` from PowerShell.
-2. Your real profile opens in smart mode. The five-step tour shows once, because `TOUR_VERSION` is now 2.
+2. Your real profile opens in smart mode. The six-step tour shows once, because `TOUR_VERSION` is now 3. Learn is the third item in the sidebar (Ctrl+3).
 3. To see a fresh beginner without touching your data: Ctrl+Shift+D (Debug) → **Preview a fresh beginner**, or **Preview first launch** for the new welcome screen. Exit from the banner.
 4. Sheets: Practice → Sheets → Follow this sheet.
 

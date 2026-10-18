@@ -32,14 +32,23 @@ AlgoCompass answers those in a two-second glance, from the tray, without logins 
   - **Bulk import:** "Mark sections done" catches you up if you're already halfway through.
   - **Next in this sheet:** picks the next problem in order, leaning toward your weak topics.
   - **Notes:** private notes per problem, searchable.
+- **Learn, one place for every lesson:** a **Learn** screen in the sidebar (Ctrl+2 for beginners, Ctrl+3 in smart mode) with:
+  - **Continue learning:** your current lesson or last video, one click to resume;
+  - **the Beginner Path** roadmap (done, current, locked);
+  - **the video library:** every video, grouped by topic, in English, Hindi or both, with lengths, channels and ✓ watched. Your weakest topics come first in smart mode;
+  - **search** across topics, titles and channels.
+  A lesson opens in **focus mode**: a big video, then Watch → Read → Solve with checkmarks, and one **Next** button that walks you through it (watched → read → open the first problem → solved → … → next step). Topic Detail ("Watch lessons"), every sheet section ("Learn this topic") and Ctrl+K ("Watch <topic> videos") all link straight to a topic's videos.
 - **Video lessons:** every topic has verified videos (intro, full lecture, problem walkthrough) in English and Hindi, from takeUforward, NeetCode, Errichto, William Fiset, Abdul Bari, CodeHelp, Aditya Verma, Apna College, Luv and others. They play in the app through YouTube's privacy-enhanced player, and you can mark each one watched.
 
 | | |
 |---|---|
-| ![A lesson: watch, read, solve](docs/screenshots/v1.3/lesson-light.png) | ![The Beginner Path](docs/screenshots/v1.3/path-dark.png) |
+| ![Learn: Continue learning and the Beginner Path](docs/screenshots/v1.3/learn/learn-beginner-light.png) | ![A lesson in focus mode, with the Next bar](docs/screenshots/v1.3/learn/lesson-start-dark.png) |
+| ![The video library, weakest topics first](docs/screenshots/v1.3/learn/learn-library-smart-dark.png) | ![Solve, with one Next button](docs/screenshots/v1.3/learn/lesson-solve-light.png) |
 | ![Sheets](docs/screenshots/v1.3/sheets-light.png) | ![Striver's A2Z with Next in this sheet](docs/screenshots/v1.3/sheet-dark.png) |
 
-**Already practising?** Pick "No" and AlgoCompass is the Codeforces + LeetCode tracker it always was, with the sheets in Practice. Switch between the two modes any time in Settings.
+**Already practising?** Pick "No" and AlgoCompass is the Codeforces + LeetCode tracker it always was, with the sheets in Practice and every video in Learn. Switch between the two modes any time in Settings.
+
+**In Beginner mode** the sidebar is Today · Learn · Practice · Progress. Contests joins it, marked "New", once you finish the Recursion step: that's when you're ready for your first contest.
 
 ### Sheet credits
 
@@ -53,7 +62,7 @@ Each sheet is built from its creator's own published list by `npm run gen:sheets
 
 #### Features
 
-Four screens with plain names: **Today, Practice, Progress, Contests**, plus Settings. A short tip tour shows you around on first launch.
+Five screens with plain names: **Today, Practice, Learn, Progress, Contests**, plus Settings. A short tip tour shows you around on first launch (beginners start with Learn).
 
 ![The tip tour](docs/screenshots/tour.png)
 
@@ -96,7 +105,7 @@ Upcoming Codeforces rounds come first, with LeetCode weekly and biweekly contest
 ![Contests](docs/screenshots/contests.png)
 
 ### Ctrl+K, everywhere
-A command palette to jump to any screen or topic, sync, or open today's mix or the next contest, all from the keyboard. Ctrl+1–4 switch screens, Ctrl+R syncs and `?` lists every shortcut.
+A command palette to jump to any screen or topic, sync, or open today's mix or the next contest, all from the keyboard. Ctrl+1–5 switch screens (in sidebar order), Ctrl+R syncs and `?` lists every shortcut.
 
 ![Command palette](docs/screenshots/palette.png)
 
