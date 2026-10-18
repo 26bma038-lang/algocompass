@@ -133,8 +133,11 @@ const Row = memo(function Row({
   note,
   noteOpen,
   onToggleNote,
+  sectionTopic,
 }: {
   p: SheetProblem;
+  /** The section's own topic: a row only shows a chip for a topic beyond it. */
+  sectionTopic: string | undefined;
   status: ProblemStatus;
   note: string | undefined;
   noteOpen: boolean;
@@ -143,7 +146,7 @@ const Row = memo(function Row({
   const openTopic = useUiStore((s) => s.openTopic);
   const site = p.lc ? "LeetCode" : p.cf ? "Codeforces" : p.links?.tuf ? "takeUforward" : p.links?.gfg ? "GeeksforGeeks" : p.links?.code360 ? "Code360" : null;
   const dot = p.lc ? "bg-platform-lc" : p.cf ? "bg-platform-cf" : null;
-  const lead = p.topics[0];
+  const lead = p.topics.find((t) => t !== sectionTopic);
   return (
     <>
       <li className="group flex items-center gap-3 rounded-sm px-3 py-2 transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover">
@@ -230,6 +233,10 @@ function SectionCard({
   const section = sheet.sections[index]!;
   const bodyId = useId();
   const toggleNote = (k: string) => setNoteKey(noteKey === k ? null : k);
+  // The section's topic (its most common lead topic) goes without saying on every row.
+  const leadCounts = new Map<string, number>();
+  for (const p of section.problems) if (p.topics[0]) leadCounts.set(p.topics[0], (leadCounts.get(p.topics[0]) ?? 0) + 1);
+  const sectionTopic = [...leadCounts].sort((a, b) => b[1] - a[1])[0]?.[0];
   // Sub-sections (A2Z's "FAQs (Medium)") as quiet headings inside the card.
   const groups: { sub: string | null; items: SheetProblem[] }[] = [];
   for (const p of problems) {
@@ -303,6 +310,7 @@ function SectionCard({
                       note={notes.get(p.key)?.body}
                       noteOpen={noteKey === p.key && !dupe}
                       onToggleNote={toggleNote}
+                      sectionTopic={sectionTopic}
                     />
                   );
                 })}

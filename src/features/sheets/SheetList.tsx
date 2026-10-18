@@ -99,7 +99,8 @@ export function SheetList() {
     );
   }
   const followed = sheets.data.find((v) => v.sheet.id === followedId);
-  const ordered = followed ? [followed, ...sheets.data.filter((v) => v !== followed)] : sheets.data;
+  // The followed sheet leads in its own card, so the list holds the others (no duplicate row).
+  const others = sheets.data.filter((v) => v !== followed);
   return (
     <div className="grid grid-cols-12 items-start gap-6">
       {followed && (
@@ -110,16 +111,16 @@ export function SheetList() {
       <section aria-labelledby="sheets-title" className="glass-card col-span-12 flex flex-col gap-4 p-6">
         <CardHeader
           id="sheets-title"
-          title={followed ? "All sheets" : "Pick a sheet to follow"}
+          title={followed ? "Other sheets" : "Pick a sheet to follow"}
           description={
             followed
               ? "Every sheet ticks itself from your LeetCode and Codeforces solves. A problem in several sheets is ticked in all of them."
               : "The sheet you follow is pinned here and on Today with your next problem, and gives you a daily quest. Every sheet ticks itself from your LeetCode and Codeforces solves."
           }
-          pill={`${sheets.data.length} sheets`}
+          pill={`${others.length} sheets`}
         />
         <ul className="-mx-3 flex flex-col">
-          {ordered.map((v) => (
+          {others.map((v) => (
             <SheetRow key={v.sheet.id} view={v} followed={v.sheet.id === followedId} />
           ))}
         </ul>

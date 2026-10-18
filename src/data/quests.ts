@@ -113,6 +113,14 @@ export function toQuestMix(items: readonly ResolvedMixItem[]): QuestMixItem[] {
     .map((i) => ({ platform: i.platform, problemId: i.problemId, topicId: i.topicId, rating: i.rec?.platform === "cf" ? i.rec.rating : null }));
 }
 
+/**
+ * The mix quests are built from. Beginner mode gets none of the mix's topic quests: its day is the
+ * Beginner Path (the sheet quest) plus the consistency quest, so nothing competes with Start here.
+ */
+async function questMix(items: readonly ResolvedMixItem[]): Promise<QuestMixItem[]> {
+  return (await readPrefs()).mode === "beginner" ? [] : toQuestMix(items);
+}
+
 export interface TodayQuests {
   day: string;
   quests: QuestState[];
@@ -137,7 +145,7 @@ export function useTodayQuests() {
       if (stored.length === 0) {
         // No mix yet (first sync still running): no quests rather than quests built on half the data.
         if (!mix.data || syncing) return null;
-        await repo.saveQuests(day, generateQuests(toQuestMix(mix.data.items), topicName));
+        await repo.saveQuests(day, generateQuests(await questMix(mix.data.items), topicName));
         stored = await repo.getQuests(day);
       }
       stored = await reconcileSheetQuest(repo, day, stored);
@@ -150,7 +158,7 @@ export function useTodayQuests() {
 
 /** After "New mix": rewrite today's open quests so they point at the new problems. */
 export async function regenerateOpenQuests(day: string, items: readonly ResolvedMixItem[]) {
-  await (await getRepo()).saveQuests(day, generateQuests(toQuestMix(items), topicName));
+  await (await getRepo()).saveQuests(day, generateQuests(await questMix(items), topicName));
 }
 
 /**

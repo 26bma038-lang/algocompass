@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { usePath, type PathView } from "@/data/path";
 import { usePrefs } from "@/data/prefs";
 import { useSolveIndex } from "@/data/sheets";
-import { mainVideo, nextAction, type PathStep, type PathVideo, type VideoLang } from "@/engine/path";
+import { mainVideo, type PathStep, type PathVideo, type VideoLang } from "@/engine/path";
 import { problemStatus } from "@/engine/sheets";
 import { useRewardPulse } from "@/features/quests/QuestList";
 import { OpenButton, sourceLabel, TickBox } from "@/features/sheets/parts";
@@ -33,7 +33,7 @@ function WatchCard({ step, view, lang }: { step: PathStep; view: PathView; lang:
       <CardHeader
         id="watch-title"
         title="1. Watch"
-        description={current.id === main?.id ? "The main video. Mark it watched when you're done: it's half of finishing this step." : "An extra video. The main one is what finishes the step."}
+        description={current.id === main?.id ? "The main video. Mark it watched when you're done." : "An extra. The main video is what finishes the step."}
         actions={<LangToggle />}
       />
       {/* key: a new video starts on its thumbnail, not mid-play. */}
@@ -72,10 +72,10 @@ function WatchCard({ step, view, lang }: { step: PathStep; view: PathView; lang:
 }
 
 /** Read: the pattern in five lines (when to use it, the idea, common mistakes). */
-function ReadCard({ step }: { step: PathStep }) {
+function ReadCard({ step, ahead = false }: { step: PathStep; ahead?: boolean }) {
   return (
     <section aria-labelledby="read-title" className="glass-card flex h-full flex-col gap-4 p-6">
-      <CardHeader id="read-title" title="2. Read" description="The pattern in five lines." />
+      <CardHeader id="read-title" title={ahead ? "Read ahead" : "2. Read"} description="The pattern in five lines." />
       <dl className="flex flex-col gap-4 text-body-sm">
         <div className="flex flex-col gap-1">
           <dt className="text-label font-semibold text-ink-muted">When to use it</dt>
@@ -171,7 +171,7 @@ export function Lesson() {
 
   return (
     <div className="grid grid-cols-12 items-stretch gap-6">
-      <section aria-labelledby="lesson-title" className={cn("glass-card col-span-12 flex flex-col gap-4 p-6", pulse && "aura-pulse")}>
+      <section aria-labelledby="lesson-title" className={cn("glass-card col-span-12 flex flex-col gap-3 p-6", pulse && "aura-pulse")}>
         <Link to="/practice/path" className="flex items-center gap-1 self-start rounded-xs text-body-sm text-ink-muted hover:text-ink">
           <ChevronLeft aria-hidden className="size-4" />
           Beginner Path
@@ -216,7 +216,6 @@ export function Lesson() {
             )}
           </div>
         )}
-        {s.state === "current" && <p className="text-body-sm text-ink-muted">To finish: {nextAction(s, mainVideo(step, lang)).label.toLowerCase()}.</p>}
         {s.state === "locked" && prevStep && (
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-dashed border-glass-border-strong p-4">
             <p className="flex items-center gap-2 text-body text-ink-muted">
@@ -232,7 +231,7 @@ export function Lesson() {
 
       {s.state === "locked" ? (
         <div className="col-span-12 lg:col-span-6">
-          <ReadCard step={step} />
+          <ReadCard step={step} ahead />
         </div>
       ) : (
         <>

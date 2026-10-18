@@ -2,14 +2,17 @@ import { Check, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useUpdatePrefs } from "@/data/prefs";
-import { openTarget, useTickProblem } from "@/data/sheets";
+import { openTarget, PATH_SHEET_ID, useTickProblem } from "@/data/sheets";
 import type { NextPick, ProblemStatus, Sheet, SheetProblem } from "@/engine/sheets";
 import { TOPIC_BY_ID } from "@/engine/topics";
 import { openExternal } from "@/lib/openExternal";
 import { cn } from "@/lib/utils";
 
-/** "Sheet by <creator>", linking the original. Shown on every sheet. */
-export function SheetCredit({ sheet, className }: { sheet: Pick<Sheet, "creator" | "sourceUrl" | "name">; className?: string }) {
+/** "Sheet by <creator>", linking the original. Shown on every sheet. The Beginner Path is built in: no link out. */
+export function SheetCredit({ sheet, className }: { sheet: Pick<Sheet, "id" | "creator" | "sourceUrl" | "name">; className?: string }) {
+  if (sheet.id === PATH_SHEET_ID) {
+    return <span className={cn("self-start text-body-sm text-ink-muted", className)}>Built into AlgoCompass: lessons with videos</span>;
+  }
   return (
     <button
       type="button"
