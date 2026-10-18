@@ -1,5 +1,33 @@
 # AlgoCompass progress log
 
+## In progress: v1.3, Sheets + Beginner Path + video lessons (branch `v1.3`)
+
+Not merged or released: waiting for your review.
+
+### Part 1: sheet data
+- `scripts/gen-sheets.mjs` (`npm run gen:sheets`) builds `src/data/sheets/<id>.json` from each sheet's original source, in the source's order with its sections:
+
+  | Sheet | Source | Problems | Sections | On LeetCode |
+  |---|---|---|---|---|
+  | Striver's A2Z | takeUforward, `prep-hub/strivers-a2z-dsa-sheet` (the sheet's embedded syllabus data) | 452 rows, 436 distinct | 20 steps | 289 |
+  | Striver's SDE Sheet | takeUforward, `prep-hub/strivers-sde-sheet` | 155 rows, 151 distinct | 27 days | 125 |
+  | NeetCode 150 | NeetCode's own site data (`neetcode-gh/leetcode/.problemSiteData.json`, which neetcode.io uses) | 150 | 18 | 150 |
+  | Blind 75 | The original Blind post (Yangshun Tay, 2018-12-31), read from the post's JSON-LD | 76 rows, 75 distinct | 10 | 76 |
+  | Love Babbar 450 | Love Babbar's own spreadsheet (the .xlsx on his Google Drive; the links are read from its cell hyperlinks) | 448 rows, 419 distinct | 15 topics | 21 |
+- **Verified:** every LeetCode slug through `question(titleSlug)` (title, difficulty, premium flag and tags come from LeetCode), and every Codeforces id through `problemset.problems`. None of the five sources links a Codeforces problem, so there are no CF ids in the sheets. The CF check runs for the Beginner Path.
+- **`npm run check:links`** now verifies the sheets too (`scripts/lib/check-sheets.mjs`). `--deep` also opens every takeUforward practice link (607, all 200). It passes.
+- All five sheets are **complete**: nothing failed verification.
+
+**Decisions (Part 1)**
+- **takeUforward's current sheets.** The A2Z sheet on takeUforward is now 20 named steps (Beginner Problems, Sorting, Arrays…) rather than the older "Step 1–18" titles. I kept the source's current titles and order and number them as steps in the UI. The old SDE Sheet URL now redirects to "Striver's 180", but the SDE Sheet itself still exists at `prep-hub/strivers-sde-sheet` with its 27 days, so that's the source. Only practice items are included; lesson and article items ("Breaking the myth", theory) and contests aren't problems.
+- **Difficulty:** the LeetCode difficulty when there's a LeetCode link. Otherwise it's takeUforward's own level, mapped basic → Easy, core → Medium, pro → Hard. Love Babbar's sheet gives no difficulty, so its non-LeetCode problems have none (shown as "–").
+- **Titles:** LeetCode's title when the problem is on LeetCode. The source's wording is kept as `sourceTitle` when it differs (e.g. A2Z's "Reverse a number" is LeetCode's "Reverse Integer").
+- **Renamed LeetCode slugs** in the sources are mapped to the current slug and verified: `add-and-search-word-data-structure-design` (Blind 75) and `implement-strstr` (A2Z, SDE: "KMP Algorithm or LPS array" → LeetCode 28).
+- **Blind 75** has one entry with no link ("Longest Common Subsequence"). It's matched to LeetCode's problem of exactly that title. "Merge K Sorted Lists" is listed twice in the original (Linked List and Heap), so there are 76 rows and 75 distinct problems. Its "Combination Sum" links Combination Sum IV, and the link is kept as the source has it.
+- **One problem, every sheet:** each problem gets a canonical `key`. Problems that share any identifier (LeetCode slug, CF id, GFG slug, takeUforward slug) are merged across all sheets into one key, preferring lc > cf > gfg > tuf. Progress counts distinct keys, so a problem listed twice in one sheet counts once.
+- **No other app's data.** Nothing comes from Codolio or any other tracker. Only the creators' own sources are used.
+- **Love Babbar 450** is mostly GeeksforGeeks (370 distinct) plus 21 LeetCode links. Those GFG problems can't tick automatically: manual and bulk ticks cover them. I didn't add LeetCode equivalents the sheet doesn't link, because that would be guessing.
+
 ## Latest: v1.2.0, simplify (2026-10-17)
 
 **Released as v1.2.0:** `simplify` was merged into master, and the version was bumped in package.json, tauri.conf.json and Cargo.toml. `npm test` passes (294) and `npm run tauri build` produced:

@@ -178,5 +178,9 @@ for (const p of problems) {
 }
 if (!quiet) console.log(`ok    ${lcOk}/${problems.length} curated LeetCode problems match LeetCode`);
 
+// ---- 4. Sheets (src/data/sheets/*.json): every LeetCode slug and Codeforces id exists and matches. ----
+const { checkSheets } = await import("./lib/check-sheets.mjs");
+failures += await checkSheets({ root, report, quiet, deep: process.argv.includes("--deep") });
+
 console.log(failures ? `\n${failures} problem(s) found.` : "\nAll links verified.");
 process.exit(failures ? 1 : 0);
