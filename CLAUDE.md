@@ -85,6 +85,7 @@ App-wide: Ctrl+K command palette, Ctrl+R sync, `?` shortcut sheet, Ctrl+B sideba
 - Every screen except Today is `React.lazy` in `src/router.tsx`; keep new screens lazy. Recharts (Progress → Overview) is lazy too.
 - `import.meta.env.TAURI_ENV_PLATFORM` (via `envPrefix` in vite.config.ts) is set by the Tauri CLI. Use it to keep browser-only code (the sql.js driver) out of the desktop bundle.
 - Never edit an applied migration in `src-tauri/migrations/` (sqlx checksums them). Add a new one.
+- **Migrations must stay LF** on every OS: sqlx checksums their exact bytes, and a CRLF copy bricked v1.3.0 at startup. Enforced by `.gitattributes` (`*.sql text eol=lf`), by `scripts/check-migrations-lf.mjs` (runs in `npm run build` and `npm test`), and by the startup self-heal in `src-tauri/src/migration_heal.rs`, which repairs line-ending-only checksum mismatches before the sql plugin migrates.
 - The bundle identifier stays `com.algocompass.app`: the user's data folder is named after it (see PROGRESS.md, v1.0).
 
 ## Gamification and reward rules

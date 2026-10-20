@@ -13,11 +13,49 @@ use tauri_plugin_notification::NotificationExt;
 use tauri_plugin_sql::{Migration, MigrationKind};
 use tauri_plugin_store::StoreExt;
 
+mod migration_heal;
+
 /// Must match `DB_URL` in src/data/db.ts.
 const DB_URL: &str = "sqlite:algocompass.db";
 /// Debug → preview profile (src/lib/sandbox.ts): a separate database with the same schema, so a
 /// preview never touches the real one. Must match `PREVIEW_DB_URL` in src/data/db.ts.
 const PREVIEW_DB_URL: &str = "sqlite:algocompass-preview.db";
+
+/// Runs before the sql plugin (plugins set up in registration order) and repairs stored
+/// migration checksums that differ from the bundled SQL only by line endings, so a CRLF/LF
+/// mix-up can never again stop the app from starting (v1.3.0). Logged to migration-heal.log.
+fn migration_heal_plugin<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
+    tauri::plugin::Builder::new("migration-heal")
+        .setup(|app, _api| {
+            let Ok(dir) = app.path().app_config_dir() else {
+                return Ok(());
+            };
+            let bundled: Vec<migration_heal::Bundled> = migrations()
+                .into_iter()
+                .map(|m| migration_heal::Bundled { version: m.version, sql: m.sql })
+                .collect();
+            for url in [DB_URL, PREVIEW_DB_URL] {
+                let file = url.split_once(':').map_or(url, |(_, f)| f);
+                let path = dir.join(file);
+                let line = match tauri::async_runtime::block_on(migration_heal::heal(&path, &bundled)) {
+                    Ok(v) if v.is_empty() => continue,
+                    Ok(v) => format!("{file}: repaired line-ending checksums for migrations {v:?}"),
+                    Err(e) => format!("{file}: checksum repair skipped: {e}"),
+                };
+                eprintln!("[migration-heal] {line}");
+                let log = dir.join("migration-heal.log");
+                let entry = format!("{} {line}
+", now_secs());
+                let _ = std::fs::OpenOptions::new()
+                    .create(true)
+                    .append(true)
+                    .open(log)
+                    .and_then(|mut f| std::io::Write::write_all(&mut f, entry.as_bytes()));
+            }
+            Ok(())
+        })
+        .build()
+}
 
 /// Passed by the autostart entry: start hidden in the tray.
 const MINIMIZED_ARG: &str = "--minimized";
@@ -173,6 +211,8 @@ pub fn run() {
         )
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_http::init())
+        // Must stay right before the sql plugin: it fixes checksums before migrations run.
+        .plugin(migration_heal_plugin())
         .plugin(
             tauri_plugin_sql::Builder::new()
                 .add_migrations(DB_URL, migrations())
