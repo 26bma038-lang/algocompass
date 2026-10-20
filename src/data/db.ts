@@ -1,12 +1,16 @@
 import { isTauri } from "@tauri-apps/api/core";
+import { PREVIEW } from "@/lib/sandbox";
 import migration0001 from "../../src-tauri/migrations/0001_init.sql?raw";
 import migration0002 from "../../src-tauri/migrations/0002_lc_problems.sql?raw";
 import migration0003 from "../../src-tauri/migrations/0003_recommender.sql?raw";
 import migration0004 from "../../src-tauri/migrations/0004_quests.sql?raw";
 import migration0005 from "../../src-tauri/migrations/0005_achievements.sql?raw";
+import migration0006 from "../../src-tauri/migrations/0006_sheets.sql?raw";
 
 /** Must match `DB_URL` in src-tauri/src/lib.rs (where the Rust side runs migrations). */
 export const DB_URL = "sqlite:algocompass.db";
+/** Debug → preview profile: a separate file, wiped when a preview starts. Must match PREVIEW_DB_URL in lib.rs. */
+export const PREVIEW_DB_URL = "sqlite:algocompass-preview.db";
 
 /** All SQL in the app uses `$1, $2, …` placeholders in order of appearance. */
 export type SqlValue = string | number | null;
@@ -16,11 +20,12 @@ export interface SqlDriver {
   select<T>(sql: string, params?: SqlValue[]): Promise<T[]>;
 }
 
-export const MIGRATIONS = [migration0001, migration0002, migration0003, migration0004, migration0005];
+export const MIGRATIONS = [migration0001, migration0002, migration0003, migration0004, migration0005, migration0006];
 
 async function tauriDriver(): Promise<SqlDriver> {
   const { default: Database } = await import("@tauri-apps/plugin-sql");
-  const db = await Database.load(DB_URL); // runs Rust-side migrations
+  // A preview profile never opens your real database (src/lib/sandbox.ts).
+  const db = await Database.load(PREVIEW ? PREVIEW_DB_URL : DB_URL); // runs Rust-side migrations
   return {
     execute: async (sql, params = []) => {
       await db.execute(sql, params);

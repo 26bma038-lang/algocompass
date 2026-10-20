@@ -7,6 +7,7 @@ import { useRecommender } from "@/data/recommendations";
 import type { Recommender, TopicPlan } from "@/engine/recommender";
 import { TOPIC_BY_ID } from "@/engine/topics";
 import { openExternal } from "@/lib/openExternal";
+import { TopicVideos } from "./TopicVideos";
 
 const PER_LIST = 3;
 
@@ -135,7 +136,8 @@ export function TopicResources({ topicId }: { topicId: string }) {
   ];
   return (
     <div className="flex flex-col gap-4">
-      {tiers.map((t) => (
+      <TopicVideos topicId={topicId} />
+      {tiers.filter((t) => t.items.length > 0).map((t) => (
         <div key={t.label} className="flex flex-col gap-1">
           <h4 className="text-label text-ink-muted">{t.label}</h4>
           <ul className="-mx-2 flex flex-col">

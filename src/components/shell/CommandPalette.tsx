@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Command } from "cmdk";
-import { CalendarClock, Keyboard, Network, PanelLeft, RefreshCw, Search, Target, Trophy, type LucideIcon } from "lucide-react";
+import { CalendarClock, GraduationCap, Keyboard, ListChecks, Network, PanelLeft, PlayCircle, RefreshCw, Search, Target, Trophy, type LucideIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { RESOURCES } from "@/data/catalog";
 import { useHomeData } from "@/data/queries";
 import { useSyncStore } from "@/data/syncStore";
 import { useUiStore } from "@/data/uiStore";
@@ -10,7 +11,8 @@ import { shortName } from "@/features/home/ContestStrip";
 import { openExternal } from "@/lib/openExternal";
 import { topicIcon } from "@/lib/topicIcons";
 import { paletteScore } from "@/lib/paletteScore";
-import { ALL_NAV } from "./nav";
+import { learnTopicPath } from "./nav";
+import { useNav } from "./useNav";
 
 /** Shortcut text as shown in kbd keys ("Ctrl 1"). */
 export const keyLabel = (shortcut: string) => `Ctrl ${shortcut}`;
@@ -55,6 +57,7 @@ const SCREEN_KEYWORDS: Record<string, string[]> = {
   "/": ["home", "home base", "quests", "daily", "streak"],
   "/practice": ["problems", "mix", "upsolve", "recommendations"],
   "/progress": ["rating", "level", "xp", "weekly goals", "weekly review"],
+  "/learn": ["videos", "lessons", "lectures", "watch", "youtube", "beginner path", "hindi", "english"],
 };
 
 const GROUPS: Entry["group"][] = ["Actions", "Screens", "Topics"];
@@ -71,6 +74,7 @@ export function CommandPalette() {
   const { data } = useHomeData();
   const nextContest = data?.upcoming.find((c) => c.platform === "cf") ?? data?.upcoming[0];
   const [search, setSearch] = useState("");
+  const nav = useNav().all;
 
   /** Close first, then act: the palette never lingers over where you're going. */
   const run = (fn: () => void) => () => {
@@ -86,10 +90,26 @@ export function CommandPalette() {
       : []),
     { key: "keys", group: "Actions", icon: Keyboard, label: "Keyboard shortcuts", kbd: "?", keywords: ["help", "keys"], onSelect: run(() => setShortcuts(true)) },
     { key: "sidebar", group: "Actions", icon: PanelLeft, label: "Toggle sidebar", kbd: "Ctrl B", onSelect: run(toggleSidebar) },
-    ...ALL_NAV.map((n): Entry => ({ key: n.to, group: "Screens", icon: n.icon, label: n.label, kbd: keyLabel(n.shortcut), keywords: ["go", "screen", ...(SCREEN_KEYWORDS[n.to] ?? [])], onSelect: run(() => navigate(n.to)) })),
+    ...nav.map((n): Entry => ({ key: n.to, group: "Screens", icon: n.icon, label: n.label, kbd: keyLabel(n.shortcut), keywords: ["go", "screen", ...(SCREEN_KEYWORDS[n.to] ?? [])], onSelect: run(() => navigate(n.to)) })),
     { key: "tab-topics", group: "Screens", icon: Network, label: "Topics map", hint: "Progress", keywords: ["skill tree", "graph", "mastery"], onSelect: run(() => navigate("/progress/topics")) },
     { key: "tab-achievements", group: "Screens", icon: Trophy, label: "Achievements", hint: "Progress", keywords: ["badges", "unlocks", "level", "xp"], onSelect: run(() => navigate("/progress/achievements")) },
+    { key: "tab-sheets", group: "Screens", icon: ListChecks, label: "Sheets", hint: "Practice", keywords: ["striver", "a2z", "sde", "neetcode", "blind 75", "babbar", "450", "list"], onSelect: run(() => navigate("/practice/sheets")) },
+    { key: "tab-path", group: "Screens", icon: GraduationCap, label: "Beginner Path", hint: "Learn", keywords: ["lessons", "videos", "start", "beginner", "steps"], onSelect: run(() => navigate("/learn")) },
     ...TOPICS.map((t): Entry => ({ key: t.id, group: "Topics", icon: topicIcon(t.id), label: t.name, keywords: [...t.cfTags, ...t.lcTags, "topic"], onSelect: run(() => openTopic(t.id)) })),
+    // While searching, a topic with videos also offers its lessons (Learn, filtered to it).
+    ...(search.trim()
+      ? TOPICS.filter((t) => (RESOURCES[t.id]?.videos.length ?? 0) > 0).map(
+          (t): Entry => ({
+            key: `watch-${t.id}`,
+            group: "Topics",
+            icon: PlayCircle,
+            label: `Watch ${t.name} videos`,
+            hint: "Learn",
+            keywords: [t.name, ...t.cfTags, ...t.lcTags, "videos", "lessons", "learn", "watch"],
+            onSelect: run(() => navigate(learnTopicPath(t.id))),
+          }),
+        )
+      : []),
   ];
   const row = (e: Entry, flat: boolean) => (
     <Item key={e.key} icon={e.icon} label={e.label} hint={flat ? KIND[e.group] : e.hint} kbd={e.kbd} keywords={e.keywords} onSelect={e.onSelect} />

@@ -1,4 +1,5 @@
 import type { SqlDriver, SqlValue } from "./db";
+import type { TickRow } from "@/engine/sheets";
 import type {
   CfProblem,
   CfRatingChange,
@@ -46,6 +47,10 @@ export const TABLES = [
   "contest_results",
   "upsolve_queue",
   "achievements",
+  "sheet_ticks",
+  "sheet_notes",
+  "video_watched",
+  "path_steps",
   "sync_log",
 ] as const;
 export type TableName = (typeof TABLES)[number];
@@ -444,6 +449,18 @@ export class Repo {
     );
   }
 
+  /** Adds one quest to the day (the sheet quest), keeping any already stored under that id. */
+  async addQuest(day: string, q: QuestSpec) {
+    await this.db.execute(
+      "INSERT INTO daily_quests (day, quest_id, spec_json, xp, completed_at) VALUES ($1, $2, $3, $4, NULL) ON CONFLICT(day, quest_id) DO NOTHING",
+      [day, q.id, json(q), q.xp],
+    );
+  }
+
+  async deleteOpenQuest(day: string, questId: string) {
+    await this.db.execute("DELETE FROM daily_quests WHERE day = $1 AND quest_id = $2 AND completed_at IS NULL", [day, questId]);
+  }
+
   async completeQuest(day: string, questId: string, at: number) {
     await this.db.execute("UPDATE daily_quests SET completed_at = $1 WHERE day = $2 AND quest_id = $3 AND completed_at IS NULL", [at, day, questId]);
   }
@@ -478,6 +495,73 @@ export class Repo {
       rows.map((r) => [r.id, r.unlockedAt, now]),
       "ON CONFLICT(id) DO NOTHING",
     );
+  }
+
+  // ---------- sheets, path, videos (v1.3) ----------
+  async getSheetTicks(): Promise<TickRow[]> {
+    return this.db.select<TickRow>('SELECT problem_key AS "key", state, source, at FROM sheet_ticks');
+  }
+
+  /** Sets ticks by hand (one row per problem key; the newest wins). */
+  async setSheetTicks(rows: TickRow[]) {
+    await insertMany(
+      this.db,
+      "INSERT INTO sheet_ticks (problem_key, state, source, at)",
+      4,
+      rows.map((r) => [r.key, r.state, r.source, r.at]),
+      "ON CONFLICT(problem_key) DO UPDATE SET state = excluded.state, source = excluded.source, at = excluded.at",
+    );
+  }
+
+  async deleteSheetTicks(keys: string[]) {
+    for (let i = 0; i < keys.length; i += CHUNK) {
+      const chunk = keys.slice(i, i + CHUNK);
+      await this.db.execute(`DELETE FROM sheet_ticks WHERE problem_key IN (${chunk.map((_, j) => `$${j + 1}`).join(", ")})`, chunk);
+    }
+  }
+
+  async getSheetNotes(): Promise<{ key: string; body: string; updatedAt: number }[]> {
+    return this.db.select('SELECT problem_key AS "key", body, updated_at AS "updatedAt" FROM sheet_notes');
+  }
+
+  /** Saves a note; an empty one is deleted. */
+  async saveSheetNote(key: string, body: string, now: number) {
+    if (!body.trim()) {
+      await this.db.execute("DELETE FROM sheet_notes WHERE problem_key = $1", [key]);
+      return;
+    }
+    await this.db.execute(
+      `INSERT INTO sheet_notes (problem_key, body, updated_at) VALUES ($1, $2, $3)
+       ON CONFLICT(problem_key) DO UPDATE SET body = excluded.body, updated_at = excluded.updated_at`,
+      [key, body, now],
+    );
+  }
+
+  async getWatchedVideos(): Promise<Map<string, number>> {
+    const rows = await this.db.select<{ video_id: string; watched_at: number }>("SELECT video_id, watched_at FROM video_watched");
+    return new Map(rows.map((r) => [r.video_id, r.watched_at]));
+  }
+
+  async setVideoWatched(videoId: string, watched: boolean, now: number) {
+    if (watched) {
+      await this.db.execute("INSERT INTO video_watched (video_id, watched_at) VALUES ($1, $2) ON CONFLICT(video_id) DO NOTHING", [videoId, now]);
+    } else {
+      await this.db.execute("DELETE FROM video_watched WHERE video_id = $1", [videoId]);
+    }
+  }
+
+  async getPathSteps(): Promise<Map<string, number>> {
+    const rows = await this.db.select<{ step_id: string; completed_at: number }>("SELECT step_id, completed_at FROM path_steps");
+    return new Map(rows.map((r) => [r.step_id, r.completed_at]));
+  }
+
+  async recordPathSteps(ids: string[], now: number) {
+    await insertMany(this.db, "INSERT INTO path_steps (step_id, completed_at)", 2, ids.map((id) => [id, now]), "ON CONFLICT(step_id) DO NOTHING");
+  }
+
+  /** Wipes every table: only ever called on the separate preview database (Debug → beginner preview). */
+  async wipeAll() {
+    for (const t of TABLES) await this.db.execute(`DELETE FROM ${t}`);
   }
 
   // ---------- contests ----------

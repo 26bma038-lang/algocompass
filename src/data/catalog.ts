@@ -14,13 +14,25 @@ export interface Resource {
   url: string;
 }
 
+/** A topic video (v1.3). Title, channel and minutes are exactly what YouTube reports (npm run fill:media). */
+export interface TopicVideo {
+  /** YouTube video id. */
+  id: string;
+  lang: "en" | "hi";
+  role: "intro" | "lecture" | "walkthrough";
+  minutes: number;
+  title: string;
+  channel: string;
+}
+
 export interface TopicResources {
   learn: Resource[];
   practice: Resource[];
   deeper: Resource[];
+  videos: TopicVideo[];
 }
 
-export const RESOURCES = resourcesData.topics as Record<string, TopicResources>;
+export const RESOURCES = resourcesData.topics as unknown as Record<string, TopicResources>;
 
 export interface LcList {
   name: string;

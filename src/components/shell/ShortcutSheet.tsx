@@ -1,9 +1,10 @@
 import { Dialog } from "radix-ui";
 import { X } from "lucide-react";
 import { useUiStore } from "@/data/uiStore";
-import { ALL_NAV } from "./nav";
+import type { NavItem } from "./nav";
+import { useNav } from "./useNav";
 
-const GROUPS: { title: string; keys: [string, string][] }[] = [
+const groups = (nav: NavItem[]): { title: string; keys: [string, string][] }[] => [
   {
     title: "Anywhere",
     keys: [
@@ -14,7 +15,7 @@ const GROUPS: { title: string; keys: [string, string][] }[] = [
       ["Esc", "Close a panel, dialog or moment"],
     ],
   },
-  { title: "Screens", keys: ALL_NAV.map((n) => [`Ctrl ${n.shortcut}`, n.label]) },
+  { title: "Screens", keys: nav.map((n) => [`Ctrl ${n.shortcut}`, n.label]) },
   {
     title: "Progress · Topics map",
     keys: [
@@ -28,6 +29,7 @@ const GROUPS: { title: string; keys: [string, string][] }[] = [
 export function ShortcutSheet() {
   const open = useUiStore((s) => s.shortcutsOpen);
   const setOpen = useUiStore((s) => s.setShortcutsOpen);
+  const nav = useNav().all;
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Portal>
@@ -46,7 +48,7 @@ export function ShortcutSheet() {
             </Dialog.Close>
           </div>
           <div className="mt-5 grid grid-cols-2 gap-x-8 gap-y-5">
-            {GROUPS.map((g) => (
+            {groups(nav).map((g) => (
               <section key={g.title} className="flex flex-col gap-1.5">
                 <h3 className="text-label text-ink-faint">{g.title}</h3>
                 <dl className="flex flex-col gap-1">

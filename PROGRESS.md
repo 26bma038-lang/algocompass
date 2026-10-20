@@ -1,5 +1,324 @@
 # AlgoCompass progress log
 
+## In progress: v1.3, Sheets + Beginner Path + video lessons (branch `v1.3`)
+
+Not merged or released, and the version is still 1.2.0: waiting for your review.
+
+### v1.3 Learn: a top-level screen for every lesson (2026-10-18)
+
+**Why:** you couldn't find where to watch the lectures. In smart mode the Beginner Path tab didn't show at all, and topic videos were hidden in the Topic Detail side panel.
+
+**Summary**
+- **Learn** is a new top-level screen (`/learn`, lazy), in the sidebar in both modes:
+  - **Smart mode:** Today · Practice · **Learn** · Progress · Contests.
+  - **Beginner mode:** Today · **Learn** · Practice · Progress. **Contests** stays hidden until the Recursion step (step 9) is done. Then it appears with a **New** badge, and a toast says "You're ready for contests". The badge clears the first time you open Contests.
+  - Ctrl+1–5 follow the sidebar order in each mode. The shortcut sheet, Ctrl+K, the tour and the tray menu were all updated.
+- **What's on Learn**, top to bottom:
+  1. **Continue learning:** your current lesson or last video, with its progress, and one button to resume.
+  2. **The Beginner Path roadmap:** 14 steps, marked done, current or locked. It moved here from Practice.
+  3. **The video library:** 147 videos across 33 topics (lessons plus `resources.json`), grouped by topic. It has an English / Hindi / Both filter, Not watched yet, a topic picker, lengths, channels and ✓ Watched. In smart mode your weak topics come first.
+  4. **Search** across topic names, video titles and channels.
+- **Lesson focus mode** (`/learn/path/:step`):
+  - A breadcrumb (Learn › Beginner Path › Step N) with Back.
+  - A big video sized to the window, then Read and Solve.
+  - A sticky bar with Watch → Read → Solve checkmarks and **one Next button**: I've watched the video → I've read it → Open problem 1 of 3: … → I solved … → … → **Next step: Arrays**.
+- **A single-video page** (`/learn/watch/:id`) plays the video big, with the topic's other videos below.
+- **Links into Learn:**
+  - Today's Start here opens the lesson directly.
+  - Topic Detail has a two-video preview and a **Watch lessons** button.
+  - Every sheet section has **Learn this topic**.
+  - In Ctrl+K, typing a topic offers **Watch (topic) videos**.
+  - The tour is v3, and beginners meet Learn first.
+- **Old routes still work:** `/practice/path` → `/learn` and `/practice/path/:step` → `/learn/path/:step`. In Beginner mode Practice is now Sheets · Today's mix.
+
+**Checked**
+- **`npm test`:** 384 pass (22 new):
+  - `engine/learn.test.ts`: library build and dedupe, ordering per mode, filters and search, continue learning, the contests milestone, the Next flow;
+  - `components/shell/nav.test.ts`: nav per mode, shortcuts, the New badge, redirects, tour v3;
+  - `router.test.ts`: the new routes and redirects matched against the real route table;
+  - `data/learn.test.ts`: continue-learning history that survives a restart.
+- **Build:** `npm run build` is green, and Learn, Lesson and Watch are their own lazy chunks. The main chunk grew 1.2 KB (its 500 KB warning was already there before this work). `cargo check` passes after the tray change.
+- **The beginner's first day, walked in the "Preview a fresh beginner" sandbox** (browser mode, Light and Dark, 1100x700). Today showed one primary button, Start the lesson. It opened Step 1, and Next walked the whole lesson: watched → read → Open Fizz Buzz (LeetCode opened) → I solved Fizz Buzz → … ×3 → Next step: Arrays. Back returned to Step 1, and Learn's Continue learning showed Step 2. No decisions and no dead ends, once two were fixed (below).
+- **First launch as a beginner** (Preview first launch): "Yes, I'm new" → Start learning → the tour goes Learn → Practice → Progress → Today and ends on Start here.
+- **The contests milestone, end to end:** I finished steps 1–9 through the Next button. After step 8 the sidebar had no Contests. After step 9 it read "Contests New", and the toast said "You're ready for contests: Contests is now in the sidebar". Ctrl+5 opened Contests and cleared the badge. Collapsed, the badge is a dot on the icon.
+- **`npm run tauri dev` (the real window, your real data):** Rust built in 1m 24s. Smart mode showed Today · Practice · Learn · Progress · Contests, the six-step tour v3, and Learn with Continue learning suggesting your weakest topic. I only took screenshots and didn't dismiss the tour, so nothing in your settings changed.
+- **Smart mode, with a real sync of your handles** (browser mode, not your desktop data):
+  - Learn is one click from the sidebar (or Ctrl+3).
+  - Continue learning suggests a video from your weakest topic (Two pointers & sliding window).
+  - The library leads with Two pointers, Prefix sums, Stacks & queues…
+  - Playing a video makes it the thing Continue learning resumes.
+  - Ctrl+K "binary search" offers Binary search, then Watch Binary search videos. Both that and Topic Detail → Watch lessons land on `/learn?topic=binary-search`.
+  - NeetCode 150 has 18 "Learn this topic" links.
+  - `/practice/path/hashing` redirects to `/learn/path/hashing`.
+
+**Fixed after the walk-through and the critique**
+- **P0:** the "Step 1 done" toast sat right on top of the sticky Next button, so "Next step" couldn't be clicked for about 4 seconds. On lesson pages, toasts now sit above the bar.
+- **P1:** a beginner's tour ended on Progress, away from Start here. It now ends on Today.
+- **P1:** at 1100x700 the lesson video's title and Mark as watched sat under the Next bar. The header is tighter, and the video is sized to the window.
+- **P2:** the library toolbar wrapped the topic picker onto its own row at 1100px. It's one row now.
+- **Also:** a new screen now opens scrolled to the top. Going from a lesson to the next one used to start halfway down the page.
+
+**Impeccable critique** (one pass; **degraded: single context**, because you asked for no background agents):
+- **Covered:** Learn, the lesson page, the watch page and the sidebar in both modes, Light and Dark at 1100x700.
+- **Score:** 32/40 (Good).
+- **Detector:** 0 findings on the new UI files.
+- **Open, P3:** when two steps finish within seconds, the two stacked toasts can cover a Solve row's Open button. In real use steps finish far apart.
+- Questions skipped: you asked for no questions.
+
+**Screenshots:** 34 in `docs/screenshots/v1.3/learn/`:
+- Today and Learn in Beginner mode;
+- a lesson at start, read, solve and done;
+- Learn and the library in smart mode;
+- the watch page and the topic filter;
+- Contests unlocked (expanded and collapsed);
+- the tour (beginner and smart);
+- Ctrl+K, Topic Detail → Watch lessons, a sheet's Learn this topic, and the shortcut sheet.
+
+**Decisions (Learn)**
+- **Shortcuts follow the sidebar,** so Learn is Ctrl+2 for beginners and Ctrl+3 in smart mode. That way Ctrl+N always matches the Nth item you see. In Beginner mode Ctrl+5 does nothing until Contests appears.
+- **Contests stays reachable** in Beginner mode by URL and from the tray. Only the sidebar hides it. The tray menu is static (built in Rust), so it lists all five screens in smart order; making it follow the mode would need a new IPC call for little gain.
+- **The New badge** is stored as the setting `contestsSeen`. It's set the first time `/contests` opens after the milestone, from anywhere.
+- **The milestone is "Recursion done"** using the path's own rule: main video watched and the 3 required problems solved. Recorded steps never re-lock, so Contests never disappears again.
+- **A single-video page** (`/learn/watch/:id`) wasn't asked for. Continue learning needed somewhere to resume a video in one click, and a big player there matches the lesson page. Picking a video there starts it playing; lesson videos still wait for a click, so nothing loads from YouTube until you ask.
+- **Continue learning** resumes whichever is more recent, the last lesson or the last video. A finished lesson resumes at the current step instead. With no history:
+  - Beginner mode starts Step 1.
+  - Smart mode suggests the first unwatched video (in your language) from your weakest topic.
+  - Smart mode without topic data falls back to the path.
+- **History is a setting, not SQLite** (`learn`: last lesson, last video, lessons read). That needed no migration, and a Debug preview keeps it in memory.
+- **Read now has a record:** "I've read it" adds the step to `learn.read`, which gives Read its checkmark. Unlocking is unchanged (main video watched + required problems solved).
+- **"I've watched the video"** marks the main video in your current language, the same as Mark as watched. **"I solved …"** is a hand tick, exactly like the tick box (it also writes `manual_solves`). Problems that a sync has already ticked are skipped.
+- **The library's language filter** is English / Hindi / Both. It defaults to your lesson language but doesn't change it. Settings and the lesson's toggle still own that pref.
+- **The roadmap is open in Beginner mode and folded in smart mode,** so the library sits near the fold for smart users. The breadcrumb's "Beginner Path" (`/learn#path`) opens it.
+- **Library topics:** lesson videos join every topic their step teaches (Basics shows under Implementation and Math). A video listed by both a lesson and `resources.json` appears once per topic, as the lesson. Beginner mode orders topics by step, then the step's own topic order.
+- **Topic Detail** previews 2 videos in your language. The old "Also in Hindi" toggle gave way to **Watch lessons**, because Learn shows both languages.
+- **"Learn this topic"** uses the section's most common lead topic (the same rule as the row chips). It only shows when that topic has videos, and it sits beside the section toggle, not inside it.
+- **Beginner mode's Practice** is now Sheets · Today's mix, and `/practice` lands on Sheets, since the lessons moved to Learn.
+- **Tour v3:**
+  - Beginners: Learn → Practice → Progress → (Contests) → Today. Learn comes first, as asked, and Today comes last, so "Got it" leaves them on Start here.
+  - Smart mode: Today → Practice → Sheets → Learn → Progress → Contests.
+- **The route table** is exported as `routes`, and the router is created by `getRouter()`, so tests can match paths without a browser.
+- **No 21st.dev component:** the breadcrumb and the New badge are a few lines each, built from the existing `Pill` and tokens.
+
+
+### Summary
+- **Sheets** (Practice → Sheets), all built from the creators' original sources and verified. You can follow one: it's pinned first, shows on Today with its next problem, and adds a daily quest.
+
+  | Sheet | Problems |
+  |---|---|
+  | Striver's A2Z | 436 |
+  | Striver's SDE Sheet | 151 |
+  | NeetCode 150 | 150 |
+  | Blind 75 | 75 |
+  | Love Babbar 450 | 419 |
+
+- **Ticking:**
+  - **Auto:** problems tick themselves from LeetCode and Codeforces solves, in every sheet that lists them.
+  - **By hand:** one click for GFG, takeUforward and Code360 problems (it reuses Mark solved for LeetCode problems).
+  - **Mark sections done** imports finished steps, with Undo.
+  - Ticks can be unticked and say where they came from.
+- **Sheet page extras:** smart **Next in this sheet** (sheet order weighted toward your weak topics, skipping Premium), private searchable **notes**, filters and search.
+- **Beginner Path and Beginner mode:**
+  - **Onboarding** asks "New to DSA?" and the video language (English or Hindi). Beginners need no handles and start on Step 1 in well under a minute.
+  - **The path:** 14 lessons (watch, read five lines, solve 3–5 easy problems) that unlock in order.
+  - **Today in Beginner mode** is one Start here card ("Step 3 of 14: Hashing · Watch 12 min · then solve 2 problems").
+  - **Existing installs stay in smart mode,** unchanged.
+- **Video lessons:** 147 YouTube videos (196 uses across lessons and topics) in English and Hindi. Every one is verified by oEmbed with an exact title and channel, and plays inside the app (youtube-nocookie). Topic Detail leads with them. Mark as watched is stored in SQLite.
+- **Checks:**
+  - `npm test`: 362 passing (75 new).
+  - `npm run check:links`: passes (articles, 1,281 sheet problems, 59 path problems, 147 videos).
+  - `npm run build`: green.
+  - **`npm run tauri dev`:** the embedded video **played in the real Tauri window** under the new CSP (`currentTime` 5.9 s → 9.0 s, no player or CSP errors), and **your real data was intact** (smart mode, rating 1008, Level 14).
+
+**Partial or unverified:** none of the sheets are partial, and every video and problem is verified. Thin spots:
+- Six advanced topics have only one video per language: geometry (English only), game theory, interactive, constructive, prefix sums and number theory.
+- Four topics have no Hindi video: probability, geometry, advanced graphs, design.
+- Three lesson main videos fall outside 10–25 min (details in Part 5).
+- Video **language** is labelled by channel. It can't be checked through an API; I left out channels whose language I couldn't vouch for.
+
+**To preview:**
+1. `git checkout v1.3`, then `npm run tauri dev` from PowerShell.
+2. Your real profile opens in smart mode. The six-step tour shows once, because `TOUR_VERSION` is now 3. Learn is the third item in the sidebar (Ctrl+3).
+3. To see a fresh beginner without touching your data: Ctrl+Shift+D (Debug) → **Preview a fresh beginner**, or **Preview first launch** for the new welcome screen. Exit from the banner.
+4. Sheets: Practice → Sheets → Follow this sheet.
+
+### Part 1: sheet data
+- `scripts/gen-sheets.mjs` (`npm run gen:sheets`) builds `src/data/sheets/<id>.json` from each sheet's original source, in the source's order with its sections:
+
+  | Sheet | Source | Problems | Sections | On LeetCode |
+  |---|---|---|---|---|
+  | Striver's A2Z | takeUforward, `prep-hub/strivers-a2z-dsa-sheet` (the sheet's embedded syllabus data) | 452 rows, 436 distinct | 20 steps | 289 |
+  | Striver's SDE Sheet | takeUforward, `prep-hub/strivers-sde-sheet` | 155 rows, 151 distinct | 27 days | 125 |
+  | NeetCode 150 | NeetCode's own site data (`neetcode-gh/leetcode/.problemSiteData.json`, which neetcode.io uses) | 150 | 18 | 150 |
+  | Blind 75 | The original Blind post (Yangshun Tay, 2018-12-31), read from the post's JSON-LD | 76 rows, 75 distinct | 10 | 76 |
+  | Love Babbar 450 | Love Babbar's own spreadsheet (the .xlsx on his Google Drive; the links are read from its cell hyperlinks) | 448 rows, 419 distinct | 15 topics | 21 |
+- **Verified:** every LeetCode slug through `question(titleSlug)` (title, difficulty, premium flag and tags come from LeetCode), and every Codeforces id through `problemset.problems`. None of the five sources links a Codeforces problem, so there are no CF ids in the sheets. The CF check runs for the Beginner Path.
+- **`npm run check:links`** now verifies the sheets too (`scripts/lib/check-sheets.mjs`). `--deep` also opens every takeUforward practice link (607, all 200). It passes.
+- All five sheets are **complete**: nothing failed verification.
+
+**Decisions (Part 1)**
+- **takeUforward's current sheets.** The A2Z sheet on takeUforward is now 20 named steps (Beginner Problems, Sorting, Arrays…) rather than the older "Step 1–18" titles. I kept the source's current titles and order and number them as steps in the UI. The old SDE Sheet URL now redirects to "Striver's 180", but the SDE Sheet itself still exists at `prep-hub/strivers-sde-sheet` with its 27 days, so that's the source. Only practice items are included; lesson and article items ("Breaking the myth", theory) and contests aren't problems.
+- **Difficulty:** the LeetCode difficulty when there's a LeetCode link. Otherwise it's takeUforward's own level, mapped basic → Easy, core → Medium, pro → Hard. Love Babbar's sheet gives no difficulty, so its non-LeetCode problems have none (shown as "–").
+- **Titles:** LeetCode's title when the problem is on LeetCode. The source's wording is kept as `sourceTitle` when it differs (e.g. A2Z's "Reverse a number" is LeetCode's "Reverse Integer").
+- **Renamed LeetCode slugs** in the sources are mapped to the current slug and verified: `add-and-search-word-data-structure-design` (Blind 75) and `implement-strstr` (A2Z, SDE: "KMP Algorithm or LPS array" → LeetCode 28).
+- **Blind 75** has one entry with no link ("Longest Common Subsequence"). It's matched to LeetCode's problem of exactly that title. "Merge K Sorted Lists" is listed twice in the original (Linked List and Heap), so there are 76 rows and 75 distinct problems. Its "Combination Sum" links Combination Sum IV, and the link is kept as the source has it.
+- **One problem, every sheet:** each problem gets a canonical `key`. Problems that share any identifier (LeetCode slug, CF id, GFG slug, takeUforward slug) are merged across all sheets into one key, preferring lc > cf > gfg > tuf. Progress counts distinct keys, so a problem listed twice in one sheet counts once.
+- **No other app's data.** Nothing comes from Codolio or any other tracker. Only the creators' own sources are used.
+- **Love Babbar 450** is mostly GeeksforGeeks (370 distinct) plus 21 LeetCode links. Those GFG problems can't tick automatically: manual and bulk ticks cover them. I didn't add LeetCode equivalents the sheet doesn't link, because that would be guessing.
+
+### Part 2: sheet progress and ticking
+- **Migration `0006_sheets.sql`** (new, nothing applied was edited) adds four tables:
+  - `sheet_ticks`: hand ticks per problem key: done (manual or bulk) or undone;
+  - `sheet_notes`;
+  - `video_watched`;
+  - `path_steps`: Beginner Path steps, recorded once when done.
+- **`src/engine/sheets.ts`** (pure) holds the tick resolution, progress over distinct problems, bulk section ranges and smart next. `src/data/sheets.ts` builds the solve index from the cache and has the hooks and mutations.
+- **How a problem's tick is decided:**
+  1. If you unticked it, it's not done, unless LeetCode or Codeforces shows a solve newer than the untick.
+  2. If a sync has seen it solved, it's done (auto). LeetCode is matched by slug and Codeforces by `contestId-index`, from every accepted submission ever cached.
+  3. If you ticked it by hand, it's done (manual or bulk).
+  4. If you used Mark solved anywhere in the app, it's done (manual).
+- **Cross-sheet:** status is per key, so one solve ticks every sheet that lists the problem.
+- **Reusing Mark solved:** a single manual tick on a LeetCode (or Codeforces) problem is also written to `manual_solves`, so it counts for quests, goals, XP and recommendations, exactly like Mark solved. Unticking removes it again.
+- **Bulk imports** ("I've finished Steps 1–5") only write `sheet_ticks`. They don't count as today's solves, quests or XP, but the recommender does treat those LeetCode problems as solved. Undo in the toast restores any ticks the import replaced.
+- **Tests:** `src/engine/sheets.test.ts` and `src/data/sheets.test.ts` (27, 28 with Part 3's premium rule). They cover cross-sheet auto-ticks, manual ticks, bulk ticks with undo, unticking an auto tick, distinct-problem progress, smart next, notes and data validation.
+
+### Part 3: Sheets UI and smart next
+- **Practice now has tabs**, each its own route like Progress's:
+  - Today's mix (`/practice`, also at `/practice/mix`);
+  - Sheets (`/practice/sheets`);
+  - one sheet at `/practice/sheets/:id`.
+  The tab row is a shared `SegmentedTabs` component, which Progress uses too. Still four screens.
+- **Design (frontend-design):** it stays inside DESIGN.md's tokens. The one new visual element is the **section strip**: one chamfered segment per step, day or topic, each filling with the accent as that section gets done. It echoes the run meter and the level plate. The section holding "Next in this sheet" stands taller, so position says "you are here" without colour. On a sheet page each segment is a button that opens and scrolls to its section. I rejected a grid of identical sheet cards (the SaaS-kit default) for one lead card plus a dense list.
+- **Sheets tab:**
+  - The sheet you follow leads: name, "Sheet by …" credit linking the original, %, strip, Next in this sheet, Following.
+  - Then "All sheets" as rows: name, credit, strip, %, done/total and Follow.
+  - The LeetCode 20-solve limit is explained under the list.
+- **A sheet page:**
+  - **Header card:** credit and fetch month, % with the split ("6 synced, 1 by hand, 90 imported"), the clickable strip, the honest LeetCode-limit line, Follow, and **Mark sections done**. That last one is an inline panel: "I've finished [Step 1] through [Step 5]", with a live count of what it will tick.
+  - **Next in this sheet:** a sunken tile with the problem, its step, the weak topic that picked it (if any), "Open on LeetCode", and "Solve on LeetCode to tick automatically."
+  - **Toolbar:** search over titles, the source's wording and your notes; All / Unsolved / Solved; Easy / Medium / Hard; Expand / Collapse all.
+  - **Sections:** collapsible cards with a numbered tile, "4/30" and a bar (or "Done" with a check). Sub-sections (A2Z's "FAQs (Medium)") appear as quiet headings.
+  - **Rows:** a one-click tick box, the title (plus "Premium"), a second line with the tick's source ("Solved on LeetCode" / "Ticked by hand" / "Imported") or where it opens, the source's own wording, a note preview, the topic chip, difficulty, the note button and Open.
+  - **Notes** open inline under the row and save when you leave the box (Ctrl+Enter or Esc saves and closes). They're private to SQLite.
+- **Open** prefers LeetCode, then Codeforces, then takeUforward, GFG or Code360. Its tooltip says "Solve on LeetCode to tick automatically" or "Opens takeUforward. Tick it here once you've solved it."
+- **Smart next** (`nextInSheet`) looks at the next 8 unsolved problems in sheet order. Each scores 1 → 0 by position, plus 0.6 × the weakness of its weakest topic from the topic engine (Weak 1, Developing 0.6, Not tried 0.3, Strong 0.1, Mastered 0). LeetCode Premium problems drop by 1, so a free one nearby always wins, but premium is still offered when it's all that's left. With no topic data it's plain order.
+- **Today:** a full-width card under the quests and mix row, shown only when you follow a sheet: "A2Z 22%", the strip, "Next: <problem>" with its step, and Open.
+- **Daily quest from the sheet:** following a sheet adds "Solve 1 problem from A2Z" (+20 XP) to today's quests. Any LeetCode or Codeforces solve of a problem in that sheet counts, as does a hand tick on a sheet-only problem (GFG, takeUforward). The quest is reconciled whenever quests load, so following or unfollowing midday adds or drops today's open sheet quest, and a completed one stays earned. Hand ticks of sheet-only problems also count toward "Solve any 2 problems today". Bulk imports never count.
+- **Tour:** `TOUR_VERSION` 2, with a new Sheets step after Practice. It outlines the Practice item and opens the Sheets tab. Everyone sees the five-step tour once more.
+- **Ctrl+K** has new Sheets and Beginner Path entries ("striver", "neetcode", "babbar"… match). Practice's subtitle mentions sheets.
+- **Checked in the browser**, Dark and Light at 1100x700, with real synced data:
+  - 6 A2Z problems auto-ticked from real solves;
+  - a hand tick completed the sheet quest and unlocked an achievement;
+  - a bulk import of Steps 1–3 ticked 90 and offered Undo, and today's quests didn't move;
+  - smart next jumped to a prefix-sums problem in Step 4.
+  It also caught a bug: newer Chromium returns a Promise from `scrollIntoView`, so an arrow-body effect returned it and React crashed on cleanup. Fixed.
+
+### Part 4: Beginner Path and mode choice
+- **Onboarding** (`Welcome.tsx`) is one form:
+  1. "New to DSA?" as two radio cards ("Yes, I'm new" / "No, I already practise");
+  2. the video language (English / Hindi);
+  3. handles.
+  - **Beginner:** both handles are optional. "Start learning" checks any handle you typed, saves, and opens Today right away. The first sync runs in the background, so a beginner is learning in under a minute.
+  - **Smart:** the flow from before (Codeforces required, first sync with its step list).
+  Both modes set a new `onboarded` flag, so a beginner with no handles never sees the welcome screen again. Existing installs don't need the flag: their Codeforces handle already gets them past onboarding.
+- **Mode, language and followed sheet** are prefs: `mode` (smart by default, so **existing users stay in smart mode**), `videoLang` and `followedSheet`. Settings has a new **Mode** card (Beginner / Smart, plus the lesson video language). In Beginner mode Settings marks the Codeforces handle optional, and removing it clears its cache (otherwise the old profile would be re-adopted on start).
+- **Sync without handles:** an empty Codeforces handle is now a skipped step (it used to be a failed one). It still never counts as a handle change, so nothing is wiped. With no handles at all, sync doesn't run, and the top bar says "No handles yet" with a link to Settings instead of "Not synced".
+- **Beginner Path** (`src/data/path/beginner-path.json`, `src/engine/path.ts`, `src/data/path.ts`) has 14 steps in the agreed order: Basics → Arrays → Strings → Hashing → Two Pointers → Sliding Window → Stack and Queue → Binary Search → Recursion → Linked List → Trees → Graphs → Greedy → Dynamic Programming.
+  - **Each step is a lesson:**
+    - **Watch:** one main video plus 1–2 extras per language.
+    - **Read:** five lines, in my own words: when to use it, the idea (2 lines), common mistakes (2 lines).
+    - **Solve:** 4–5 problems, the first 3 required.
+  - **Problems** are LeetCode Easy and free, plus two Codeforces bonus problems (4A Watermelon, 230A Dragons). All are verified, and titles and difficulty come from the platforms (`npm run fill:media`).
+  - **Topics:** each step maps to unified topics (basics → implementation and math, hashing → arrays-hashing, sliding window → two-pointers…), so the topic engine and Topics map stay consistent.
+  - **As a sheet:** the path is exposed as a sheet (steps are sections), so ticks, cross-sheet matching and the daily sheet quest all work on it. Two Sum in the path is the same key as in A2Z.
+  - **Unlocking:** a step is done when its main video (either language) is marked watched and its required problems are solved. That unlocks the next. Done steps are recorded in `path_steps`, so they never re-lock if you untick something later. Steps unlock strictly in order: solving a later step's problems early doesn't skip ahead.
+  - **Finishing a step** plays the restrained reward (the aura pulse on the step) once, with a toast naming what unlocked. No confetti.
+- **Path view** (Practice → Beginner Path, `/practice/path`): steps done (n/14), the section strip with one segment per step (the current one filling as you watch and solve), Continue, the language toggle, and the 14 steps as a list (Done / the next action / Locked).
+- **Lesson page** (`/practice/path/:step`):
+  - **Header:** "Step 3 of 14", the title, and two status pills (main video watched; n/3 required problems).
+  - **1. Watch:** the player, Mark as watched, Watch on YouTube, and the extras (play them in place).
+  - **2. Read:** the five lines.
+  - **3. Solve:** tick boxes, required or extra, LeetCode or Codeforces, and Open.
+  - **States:** a done step shows "Step done. Step 4 is unlocked" with Go to step 4. A locked step shows only Read, with "Locked. It opens when step 3 is done" and a button to the current step.
+- **Today in Beginner mode** (`BeginnerToday.tsx`) leads with one big **Start here** card: "Step 3 of 14: Hashing", the subtitle, "Watch 12 min · then solve 2 problems", the 14-step strip and **one primary button**. Today's quests sit beside it; they work without handles, since hand ticks count. The streak line only appears once a handle is connected. There's no rating hero, chart, heatmap or contest card. Until you add a handle, a small card explains how solves can tick themselves.
+- **In Beginner mode,** Practice leads with the Beginner Path tab (Path · Sheets · Today's mix), and `/practice` lands there. Screen subtitles and sidebar hints have beginner wording. The path counts as the followed sheet for the daily quest ("Solve 1 problem from Beginner Path").
+- **Debug → Preview a profile.** "Preview a fresh beginner" and "Preview first launch" reload the app on a **separate database** (`sqlite:algocompass-preview.db`, migrated like the real one and wiped on entry; in-memory in the browser) and **in-memory settings**. While a preview runs:
+  - the reminder schedule, tray text, notifications, autostart and the theme mirror are never written;
+  - a banner under the title bar says it's a preview and offers Exit preview.
+- **Tests:**
+  - `src/engine/path.test.ts` (25): the path's shape, unlocking, re-lock safety, order, rewards once, the Start here line;
+  - `src/data/prefs.test.ts` (4): mode switching, and existing installs staying smart;
+  - `onboarding.test.ts` (+5): onboarded beginners with no handles or LeetCode only, smart installs unchanged.
+
+### Part 5: video lessons
+- **Every video ID came from YouTube itself:** its own search and playlist listings for the channels you named, plus the videos already in `resources.json`. None was typed from memory.
+- **`npm run fill:media`** fills each video's **title and channel from oEmbed** and its **length from the watch page** (`lengthSeconds`), so I never typed any of them. Videos oEmbed refuses (deleted, private or not embeddable) are removed and reported. It removed **2**: Errichto's "Algorithms Lecture #1 - Sums and Expected Value" and "#2 - EV and Sums of Small Powers" (HTTP 401, embedding disabled). Probability uses Khan Academy, Colin Galen and NeetCode instead.
+- **`npm run check:links`** now checks every video: oEmbed 200, with an exact match on title and author_name (`scripts/lib/check-media.mjs`). It passes for **147 videos (196 uses)**, along with the Beginner Path's 59 problems, the sheets and every article link.
+- **`resources.json` upgraded:** videos moved out of the learn and deeper tiers into a `videos` list per topic (id, lang en/hi, role intro / full lecture / problem walkthrough, minutes, title, channel). Coverage:
+  - 32 of 33 topics have 2–6 videos, with English in all 33 and Hindi in 29.
+  - Thin spots, where nothing better and embeddable came up: geometry (1, English), game theory and interactive (1 + 1), constructive (1 + 1), prefix sums and number theory (1 English each, plus Hindi).
+  - No Hindi for probability, geometry, advanced graphs or design.
+- **Channels:**
+  - **Path lessons** use only the channels you named. English: takeUforward, NeetCode, Errichto, William Fiset, Abdul Bari. Hindi: CodeHelp, Aditya Verma, Apna College, Luv.
+  - **Topic videos** add a few others for advanced topics: Colin Galen, Gaurav Sen, TLE Eliminators, Pepcoding, College Wallah, Simple Quant, Khan Academy.
+  - **Languages are labelled by the channel's language.** I dropped videos whose language I couldn't vouch for (Vivek Gupta, Yash Poonia, Harisam Sharma, Rachit Jain).
+- **Main videos are 10–25 minutes,** with three exceptions (lengths from YouTube): English Binary Search (NeetCode, 10 min), Hindi Two Pointers (Apna College, 32 min) and Hindi Greedy (Apna College, 9 min). No named Hindi channel has a 10–25 minute video on those two.
+- **In-app player** (`VideoPlayer.tsx`):
+  - A thumbnail (`i.ytimg.com`) with a play button. Nothing loads from YouTube until you press it.
+  - Then the **youtube-nocookie.com** embed (`referrerpolicy="strict-origin-when-cross-origin"`).
+  - **Watch on YouTube** is always next to it and opens the browser. Nothing is downloaded or rehosted.
+  - **Mark as watched** is stored in `video_watched`.
+- **Topic Detail → Resources** now leads with **Watch**: the topic's videos in your language (Intro / Full lecture / Problem walkthrough, channel, minutes, a check when watched). One click plays it in the panel, and "Also in Hindi/English" shows the rest.
+- **Tauri CSP** (looked up via context7): `csp` was `null`, so it's now a real policy:
+  - `default-src 'self' ipc: http://ipc.localhost`, `connect-src ipc: http://ipc.localhost`, `script-src 'self'`;
+  - `style-src 'self' 'unsafe-inline'` (framer-motion and React Flow set inline styles);
+  - `img-src 'self' data: blob: https://i.ytimg.com`, `frame-src https://www.youtube-nocookie.com`;
+  - `object-src 'none'`, `base-uri 'self'`.
+  - `devCsp` adds Vite's websocket and inline script for `tauri dev`.
+  - No capability change was needed. The iframe gets no IPC, and Watch on YouTube uses the opener plugin the app already has.
+
+### Part 6: check
+- **Tests:** 362 pass (75 new):
+  - `engine/sheets.test.ts`: auto-tick matching across sheets, manual and bulk ticks, unticking, distinct progress, smart next and Premium;
+  - `data/sheets.test.ts`: real-schema ticking and undo, notes, sheet data validation;
+  - `engine/path.test.ts`: step unlocking, re-lock safety, order, path data validation;
+  - `data/prefs.test.ts`: mode switching, existing installs staying smart;
+  - `onboarding.test.ts`: beginners with no handles;
+  - `quests.test.ts`: the sheet quest;
+  - `catalog.test.ts`: video data;
+  - `nav.test.ts`: tour v2.
+- **`npm run check:links` passes:** articles and lists, 1,281 sheet problems (336 LeetCode slugs), 59 Beginner Path problems (2 Codeforces), and 147 videos with exact titles and channels. `--deep` also passed all 607 takeUforward links.
+- **`npm run tauri dev`** (Rust built in 1m 13s; run with WebView2's remote-debugging port so I could drive the real window):
+  - **Real data intact:** smart mode, rating 1008, Level 14, the usual Today. I only took a screenshot and didn't dismiss the new tour, so nothing was written to your settings.
+  - **Video playback:** tested inside the Debug beginner preview. The main Basics video played in the embedded player under the new CSP, with `currentTime` advancing 5.9 s → 9.0 s, not paused, no player error and no CSP violations. The only console noise is WebView2's harmless Tracking Prevention notes on googlevideo storage. The fallback button was never needed, so it stays as a convenience.
+  - **Preview isolation:** the preview wrote only to `algocompass-preview.db`. After Exit preview, your real Today came back unchanged.
+- **Impeccable critique** (one in-context pass; **degraded: single context**, because you asked for no background agents, and the skill's two sub-agents would have been background agents). It covered Sheets, a sheet page, Today in Beginner mode, the Path view and a lesson, in Light and Dark at 1100x700. The detector was clean on all new UI files. Fixed:
+  - **P1:** the followed sheet appeared twice (lead card and list). The list is now "Other sheets".
+  - **P1:** on a lesson, the header pushed the video below the fold at 1100x700. The header is tighter (the pills already say what's left), and the play button is now above the fold.
+  - **P2:** every row repeated its section's topic chip. A chip now shows only for a topic beyond the section's.
+  - **P2:** in Beginner mode, today's quests included a recommender topic quest that competed with Start here. Beginner quests are now the path quest plus consistency.
+  - **P2:** the built-in Beginner Path's credit linked out to GitHub. It's now plain "Built into AlgoCompass: lessons with videos".
+  - **P2:** a locked step's only card said "2. Read". It's now "Read ahead".
+  - Questions skipped: you asked for no questions.
+- **Build:** `npm run build` warned that the Path view, imported by Today's Beginner card, wasn't really lazy. Its shared pieces moved to `features/path/shared.tsx`, and the warning is gone.
+- **Screenshots:** 21 in `docs/screenshots/v1.3/`, at 1100x700 in Light and Dark: welcome, Today in Beginner and smart mode, the Path, lessons (open, solve, locked), Sheets (pick and following), a sheet page (header, rows, Mark sections done), Settings → Mode, and Topic Detail → Watch. Captured in browser mode on a real sync of your handles.
+- **Docs:**
+  - **CLAUDE.md:** the v1.3 screens, modes, sheet, path and video rules, the CSP and the preview.
+  - **DESIGN.md:** appended "Sheets, Beginner Path and lessons (v1.3)".
+  - **PRODUCT.md:** beginners and sheet followers are now target users, plus a new principle ("no decision before the first step").
+  - **README:** a "New in v1.3" section, sheet credits, the new first-launch flow, scripts and privacy.
+
+**Decisions (Part 4)**
+- **Required problems:** 3 per step, with 1–2 more as extra practice. "Required problems" needed a number, and 3 keeps a step to roughly a sitting.
+- **Main video:** the main video in either language counts as watched. Switching language shouldn't undo progress.
+- **Locked steps can be read but not worked:** Read is shown, Watch and Solve aren't. That way the order means something without hiding what's coming.
+- **Quests for beginners without handles** stay on Today, because hand ticks complete them and the top bar already counts them. Only the streak line waits for a handle, since there's no activity to count.
+- **Subtitles:** Today and Practice have beginner-mode subtitles, so they don't promise a rating that isn't there.
+
+**Decisions (Part 3)**
+- **Sheets is a Practice tab**, not a fifth screen, as asked. Beginner mode adds a Beginner Path tab first (Part 4), and `/practice` sends beginners there.
+- **Source quirks are kept.** takeUforward links some different items to the same LeetCode problem (Step 4's "Longest subarray with sum K" and "Largest subarray with sum 0" both link LeetCode 325). They share that key, so one tick covers both rows. Section counts say "4 problems" for 5 rows.
+
 ## Latest: v1.2.0, simplify (2026-10-17)
 
 **Released as v1.2.0:** `simplify` was merged into master, and the version was bumped in package.json, tauri.conf.json and Cargo.toml. `npm test` passes (294) and `npm run tauri build` produced:

@@ -6,7 +6,8 @@ import { LeetCodeAdapter } from "@/adapters/leetcode";
 import { getDb } from "./db";
 import { queryClient } from "./queryClient";
 import { Repo } from "./repo";
-import { readSavedHandles, resolveHandles, writeHandles } from "./settings";
+import { PREVIEW } from "@/lib/sandbox";
+import { hasAnyHandle, readHandles, readOnboarded, readSavedHandles, resolveAppHandles, writeHandles } from "./settings";
 import { syncAll, type SyncResult } from "./sync";
 import type { Platform } from "./types";
 
@@ -20,7 +21,12 @@ const lc = new LeetCodeAdapter();
 
 let repoPromise: Promise<Repo> | null = null;
 export function getRepo(): Promise<Repo> {
-  repoPromise ??= getDb().then((db) => new Repo(db));
+  repoPromise ??= getDb().then(async (db) => {
+    const repo = new Repo(db);
+    // A preview profile starts empty every time (it has its own database file; see src/lib/sandbox.ts).
+    if (PREVIEW) await repo.wipeAll();
+    return repo;
+  });
   return repoPromise;
 }
 
@@ -70,10 +76,11 @@ export const useSyncStore = create<SyncState>((set, get) => ({
     cancelOfflineRetry();
     try {
       const repo = await getRepo();
-      // Never sync without a Codeforces handle: an empty one would read as a handle change and wipe
-      // the cache. No handles yet means the welcome screen is up; it starts the first sync itself.
-      const handles = await resolveHandles({ readSaved: readSavedHandles, write: writeHandles, repo });
-      if (!handles) return;
+      // No handles yet means the welcome screen is up; it starts the first sync itself. A beginner may
+      // have none at all: then there's nothing to fetch. (An empty handle is never a handle change, so
+      // it can't wipe the cache: see syncCodeforces.)
+      const handles = await resolveAppHandles({ readSaved: readSavedHandles, write: writeHandles, repo, onboarded: readOnboarded, readAll: readHandles });
+      if (!handles || !hasAnyHandle(handles)) return;
       set({ progress: [] });
       const result = await syncAll({
         repo, cf, lc, handles, forceProblemset: opts?.forceProblemset,

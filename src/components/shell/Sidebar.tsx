@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useMarkContestsSeen } from "@/data/learn";
+import { usePrefs } from "@/data/prefs";
 import { NavLink, useLocation } from "react-router-dom";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useUiStore } from "@/data/uiStore";
 import { cn } from "@/lib/utils";
-import { isNavItemActive, PRIMARY_NAV, SETTINGS_NAV, type NavItem } from "./nav";
+import { isNavItemActive, SETTINGS_NAV, type NavItem, describe } from "./nav";
+import { useNav } from "./useNav";
 
 // Pattern adapted from 21st.dev animated sidebars (spring icon-rail collapse, traveling
 // hover highlight, shared-layout active indicator), rebuilt on DESIGN.md tokens.
@@ -28,7 +31,7 @@ function SidebarLink({
   const link = (
     <NavLink
       to={item.to}
-      aria-label={expanded ? undefined : item.label}
+      aria-label={expanded && !item.badge ? undefined : item.badge ? `${item.label} (${item.badge.toLowerCase()})` : item.label}
       data-tour={item.to}
       onMouseEnter={() => onHover(item.to)}
       onFocus={() => onHover(item.to)}
@@ -62,11 +65,11 @@ function SidebarLink({
           />
         </>
       )}
-      <Icon
-        aria-hidden
-        className={cn("relative size-[18px] shrink-0", active && "text-accent")}
-        strokeWidth={active ? 2.1 : 1.8}
-      />
+      <span className="relative shrink-0">
+        <Icon aria-hidden className={cn("size-[18px]", active && "text-accent")} strokeWidth={active ? 2.1 : 1.8} />
+        {/* Collapsed rail: the badge shrinks to a dot on the icon. */}
+        {item.badge && !expanded && <span aria-hidden className="absolute -top-0.5 -right-1 size-2 rounded-full bg-accent ring-2 ring-abyss-raised" />}
+      </span>
       <AnimatePresence initial={false}>
         {expanded && (
           <motion.span
@@ -74,9 +77,10 @@ function SidebarLink({
             initial={{ opacity: 0, x: -4 }}
             animate={{ opacity: 1, x: 0, transition: { duration: 0.16, delay: 0.06 } }}
             exit={{ opacity: 0, transition: { duration: 0.08 } }}
-            className="relative truncate text-body font-medium"
+            className="relative flex min-w-0 flex-1 items-center justify-between gap-2 text-body font-medium"
           >
-            {item.label}
+            <span className="truncate">{item.label}</span>
+            {item.badge && <span className="rounded-full bg-accent-soft px-2 py-px text-label font-semibold text-ink">{item.badge}</span>}
           </motion.span>
         )}
       </AnimatePresence>
@@ -84,6 +88,7 @@ function SidebarLink({
   );
 
   // Hover or focus: what the screen is for, in one line (and the name, when the rail is collapsed).
+  const beginner = usePrefs().data?.mode === "beginner";
   return (
     <Tooltip>
       <TooltipTrigger asChild>{link}</TooltipTrigger>
@@ -92,7 +97,7 @@ function SidebarLink({
           {item.label}
           <kbd className="numeric rounded-xs border border-glass-border-strong px-1 text-label font-normal text-ink-muted">Ctrl {item.shortcut}</kbd>
         </span>
-        <span className="text-label text-ink-muted">{item.description}</span>
+        <span className="text-label text-ink-muted">{describe(item, beginner)}</span>
       </TooltipContent>
     </Tooltip>
   );
@@ -103,6 +108,13 @@ export function Sidebar() {
   const toggle = useUiStore((s) => s.toggleSidebar);
   const { pathname } = useLocation();
   const [hovered, setHovered] = useState<string | null>(null);
+  const { primary, contestsBadge } = useNav();
+  // Opening Contests (from here, Ctrl+K or the tray) clears its "New" badge for good.
+  const markSeen = useMarkContestsSeen();
+  const onContests = pathname === "/contests" || pathname.startsWith("/contests/");
+  useEffect(() => {
+    if (contestsBadge && onContests && !markSeen.isPending) markSeen.mutate();
+  }, [contestsBadge, onContests]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const renderItem = (item: NavItem) => (
     <SidebarLink
@@ -128,7 +140,7 @@ export function Sidebar() {
       }}
     >
       <LayoutGroup id="sidebar">
-        <div className="flex flex-col gap-1 px-[11px]">{PRIMARY_NAV.map(renderItem)}</div>
+        <div className="flex flex-col gap-1 px-[11px]">{primary.map(renderItem)}</div>
         <div className="mt-auto flex flex-col gap-1 px-[11px]">
           {renderItem(SETTINGS_NAV)}
           <button

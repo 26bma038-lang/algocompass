@@ -1,11 +1,11 @@
 import { lazy, Suspense } from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { LineChart } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
+import { SegmentedTabs } from "@/components/SegmentedTabs";
 import { useHomeData, useTopicReport } from "@/data/queries";
 import { LevelCard, WeeklyGoalsCard } from "@/features/quests/Quests";
 import { WeeklyReviewCard } from "@/features/quests/WeeklyReview";
-import { cn } from "@/lib/utils";
 
 // Recharts loads only when the Overview tab opens.
 const RatingChart = lazy(() => import("@/features/home/RatingChart").then((m) => ({ default: m.RatingChart })));
@@ -24,23 +24,7 @@ export function Progress() {
   return (
     // --tree-above: the tab row (40px) plus its gap (24px), so the Topics map keeps its full height.
     <div className="flex flex-col gap-6 [--tree-above:64px]">
-      <nav aria-label="Progress sections" className="flex h-10 items-center gap-1 self-start rounded-md border border-glass-border bg-glass p-1">
-        {TABS.map((t) => (
-          <NavLink
-            key={t.to}
-            to={t.to}
-            end={t.end}
-            className={({ isActive }) =>
-              cn(
-                "flex h-8 items-center rounded-sm px-4 text-body-sm font-medium transition-colors duration-[var(--dur-fast)]",
-                isActive ? "bg-accent-soft text-ink" : "text-ink-muted hover:bg-glass-hover hover:text-ink",
-              )
-            }
-          >
-            {t.label}
-          </NavLink>
-        ))}
-      </nav>
+      <SegmentedTabs label="Progress sections" tabs={TABS} />
       <Suspense fallback={<p className="text-body-sm text-ink-muted">Loading…</p>}>
         <Outlet />
       </Suspense>

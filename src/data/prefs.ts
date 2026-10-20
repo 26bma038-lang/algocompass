@@ -15,14 +15,29 @@ export interface NotifyPrefs {
   quests: boolean;
 }
 
+/**
+ * v1.3: "beginner" = new to DSA (the Beginner Path leads, handles optional); "smart" = the
+ * recommendation-led app from before. Installs from before v1.3 have no saved mode and stay smart.
+ */
+export type AppMode = "smart" | "beginner";
+export type VideoLang = "en" | "hi";
+
 export interface AppPrefs {
   goals: WeeklyGoals;
   notify: NotifyPrefs;
+  mode: AppMode;
+  /** Language of lesson videos (English or Hindi). */
+  videoLang: VideoLang;
+  /** The sheet you follow: pinned first in Sheets and shown on Today. null = none. */
+  followedSheet: string | null;
 }
 
 export const DEFAULT_PREFS: AppPrefs = {
   goals: DEFAULT_GOALS,
   notify: { contests: true, streak: true, streakTime: "20:00", quests: true },
+  mode: "smart",
+  videoLang: "en",
+  followedSheet: null,
 };
 
 const KEY = "prefs";
@@ -34,7 +49,17 @@ export async function readPrefs(): Promise<AppPrefs> {
   return {
     goals: { ...DEFAULT_PREFS.goals, ...saved?.goals },
     notify: { ...DEFAULT_PREFS.notify, ...saved?.notify },
+    mode: saved?.mode === "beginner" ? "beginner" : "smart",
+    videoLang: saved?.videoLang === "hi" ? "hi" : "en",
+    followedSheet: typeof saved?.followedSheet === "string" ? saved.followedSheet : null,
   };
+}
+
+/** Saves some prefs over the current ones (read fresh, so two quick changes don't overwrite each other). */
+export async function updatePrefs(patch: Partial<AppPrefs>): Promise<AppPrefs> {
+  const next = { ...(await readPrefs()), ...patch };
+  await writePref(KEY, next);
+  return next;
 }
 
 export function usePrefs() {
@@ -52,6 +77,19 @@ export function useSavePrefs() {
       client.setQueryData(prefsKey, saved);
       // Goals feed Progress → Overview; notification settings feed the reminder schedule.
       void client.invalidateQueries({ queryKey: ["db", "goals"] });
+    },
+  });
+}
+
+/** Changes a few prefs (mode, video language, followed sheet) and refreshes what depends on them. */
+export function useUpdatePrefs() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: updatePrefs,
+    onSuccess: (saved) => {
+      client.setQueryData(prefsKey, saved);
+      // The followed sheet feeds Today's card and its quest; the mode decides what Today shows.
+      void client.invalidateQueries({ queryKey: ["db"] });
     },
   });
 }

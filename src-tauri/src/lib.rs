@@ -15,6 +15,9 @@ use tauri_plugin_store::StoreExt;
 
 /// Must match `DB_URL` in src/data/db.ts.
 const DB_URL: &str = "sqlite:algocompass.db";
+/// Debug → preview profile (src/lib/sandbox.ts): a separate database with the same schema, so a
+/// preview never touches the real one. Must match `PREVIEW_DB_URL` in src/data/db.ts.
+const PREVIEW_DB_URL: &str = "sqlite:algocompass-preview.db";
 
 /// Passed by the autostart entry: start hidden in the tray.
 const MINIMIZED_ARG: &str = "--minimized";
@@ -56,6 +59,12 @@ fn migrations() -> Vec<Migration> {
             version: 5,
             description: "achievements",
             sql: include_str!("../migrations/0005_achievements.sql"),
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 6,
+            description: "sheets",
+            sql: include_str!("../migrations/0006_sheets.sql"),
             kind: MigrationKind::Up,
         },
     ]
@@ -167,6 +176,7 @@ pub fn run() {
         .plugin(
             tauri_plugin_sql::Builder::new()
                 .add_migrations(DB_URL, migrations())
+                .add_migrations(PREVIEW_DB_URL, migrations())
                 .build(),
         )
         .plugin(tauri_plugin_opener::init())
@@ -175,10 +185,11 @@ pub fn run() {
         .setup(|app| {
             let open = MenuItem::with_id(app, "open", "Open AlgoCompass", true, None::<&str>)?;
             let sync = MenuItem::with_id(app, "sync", "Sync now", true, None::<&str>)?;
-            // The four screens (v1.2): open the window straight on one of them.
+            // The five screens (v1.3 adds Learn): open the window straight on one of them.
             let screens = [
                 MenuItem::with_id(app, "go:/", "Today", true, None::<&str>)?,
                 MenuItem::with_id(app, "go:/practice", "Practice", true, None::<&str>)?,
+                MenuItem::with_id(app, "go:/learn", "Learn", true, None::<&str>)?,
                 MenuItem::with_id(app, "go:/progress", "Progress", true, None::<&str>)?,
                 MenuItem::with_id(app, "go:/contests", "Contests", true, None::<&str>)?,
             ];
@@ -195,6 +206,7 @@ pub fn run() {
                     &screens[1],
                     &screens[2],
                     &screens[3],
+                    &screens[4],
                     &PredefinedMenuItem::separator(app)?,
                     &status,
                     &PredefinedMenuItem::separator(app)?,

@@ -1,20 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
 import { AdapterError } from "@/adapters/http";
 import type { Platform } from "./types";
-import { readSavedHandles, resolveHandles, writeHandles, type Handles } from "./settings";
+import { readHandles, readOnboarded, readSavedHandles, resolveAppHandles, writeHandles, type Handles } from "./settings";
 import { getRepo } from "./syncStore";
 
 /** First launch: whether to show the welcome screen, and checking handles against the platforms. */
 
 export const handlesStateKey = ["settings", "handles-state"] as const;
 
-/** `data === null` → show onboarding. */
+/** `data === null` → show onboarding. A beginner who finished onboarding may have no handles at all. */
 export function useHandlesState() {
   return useQuery({
     queryKey: handlesStateKey,
     staleTime: Infinity,
     queryFn: async () => {
-      return resolveHandles({ readSaved: readSavedHandles, write: writeHandles, repo: await getRepo() });
+      return resolveAppHandles({ readSaved: readSavedHandles, write: writeHandles, repo: await getRepo(), onboarded: readOnboarded, readAll: readHandles });
     },
   });
 }
@@ -51,15 +51,20 @@ export interface HandleCheckers {
   lc: (username: string) => Promise<{ username: string }>;
 }
 
-/** Checks both handles in parallel. An empty LeetCode username is skipped (it's optional). */
+/**
+ * Checks both handles in parallel. An empty one is skipped: LeetCode is always optional, and in
+ * Beginner mode so is Codeforces (smart mode's form requires it before calling this).
+ */
 export async function checkHandles(h: Handles, check: HandleCheckers): Promise<{ cf: HandleCheck; lc: HandleCheck }> {
   const cfHandle = h.codeforces.trim();
   const lcHandle = h.leetcode.trim();
   const [cf, lc] = await Promise.all([
-    check.cf(cfHandle).then(
-      (u): HandleCheck => ({ status: "ok", handle: u.handle }),
-      (e) => describeFailure("cf", cfHandle, e),
-    ),
+    cfHandle
+      ? check.cf(cfHandle).then(
+          (u): HandleCheck => ({ status: "ok", handle: u.handle }),
+          (e) => describeFailure("cf", cfHandle, e),
+        )
+      : Promise.resolve<HandleCheck>({ status: "skipped" }),
     lcHandle
       ? check.lc(lcHandle).then(
           (u): HandleCheck => ({ status: "ok", handle: u.username }),

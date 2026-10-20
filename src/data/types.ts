@@ -231,7 +231,7 @@ export interface UpsolveQueueItem {
   addedAt: number;
 }
 
-export type QuestKind = "cf_topic" | "lc_topic" | "any_solves";
+export type QuestKind = "cf_topic" | "lc_topic" | "any_solves" | "sheet";
 
 /** One daily quest, generated from the Mix of the Day. */
 export interface QuestSpec {
@@ -243,8 +243,10 @@ export interface QuestSpec {
   topicId: string | null;
   /** Codeforces quests: a solve counts when rated at least this. */
   minRating: number | null;
-  /** The mix problems this quest points at (they always count). */
+  /** The mix problems this quest points at (they always count). Sheet quests: the suggested problem key. */
   problemIds: string[];
+  /** Sheet quests (v1.3): any problem in this sheet counts. */
+  sheetId?: string;
   xp: number;
 }
 

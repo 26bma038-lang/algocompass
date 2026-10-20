@@ -1,6 +1,7 @@
 import { isTauri } from "@tauri-apps/api/core";
 import { Store } from "@tauri-apps/plugin-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { PREVIEW, previewSeed } from "@/lib/sandbox";
 import type { Repo } from "./repo";
 
 export interface Handles {
@@ -23,8 +24,12 @@ function getStore() {
   return storePromise;
 }
 
+/** Debug → preview profile: settings live only in memory, so the real store is never touched. */
+const previewStore = PREVIEW ? previewSeed(PREVIEW) : null;
+
 /** Reads handles from tauri-plugin-store (localStorage when running in a plain browser). */
 export async function readHandles(): Promise<Handles> {
+  if (previewStore) return { ...DEFAULT_HANDLES, ...(previewStore.get(HANDLES_KEY) as Partial<Handles> | undefined) };
   if (!isTauri()) {
     const raw = localStorage.getItem(HANDLES_KEY);
     return raw ? { ...DEFAULT_HANDLES, ...(JSON.parse(raw) as Partial<Handles>) } : DEFAULT_HANDLES;
@@ -37,7 +42,9 @@ export async function readHandles(): Promise<Handles> {
 /** The handles the user actually saved, or null when nothing (or no Codeforces handle) is saved. */
 export async function readSavedHandles(): Promise<Handles | null> {
   let saved: Partial<Handles> | null | undefined;
-  if (!isTauri()) {
+  if (previewStore) {
+    saved = previewStore.get(HANDLES_KEY) as Partial<Handles> | undefined;
+  } else if (!isTauri()) {
     try {
       const raw = localStorage.getItem(HANDLES_KEY);
       saved = raw ? (JSON.parse(raw) as Partial<Handles>) : null;
@@ -74,11 +81,39 @@ export async function resolveHandles(src: HandleSource): Promise<Handles | null>
   return adopted;
 }
 
+/**
+ * v1.3: Beginner mode finishes onboarding without any handle, so "onboarded" is its own flag. It's
+ * set at the end of the welcome screen (both modes); installs from before v1.3 never need it, since
+ * they always have a Codeforces handle.
+ */
+const ONBOARDED_KEY = "onboarded";
+
+export async function readOnboarded(): Promise<boolean> {
+  return (await readPref<boolean>(ONBOARDED_KEY)) === true;
+}
+
+export async function writeOnboarded(): Promise<void> {
+  await writePref(ONBOARDED_KEY, true);
+}
+
+/** Handles to use (possibly both empty for a beginner), or null while the welcome screen should show. */
+export async function resolveAppHandles(src: HandleSource & { onboarded: () => Promise<boolean>; readAll: () => Promise<Handles> }): Promise<Handles | null> {
+  const h = await resolveHandles(src);
+  if (h) return h;
+  return (await src.onboarded()) ? src.readAll() : null;
+}
+
+export const hasAnyHandle = (h: Handles | null | undefined) => !!h && (h.codeforces.trim() !== "" || h.leetcode.trim() !== "");
+
 export async function writeHandles(handles: Handles): Promise<Handles> {
   const clean: Handles = {
     codeforces: handles.codeforces.trim(),
     leetcode: handles.leetcode.trim(),
   };
+  if (previewStore) {
+    previewStore.set(HANDLES_KEY, clean);
+    return clean;
+  }
   if (!isTauri()) {
     localStorage.setItem(HANDLES_KEY, JSON.stringify(clean));
     return clean;
@@ -105,6 +140,7 @@ export function useSaveHandles() {
 
 /** Small app-state values (not user settings) kept in the same store file. */
 export async function readPref<T>(key: string): Promise<T | null> {
+  if (previewStore) return (previewStore.get(key) as T | undefined) ?? null;
   if (!isTauri()) {
     try {
       const raw = localStorage.getItem(`pref:${key}`);
@@ -117,6 +153,10 @@ export async function readPref<T>(key: string): Promise<T | null> {
 }
 
 export async function writePref<T>(key: string, value: T): Promise<void> {
+  if (previewStore) {
+    previewStore.set(key, value);
+    return;
+  }
   if (!isTauri()) {
     try {
       localStorage.setItem(`pref:${key}`, JSON.stringify(value));

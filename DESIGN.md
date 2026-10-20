@@ -514,3 +514,83 @@ Light redefines the rank palette darker (newbie `#5F6675`, pupil `#127A3A`, spec
 - Progress uses a segmented tab row (Overview · Topics map · Achievements): a glass track with a 40px height, the active tab in `accent-soft`. The Topics map subtracts the row through `--tree-above`.
 - The tip tour is a Float-plane card beside the sidebar with an accent outline (`shadow-aura`) on the item it describes. No dimming, never blocks input, Esc or Skip ends it.
 
+
+<!-- Appended 2026-10-18 (v1.3: Sheets, Beginner Path, video lessons). Additions only; nothing above changed. -->
+## Sheets, Beginner Path and lessons (v1.3)
+
+**Why:** beginners need to start learning without choosing where to start, and sheet followers want progress that ticks itself. Both live inside the existing four screens, as Practice tabs (Today's mix · Sheets, with Beginner Path first in Beginner mode). The tabs use the shared `SegmentedTabs` (`src/components/SegmentedTabs.tsx`), the same row Progress uses.
+
+### The section strip (the one new visual element)
+- **What it is** (`src/features/sheets/SectionStrip.tsx`): one chamfered segment per section (step, day or topic). Each segment fills with the accent as that section is done (scaleX, 420ms). It echoes the run meter and the level plate. There's no halo, so it doesn't count toward the Three Lights.
+- **"You are here":** the section holding the next problem stands taller (20px instead of 12px; 14px instead of 8px in the small size). Position carries "you are here", never colour.
+- **On a sheet or path page**, every segment is a button (focus ring on an unclipped wrapper; the chamfer sits on an inner track) that opens and scrolls to its section.
+- **Where it appears:** the followed-sheet card, every sheet row (small size), a sheet's header, the Path view, Today's Start here card and Today's followed-sheet card.
+
+### Sheets
+- **Sheets tab:** the followed sheet leads in its own card (name, "Sheet by …" credit linking the original, % in display size, the strip, and the Next in this sheet tile on the right). Below it, "Other sheets" is one card of dense rows (name and credit, strip, %, done/total, Follow), not a grid of identical cards. The followed sheet is never listed twice.
+- **Sheet page header:** credit and fetch month, % with its split ("6 synced, 1 by hand, 90 imported"), the clickable strip, one honest line about LeetCode's 20-solve limit, Following, and Mark sections done (an inline sunken panel: "I've finished [Step 1] through [Step 5]" with a live count, never a modal).
+- **Toolbar:** search over titles and notes, a segmented All / Unsolved / Solved, and Easy / Medium / Hard chips (`aria-pressed`, selected = accent-soft fill and accent border).
+- **Sections:** collapsible glass cards. A numbered 32px sunken tile, the title, then "4/30" in tabular figures with a 112px accent bar, or "Done" with a Success check. Sub-sections are quiet 12px headings.
+- **Problem rows** (44px):
+  - **Tick box:** 20px. Checked = Success-tinted fill with a check, and the second line says the source in words: "Solved on LeetCode", "Ticked by hand" or "Imported".
+  - **Title:** with a "Premium" chip where it applies.
+  - **Topic chip:** only for a topic beyond the section's own (no "Implementation" × 22).
+  - **The rest:** difficulty in muted text, a note button (accent icon when a note exists) and Open (outline).
+- **Open** prefers LeetCode. Its tooltip says "Solve on LeetCode to tick automatically" or "Opens takeUforward. Tick it here once you've solved it."
+- **Next in this sheet:** a sunken tile with the label, the title (16px semibold), "Step 4, Hashing. Medium", the weak topic that picked it (only when one did), and a primary "Open on LeetCode" with the auto-tick hint beside it.
+
+### Beginner Path and lessons
+- **Start here** (Today in Beginner mode) is the lead card (7 columns, with quests in the other 5):
+  - a 13px "Start here" line, then "Step 3 of 14: Hashing" in display size, the subtitle, and "Watch 12 min · then solve 2 problems" in title weight;
+  - the 14-segment strip;
+  - **one primary button.**
+  There's no rating hero, chart, heatmap or contest card in Beginner mode. A small card explains how to let solves tick themselves until a handle exists.
+- **Path view:** steps done as "n/14" in display size, the strip, Continue (primary), the language toggle, then the steps as rows: a numbered tile (a Success check when done; accent-soft when current; sunken and faint when locked), title and subtitle, then "Done" / the next action / a lock icon and "Locked". The current row sits on a sunken fill.
+- **Lesson page** (header card, then a 12-column grid with Watch 8 + Read 4, then Solve 12):
+  - **Header:** "Step 1 of 14", the title in display size, the subtitle, and two status pills: "Main video watched" / "n/3 required problems". A pill is accent-soft with a Success check when met, sunken and muted when not.
+  - **Done banner:** a sunken strip, "Step done. Step 4, Hashing, is unlocked", and Go to step 4.
+  - **Locked step:** a dashed-outline notice and only a "Read ahead" card.
+- **Video player:**
+  - Before play: a 16:9 sunken frame with the YouTube thumbnail, a 64px play disc on a 72% abyss scrim, and the length in the corner. Nothing loads from YouTube before play.
+  - After play: the youtube-nocookie embed.
+  - Below: the title, "channel, N min", Mark as watched (outline; when watched, a ghost button with a Success check and "Watched") and a ghost Watch on YouTube.
+  - Extras are rows that play in place.
+- **Reward:** finishing a step plays the existing aura pulse once on the step (and the lesson header), and a toast says what unlocked. No new ceremony and no confetti.
+- **Topic Detail** gets a Watch list first: the topic's videos in your language (Intro / Full lecture / Problem walkthrough, channel, minutes, a check when watched), playing in the panel. "Also in Hindi/English" shows the rest.
+
+### Onboarding and Settings
+- **Welcome:** "New to DSA?" as two radio cards (an icon, a title, one line). Selected = accent border and accent-soft fill, with a filled radio dot. Then the video language as a segmented English / Hindi, then the handles.
+- **Settings → Mode:** the same two cards (Beginner / Smart) and the lesson video language toggle.
+
+### Preview banner (Debug)
+- A 36px accent-soft strip under the title bar ("Preview: a fresh beginner profile. Your real data and settings aren't touched. Exit preview"). It only appears while a preview profile runs.
+
+<!-- Appended 2026-10-18 (v1.3 Learn). Additions only; nothing above changed. -->
+## Learn (v1.3)
+
+**Why:** a beginner couldn't find where to watch the lectures. The Beginner Path was a Practice tab (and hidden in smart mode), and topic videos were inside the Topic Detail panel. Learn is now a top-level screen, and every place that mentions a topic links to it.
+
+### Navigation
+- **Five screens.** Smart: Today · Practice · Learn · Progress · Contests. Beginner: Today · Learn · Practice · Progress, plus Contests after the Recursion step. Ctrl+1 to Ctrl+5 follow the sidebar order, so a shortcut always matches the position you see. Learn's icon is the graduation cap (it was the Beginner Path's).
+- **"New" badge:** a pill beside the label (accent-soft fill, 12px semibold, the same recipe as `Pill`). On the collapsed rail it shrinks to an 8px accent dot on the icon's corner, ringed in `abyss-raised` so it reads on the active fill. It's a word, not only a colour, and the link's accessible name says "Contests (new)". It clears the first time Contests opens. No glow, so it doesn't count toward the Three Lights.
+
+### Learn screen (bento, 12 columns, `items-start`)
+- **Continue learning** (12): the one bold element. A 320px 16:9 thumbnail (the real YouTube frame, a 56px play disc on the 72% abyss scrim, length in the corner) beside the text block: a 13px line ("Continue learning" / "Start here" / "Suggested for you: …"), the title in display (a lesson) or headline (a video, two-line clamp), the subtitle, the next action in title weight, two status pills (video watched; n/3 problems), and **one primary button** ("Continue step 3", "Resume video"). The whole thumbnail is a button too.
+- **Beginner Path** (12): `CardHeader` with an "n/14 steps done" pill, the section strip (each segment opens its lesson), and the 14 steps in two column-flow columns (32px numbered tiles: Success check when done, accent-soft when current, sunken and faint when locked). The current row sits on a sunken fill and says "You're here, 1/3 problems". In Beginner mode step 9's locked row says "Unlocks Contests" with a trophy icon instead of the lock. The list is open in Beginner mode and folded behind "Show all 14 steps" in smart mode, so the library is near the fold.
+- **Video library** (12): a toolbar row (search that flexes, an English / Hindi / Both radiogroup that defaults to your lesson language, a "Not watched yet" toggle chip, and a 176px topic picker), then one group per topic, separated by hairlines rather than separate cards: the topic name (title), a "Weak topic" / "Still developing" pill in smart mode, "5 videos, 1 watched", and a quiet "Topic details" link. Videos are rows in two columns: a 112px 16:9 thumbnail (`mqdefault`, lazy) with the length bottom-right and a play disc on hover or focus, then a two-line title, "Step 5 lesson, NeetCode" / "Intro, Errichto", and "✓ Watched" in words.
+- **Filtered to a topic** (`?topic=`): the library scrolls into view and a line says "Showing Binary search only. × Show every topic".
+
+### Lesson focus mode
+- **Header:** a breadcrumb row (a 32px Back chevron, then "Learn › Beginner Path › Step 3", the current crumb in ink) with the language toggle on the right, then one baseline row: "Step 3 of 14", the title in headline, the subtitle.
+- **The video** is the page's hero: centred, `max-width: min(1120px, calc((100vh - 380px) * 16 / 9))`, so at 1100x700 its title row still clears the flow bar, and larger windows get a larger video. Below it: the title, "Main video, channel, N min", Mark as watched and Watch on YouTube.
+- **Read** (7) beside **More videos** (5), then **Solve** (12). The problem the Next button is on sits on a sunken fill.
+- **Flow bar:** sticky 16px from the bottom, on the Float plane (`abyss-raised`, strong hairline, `shadow-float`), so it never blurs text behind it. On the left, an ordered list: three 32px pills (a 24px numbered disc that becomes a Success check, then the word; Solve adds "1/3"), joined by 20px hairlines that turn Success once the step before is checked. The current stage takes accent-soft and its disc the accent. On the right, the single primary button, whose label is always the literal next action ("I've watched the video", "Open problem 2 of 3: Valid Anagram", "I solved Two Sum", "Next step: Arrays"). While it asks "I solved …", a ghost "Open it again" sits beside it.
+- **Toasts** move up 104px on lesson pages, so a "Step done" toast never covers Next.
+
+### Watch page
+The same breadcrumb (Learn › topic › title), the video at `calc((100vh - 300px) * 16 / 9)`, starting on its own because you picked it, and "More on <topic>" below as library rows, not watched yet first.
+
+### Links into Learn
+- **Topic Detail → Watch:** a two-video preview that plays in the panel, then an outline "Watch lessons" button with a play icon.
+- **Sheet sections:** a quiet "Learn this topic" (play icon, 13px muted, glass-hover) to the right of each section's toggle row, outside the toggle button.
+- **Ctrl+K:** while searching, a topic also offers "Watch <topic> videos" (play icon), ranked just below the topic itself.

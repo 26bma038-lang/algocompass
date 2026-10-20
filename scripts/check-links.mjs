@@ -106,7 +106,7 @@ const report = (ok, label, detail) => {
   console.log(`${ok ? "ok  " : "FAIL"}  ${label}\n      ${detail}`);
 };
 
-// ---- 1. Structure: every topic has learn (article + video), practice and deeper. ----
+// ---- 1. Structure: every topic has learn (an article), practice, deeper and at least one English video. ----
 console.log("Checking resources.json structure…");
 for (const t of topics) {
   const r = resources.topics[t.id];
@@ -114,9 +114,14 @@ for (const t of topics) {
   if (!r) problems.push("missing");
   else {
     const kinds = (r.learn ?? []).map((x) => x.kind);
-    if (!kinds.includes("article") || !kinds.includes("video")) problems.push("learn needs one article and one video");
+    if (!kinds.includes("article")) problems.push("learn needs an article");
+    // Videos (v1.3) live in `videos` and are checked against YouTube in section 5.
+    if (["learn", "practice", "deeper"].some((tier) => (r[tier] ?? []).some((x) => x.kind === "video"))) problems.push("videos belong in videos, not in a tier");
+    if (!(r.videos ?? []).some((v) => v.lang === "en")) problems.push("needs at least one English video");
+    for (const v of r.videos ?? []) if (!["en", "hi"].includes(v.lang) || !["intro", "lecture", "walkthrough"].includes(v.role)) problems.push(`video ${v.id}: bad lang or role`);
     if (!(r.practice ?? []).length) problems.push("practice is empty");
-    if (!(r.deeper ?? []).length) problems.push("deeper is empty");
+    // Go deeper can be a video now (a lecture or walkthrough in videos).
+    if (!(r.deeper ?? []).length && !(r.videos ?? []).some((v) => v.role !== "intro")) problems.push("deeper is empty");
   }
   if (problems.length) report(false, `topic ${t.id}`, problems.join("; "));
 }
@@ -177,6 +182,14 @@ for (const p of problems) {
   else lcOk++;
 }
 if (!quiet) console.log(`ok    ${lcOk}/${problems.length} curated LeetCode problems match LeetCode`);
+
+// ---- 4. Sheets (src/data/sheets/*.json): every LeetCode slug and Codeforces id exists and matches. ----
+const { checkSheets } = await import("./lib/check-sheets.mjs");
+failures += await checkSheets({ root, report, quiet, deep: process.argv.includes("--deep") });
+
+// ---- 5. Beginner Path problems and every video (oEmbed: 200, title and channel match). ----
+const { checkMedia } = await import("./lib/check-media.mjs");
+failures += await checkMedia({ root, report, quiet });
 
 console.log(failures ? `\n${failures} problem(s) found.` : "\nAll links verified.");
 process.exit(failures ? 1 : 0);

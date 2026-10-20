@@ -6,6 +6,8 @@ import {
   evaluateQuests,
   generateQuests,
   newlyCompleted,
+  sheetQuest,
+  type SheetMembers,
   type QuestMixItem,
   type QuestState,
   type SolveEvent,
@@ -15,13 +17,14 @@ import { TOPIC_BY_ID, topicsForTags } from "@/engine/topics";
 import { notify } from "@/lib/desktop";
 import { LC_CURATED } from "./catalog";
 import { improvedTopics, ratingAt, ratingChange, strengthsAt } from "@/engine/review";
-import { readPrefs, usePrefs } from "./prefs";
+import { readPrefs, usePrefs, type AppPrefs } from "./prefs";
+import { buildSolveIndex, isSheetId, loadSheet, PATH_SHEET_ID, viewOf } from "./sheets";
 import { topicReportQuery } from "./queries";
 import { queryClient } from "./queryClient";
 import { useLocalDay, useMixOfTheDay } from "./recommendations";
 import type { Repo } from "./repo";
 import { getRepo, useSyncStore } from "./syncStore";
-import type { LcProfile, ManualSolve, Platform } from "./types";
+import type { LcProfile, ManualSolve, Platform, StoredQuest } from "./types";
 import { useUiStore } from "./uiStore";
 
 /** Quests, XP, weekly goals and manual solve marks, fed from the SQLite cache. Keys start with "db". */
@@ -63,13 +66,59 @@ export async function solvesBetween(repo: Repo, from: number, to: number): Promi
     const topics = m.platform === "lc" ? (CURATED.get(m.problemId)?.topics ?? (m.topicId ? [m.topicId] : [])) : m.topicId ? [m.topicId] : [];
     add({ platform: m.platform, problemId: m.problemId, at: m.solvedAt, topics, rating: null });
   }
+  // Sheet problems ticked by hand that aren't on LeetCode or Codeforces (GFG, takeUforward…). LeetCode
+  // and Codeforces ticks are already in manual_solves above; bulk imports never count as today's work.
+  for (const t of await repo.getSheetTicks()) {
+    if (t.state !== "done" || t.source !== "manual" || t.at < from || t.at >= to) continue;
+    if (t.key.startsWith("lc:") || t.key.startsWith("cf:")) continue;
+    add({ platform: "sheet", problemId: t.key, at: t.at, topics: [], rating: null });
+  }
   return [...out.values()];
+}
+
+/** The sheet today's sheet quest comes from: the one you follow, or the Beginner Path in Beginner mode. */
+export function questSheetId(prefs: Pick<AppPrefs, "mode" | "followedSheet">): string | null {
+  const id = prefs.followedSheet ?? (prefs.mode === "beginner" ? PATH_SHEET_ID : null);
+  return isSheetId(id) ? id : null;
+}
+
+/**
+ * Keeps today's sheet quest in line with the sheet you follow: added when you follow one, dropped
+ * when you stop (unless it's already done, which stays earned).
+ */
+async function reconcileSheetQuest(repo: Repo, day: string, stored: StoredQuest[]): Promise<StoredQuest[]> {
+  const prefs = await readPrefs();
+  const want = questSheetId(prefs);
+  const have = stored.find((q) => q.kind === "sheet");
+  if (have?.completedAt) return stored;
+  if (have && have.sheetId === want) return stored;
+  if (have) await repo.deleteOpenQuest(day, have.id);
+  if (want) {
+    const view = viewOf(await loadSheet(want), await buildSolveIndex(repo), new Map());
+    await repo.addQuest(day, sheetQuest({ id: want, short: view.sheet.short, nextKey: view.next?.problem.key ?? null }));
+  }
+  return repo.getQuests(day);
+}
+
+/** Problem keys of each sheet a quest points at, loaded once per evaluation. */
+async function sheetMembers(quests: readonly StoredQuest[]): Promise<SheetMembers> {
+  const ids = [...new Set(quests.flatMap((q) => (q.sheetId && isSheetId(q.sheetId) ? [q.sheetId] : [])))];
+  const sets = new Map(await Promise.all(ids.map(async (id) => [id, new Set((await loadSheet(id)).sections.flatMap((s) => s.problems.map((p) => p.key)))] as const)));
+  return (id) => sets.get(id);
 }
 
 export function toQuestMix(items: readonly ResolvedMixItem[]): QuestMixItem[] {
   return items
     .filter((i) => i.rec !== null)
     .map((i) => ({ platform: i.platform, problemId: i.problemId, topicId: i.topicId, rating: i.rec?.platform === "cf" ? i.rec.rating : null }));
+}
+
+/**
+ * The mix quests are built from. Beginner mode gets none of the mix's topic quests: its day is the
+ * Beginner Path (the sheet quest) plus the consistency quest, so nothing competes with Start here.
+ */
+async function questMix(items: readonly ResolvedMixItem[]): Promise<QuestMixItem[]> {
+  return (await readPrefs()).mode === "beginner" ? [] : toQuestMix(items);
 }
 
 export interface TodayQuests {
@@ -96,11 +145,12 @@ export function useTodayQuests() {
       if (stored.length === 0) {
         // No mix yet (first sync still running): no quests rather than quests built on half the data.
         if (!mix.data || syncing) return null;
-        await repo.saveQuests(day, generateQuests(toQuestMix(mix.data.items), topicName));
+        await repo.saveQuests(day, generateQuests(await questMix(mix.data.items), topicName));
         stored = await repo.getQuests(day);
       }
+      stored = await reconcileSheetQuest(repo, day, stored);
       const [from, to] = dayRange(day);
-      const quests = evaluateQuests(stored, await solvesBetween(repo, from, to));
+      const quests = evaluateQuests(stored, await solvesBetween(repo, from, to), await sheetMembers(stored));
       return { day, quests, done: quests.filter((q) => q.done).length, total: quests.length };
     },
   });
@@ -108,7 +158,7 @@ export function useTodayQuests() {
 
 /** After "New mix": rewrite today's open quests so they point at the new problems. */
 export async function regenerateOpenQuests(day: string, items: readonly ResolvedMixItem[]) {
-  await (await getRepo()).saveQuests(day, generateQuests(toQuestMix(items), topicName));
+  await (await getRepo()).saveQuests(day, generateQuests(await questMix(items), topicName));
 }
 
 /**
