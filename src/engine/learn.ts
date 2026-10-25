@@ -334,11 +334,15 @@ export function todayLessonAction(next: LessonNext, video: { minutes: number } |
   }
 }
 
-/** Which of Watch, Read and Solve are checked. Done steps check all three. */
+/**
+ * Which of Watch, Read and Solve are checked. A done step checks Watch and Solve (its unlock rule
+ * needs both), but Read only ever comes from "I've read it" being recorded (v1.4 polish): a watched
+ * video or solved problems never imply you read the lesson.
+ */
 export function lessonChecks(p: Pick<StepProgress, "watched" | "required" | "requiredDone">, read: boolean, stepDone: boolean) {
   return {
     watch: stepDone || p.watched,
-    read: stepDone || read,
+    read,
     solve: stepDone || p.requiredDone >= p.required,
   };
 }

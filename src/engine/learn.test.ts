@@ -250,9 +250,12 @@ describe("a lesson's Next button", () => {
     expect(flow({ watched: true, solved: ["p1", "p2"] }).kind).toBe("next-step");
   });
 
-  it("checks Watch, Read and Solve as they're done, and all three on a done step", () => {
+  it("checks Watch, Read and Solve as they're done; Read only from its own record (v1.4 polish)", () => {
     expect(lessonChecks({ watched: true, required: 2, requiredDone: 1 }, false, false)).toEqual({ watch: true, read: false, solve: false });
-    expect(lessonChecks({ watched: false, required: 2, requiredDone: 0 }, false, true)).toEqual({ watch: true, read: true, solve: true });
+    // A done step checks Watch and Solve, but never infers Read.
+    expect(lessonChecks({ watched: false, required: 2, requiredDone: 0 }, false, true)).toEqual({ watch: true, read: false, solve: true });
+    expect(lessonChecks({ watched: true, required: 2, requiredDone: 2 }, false, false)).toEqual({ watch: true, read: false, solve: true });
+    expect(lessonChecks({ watched: true, required: 2, requiredDone: 2 }, true, true)).toEqual({ watch: true, read: true, solve: true });
     expect(lessonStage(flow({ watched: true }))).toBe("read");
     expect(lessonStage(flow({ watched: true, read: true }))).toBe("solve");
   });

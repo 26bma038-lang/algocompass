@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import { describe, expect, it } from "vitest";
 import { TOPIC_BY_ID } from "./topics";
-import { lessonProblems, mainVideo, nextAction, pathAsSheet, pathState, stepProgress, type BeginnerPath, type PathStep } from "./path";
+import { lessonProblems, mainVideo, nextAction, pathAsSheet, pathDots, pathState, stepProgress, type BeginnerPath, type PathStep } from "./path";
 
 const PATH = JSON.parse(fs.readFileSync("src/data/path/beginner-path.json", "utf8")) as BeginnerPath;
 
@@ -159,5 +159,16 @@ describe("Problems from your lessons (Practice in Beginner mode, v1.4)", () => {
     // Not watched, so step 1 is still current: the next is its first extra problem.
     const st = pathState(path, (k) => req.has(k), new Set(), new Map());
     expect(lessonProblems(st, (k) => req.has(k)).next?.required).toBe(false);
+  });
+});
+
+describe("Today's compact path strip (v1.4 polish)", () => {
+  it("one dot per step: done, the current one, then the rest", () => {
+    expect(pathDots(pathState(path(14), () => false, new Set(), new Map()))).toEqual(["current", ...Array(13).fill("todo")]);
+    const two = pathState(path(14), () => false, new Set(), new Map([["s1", 1], ["s2", 1]]));
+    expect(pathDots(two).slice(0, 4)).toEqual(["done", "done", "current", "todo"]);
+    expect(pathDots(two)).toHaveLength(14);
+    const all = pathState(path(3), () => false, new Set(), new Map([["s1", 1], ["s2", 1], ["s3", 1]]));
+    expect(pathDots(all)).toEqual(["done", "done", "done"]);
   });
 });

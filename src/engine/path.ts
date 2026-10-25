@@ -95,6 +95,14 @@ export function stepProgress(step: PathStep, isDone: (key: string) => boolean, w
 
 export type StepState = "done" | "current" | "locked";
 
+/** One dot of Today's compact path strip (v1.4 polish). */
+export type PathDot = "done" | "current" | "todo";
+
+/** Today's compact path strip: one dot per step, the current one marked. */
+export function pathDots(state: Pick<PathState, "steps">): PathDot[] {
+  return state.steps.map((s) => (s.state === "done" ? "done" : s.state === "current" ? "current" : "todo"));
+}
+
 export interface PathState {
   steps: (StepProgress & { step: PathStep; state: StepState })[];
   /** Index of the step to work on now, or null when the whole path is done. */

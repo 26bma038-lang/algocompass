@@ -25,6 +25,14 @@ Not released. Behaviour and data are unchanged: only labels, layout, colours and
 - **Decision:** removing the bar rather than labelling it: "Progress to Pupil" already sits on Today's rating card in words and a meter, and a labelled strip under every screen's title would compete with the title.
 - **Tests:** `topBarItems.test.ts` (smart = search + update; beginner unchanged; every Update status in words).
 
+### Part 3: Beginner Today and the lesson (2026-10-25)
+
+- **The button leads:** Beginner Today's Do this next card puts the step name in headline size (22px, was 32px display) with its subtitle, and the action button ("Watch the video (15 min)", "Solve problem 2 of 3: …") is the full-width large primary at the bottom, so it's the loudest thing in the card. Still one card beside today's goals.
+- **Compact path strip** (`PathDots` in `src/features/path/shared.tsx`, dots from `pathDots()` in `src/engine/path.ts`): "Step 1 of 14", fourteen 8px dots (done in Success, the current one 10px in the accent with a soft accent ring, the rest faint) and a quiet "View Beginner Path" link to `/learn#path`. It replaces the 14-segment section strip and the separate "n of 14 steps done" line; the dots carry an accessible "Beginner Path: n of 14 steps done".
+- **Trust note:** "No account needed. Your progress stays on this PC." under the button, in a 12px muted line with a shield icon.
+- **Read is never inferred:** `lessonChecks` used to tick Read on any done step (a step unlocks on video + problems, without reading). Read's check now comes only from the recorded "I've read it" (`learn.read`). Watch and Solve still check on a done step, since its unlock rule needs both. The Next button's order and the unlock rule are unchanged.
+- **Tests:** `pathDots` (path.test.ts), `lessonChecks` never inferring Read (learn.test.ts).
+
 ## Done: the landing website (branch `website`, merged to master)
 
 A static site in `website/` (plain HTML, CSS and JS, no build step), deployed to GitHub Pages by `.github/workflows/pages.yml`. No app code changed. Screenshots in `docs/screenshots/website/`.

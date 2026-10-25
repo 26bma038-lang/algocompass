@@ -1,4 +1,7 @@
+import { Link } from "react-router-dom";
+import { stepLabel } from "@/components/shell/topBarItems";
 import { useUpdatePrefs, usePrefs, type VideoLang } from "@/data/prefs";
+import { pathDots } from "@/engine/path";
 import type { PathView as View } from "@/data/path";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +34,36 @@ export function LangToggle() {
           {o.label}
         </button>
       ))}
+    </div>
+  );
+}
+
+/**
+ * Today's compact path strip (v1.4 polish): "Step 1 of 14", one dot per step (done in Success, the
+ * current one in the accent with a soft ring, the rest faint), and a quiet link to the roadmap.
+ */
+export function PathDots({ view }: { view: View }) {
+  const total = view.steps.length;
+  const label = stepLabel(view.current, total);
+  return (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+      <span className="numeric text-body-sm font-semibold text-ink">{label}</span>
+      <span role="img" aria-label={`Beginner Path: ${view.doneCount} of ${total} steps done`} className="flex items-center gap-1.5">
+        {pathDots(view).map((d, i) => (
+          <span
+            key={i}
+            className={cn(
+              "rounded-full",
+              d === "current" ? "size-2.5 bg-accent ring-[3px] ring-accent-soft" : "size-2",
+              d === "done" && "bg-success",
+              d === "todo" && "bg-ink-faint/45",
+            )}
+          />
+        ))}
+      </span>
+      <Link to="/learn#path" className="ml-auto rounded-xs text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
+        View Beginner Path
+      </Link>
     </div>
   );
 }

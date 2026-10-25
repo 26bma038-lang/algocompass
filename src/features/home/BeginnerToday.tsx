@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLearnHistory } from "@/data/learn";
@@ -7,15 +7,16 @@ import { usePath } from "@/data/path";
 import { usePrefs } from "@/data/prefs";
 import { lessonNext, todayLessonAction } from "@/engine/learn";
 import { mainVideo } from "@/engine/path";
-import { lessonPath, stripProgress } from "@/features/path/shared";
+import { lessonPath, PathDots } from "@/features/path/shared";
 import { useRewardPulse } from "@/features/quests/QuestList";
-import { SectionStrip } from "@/features/sheets/SectionStrip";
 import { LABELS } from "@/lib/glossary";
 import { cn } from "@/lib/utils";
 
 /**
  * "Do this next" (v1.4): the current step and the exact next thing to do in it, as one big
  * button: watch the video, read the lesson, or solve problem N. It opens the lesson at that part.
+ * v1.4 polish: the button is the loudest thing in the card (full width, under a headline-size
+ * title), the path is a compact strip of 14 dots, and a line says nothing leaves the PC.
  */
 function DoThisNextLesson() {
   const { data: view } = usePath();
@@ -49,33 +50,28 @@ function DoThisNextLesson() {
         <p className="text-body-sm font-medium text-accent">{LABELS.doThisNext}</p>
         {cur ? (
           <>
-            <h2 id="start-title" className="font-display text-display font-semibold text-ink">
-              Step {(view.current ?? 0) + 1} of {total}: {cur.step.title}
+            <h2 id="start-title" className="font-display text-headline font-semibold text-ink">
+              {cur.step.title}
             </h2>
             <p className="text-body text-ink-muted">{cur.step.subtitle}</p>
           </>
         ) : (
           <>
-            <h2 id="start-title" className="font-display text-display font-semibold text-ink">
+            <h2 id="start-title" className="font-display text-headline font-semibold text-ink">
               You finished the Beginner Path
             </h2>
             <p className="text-body text-ink-muted">All {total} steps are done. A full problem list (a sheet) like Striver's A2Z or NeetCode 150 is the next step.</p>
           </>
         )}
       </div>
-      <div className="flex flex-col gap-2">
-        <SectionStrip sections={stripProgress(view)} titles={view.steps.map((s) => s.step.title)} label="Step" current={view.current ?? undefined} />
-        <span className="numeric text-label text-ink-muted">
-          {view.doneCount} of {total} steps done
-        </span>
-      </div>
+      <PathDots view={view} />
       <div className="mt-auto flex flex-col gap-3">
         {action && cur ? (
           <>
             <p className="text-body text-ink">{action.detail}</p>
             <Button
               size="lg"
-              className="max-w-full self-start"
+              className="w-full"
               onClick={() => navigate(lessonPath(cur.step.id), { state: action.focus ? { focus: action.focus } : undefined })}
             >
               <span className="truncate">{action.button}</span>
@@ -83,11 +79,15 @@ function DoThisNextLesson() {
             </Button>
           </>
         ) : (
-          <Button size="lg" className="self-start" onClick={() => navigate("/practice/sheets")}>
+          <Button size="lg" className="w-full" onClick={() => navigate("/practice/sheets")}>
             Pick a sheet
             <ArrowRight aria-hidden />
           </Button>
         )}
+        <p className="flex items-center gap-1.5 text-label text-ink-muted">
+          <ShieldCheck aria-hidden className="size-3.5 shrink-0" strokeWidth={1.8} />
+          No account needed. Your progress stays on this PC.
+        </p>
       </div>
     </section>
   );
