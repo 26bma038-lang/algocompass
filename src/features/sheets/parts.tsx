@@ -7,6 +7,8 @@ import type { NextPick, ProblemStatus, Sheet, SheetProblem } from "@/engine/shee
 import { TOPIC_BY_ID } from "@/engine/topics";
 import { openExternal } from "@/lib/openExternal";
 import { cn } from "@/lib/utils";
+import { stepLabel } from "@/components/shell/topBarItems";
+import { usePath } from "@/data/path";
 
 /** "Sheet by <creator>", linking the original. Shown on every sheet. The Beginner Path is built in: no link out. */
 export function SheetCredit({ sheet, className }: { sheet: Pick<Sheet, "id" | "creator" | "sourceUrl" | "name">; className?: string }) {
@@ -150,5 +152,33 @@ export function NextTile({ sheet, next, className }: { sheet: Sheet; next: NextP
         {target?.autoTicks && <span className="text-label text-ink-muted">Solve on {target.site} to tick automatically.</span>}
       </div>
     </div>
+  );
+}
+
+/**
+ * The Beginner Path's progress, counted in steps (v1.4): "Step 3 of 14", never "7/59". Its problems
+ * only finish a step together with the video, so a problem count would say something different
+ * from Learn's roadmap.
+ */
+export function PathStepProgress({ size }: { size: "lg" | "sm" }) {
+  const view = usePath().data;
+  if (!view) return null;
+  const total = view.steps.length;
+  const label = stepLabel(view.current, total);
+  if (size === "sm") {
+    return (
+      <span className="flex w-24 flex-col items-end">
+        <span className="numeric font-display text-body font-semibold whitespace-nowrap text-ink">{label}</span>
+        <span className="numeric text-label text-ink-muted">{view.doneCount} done</span>
+      </span>
+    );
+  }
+  return (
+    <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+      <span className="numeric font-display text-display leading-none font-semibold text-ink">{label}</span>
+      <span className="numeric text-body-sm text-ink-muted">
+        {view.doneCount} of {total} steps done
+      </span>
+    </p>
   );
 }

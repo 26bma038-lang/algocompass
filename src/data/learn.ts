@@ -82,3 +82,19 @@ export function useMarkContestsSeen() {
     onSuccess: () => client.setQueryData(contestsSeenKey, true),
   });
 }
+
+/** The lesson's "How to solve on LeetCode" guide (v1.4): open for a beginner until "Got it". */
+const SOLVE_GUIDE_KEY = "solveGuideSeen";
+export const solveGuideKey = ["settings", "solveGuideSeen"] as const;
+
+export function useSolveGuideSeen() {
+  return useQuery({ queryKey: solveGuideKey, queryFn: async () => (await readPref<boolean>(SOLVE_GUIDE_KEY)) === true, staleTime: Infinity });
+}
+
+export function useDismissSolveGuide() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: () => writePref(SOLVE_GUIDE_KEY, true),
+    onSuccess: () => client.setQueryData(solveGuideKey, true),
+  });
+}

@@ -5,7 +5,8 @@ import { EmptyState } from "@/components/EmptyState";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { usePrefs } from "@/data/prefs";
 import { useSheets, type SheetView } from "@/data/sheets";
-import { FollowButton, NextTile, SheetCredit } from "./parts";
+import { FollowButton, NextTile, PathStepProgress, SheetCredit } from "./parts";
+import { PATH_SHEET_ID } from "@/data/sheets";
 import { SectionStrip } from "./SectionStrip";
 import { sheetPath } from "./paths";
 
@@ -24,12 +25,16 @@ function FollowedCard({ view }: { view: SheetView }) {
           </h2>
           <SheetCredit sheet={sheet} />
         </div>
-        <p className="flex items-baseline gap-3">
-          <span className="numeric font-display text-display leading-none font-semibold text-ink">{progress.pct}%</span>
-          <span className="numeric text-body-sm text-ink-muted">
-            {progress.done} of {progress.total} problems done
-          </span>
-        </p>
+        {sheet.id === PATH_SHEET_ID ? (
+          <PathStepProgress size="lg" />
+        ) : (
+          <p className="flex items-baseline gap-3">
+            <span className="numeric font-display text-display leading-none font-semibold text-ink">{progress.pct}%</span>
+            <span className="numeric text-body-sm text-ink-muted">
+              {progress.done} of {progress.total} problems done
+            </span>
+          </p>
+        )}
         <SectionStrip sections={progress.sections} titles={sheet.sections.map((s) => s.title)} label={sheet.sectionLabel} current={next?.sectionIndex} />
         <div className="mt-auto flex flex-wrap items-center gap-3">
           <Link
@@ -75,12 +80,16 @@ function SheetRow({ view, followed }: { view: SheetView; followed: boolean }) {
           {sheet.sections.length} {sheet.sectionLabel.toLowerCase()}s, {progress.total} problems
         </span>
       </div>
-      <span className="flex w-24 flex-col items-end">
-        <span className="numeric font-display text-headline leading-none font-semibold text-ink">{progress.pct}%</span>
-        <span className="numeric text-label text-ink-muted">
-          {progress.done}/{progress.total}
+      {sheet.id === PATH_SHEET_ID ? (
+        <PathStepProgress size="sm" />
+      ) : (
+        <span className="flex w-24 flex-col items-end">
+          <span className="numeric font-display text-headline leading-none font-semibold text-ink">{progress.pct}%</span>
+          <span className="numeric text-label text-ink-muted">
+            {progress.done}/{progress.total}
+          </span>
         </span>
-      </span>
+      )}
       <FollowButton sheetId={sheet.id} followed={followed} />
     </li>
   );

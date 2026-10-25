@@ -48,6 +48,14 @@ Not released. The plan is `docs/audit-v1.4/AUDIT.md`; screenshots are in `docs/a
 - **Ctrl+K:** beginners get **Continue my lesson** first; **Update now** only appears once there's an account, and Today's problems is hidden for a beginner without one.
 - **Rules as data:** `todayLessonAction` (`src/engine/learn.ts`) and `pickDoThisNext` (`src/engine/today.ts`), tested. `WorkOnNext.tsx` and the unused `ContestStrip` component are deleted; `LcCard` and `RunMeter` moved to their own files.
 
+### Part 6: "How to solve on LeetCode" (2026-10-25)
+
+- **The guide** (audit problem #1): a beginner's first Solve part opens with a step-by-step panel above the problems: 1 make a free LeetCode account (with a Sign up link) → 2 read the problem → 3 write your code (pick C++, Java or Python) → 4 press Run → 5 press Submit, green "Accepted" means solved → 6 come back and tick it, or connect your username. It's there by the time the flow bar's "Open problem 1 of 3" is pressed (that scrolls to Solve). **Got it** dismisses it for good (setting `solveGuideSeen`); **How to solve on LeetCode** in the Solve header reopens it, in either mode.
+- **Connect inline:** under the problems, "Connect LeetCode to tick automatically" with a username field and **Update**: it checks the username on LeetCode, saves it and runs an update. Once connected, a beginner (who has no Update in the top bar) keeps an Update button here: "Problems you solve as *name* on LeetCode tick themselves when you update."
+- **Steps, not problems:** the Beginner Path's progress reads "Step X of 14" everywhere (Learn's roadmap pill, the sheet list row and followed card, the sheet page header), never "7/59". The Solve pill says "0 of 3 solved", and extra Codeforces problems say "difficulty 800" with the tooltip.
+- **Rules as data:** `src/features/learn/solveGuide.ts` (the steps, when the guide is open, the connect state), tested.
+- **Decisions:** the guide panel sits above the problem list and the Connect row below it, so the problems stay the main thing once the guide is dismissed. The path counts in steps in smart mode too: one number in both places (the audit's double count, problem 7).
+
 ## Previous: v1.3, Sheets + Beginner Path + video lessons (branch `v1.3`, released as v1.3.0/v1.3.1)
 
 ### v1.3 Learn: a top-level screen for every lesson (2026-10-18)

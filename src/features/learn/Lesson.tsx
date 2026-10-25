@@ -5,7 +5,7 @@ import { CardHeader } from "@/components/CardHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { lessonPath } from "@/components/shell/nav";
 import { Button } from "@/components/ui/button";
-import { useLearnHistory, useRecordLearn } from "@/data/learn";
+import { useDismissSolveGuide, useLearnHistory, useRecordLearn, useSolveGuideSeen } from "@/data/learn";
 import { usePath, useSetWatched, type PathView } from "@/data/path";
 import { usePrefs } from "@/data/prefs";
 import { openTarget, useSolveIndex, useTickProblem } from "@/data/sheets";
@@ -19,6 +19,10 @@ import { OpenButton, sourceLabel, TickBox } from "@/features/sheets/parts";
 import { openExternal } from "@/lib/openExternal";
 import { cn } from "@/lib/utils";
 import { Breadcrumb } from "./parts";
+import { ConnectLeetCode, SolveGuide } from "./SolveHelp";
+import { solveGuideOpen } from "./solveGuide";
+import { Term } from "@/components/Term";
+import { LABELS } from "@/lib/glossary";
 
 function videosFor(step: PathStep, lang: VideoLang): PathVideo[] {
   const own = step.videos[lang];
@@ -99,18 +103,48 @@ function MoreVideos({ list, current, main, view, onPick }: { list: PathVideo[]; 
   );
 }
 
-/** Solve: the step's problems in order. Required ones finish the step; the rest are extra practice. */
+/**
+ * Solve: the step's problems in order. Required ones finish the step; the rest are extra practice.
+ * v1.4: a beginner sees "How to solve on LeetCode" here until "Got it" (anyone can reopen it), and
+ * "Connect LeetCode to tick automatically" while there's no username.
+ */
 function SolveCard({ step, view, focusKey }: { step: PathStep; view: PathView; focusKey: string | null }) {
   const idx = useSolveIndex().data;
+  const mode = usePrefs().data?.mode ?? "smart";
+  const seen = useSolveGuideSeen().data;
+  const dismiss = useDismissSolveGuide();
+  const [requested, setRequested] = useState(false);
   const s = view.steps.find((x) => x.step.id === step.id)!;
+  // Wait for the pref, so a returning beginner never sees the guide flash open.
+  const open = seen !== undefined && solveGuideOpen({ mode, seen, requested });
   return (
     <section id="solve" aria-labelledby="solve-title" className="glass-card flex scroll-mt-4 flex-col gap-4 p-6">
       <CardHeader
         id="solve-title"
         title="3. Solve"
         description="Easy problems, in order. Solve each one on LeetCode, then tick it here."
-        pill={`${s.requiredDone}/${s.required} required`}
+        pill={`${s.requiredDone} of ${s.required} solved`}
+        actions={
+          !open ? (
+            <button
+              type="button"
+              onClick={() => setRequested(true)}
+              className="rounded-xs text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink"
+            >
+              {LABELS.howToSolve}
+            </button>
+          ) : undefined
+        }
       />
+      {open && (
+        <SolveGuide
+          doneLabel={requested && seen ? "Hide" : "Got it"}
+          onDone={() => {
+            setRequested(false);
+            if (!seen) dismiss.mutate();
+          }}
+        />
+      )}
       <ul className="-mx-3 flex flex-col">
         {step.problems.map((p) => {
           const st = idx ? problemStatus(p.key, idx) : { done: view.isDone(p.key), source: null, at: null };
@@ -135,14 +169,20 @@ function SolveCard({ step, view, focusKey }: { step: PathStep; view: PathView; f
                   </span>
                 </span>
               </span>
-              <span className="w-16 shrink-0 text-right text-body-sm text-ink-muted">
-                {p.difficulty ?? (p.rating ? <span className="numeric font-display font-semibold text-ink">{p.rating}</span> : "–")}
+              <span className="shrink-0 text-right text-body-sm text-ink-muted">
+                {p.difficulty ??
+                  (p.rating ? (
+                    <>
+                      <Term id="difficulty">difficulty</Term> <span className="numeric">{p.rating}</span>
+                    </>
+                  ) : null)}
               </span>
               <OpenButton problem={p} />
             </li>
           );
         })}
       </ul>
+      <ConnectLeetCode />
     </section>
   );
 }

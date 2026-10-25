@@ -1,3 +1,4 @@
+import { stepLabel } from "@/components/shell/topBarItems";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, ChevronRight, Lock, Play, Search, Trophy, X } from "lucide-react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
@@ -217,7 +218,7 @@ function RoadmapCard({ view }: { view: PathView }) {
         id="path-title"
         title={view.path.name}
         description={`${total} steps from loops to dynamic programming. Each is a lesson: watch a short video, read the pattern, solve a few easy problems.`}
-        pill={`${view.doneCount}/${total} steps done`}
+        pill={stepLabel(view.current, total)}
       />
       <SectionStrip
         sections={stripProgress(view)}

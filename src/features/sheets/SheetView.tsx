@@ -13,7 +13,8 @@ import { useUiStore } from "@/data/uiStore";
 import { distinctKeys, sectionKeys, type ProblemStatus, type Sheet, type SheetProblem } from "@/engine/sheets";
 import type { LcDifficulty } from "@/data/types";
 import { cn } from "@/lib/utils";
-import { FollowButton, NextTile, OpenButton, SheetCredit, sourceLabel, TickBox, topicName } from "./parts";
+import { FollowButton, NextTile, OpenButton, PathStepProgress, SheetCredit, sourceLabel, TickBox, topicName } from "./parts";
+import { PATH_SHEET_ID } from "@/data/sheets";
 import { SectionStrip } from "./SectionStrip";
 
 type StatusFilter = "all" | "unsolved" | "solved";
@@ -500,23 +501,27 @@ function SheetBody({ view }: { view: View }) {
         )}
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(300px,380px)]">
           <div className="flex min-w-0 flex-col gap-4">
-            <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="numeric font-display text-display leading-none font-semibold text-ink">{progress.pct}%</span>
-              <span className="numeric text-body-sm text-ink-muted">
-                {progress.done} of {progress.total} problems done
-                {progress.done > 0 &&
-                  ` (${[
-                    progress.bySource.auto && `${progress.bySource.auto} from your solves`,
-                    progress.bySource.manual && `${progress.bySource.manual} by hand`,
-                    progress.bySource.bulk && `${progress.bySource.bulk} imported`,
-                  ]
-                    .filter(Boolean)
-                    .join(", ")})`}
-              </span>
-            </p>
+            {sheet.id === PATH_SHEET_ID ? (
+              <PathStepProgress size="lg" />
+            ) : (
+              <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <span className="numeric font-display text-display leading-none font-semibold text-ink">{progress.pct}%</span>
+                <span className="numeric text-body-sm text-ink-muted">
+                  {progress.done} of {progress.total} problems done
+                  {progress.done > 0 &&
+                    ` (${[
+                      progress.bySource.auto && `${progress.bySource.auto} from your solves`,
+                      progress.bySource.manual && `${progress.bySource.manual} by hand`,
+                      progress.bySource.bulk && `${progress.bySource.bulk} imported`,
+                    ]
+                      .filter(Boolean)
+                      .join(", ")})`}
+                </span>
+              </p>
+            )}
             <SectionStrip sections={progress.sections} titles={sheet.sections.map((s) => s.title)} label={sheet.sectionLabel} onSelect={jump} current={next?.sectionIndex} />
             <p className="max-w-[68ch] text-body-sm text-ink-muted">
-              Problems you solve on LeetCode or Codeforces tick themselves after the next sync. LeetCode's API only shows your 20 most recent solves,
+              Problems you solve on LeetCode or Codeforces tick themselves after the next update. LeetCode's API only shows your 20 most recent solves,
               so older ones won't appear: tick them here or use Mark sections done.
             </p>
           </div>
