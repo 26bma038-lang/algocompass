@@ -8,9 +8,11 @@ import type { Platform, QuestSpec, StoredQuest } from "@/data/types";
  * - LeetCode: one problem in the topic you're learning.
  * - Consistency: any two problems, either platform.
  * - Sheet (v1.3, when you follow a sheet or the Beginner Path): one problem from it.
+ * - Lesson step (v1.4, a beginner before Step 1 is done): finish today's lesson step, in place of
+ *   "any two problems" (they haven't solved anything yet, and the lesson is the day's work).
  */
 
-export const QUEST_XP = { cf_topic: 30, lc_topic: 20, any_solves: 15, sheet: 20 } as const;
+export const QUEST_XP = { cf_topic: 30, lc_topic: 20, any_solves: 15, sheet: 20, lesson_step: 25 } as const;
 export const CONSISTENCY_TARGET = 2;
 
 /** A mix slot, resolved enough to word a quest. */
@@ -75,12 +77,15 @@ export function generateQuests(mix: readonly QuestMixItem[], topicName: (id: str
   return out;
 }
 
-/** The sheet you follow, as a quest: one problem from it today. */
-export function sheetQuest(sheet: { id: string; short: string; nextKey: string | null }): QuestSpec {
+/** The Beginner Path's sheet quest, in a beginner's words (v1.4). */
+export const LESSON_PROBLEM_TITLE = "Solve 1 problem from your lesson";
+
+/** The sheet you follow, as a quest: one problem from it today. `title` rewords it (the Beginner Path). */
+export function sheetQuest(sheet: { id: string; short: string; nextKey: string | null }, title?: string): QuestSpec {
   return {
     id: "sheet",
     kind: "sheet",
-    title: `Solve 1 problem from ${sheet.short}`,
+    title: title ?? `Solve 1 problem from ${sheet.short}`,
     target: 1,
     topicId: null,
     minRating: null,
@@ -88,6 +93,29 @@ export function sheetQuest(sheet: { id: string; short: string; nextKey: string |
     sheetId: sheet.id,
     xp: QUEST_XP.sheet,
   };
+}
+
+/** v1.4: finish one Beginner Path step today. Counted from the steps recorded today, not from solves. */
+export function lessonStepQuest(): QuestSpec {
+  return {
+    id: "lesson_step",
+    kind: "lesson_step",
+    title: "Finish today's lesson step",
+    target: 1,
+    topicId: null,
+    minRating: null,
+    problemIds: [],
+    xp: QUEST_XP.lesson_step,
+  };
+}
+
+/**
+ * A beginner's goals besides the lesson's problem (the sheet quest). Before Step 1 is done they've
+ * never solved anything, so "Solve any 2 problems today" doesn't match where they are: the goal is
+ * the lesson step itself. After that, the usual consistency goal.
+ */
+export function beginnerQuests(firstStepDone: boolean): QuestSpec[] {
+  return firstStepDone ? generateQuests([], (id) => id) : [lessonStepQuest()];
 }
 
 /** A solve's sheet key: "lc:two-sum", "cf:4-A", or the key itself for a hand-ticked sheet problem. */
@@ -106,6 +134,8 @@ export function countsFor(q: QuestSpec, s: SolveEvent, sheets?: SheetMembers): b
     }
     case "any_solves":
       return true;
+    case "lesson_step":
+      return false;
     case "cf_topic":
       if (s.platform !== "cf") return false;
       if (q.problemIds.includes(s.problemId)) return true;
@@ -121,12 +151,15 @@ export interface QuestState extends StoredQuest {
   done: boolean;
 }
 
-/** Progress per quest from today's solves. A quest stored as completed stays done. */
-export function evaluateQuests(quests: readonly StoredQuest[], solves: readonly SolveEvent[], sheets?: SheetMembers): QuestState[] {
+/**
+ * Progress per quest from today's solves (and, for the lesson-step goal, the Beginner Path steps
+ * finished today). A quest stored as completed stays done.
+ */
+export function evaluateQuests(quests: readonly StoredQuest[], solves: readonly SolveEvent[], sheets?: SheetMembers, stepsToday = 0): QuestState[] {
   return quests.map((q) => {
-    const ids = new Set(solves.filter((s) => countsFor(q, s, sheets)).map(solveKey));
-    const done = q.completedAt !== null || ids.size >= q.target;
-    return { ...q, progress: done ? q.target : Math.min(ids.size, q.target), done };
+    const n = q.kind === "lesson_step" ? stepsToday : new Set(solves.filter((s) => countsFor(q, s, sheets)).map(solveKey)).size;
+    const done = q.completedAt !== null || n >= q.target;
+    return { ...q, progress: done ? q.target : Math.min(n, q.target), done };
   });
 }
 

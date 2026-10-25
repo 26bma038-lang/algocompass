@@ -86,6 +86,8 @@ export function usePathWatcher() {
             .join(" "),
         });
         await client.invalidateQueries({ queryKey: pathKey });
+        // "Finish today's lesson step" (a beginner's goal) counts recorded steps.
+        await client.invalidateQueries({ queryKey: ["db", "quests"] });
       } finally {
         busy.current = false;
       }

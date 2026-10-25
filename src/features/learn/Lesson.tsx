@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Check, Lock, Play } from "lucide-react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { CardHeader } from "@/components/CardHeader";
@@ -18,6 +19,7 @@ import { useRewardPulse } from "@/features/quests/QuestList";
 import { OpenButton, sourceLabel, TickBox } from "@/features/sheets/parts";
 import { openExternal } from "@/lib/openExternal";
 import { cn } from "@/lib/utils";
+import { useShellFooter } from "@/components/shell/footerSlot";
 import { Breadcrumb } from "./parts";
 import { ConnectLeetCode, SolveGuide } from "./SolveHelp";
 import { solveGuideOpen } from "./solveGuide";
@@ -195,7 +197,8 @@ const STAGES: { id: Exclude<LessonStage, "done">; label: string; target: string 
 
 /**
  * The flow bar: Watch → Read → Solve with checkmarks, and the lesson's one primary Next button.
- * Sticky at the bottom of the screen, on the Float plane, so the next action is always in view.
+ * v1.4: it sits in the shell's footer strip, under the scroll area (not over it), on the Float plane,
+ * so the next action is always in view and nothing on the page is ever hidden behind it.
  */
 function FlowBar({
   checks,
@@ -215,7 +218,7 @@ function FlowBar({
   secondary?: React.ReactNode;
 }) {
   return (
-    <div className="sticky bottom-4 z-20 col-span-12 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 rounded-md border border-glass-border-strong bg-abyss-raised px-4 py-3 shadow-float">
+    <div data-flow-bar className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 rounded-md border border-glass-border-strong bg-abyss-raised px-4 py-3 shadow-float">
       <ol aria-label="Lesson steps" className="flex items-center gap-2">
         {STAGES.map((st, i) => {
           const done = checks[st.id];
@@ -270,6 +273,7 @@ export function Lesson() {
   const tick = useTickProblem();
   const idx = useSolveIndex().data;
   const pulse = useRewardPulse(`path:${stepId ?? ""}`);
+  const footer = useShellFooter();
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [opened, setOpened] = useState<Set<string>>(new Set());
 
@@ -449,21 +453,25 @@ export function Lesson() {
         <SolveCard step={step} view={view} focusKey={focusKey} />
       </div>
 
-      <FlowBar
-        checks={checks}
-        stage={stage}
-        solveCount={`${s.requiredDone}/${s.required}`}
-        next={next}
-        onNext={onNext}
-        busy={busy}
-        secondary={
-          reopen ? (
-            <Button variant="ghost" size="sm" onClick={() => openExternal(reopen.url)}>
-              Open it again
-            </Button>
-          ) : undefined
-        }
-      />
+      {footer &&
+        createPortal(
+          <FlowBar
+            checks={checks}
+            stage={stage}
+            solveCount={`${s.requiredDone}/${s.required}`}
+            next={next}
+            onNext={onNext}
+            busy={busy}
+            secondary={
+              reopen ? (
+                <Button variant="ghost" size="sm" onClick={() => openExternal(reopen.url)}>
+                  Open it again
+                </Button>
+              ) : undefined
+            }
+          />,
+          footer,
+        )}
     </div>
   );
 }

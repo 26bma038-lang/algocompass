@@ -1,4 +1,4 @@
-import { Suspense, useLayoutEffect, useRef } from "react";
+import { Suspense, useLayoutEffect, useRef, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,6 +21,7 @@ import { useSyncScheduler } from "@/data/syncStore";
 import { TopicPanel } from "@/features/topic/TopicPanel";
 import { useHandlesState } from "@/data/onboarding";
 import { Welcome } from "@/features/onboarding/Welcome";
+import { ShellFooterContext } from "./footerSlot";
 
 /**
  * First launch (no handles saved, nothing synced): only the title bar and the welcome screen. The
@@ -60,6 +61,7 @@ function MainShell() {
   // A new screen starts at the top (the scroll area outlives route changes). Screens that land
   // somewhere specific (Learn filtered to a topic) scroll after this.
   const scroller = useRef<HTMLDivElement>(null);
+  const [footer, setFooter] = useState<HTMLDivElement | null>(null);
   useLayoutEffect(() => {
     scroller.current?.scrollTo({ top: 0 });
   }, [pathname]);
@@ -79,7 +81,7 @@ function MainShell() {
           <Sidebar />
           <main className="flex min-w-0 flex-1 flex-col">
             <TopBar />
-            <div ref={scroller} className="min-h-0 flex-1 overflow-y-auto">
+            <div ref={scroller} data-shell-scroller className="min-h-0 flex-1 overflow-y-auto">
               {/* Route change: a quick settle, never a blocking exit animation. */}
               <motion.div
                 key={pathname}
@@ -88,11 +90,15 @@ function MainShell() {
                 transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
                 className="mx-auto w-full max-w-[1440px] px-6 pt-6 pb-10"
               >
-                <Suspense fallback={<p className="text-body-sm text-ink-muted">Loading…</p>}>
-                  <Outlet />
-                </Suspense>
+                <ShellFooterContext.Provider value={footer}>
+                  <Suspense fallback={<p className="text-body-sm text-ink-muted">Loading…</p>}>
+                    <Outlet />
+                  </Suspense>
+                </ShellFooterContext.Provider>
               </motion.div>
             </div>
+            {/* The lesson's flow bar lives here, under the scroll area, so it never covers content (v1.4). */}
+            <div ref={setFooter} data-shell-footer className="mx-auto w-full max-w-[1440px] px-6 pt-3 pb-4 empty:hidden" />
           </main>
         </div>
       </div>

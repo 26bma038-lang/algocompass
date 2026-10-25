@@ -1,7 +1,7 @@
 ﻿import { describe, expect, it } from "vitest";
 import type { StoredQuest } from "@/data/types";
 import { weekCounts, weekEnd, weekStart } from "./goals";
-import { CONSISTENCY_TARGET, evaluateQuests, generateQuests, newlyCompleted, QUEST_XP, sheetQuest, type QuestMixItem, type SolveEvent } from "./quests";
+import { beginnerQuests, CONSISTENCY_TARGET, evaluateQuests, generateQuests, LESSON_PROBLEM_TITLE, newlyCompleted, QUEST_XP, sheetQuest, type QuestMixItem, type SolveEvent } from "./quests";
 
 const names: Record<string, string> = { sorting: "Sorting", greedy: "Greedy", "two-pointers": "Two pointers" };
 const name = (id: string) => names[id] ?? id;
@@ -206,5 +206,30 @@ describe("sheet quest (v1.3)", () => {
     const s = evaluateQuests(stored(), [tick, lc("b", [])]);
     expect(s.find((x) => x.id === "any_solves")!.done).toBe(true);
     expect(s.find((x) => x.id === "lc_topic")!.done).toBe(false);
+  });
+});
+
+describe("a beginner's goals (v1.4)", () => {
+  it("before Step 1 is done: finish today's lesson step, not 'any 2 problems'", () => {
+    const q = beginnerQuests(false);
+    expect(q.map((x) => x.title)).toEqual(["Finish today's lesson step"]);
+    expect(q[0]!.kind).toBe("lesson_step");
+    expect(q[0]!.xp).toBe(QUEST_XP.lesson_step);
+  });
+
+  it("after Step 1: the usual consistency goal", () => {
+    expect(beginnerQuests(true).map((x) => x.id)).toEqual(["any_solves"]);
+  });
+
+  it("words the Beginner Path's sheet goal as the lesson's problem", () => {
+    expect(sheetQuest({ id: "beginner-path", short: "Beginner Path", nextKey: "lc:fizz-buzz" }, LESSON_PROBLEM_TITLE).title).toBe("Solve 1 problem from your lesson");
+    expect(sheetQuest({ id: "blind-75", short: "Blind 75", nextKey: null }).title).toBe("Solve 1 problem from Blind 75");
+  });
+
+  it("the lesson-step goal counts steps finished today, never solves", () => {
+    const qs = stored(beginnerQuests(false));
+    expect(evaluateQuests(qs, [lc("fizz-buzz", ["implementation"])], undefined, 0)[0]).toMatchObject({ progress: 0, done: false });
+    expect(evaluateQuests(qs, [], undefined, 1)[0]).toMatchObject({ progress: 1, done: true });
+    expect(evaluateQuests(qs, [], undefined, 2)[0]).toMatchObject({ progress: 1, done: true });
   });
 });

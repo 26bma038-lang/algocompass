@@ -3,8 +3,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { weekCounts, weekEnd, weekStart } from "@/engine/goals";
 import {
+  beginnerQuests,
   evaluateQuests,
   generateQuests,
+  LESSON_PROBLEM_TITLE,
+  lessonStepQuest,
   newlyCompleted,
   sheetQuest,
   type SheetMembers,
@@ -17,6 +20,7 @@ import { TOPIC_BY_ID, topicsForTags } from "@/engine/topics";
 import { notify } from "@/lib/desktop";
 import { LC_CURATED } from "./catalog";
 import { improvedTopics, ratingAt, ratingChange, strengthsAt } from "@/engine/review";
+import { loadPath } from "./path";
 import { readPrefs, usePrefs, type AppPrefs } from "./prefs";
 import { buildSolveIndex, isSheetId, loadSheet, PATH_SHEET_ID, viewOf } from "./sheets";
 import { topicReportQuery } from "./queries";
@@ -95,9 +99,35 @@ async function reconcileSheetQuest(repo: Repo, day: string, stored: StoredQuest[
   if (have) await repo.deleteOpenQuest(day, have.id);
   if (want) {
     const view = viewOf(await loadSheet(want), await buildSolveIndex(repo), new Map());
-    await repo.addQuest(day, sheetQuest({ id: want, short: view.sheet.short, nextKey: view.next?.problem.key ?? null }));
+    const title = want === PATH_SHEET_ID ? LESSON_PROBLEM_TITLE : undefined;
+    await repo.addQuest(day, sheetQuest({ id: want, short: view.sheet.short, nextKey: view.next?.problem.key ?? null }, title));
   }
   return repo.getQuests(day);
+}
+
+/** Has the Beginner Path's first step been recorded as done? */
+async function firstStepDone(repo: Repo): Promise<boolean> {
+  const [path, steps] = await Promise.all([loadPath(), repo.getPathSteps()]);
+  return steps.has(path.steps[0]!.id);
+}
+
+/**
+ * v1.4: a beginner before Step 1 is done gets "Finish today's lesson step" instead of "Solve any 2
+ * problems today". Fixes a day whose goals were made before this rule (or before onboarding said
+ * "beginner"); a goal that's already done stays earned.
+ */
+async function reconcileBeginnerQuests(repo: Repo, day: string, stored: StoredQuest[]): Promise<StoredQuest[]> {
+  if ((await readPrefs()).mode !== "beginner" || stored.some((q) => q.kind === "lesson_step")) return stored;
+  const any = stored.find((q) => q.kind === "any_solves");
+  if (!any || any.completedAt || (await firstStepDone(repo))) return stored;
+  await repo.deleteOpenQuest(day, any.id);
+  await repo.addQuest(day, lessonStepQuest());
+  return repo.getQuests(day);
+}
+
+/** Beginner Path steps recorded as done in [from, to). */
+async function stepsDoneBetween(repo: Repo, from: number, to: number): Promise<number> {
+  return [...(await repo.getPathSteps()).values()].filter((at) => at >= from && at < to).length;
 }
 
 /** Problem keys of each sheet a quest points at, loaded once per evaluation. */
@@ -114,11 +144,13 @@ export function toQuestMix(items: readonly ResolvedMixItem[]): QuestMixItem[] {
 }
 
 /**
- * The mix quests are built from. Beginner mode gets none of the mix's topic quests: its day is the
- * Beginner Path (the sheet quest) plus the consistency quest, so nothing competes with Start here.
+ * A new day's goals. Beginner mode gets none of the mix's topic quests: its day is the Beginner Path
+ * (the sheet quest) plus "Finish today's lesson step" before Step 1 is done, then the consistency
+ * quest, so nothing competes with Do this next.
  */
-async function questMix(items: readonly ResolvedMixItem[]): Promise<QuestMixItem[]> {
-  return (await readPrefs()).mode === "beginner" ? [] : toQuestMix(items);
+async function freshQuests(repo: Repo, items: readonly ResolvedMixItem[]) {
+  if ((await readPrefs()).mode === "beginner") return beginnerQuests(await firstStepDone(repo));
+  return generateQuests(toQuestMix(items), topicName);
 }
 
 export interface TodayQuests {
@@ -145,12 +177,13 @@ export function useTodayQuests() {
       if (stored.length === 0) {
         // No mix yet (first sync still running): no quests rather than quests built on half the data.
         if (!mix.data || syncing) return null;
-        await repo.saveQuests(day, generateQuests(await questMix(mix.data.items), topicName));
+        await repo.saveQuests(day, await freshQuests(repo, mix.data.items));
         stored = await repo.getQuests(day);
       }
       stored = await reconcileSheetQuest(repo, day, stored);
+      stored = await reconcileBeginnerQuests(repo, day, stored);
       const [from, to] = dayRange(day);
-      const quests = evaluateQuests(stored, await solvesBetween(repo, from, to), await sheetMembers(stored));
+      const quests = evaluateQuests(stored, await solvesBetween(repo, from, to), await sheetMembers(stored), await stepsDoneBetween(repo, from, to));
       return { day, quests, done: quests.filter((q) => q.done).length, total: quests.length };
     },
   });
@@ -158,7 +191,8 @@ export function useTodayQuests() {
 
 /** After "New mix": rewrite today's open quests so they point at the new problems. */
 export async function regenerateOpenQuests(day: string, items: readonly ResolvedMixItem[]) {
-  await (await getRepo()).saveQuests(day, generateQuests(await questMix(items), topicName));
+  const repo = await getRepo();
+  await repo.saveQuests(day, await freshQuests(repo, items));
 }
 
 /**

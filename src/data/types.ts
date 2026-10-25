@@ -231,7 +231,7 @@ export interface UpsolveQueueItem {
   addedAt: number;
 }
 
-export type QuestKind = "cf_topic" | "lc_topic" | "any_solves" | "sheet";
+export type QuestKind = "cf_topic" | "lc_topic" | "any_solves" | "sheet" | "lesson_step";
 
 /** One daily quest, generated from the Mix of the Day. */
 export interface QuestSpec {

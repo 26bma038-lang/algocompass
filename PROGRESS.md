@@ -1,6 +1,17 @@
 # AlgoCompass progress log
 
-## In progress: v1.4 step 2a, a beginner's first 5 minutes (branch `v1.4`)
+## In progress: v1.4 step 2b, no empty or overloaded screens (branch `v1.4`)
+
+Not released. Plan: `docs/audit-v1.4/AUDIT.md`; screenshots in `docs/audit-v1.4/step2b/`.
+
+### Part 0: fixes from the step 2a review (2026-10-25)
+
+- **Nothing under the lesson's flow bar.** The bar no longer floats over the page (`sticky`): it portals into a footer strip the shell keeps under the scroll area (`src/components/shell/footerSlot.ts`, empty and hidden on every other screen). The page scrolls *above* the bar, so no button, problem row or text can sit behind it, at any window size, in either theme. "Got it" moved into the How-to-solve guide's header row, so it's in view whenever the guide's top is (at 1100x700 the bottom of a six-step guide used to land under the bar).
+- **A beginner's goals match day one.** Before Step 1 is done, "Solve any 2 problems today" becomes **Finish today's lesson step** (a new `lesson_step` goal, +25 XP, counted from the Beginner Path steps recorded today), and the path's sheet goal reads **Solve 1 problem from your lesson**. After Step 1 it's the usual consistency goal. Smart-mode goals are unchanged. A day whose goals were made before this (or before onboarding said "beginner") is fixed on the next read; a goal already done stays earned.
+- **Checked:** a browser-mode script walks a fresh beginner to Step 1's Solve part and, at the landing spot and at six scroll positions, lists every visible element in the scroll area that overlaps the bar's box: none, at 1100x700 (Light and Dark) and 1440x900. Engine tests for the new goals (`quests.test.ts`).
+- **Decisions:** a footer slot instead of more bottom padding: padding only helps at the very end of the page, and any scroll position in between could still put a row under a floating bar. The lesson-step goal counts *recorded* steps, so the path watcher now refreshes today's goals when it records one.
+
+## Previous: v1.4 step 2a, a beginner's first 5 minutes (branch `v1.4`)
 
 Not released. The plan is `docs/audit-v1.4/AUDIT.md`; screenshots are in `docs/audit-v1.4/step2a/`.
 

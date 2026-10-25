@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Check, ListChecks, Repeat } from "lucide-react";
+import { Check, GraduationCap, ListChecks, Repeat } from "lucide-react";
 import { useUiStore } from "@/data/uiStore";
 import type { QuestState } from "@/engine/quests";
 import { cn } from "@/lib/utils";
@@ -57,6 +57,8 @@ function QuestMark({ q }: { q: QuestState }) {
     <span className="grid size-7 shrink-0 place-items-center rounded-sm bg-abyss-sunken">
       {q.kind === "any_solves" ? (
         <Repeat aria-hidden className="size-3.5 text-ink-muted" strokeWidth={1.8} />
+      ) : q.kind === "lesson_step" ? (
+        <GraduationCap aria-hidden className="size-3.5 text-ink-muted" strokeWidth={1.8} />
       ) : q.kind === "sheet" ? (
         <ListChecks aria-hidden className="size-3.5 text-ink-muted" strokeWidth={1.8} />
       ) : (

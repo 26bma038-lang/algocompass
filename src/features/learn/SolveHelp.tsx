@@ -16,11 +16,17 @@ import { connectState, LEETCODE_SIGNUP_URL, SOLVE_GUIDE_STEPS } from "./solveGui
 export function SolveGuide({ onDone, doneLabel }: { onDone: () => void; doneLabel: string }) {
   return (
     <section aria-labelledby="solve-guide-title" className="flex flex-col gap-4 rounded-md border border-accent-line bg-accent-soft p-5">
-      <div className="flex flex-col gap-1">
-        <h3 id="solve-guide-title" className="text-title font-semibold text-ink">
-          {LABELS.howToSolve}
-        </h3>
-        <p className="text-body-sm text-ink-muted">First time? It takes a minute. The problems open on leetcode.com in your browser.</p>
+      {/* Got it sits in the header (v1.4), so it's in view whenever the guide's top is, even at 1100x700. */}
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <h3 id="solve-guide-title" className="text-title font-semibold text-ink">
+            {LABELS.howToSolve}
+          </h3>
+          <p className="text-body-sm text-ink-muted">First time? It takes a minute. The problems open on leetcode.com in your browser.</p>
+        </div>
+        <Button variant="outline" size="sm" className="shrink-0" onClick={onDone}>
+          {doneLabel}
+        </Button>
       </div>
       <ol className="grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-2">
         {SOLVE_GUIDE_STEPS.map((s, i) => (
@@ -46,9 +52,6 @@ export function SolveGuide({ onDone, doneLabel }: { onDone: () => void; doneLabe
           </li>
         ))}
       </ol>
-      <Button variant="outline" size="sm" className="self-start" onClick={onDone}>
-        {doneLabel}
-      </Button>
     </section>
   );
 }
