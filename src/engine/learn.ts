@@ -203,6 +203,12 @@ export function suggestVideo(group: TopicGroup, pathData: BeginnerPath, watched:
 /** The Beginner Path step that unlocks Contests in Beginner mode: Recursion (step 9). */
 export const CONTESTS_MILESTONE_STEP = "recursion";
 
+/**
+ * Beginner mode shows the streak and level in the top bar once this many steps are done (v1.4).
+ * Before that, the top bar is just search and "Step X of 14"; XP still accrues in the meantime.
+ */
+export const STATUS_UNLOCK_STEPS = 3;
+
 /** Beginner mode shows Contests once the milestone step is done (recorded steps never re-lock). */
 export function contestsReady(path: Pick<PathState, "steps"> | undefined): boolean {
   return path?.steps.some((s) => s.step.id === CONTESTS_MILESTONE_STEP && s.state === "done") ?? false;

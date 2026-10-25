@@ -33,6 +33,13 @@ Not released. The plan is `docs/audit-v1.4/AUDIT.md`; screenshots are in `docs/a
 - **The rules are data** (`src/features/onboarding/flow.ts`: fields per mode, validation, button label, landing path), tested in `flow.test.ts`.
 - **Decision:** a beginner who typed a username before switching from "No" to "Yes" gets nothing saved: the beginner form has no fields, so nothing hidden is submitted.
 
+### Part 4: top bar (2026-10-25)
+
+- **Beginners:** **Search** (with its word) and **Step X of 14** (opens the current lesson; "All 14 steps done" at the end). No Update control, no goals chip, no flame, no "Lv –". After Step 3 (`STATUS_UNLOCK_STEPS` in `src/engine/learn.ts`, next to the contests milestone) the streak and level join, each with words: "3 days", "Level 2". XP keeps accruing before that, so nothing is lost.
+- **Smart:** the same controls, each with a word or a clear tooltip: search (tooltip "Search screens, topics and lessons · Ctrl K"), "Updated 1m ago", "Goals 0/4", "No streak" / "3 days", "Level 14" (the plate's "Lv" is now "Level"; before any XP it says "No level yet"). The streak and level tooltips explain the terms from the glossary.
+- **Rules as data:** `src/components/shell/topBarItems.ts` (which items per mode and step, and every label), tested in `topBarItems.test.ts`.
+- **Decision:** a beginner without an account has no synced activity, so after Step 3 the streak chip stays hidden rather than showing "No streak yet" forever; it appears with their first update. Counting hand ticks toward the streak would change the streak engine for everyone, so it waits for a later step.
+
 ## Previous: v1.3, Sheets + Beginner Path + video lessons (branch `v1.3`, released as v1.3.0/v1.3.1)
 
 ### v1.3 Learn: a top-level screen for every lesson (2026-10-18)

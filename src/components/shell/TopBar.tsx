@@ -2,7 +2,7 @@ import { Link, useLocation, useMatches, type Params, useNavigate } from "react-r
 import { LABELS, updatedAgo } from "@/lib/glossary";
 import { hasAnyHandle, useHandles } from "@/data/settings";
 import { useEffect, useState } from "react";
-import { AlertTriangle, Check, CloudOff, Flame, RefreshCw, ScrollText, Search } from "lucide-react";
+import { AlertTriangle, Check, CloudOff, Flame, GraduationCap, RefreshCw, ScrollText, Search } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { useProgression } from "@/data/progression";
@@ -12,7 +12,10 @@ import { XP_KIND_LABEL, type XpSummary } from "@/engine/xp";
 import { syncStatus, useSyncStore } from "@/data/syncStore";
 import { cn } from "@/lib/utils";
 import { AscentBar } from "./AscentBar";
-import { describe, navItemFor } from "./nav";
+import { describe, lessonPath, navItemFor } from "./nav";
+import { goalsLabel, levelLabel, stepLabel, streakLabel, topBarItems } from "./topBarItems";
+import { usePath } from "@/data/path";
+import { TERMS } from "@/lib/glossary";
 import { usePrefs } from "@/data/prefs";
 import { useRankAccent } from "./useRankAccent";
 import { flameState, useStreak } from "./useStreak";
@@ -56,7 +59,7 @@ function StreakFlame({ streak }: { streak: Streak | null }) {
             fill={state === "lit" ? "url(#ember-gradient)" : "none"}
             strokeWidth={1.8}
           />
-          <span className="numeric text-body font-semibold text-ink-muted">{hasData ? days : "–"}</span>
+          <span className="numeric text-body-sm font-semibold text-ink-muted">{streakLabel(streak)}</span>
           <svg width="0" height="0" className="absolute" aria-hidden>
             <defs>
               <linearGradient id="ember-gradient" x1="0" y1="1" x2="0" y2="0">
@@ -67,31 +70,41 @@ function StreakFlame({ streak }: { streak: Streak | null }) {
           </svg>
         </Link>
       </TooltipTrigger>
-      <TooltipContent side="bottom">
-        {!hasData ? "No streak yet" : state === "lit" ? `${days}-day streak, practiced today` : state === "pending" ? `${days}-day streak. Solve one problem today to keep it` : "No active streak"}
+      <TooltipContent side="bottom" className="max-w-[280px]">
+        {!hasData
+          ? `${TERMS.streak.hint} It starts after your first update.`
+          : state === "lit"
+            ? `${days}-day streak, practised today`
+            : state === "pending"
+              ? `${days}-day streak. Solve one problem today to keep it`
+              : TERMS.streak.hint}
       </TooltipContent>
     </Tooltip>
   );
 }
 
 /** Opens the Ctrl+K command palette. */
-function PaletteButton() {
+function PaletteButton({ labelled }: { labelled: boolean }) {
   const setOpen = useUiStore((s) => s.setPaletteOpen);
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <button
           type="button"
-          aria-label="Command palette"
+          aria-label="Search"
           aria-keyshortcuts="Control+K"
           onClick={() => setOpen(true)}
-          className="grid size-8 place-items-center rounded-full text-ink-muted transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover hover:text-ink"
+          className={cn(
+            "flex h-8 items-center gap-1.5 rounded-full text-ink-muted transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover hover:text-ink",
+            labelled ? "px-2.5" : "w-8 justify-center",
+          )}
         >
           <Search aria-hidden className="size-4" strokeWidth={1.8} />
+          {labelled && <span className="text-body-sm">Search</span>}
         </button>
       </TooltipTrigger>
       <TooltipContent side="bottom" className="flex items-center gap-2">
-        Jump anywhere
+        Search screens, topics and lessons
         <kbd className="numeric font-sans rounded-xs border border-glass-border-strong px-1 text-ink-muted">Ctrl K</kbd>
       </TooltipContent>
     </Tooltip>
@@ -112,9 +125,7 @@ function QuestChip() {
           ) : (
             <ScrollText aria-hidden className="size-4 text-ink-muted" strokeWidth={1.8} />
           )}
-          <span className="numeric text-body font-semibold text-ink-muted">
-            {data.done}/{data.total}
-          </span>
+          <span className="numeric text-body-sm font-semibold text-ink-muted">{goalsLabel(data.done, data.total)}</span>
         </Link>
       </TooltipTrigger>
       <TooltipContent side="bottom">{all ? "All of today's goals done" : `${data.done} of ${data.total} of today's goals done`}</TooltipContent>
@@ -148,10 +159,16 @@ function LevelBadge({ xp }: { xp: XpSummary | undefined }) {
               levelUp && "level-flash",
             )}
           >
-            <span className="text-label">Lv</span>
-            <span className="numeric font-display text-title leading-none font-semibold">
-              {hasData ? <NumberTicker id="level-badge" value={level} format={plain} /> : "–"}
-            </span>
+            {hasData ? (
+              <>
+                <span className="text-label">Level</span>
+                <span className="numeric font-display text-title leading-none font-semibold">
+                  <NumberTicker id="level-badge" value={level} format={plain} />
+                </span>
+              </>
+            ) : (
+              <span className="text-label">{levelLabel(null)}</span>
+            )}
             <span
               aria-hidden
               className="absolute inset-x-0 bottom-0 h-[2px] origin-left bg-accent transition-transform duration-[var(--dur-slow)] ease-out-quint"
@@ -162,9 +179,10 @@ function LevelBadge({ xp }: { xp: XpSummary | undefined }) {
       </TooltipTrigger>
       <TooltipContent side="bottom" align="end" className="w-[240px] p-3">
         {!hasData ? (
-          "Solve problems and finish goals to earn XP"
+          TERMS.level.hint
         ) : (
           <div className="flex flex-col gap-2">
+            <span className="text-label text-ink-muted">{TERMS.xp.hint}</span>
             <div className="flex items-baseline justify-between gap-2">
               <span className="text-body-sm font-semibold text-ink">
                 Level {level} · {xp!.title}
@@ -197,6 +215,26 @@ function LevelBadge({ xp }: { xp: XpSummary | undefined }) {
           </div>
         )}
       </TooltipContent>
+    </Tooltip>
+  );
+}
+
+/** Beginner mode: where you are on the path, one click from the lesson. */
+function StepChip() {
+  const view = usePath().data;
+  if (!view) return null;
+  const total = view.steps.length;
+  const cur = view.current !== null ? view.steps[view.current]! : null;
+  const label = stepLabel(view.current, total);
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Link to={cur ? lessonPath(cur.step.id) : "/learn#path"} aria-label={cur ? `${label}: ${cur.step.title}. Open the lesson` : label} className={chipLink}>
+          <GraduationCap aria-hidden className="size-4 text-ink-muted" strokeWidth={1.8} />
+          <span className="numeric text-body-sm font-semibold text-ink">{label}</span>
+        </Link>
+      </TooltipTrigger>
+      <TooltipContent side="bottom">{cur ? `Your place on the Beginner Path: ${cur.step.title}. Click to continue.` : "You finished the Beginner Path."}</TooltipContent>
     </Tooltip>
   );
 }
@@ -254,11 +292,11 @@ function SyncButton() {
             className="flex h-8 items-center gap-1.5 rounded-full px-2.5 text-label text-ink-muted transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover hover:text-ink"
           >
             <RefreshCw aria-hidden className="size-3.5" strokeWidth={1.8} />
-            <span>No handles yet</span>
+            <span>Connect an account</span>
           </button>
         </TooltipTrigger>
         <TooltipContent side="bottom" className="max-w-[280px]">
-          Add a LeetCode or Codeforces username in Settings and your solves tick themselves
+          Add a LeetCode or Codeforces username in Settings and the problems you solve tick themselves
         </TooltipContent>
       </Tooltip>
     );
@@ -305,6 +343,8 @@ export function TopBar() {
   const rating = useRankAccent();
   const streak = useStreak();
   const xp = useProgression().data?.xp;
+  const stepsDone = usePath().data?.doneCount ?? 0;
+  const items = topBarItems({ mode: beginner ? "beginner" : "smart", stepsDone, hasStreak: streak !== null, hasLevel: xp?.level != null });
   return (
     <div className="relative shrink-0">
       <div className="flex h-[var(--topbar-h)] items-center justify-between gap-4 px-6">
@@ -313,11 +353,21 @@ export function TopBar() {
           {subtitle && <p className="truncate text-body-sm text-ink-muted">{subtitle}</p>}
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
-          <PaletteButton />
-          <SyncButton />
-          <QuestChip />
-          <StreakFlame streak={streak} />
-          <LevelBadge xp={xp} />
+          {items.map((item) =>
+            item === "search" ? (
+              <PaletteButton key={item} labelled={beginner} />
+            ) : item === "step" ? (
+              <StepChip key={item} />
+            ) : item === "update" ? (
+              <SyncButton key={item} />
+            ) : item === "goals" ? (
+              <QuestChip key={item} />
+            ) : item === "streak" ? (
+              <StreakFlame key={item} streak={streak} />
+            ) : (
+              <LevelBadge key={item} xp={xp} />
+            ),
+          )}
         </div>
       </div>
       <AscentBar rating={rating} />
