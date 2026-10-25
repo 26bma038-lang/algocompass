@@ -1,18 +1,20 @@
+import type { SyncStatus } from "@/data/syncStore";
 import type { Streak } from "@/engine/activity";
 import { STATUS_UNLOCK_STEPS } from "@/engine/learn";
-import { LABELS } from "@/lib/glossary";
+import { LABELS, updatedAgo } from "@/lib/glossary";
 
 /**
  * What the top bar shows (v1.4), and the words on each control. Every control has a visible label
  * or a tooltip; nothing is a bare icon or an en dash.
- * - Smart: search, Update, today's goals, streak, level.
+ * - Smart (v1.4 polish): search and Update. Today's goals, the streak and the level live on Today
+ *   and Progress, so the top bar no longer repeats them.
  * - Beginner: search and "Step X of 14". The streak and level join after Step 3, and only once
  *   they exist (a beginner without an account has no synced activity, so no streak).
  */
-export type TopBarItem = "search" | "step" | "update" | "goals" | "streak" | "level";
+export type TopBarItem = "search" | "step" | "update" | "streak" | "level";
 
 export function topBarItems(a: { mode: "smart" | "beginner"; stepsDone: number; hasStreak: boolean; hasLevel: boolean }): TopBarItem[] {
-  if (a.mode === "smart") return ["search", "update", "goals", "streak", "level"];
+  if (a.mode === "smart") return ["search", "update"];
   const out: TopBarItem[] = ["search", "step"];
   if (a.stepsDone >= STATUS_UNLOCK_STEPS) {
     if (a.hasStreak) out.push("streak");
@@ -34,5 +36,24 @@ export function streakLabel(streak: Streak | null): string {
 /** "Level 7", or "No level yet" before any XP. */
 export const levelLabel = (level: number | null) => (level === null ? "No level yet" : `Level ${level}`);
 
-/** "Goals 1/3". */
-export const goalsLabel = (done: number, total: number) => `${LABELS.goalsShort} ${done}/${total}`;
+/**
+ * The Update control's words (v1.4 polish): a status in plain text beside a labelled button, and a
+ * failure says which site failed instead of a bare warning icon.
+ */
+export function updateStatus(
+  status: SyncStatus,
+  a: { failed: readonly string[]; ago: string | null },
+): { text: string; button: string; tone: "muted" | "warning" } {
+  switch (status) {
+    case "syncing":
+      return { text: LABELS.updating, button: LABELS.update, tone: "muted" };
+    case "idle":
+      return { text: LABELS.notUpdated, button: LABELS.update, tone: "muted" };
+    case "offline":
+      return { text: "Offline, showing saved data", button: "Retry", tone: "muted" };
+    case "partial":
+      return { text: `${a.failed.join(" and ") || "Update"} didn't update`, button: "Retry", tone: "warning" };
+    case "ok":
+      return { text: a.ago ? updatedAgo(a.ago) : LABELS.updated, button: LABELS.update, tone: "muted" };
+  }
+}

@@ -415,7 +415,7 @@ function Tree({ report, seen }: { report: TopicReport; seen: Seen | null }) {
 
   return (
     // Bento: the work-on-next tiles (64px), then the canvas as the hero card. Above the card stays
-    // 170px (24 top + 80 tiles + 24 gap + 40 bottom + 2 ascent bar), matching its height calc. Inside
+    // 170px (24 top + 80 tiles + 24 gap + 40 bottom + 2 to spare; the top bar's hairline is 1), matching its height calc. Inside
     // Progress, --tree-above adds the tab row.
     <div className="flex flex-col gap-6">
       <NextTiles items={report.standing.weaknesses} onPick={(id) => focusTopic(id, true)} />

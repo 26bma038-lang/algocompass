@@ -1,12 +1,23 @@
 import { describe, expect, it } from "vitest";
 import { STATUS_UNLOCK_STEPS } from "@/engine/learn";
-import { goalsLabel, levelLabel, stepLabel, streakLabel, topBarItems } from "./topBarItems";
+import { levelLabel, stepLabel, streakLabel, topBarItems, updateStatus } from "./topBarItems";
 
 const streak = (current: number) => ({ current, longest: current, activeToday: current > 0, todayCount: 1 });
 
 describe("top bar (v1.4)", () => {
-  it("smart mode keeps every control", () => {
-    expect(topBarItems({ mode: "smart", stepsDone: 0, hasStreak: false, hasLevel: false })).toEqual(["search", "update", "goals", "streak", "level"]);
+  it("smart mode: search and Update only; goals, streak and level live on Today and Progress (v1.4 polish)", () => {
+    expect(topBarItems({ mode: "smart", stepsDone: 0, hasStreak: false, hasLevel: false })).toEqual(["search", "update"]);
+    expect(topBarItems({ mode: "smart", stepsDone: 14, hasStreak: true, hasLevel: true })).toEqual(["search", "update"]);
+  });
+
+  it("Update says what happened in words, and names the site that failed", () => {
+    expect(updateStatus("ok", { failed: [], ago: "21m ago" })).toEqual({ text: "Updated 21m ago", button: "Update", tone: "muted" });
+    expect(updateStatus("ok", { failed: [], ago: null }).text).toBe("Updated");
+    expect(updateStatus("syncing", { failed: [], ago: null }).text).toBe("Updating…");
+    expect(updateStatus("idle", { failed: [], ago: null }).text).toBe("Not updated yet");
+    expect(updateStatus("partial", { failed: ["LeetCode"], ago: "1m ago" })).toEqual({ text: "LeetCode didn't update", button: "Retry", tone: "warning" });
+    expect(updateStatus("partial", { failed: ["Codeforces", "LeetCode"], ago: null }).text).toBe("Codeforces and LeetCode didn't update");
+    expect(updateStatus("offline", { failed: [], ago: null })).toEqual({ text: "Offline, showing saved data", button: "Retry", tone: "muted" });
   });
 
   it("a new beginner sees only search and Step X of 14: no update, goals, streak or level", () => {
@@ -31,8 +42,7 @@ describe("top bar (v1.4)", () => {
     expect(streakLabel(streak(12))).toBe("12 days");
     expect(levelLabel(null)).toBe("No level yet");
     expect(levelLabel(7)).toBe("Level 7");
-    expect(goalsLabel(1, 3)).toBe("Goals 1/3");
-    for (const l of [stepLabel(2, 14), streakLabel(null), streakLabel(streak(3)), levelLabel(null), levelLabel(2), goalsLabel(0, 2)]) {
+    for (const l of [stepLabel(2, 14), streakLabel(null), streakLabel(streak(3)), levelLabel(null), levelLabel(2)]) {
       expect(l).toMatch(/[a-z]/i);
       expect(l).not.toContain("–");
     }

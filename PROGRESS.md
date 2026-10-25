@@ -12,6 +12,19 @@ Not released. Behaviour and data are unchanged: only labels, layout, colours and
 - **Other bare counts:** "2/9" on a sheet section, "34/150" under a sheet's percentage, "1/3 problems" on Continue learning and the "0/5 solved" pill on Today's problems now read "2 of 9 done", "34 of 150 done", "1 of 3 problems solved", "0 of 5 solved" (`solvedOf` / `doneOf` in the glossary). Counters inside a labelled row (a goal's "0/1", a badge's "13/30") stay compact.
 - **Tests:** `goalTitle` and `sheetShortName` (quests.test.ts, glossary.test.ts), the count helpers.
 
+### Part 2: top bar and shell (2026-10-25)
+
+- **Smart mode's top bar is Search and Update only** (`topBarItems`). The goals chip, streak flame and level plate repeated numbers that Today and Progress already show; they're gone from the bar. Beginner mode is unchanged (Search, "Step X of 14", and the streak and level after Step 3).
+- **Search** shows its word and its shortcut ("Search  Ctrl K") in both modes, so it needs no tooltip.
+- **Update** is a status in words beside a labelled outline button: "Updated 21m ago · [Update]", "Updating…", "Not updated yet". A failure says which site failed, in Warning Amber with an icon: "LeetCode didn't update · [Retry]"; offline reads "Offline, showing saved data · [Retry]" (`updateStatus` in `topBarItems.ts`). The status no longer hides in a tooltip.
+- **The ascent bar is gone, in both modes.** In smart mode it duplicated the rank progress on Today's rating card ("189 to Pupil", with its own labelled meter), and a 2px line can't carry a label; in Beginner mode it was an empty track. A 1px hairline closes the top bar instead. `useRankAccent` still runs, so the rank colour on the rating number, chip and meter is unchanged. `AscentBar.tsx` is deleted.
+- **Tooltips:**
+  - **Dismissed on navigation:** `Tooltip` (`src/components/ui/tooltip.tsx`) wraps Radix's root and closes when the shell announces a route change (`closeTooltips()` in `MainShell`'s pathname effect). Before, a sidebar hint opened on the link you clicked could stay over the new screen's title.
+  - **Delay:** 400ms before a hint shows, and no instant chaining between hints (`skipDelayDuration` 0), so sweeping the pointer across the sidebar or the top bar doesn't pop a trail of tooltips.
+  - **No repeated labels:** the expanded sidebar has no hover hints (they repeated the label and covered the screen title right beside the sidebar); the collapsed rail keeps them, since the label isn't visible there. Search and Update lost theirs (everything is in view).
+- **Decision:** removing the bar rather than labelling it: "Progress to Pupil" already sits on Today's rating card in words and a meter, and a labelled strip under every screen's title would compete with the title.
+- **Tests:** `topBarItems.test.ts` (smart = search + update; beginner unchanged; every Update status in words).
+
 ## Done: the landing website (branch `website`, merged to master)
 
 A static site in `website/` (plain HTML, CSS and JS, no build step), deployed to GitHub Pages by `.github/workflows/pages.yml`. No app code changed. Screenshots in `docs/screenshots/website/`.

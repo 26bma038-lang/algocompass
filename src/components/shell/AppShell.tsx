@@ -1,7 +1,7 @@
 import { Suspense, useLayoutEffect, useRef, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { closeTooltips, TooltipProvider } from "@/components/ui/tooltip";
 import { AmbientBackground } from "./AmbientBackground";
 import { Sidebar } from "./Sidebar";
 import { TitleBar } from "./TitleBar";
@@ -40,7 +40,7 @@ export function AppShell() {
   }
   if (handles.data === null) {
     return (
-      <TooltipProvider delayDuration={250} skipDelayDuration={150}>
+      <TooltipProvider delayDuration={400} skipDelayDuration={0}>
         <div className="relative flex h-full flex-col bg-abyss">
           <AmbientBackground />
           <TitleBar />
@@ -64,6 +64,7 @@ function MainShell() {
   const [footer, setFooter] = useState<HTMLDivElement | null>(null);
   useLayoutEffect(() => {
     scroller.current?.scrollTo({ top: 0 });
+    closeTooltips();
   }, [pathname]);
   useShortcuts();
   useSyncScheduler();
@@ -72,7 +73,7 @@ function MainShell() {
   useDesktopBridge();
   useProgressionWatcher();
   return (
-    <TooltipProvider delayDuration={250} skipDelayDuration={150}>
+    <TooltipProvider delayDuration={400} skipDelayDuration={0}>
       <div className="relative flex h-full flex-col bg-abyss">
         <AmbientBackground />
         <TitleBar />

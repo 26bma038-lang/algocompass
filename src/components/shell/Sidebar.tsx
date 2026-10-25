@@ -87,8 +87,10 @@ function SidebarLink({
     </NavLink>
   );
 
-  // Hover or focus: what the screen is for, in one line (and the name, when the rail is collapsed).
+  // Collapsed rail only (v1.4 polish): the name, its shortcut and what the screen is for. With labels
+  // showing, a hint would repeat the label and sit over the screen's title beside the sidebar.
   const beginner = usePrefs().data?.mode === "beginner";
+  if (expanded) return link;
   return (
     <Tooltip>
       <TooltipTrigger asChild>{link}</TooltipTrigger>

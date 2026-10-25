@@ -1,19 +1,18 @@
 import { Link, useLocation, useMatches, type Params, useNavigate } from "react-router-dom";
-import { LABELS, updatedAgo } from "@/lib/glossary";
+import { LABELS } from "@/lib/glossary";
 import { hasAnyHandle, useHandles } from "@/data/settings";
 import { useEffect, useState } from "react";
-import { AlertTriangle, Check, CloudOff, Flame, GraduationCap, RefreshCw, ScrollText, Search } from "lucide-react";
+import { AlertTriangle, CloudOff, Flame, GraduationCap, RefreshCw, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { useProgression } from "@/data/progression";
-import { useTodayQuests } from "@/data/quests";
 import { useUiStore } from "@/data/uiStore";
 import { XP_KIND_LABEL, type XpSummary } from "@/engine/xp";
 import { syncStatus, useSyncStore } from "@/data/syncStore";
 import { cn } from "@/lib/utils";
-import { AscentBar } from "./AscentBar";
 import { describe, lessonPath, navItemFor } from "./nav";
-import { goalsLabel, levelLabel, stepLabel, streakLabel, topBarItems } from "./topBarItems";
+import { levelLabel, stepLabel, streakLabel, topBarItems, updateStatus } from "./topBarItems";
 import { usePath } from "@/data/path";
 import { TERMS } from "@/lib/glossary";
 import { usePrefs } from "@/data/prefs";
@@ -83,53 +82,22 @@ function StreakFlame({ streak }: { streak: Streak | null }) {
   );
 }
 
-/** Opens the Ctrl+K command palette. */
-function PaletteButton({ labelled }: { labelled: boolean }) {
+/** Opens the Ctrl+K command palette. The word and the shortcut are both in view (v1.4 polish), so there's no tooltip. */
+function PaletteButton() {
   const setOpen = useUiStore((s) => s.setPaletteOpen);
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <button
-          type="button"
-          aria-label="Search"
-          aria-keyshortcuts="Control+K"
-          onClick={() => setOpen(true)}
-          className={cn(
-            "flex h-8 items-center gap-1.5 rounded-full text-ink-muted transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover hover:text-ink",
-            labelled ? "px-2.5" : "w-8 justify-center",
-          )}
-        >
-          <Search aria-hidden className="size-4" strokeWidth={1.8} />
-          {labelled && <span className="text-body-sm">Search</span>}
-        </button>
-      </TooltipTrigger>
-      <TooltipContent side="bottom" className="flex items-center gap-2">
-        Search screens, topics and lessons
-        <kbd className="numeric font-sans rounded-xs border border-glass-border-strong px-1 text-ink-muted">Ctrl K</kbd>
-      </TooltipContent>
-    </Tooltip>
-  );
-}
-
-/** Today's quest progress ("2/3") → Today. Sits right before the streak flame. */
-function QuestChip() {
-  const { data } = useTodayQuests();
-  if (!data) return null;
-  const all = data.done === data.total;
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Link to="/" aria-label={`${LABELS.goals}: ${data.done} of ${data.total} done. Open Today`} className={chipLink}>
-          {all ? (
-            <Check aria-hidden className="size-4 text-success" strokeWidth={2.4} />
-          ) : (
-            <ScrollText aria-hidden className="size-4 text-ink-muted" strokeWidth={1.8} />
-          )}
-          <span className="numeric text-body-sm font-semibold text-ink-muted">{goalsLabel(data.done, data.total)}</span>
-        </Link>
-      </TooltipTrigger>
-      <TooltipContent side="bottom">{all ? "All of today's goals done" : `${data.done} of ${data.total} of today's goals done`}</TooltipContent>
-    </Tooltip>
+    <button
+      type="button"
+      aria-keyshortcuts="Control+K"
+      onClick={() => setOpen(true)}
+      className="flex h-8 items-center gap-1.5 rounded-full px-2.5 text-ink-muted transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover hover:text-ink"
+    >
+      <Search aria-hidden className="size-4" strokeWidth={1.8} />
+      <span className="text-body-sm">Search</span>
+      <kbd aria-hidden className="numeric rounded-xs border border-glass-border-strong px-1 font-sans text-label text-ink-muted">
+        Ctrl K
+      </kbd>
+    </button>
   );
 }
 
@@ -249,7 +217,10 @@ function relativeTime(epochSeconds: number, nowMs: number): string {
 
 const PLATFORM = { cf: "Codeforces", lc: "LeetCode" } as const;
 
-/** Manual sync control + status: syncing / synced Xm ago / offline, will retry / incomplete. */
+/**
+ * Update (v1.4 polish): the status in words ("Updated 21m ago", "LeetCode didn't update", "Offline,
+ * showing saved data") beside a labelled Update / Retry button. Nothing hides in a tooltip.
+ */
 function SyncButton() {
   const { syncing, lastResult, lastFinishedAt, run } = useSyncStore();
   const handles = useHandles();
@@ -262,24 +233,11 @@ function SyncButton() {
 
   const status = syncStatus(syncing, lastResult);
   const platforms = lastResult ? [lastResult.cf, lastResult.lc] : [];
-  const names = (ps: typeof platforms) => ps.map((p) => PLATFORM[p.platform]).join(" and ");
   const failed = platforms.filter((p) => !p.ok && !p.offline);
-  const offline = platforms.filter((p) => p.offline);
-
-  const label = {
-    syncing: LABELS.updating,
-    idle: LABELS.notUpdated,
-    offline: "Offline, will retry",
-    partial: "Update incomplete",
-    ok: lastFinishedAt === null ? LABELS.updated : updatedAgo(relativeTime(lastFinishedAt, nowMs)),
-  }[status];
-  const tip = {
-    syncing: "Fetching Codeforces and LeetCode",
-    idle: LABELS.updateNow,
-    offline: `Couldn't reach ${names(offline)}. Showing saved data. Retrying when you're back online, or click to retry now`,
-    partial: `${names(failed)} failed. Click to retry`,
-    ok: `${LABELS.updateNow}: fetch your latest solves`,
-  }[status];
+  const shown = updateStatus(status, {
+    failed: failed.map((p) => PLATFORM[p.platform]),
+    ago: lastFinishedAt === null ? null : relativeTime(lastFinishedAt, nowMs),
+  });
 
   // Beginner mode with no handles: nothing to sync, so point at where to add one instead.
   if (handles.data && !hasAnyHandle(handles.data)) {
@@ -303,35 +261,23 @@ function SyncButton() {
   }
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <button
-          type="button"
-          aria-busy={syncing}
-          aria-disabled={syncing || undefined}
-          onClick={() => void run()}
-          className={cn(
-            "flex h-8 items-center gap-1.5 rounded-full px-2.5 text-label transition-colors duration-[var(--dur-fast)]",
-            syncing ? "cursor-progress text-ink-muted" : "text-ink-muted hover:bg-glass-hover hover:text-ink",
-          )}
-        >
-          {status === "partial" ? (
-            <AlertTriangle aria-hidden className="size-3.5 text-warning" strokeWidth={1.8} />
-          ) : status === "offline" ? (
-            <CloudOff aria-hidden className="size-3.5" strokeWidth={1.8} />
-          ) : (
-            <RefreshCw aria-hidden className={cn("size-3.5", syncing && "animate-spin")} strokeWidth={1.8} />
-          )}
-          <span>{label}</span>
-          <span className="sr-only" aria-live="polite">
-            {{ syncing: LABELS.updating, idle: "", offline: "Offline. Showing saved data, will retry", partial: "Update incomplete", ok: "Update complete" }[status]}
-          </span>
-        </button>
-      </TooltipTrigger>
-      <TooltipContent side="bottom" className="max-w-[280px]">
-        {tip}
-      </TooltipContent>
-    </Tooltip>
+    <div className="flex items-center gap-2">
+      <span className={cn("flex items-center gap-1.5 text-label", shown.tone === "warning" ? "text-warning" : "text-ink-muted")}>
+        {status === "partial" ? (
+          <AlertTriangle aria-hidden className="size-3.5" strokeWidth={1.8} />
+        ) : status === "offline" ? (
+          <CloudOff aria-hidden className="size-3.5" strokeWidth={1.8} />
+        ) : null}
+        <span>{shown.text}</span>
+      </span>
+      <span className="sr-only" aria-live="polite">
+        {{ syncing: LABELS.updating, idle: "", offline: "Offline. Showing saved data, will retry", partial: shown.text, ok: "Update complete" }[status]}
+      </span>
+      <Button variant="outline" size="sm" aria-busy={syncing} disabled={syncing} onClick={() => void run()}>
+        <RefreshCw aria-hidden className={cn(syncing && "animate-spin")} />
+        {shown.button}
+      </Button>
+    </div>
   );
 }
 
@@ -340,13 +286,14 @@ export function TopBar() {
   const beginner = usePrefs().data?.mode === "beginner";
   const navItem = navItemFor(useLocation().pathname);
   const subtitle = navItem && describe(navItem, beginner);
-  const rating = useRankAccent();
+  // Keeps the rank colour pointed at your real Codeforces rank (it no longer draws a bar here).
+  useRankAccent();
   const streak = useStreak();
   const xp = useProgression().data?.xp;
   const stepsDone = usePath().data?.doneCount ?? 0;
   const items = topBarItems({ mode: beginner ? "beginner" : "smart", stepsDone, hasStreak: streak !== null, hasLevel: xp?.level != null });
   return (
-    <div className="relative shrink-0">
+    <div className="relative shrink-0 border-b border-glass-border">
       <div className="flex h-[var(--topbar-h)] items-center justify-between gap-4 px-6">
         <div className="flex min-w-0 flex-col">
           <h1 className="truncate font-display text-headline leading-tight font-semibold tracking-[-0.005em] text-ink">{title}</h1>
@@ -355,13 +302,11 @@ export function TopBar() {
         <div className="flex shrink-0 items-center gap-1.5">
           {items.map((item) =>
             item === "search" ? (
-              <PaletteButton key={item} labelled={beginner} />
+              <PaletteButton key={item} />
             ) : item === "step" ? (
               <StepChip key={item} />
             ) : item === "update" ? (
               <SyncButton key={item} />
-            ) : item === "goals" ? (
-              <QuestChip key={item} />
             ) : item === "streak" ? (
               <StreakFlame key={item} streak={streak} />
             ) : (
@@ -370,7 +315,6 @@ export function TopBar() {
           )}
         </div>
       </div>
-      <AscentBar rating={rating} />
       {/* Announce screen changes for screen readers (focus stays in the nav). */}
       <p className="sr-only" aria-live="polite">
         {title}

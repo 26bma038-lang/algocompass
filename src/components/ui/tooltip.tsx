@@ -3,7 +3,32 @@ import { Tooltip as TooltipPrimitive } from "radix-ui";
 import { cn } from "@/lib/utils";
 
 export const TooltipProvider = TooltipPrimitive.Provider;
-export const Tooltip = TooltipPrimitive.Root;
+
+/** Fired by the shell on every route change: any open tooltip closes (v1.4 polish). */
+const NAVIGATED = "algocompass:navigated";
+export const closeTooltips = () => window.dispatchEvent(new Event(NAVIGATED));
+
+/**
+ * Radix's Root, closing itself when the screen changes, so a tooltip opened on the link you clicked
+ * never lingers over the next screen's heading or tabs.
+ */
+export function Tooltip({ open, defaultOpen, onOpenChange, ...props }: React.ComponentProps<typeof TooltipPrimitive.Root>) {
+  const [inner, setInner] = React.useState(defaultOpen ?? false);
+  const controlled = open !== undefined;
+  const change = React.useCallback(
+    (o: boolean) => {
+      if (!controlled) setInner(o);
+      onOpenChange?.(o);
+    },
+    [controlled, onOpenChange],
+  );
+  React.useEffect(() => {
+    const close = () => change(false);
+    window.addEventListener(NAVIGATED, close);
+    return () => window.removeEventListener(NAVIGATED, close);
+  }, [change]);
+  return <TooltipPrimitive.Root open={controlled ? open : inner} onOpenChange={change} {...props} />;
+}
 export const TooltipTrigger = TooltipPrimitive.Trigger;
 
 export const TooltipContent = React.forwardRef<
