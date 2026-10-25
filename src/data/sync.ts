@@ -166,6 +166,12 @@ async function syncCodeforces(deps: SyncDeps, now: () => number): Promise<Platfo
     let fresh: CfSubmission[];
     if (latest === null) {
       fresh = await cf.getSubmissions(handle); // first sync: full history in one call
+      // Codeforces sometimes answers OK with an empty list. A rated contestant has submitted, so
+      // that's a bad answer, not "no solves": save nothing and the next sync fetches it all again.
+      const rated = (await repo.getCfRatingHistory()).length;
+      if (!fresh.length && rated > 0) {
+        throw new AdapterError("cf", "api", `Codeforces returned no submissions for ${handle}, though it lists ${rated} rated ${rated === 1 ? "round" : "rounds"}. Will retry on the next update.`);
+      }
     } else {
       // Incremental: page newest-first until we reach a submission we already have.
       fresh = [];
@@ -221,6 +227,7 @@ async function syncCodeforces(deps: SyncDeps, now: () => number): Promise<Platfo
       repo.getCfSubmissions(),
       repo.getContests(0),
     ]);
+    const ratedIds = new Set(ratingHistory.map((h) => `cf:${h.contestId}`));
     const todo = contestsToCheck({
       now: now(),
       contests,
@@ -228,7 +235,8 @@ async function syncCodeforces(deps: SyncDeps, now: () => number): Promise<Platfo
       ratingHistory,
       attending,
       submissions,
-      known: new Set(known.map((k) => k.contestId)),
+      // A rated round saved without your solves came from an empty contest.status answer: look again.
+      known: new Set(known.filter((k) => !(ratedIds.has(k.contestId) && (!k.participated || k.solved === null))).map((k) => k.contestId)),
       names: contestNames,
     });
     if (!todo.length) return "skipped";
@@ -251,6 +259,12 @@ async function syncCodeforces(deps: SyncDeps, now: () => number): Promise<Platfo
       if (!list.length && now() - (c.startTime + c.durationSeconds) < PROBLEMS_WAIT_SECONDS) continue;
       try {
         const standing = await cf.getContestStanding(c.contestId, handle, list);
+        // You were rated in it, so contest.status must show your submissions. Empty means Codeforces
+        // gave a bad answer: keep nothing (a saved row is never looked up again) and retry next time.
+        if (!standing.me && rated.has(c.contestId)) {
+          failure ??= new AdapterError("cf", "api", `Codeforces didn't return your submissions for ${c.name}. Will retry on the next update.`);
+          continue;
+        }
         const solved = new Set(standing.me?.solvedIndices ?? []);
         await repo.saveContestResult({
           contestId: `cf:${c.contestId}`,

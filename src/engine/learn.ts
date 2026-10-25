@@ -182,10 +182,22 @@ export function continueLearning(args: {
   // Nothing opened yet.
   const weakest = mode === "smart" && weakness.size > 0 ? orderGroups(groups, "smart", weakness, pathData)[0] : undefined;
   if (weakest && (weakness.get(weakest.topicId) ?? 0) > 0) {
-    const pick = weakest.videos.find((v) => v.lang === lang && !watched.has(v.id)) ?? weakest.videos.find((v) => !watched.has(v.id));
+    const pick = suggestVideo(weakest, pathData, watched, lang);
     if (pick) return { kind: "video", videoId: pick.id, topicId: weakest.topicId };
   }
   return path.current === null ? { kind: "done" } : { kind: "lesson", stepIndex: path.current, fresh: path.doneCount === 0 && !path.steps[path.current]!.watched };
+}
+
+/**
+ * The video "Suggested for you: <topic>" plays. The topic's own videos (resources.json) come first;
+ * a lesson video only counts when its step is mainly about this topic. Lesson videos join every topic
+ * their step lists, so without this Implementation suggested Step 1's Big-O video (v1.4 audit).
+ */
+export function suggestVideo(group: TopicGroup, pathData: BeginnerPath, watched: ReadonlySet<string>, lang: VideoLang): LibraryVideo | null {
+  const own = (v: LibraryVideo) => v.step === undefined || pathData.steps[v.step]?.topics[0] === group.topicId;
+  const ranked = group.videos.filter(own).sort((a, b) => Number(a.step !== undefined) - Number(b.step !== undefined));
+  const fresh = ranked.filter((v) => !watched.has(v.id));
+  return fresh.find((v) => v.lang === lang) ?? fresh[0] ?? null;
 }
 
 /** The Beginner Path step that unlocks Contests in Beginner mode: Recursion (step 9). */

@@ -1,8 +1,17 @@
 # AlgoCompass progress log
 
-## In progress: v1.3, Sheets + Beginner Path + video lessons (branch `v1.3`)
+## In progress: v1.4 step 2a, a beginner's first 5 minutes (branch `v1.4`)
 
-Not merged or released, and the version is still 1.2.0: waiting for your review.
+Not released. The plan is `docs/audit-v1.4/AUDIT.md`; screenshots are in `docs/audit-v1.4/step2a/`.
+
+### Part 0: Codeforces empty answers, Suggested-for-you video (2026-10-25)
+
+- **CF empty answers are retried.** Codeforces sometimes answers OK with an empty list. A first `user.status` that's empty for someone with rated rounds is now an error (nothing saved, so the next update fetches the whole history again), and an empty `contest.status` for a rated round is skipped and retried instead of saving "Solved –" forever. Rated rounds already saved without your solves are looked up again.
+- **"Suggested for you" plays the topic's own video.** Lesson videos only count for the topic their step is mainly about, so Implementation no longer suggests Step 1's Big-O video (`suggestVideo` in `src/engine/learn.ts`).
+- **Checked:** `npm test` 389 pass. Real Tauri window with your data (backup first: `algocompass.db.bak-v1.4` plus its `-wal`/`-shm`, and `settings.json.bak-v1.4`): an update finished with every step ok, Today's Codeforces card shows **Solved 73**, and all 9 past rounds have solve counts. Your DB had 122 CF submissions before and after, so the "Solved 0" in the audit was the browser run's empty answer, which this now retries. Screenshot: `after-part0-real-smart-today.png`.
+- **Decision:** a rated round whose `contest.status` stays empty is retried on every update (the results step shows an error). That's honest; the alternative, guessing "0 solved", would be a fabricated number.
+
+## Previous: v1.3, Sheets + Beginner Path + video lessons (branch `v1.3`, released as v1.3.0/v1.3.1)
 
 ### v1.3 Learn: a top-level screen for every lesson (2026-10-18)
 

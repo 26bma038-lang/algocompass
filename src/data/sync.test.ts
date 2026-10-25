@@ -4,7 +4,7 @@ import type { LeetCodeAdapter } from "@/adapters/leetcode";
 import { AdapterError } from "@/adapters/http";
 import { memoryRepo } from "@/test/sqljs";
 import { cfDailyActivity, lcDailyActivity, syncAll } from "./sync";
-import type { CfProblem, CfSubmission, Contest } from "./types";
+import type { CfContestStanding, CfProblem, CfSubmission, Contest } from "./types";
 
 const sub = (id: number, createdAt: number, verdict: string | null = "OK"): CfSubmission => ({
   id,
@@ -31,7 +31,7 @@ function fakeCf(subs: CfSubmission[]) {
       { id: "cf:2", platform: "cf" as const, name: "Next", startTime: 10_000_000, durationSeconds: 7200, phase: "upcoming" as const, url: "u" },
       { id: "cf:0", platform: "cf" as const, name: "Ancient", startTime: 1, durationSeconds: 7200, phase: "finished" as const, url: "u" },
     ]),
-    getContestStanding: vi.fn(async (contestId: number, _h: string, problems: CfProblem[]) => ({
+    getContestStanding: vi.fn(async (contestId: number, _h: string, problems: CfProblem[]): Promise<CfContestStanding> => ({
       contestId,
       problems,
       me: { rank: 0, participantType: "CONTESTANT", solvedIndices: ["A", "C"] },
@@ -167,7 +167,7 @@ describe("daily activity", () => {
 describe("contest results", () => {
   it("looks up a round you just took part in and queues what you didn't solve", async () => {
     const repo = await memoryRepo();
-    const cf = fakeCf([]);
+    const cf = fakeCf([sub(1, 1000)]);
     // A round that ended an hour before NOW, which you marked "I'll attend".
     cf.getContests.mockImplementation(async () => [
       { id: "cf:7", platform: "cf" as const, name: "Codeforces Round 7 (Div. 2)", startTime: NOW - 3 * 3600, durationSeconds: 7200, phase: "finished" as const, url: "u" },
@@ -199,6 +199,68 @@ describe("contest results", () => {
     const res = await syncAll({ repo, cf: cf as unknown as CodeforcesAdapter, lc: fakeLc() as unknown as LeetCodeAdapter, handles, now: () => NOW, retryDelaysMs: [0, 0] });
     expect(res.cf.steps.find((s) => s.kind === "cf:results")?.status).toBe("skipped");
     expect(cf.getContestStanding).not.toHaveBeenCalled();
+  });
+});
+
+// The v1.4 audit's browser run: Codeforces answered OK with empty lists, so the hero said "Solved 0"
+// and every past round "Solved –", for good. Empty answers for a rated contestant are now retried.
+describe("empty Codeforces answers", () => {
+  const ratedRound = (cf: ReturnType<typeof fakeCf>) => {
+    cf.getContests.mockImplementation(async () => [
+      { id: "cf:7", platform: "cf" as const, name: "Round 7", startTime: NOW - 3 * 3600, durationSeconds: 7200, phase: "finished" as const, url: "u" },
+    ]);
+    cf.getProblemset.mockImplementation(async () =>
+      ["A", "B", "C", "D"].map((index) => ({ key: `7-${index}`, contestId: 7, index, name: `P${index}`, rating: null, tags: [], solvedCount: null })),
+    );
+    cf.getRatingHistory.mockImplementation(async () => [{ contestId: 7, contestName: "Round 7", rank: 4321, oldRating: 1008, newRating: 1030, at: NOW - 600 }]);
+  };
+
+  it("doesn't take an empty first submission list from a rated user as 'no solves'", async () => {
+    const repo = await memoryRepo();
+    const subs: CfSubmission[] = [];
+    const cf = fakeCf(subs);
+    const lc = fakeLc() as unknown as LeetCodeAdapter;
+    const res = await syncAll({ repo, cf: cf as unknown as CodeforcesAdapter, lc, handles, now: () => NOW, retryDelaysMs: [0, 0] });
+    expect(res.cf.steps.find((s) => s.kind === "cf:submissions")?.status).toBe("error");
+    expect(res.cf.errors[0]).toContain("no submissions");
+
+    // Next sync Codeforces answers properly: the full history is fetched again, not paged.
+    subs.push(sub(2, 2000), sub(1, 1000));
+    await syncAll({ repo, cf: cf as unknown as CodeforcesAdapter, lc, handles, now: () => NOW + 60, retryDelaysMs: [0, 0] });
+    expect(cf.getSubmissions).toHaveBeenLastCalledWith("enkrid");
+    expect((await repo.tableCounts()).cf_submissions).toBe(2);
+  });
+
+  it("an unrated user with no submissions is fine", async () => {
+    const repo = await memoryRepo();
+    const cf = fakeCf([]);
+    cf.getRatingHistory.mockImplementation(async () => []);
+    const res = await syncAll({ repo, cf: cf as unknown as CodeforcesAdapter, lc: fakeLc() as unknown as LeetCodeAdapter, handles, now: () => NOW });
+    expect(res.cf.ok).toBe(true);
+  });
+
+  it("retries a rated round whose contest.status came back empty, instead of saving 'Solved –'", async () => {
+    const repo = await memoryRepo();
+    const cf = fakeCf([sub(1, 1000)]);
+    ratedRound(cf);
+    cf.getContestStanding.mockImplementationOnce(async (contestId: number, _h: string, problems: CfProblem[]) => ({ contestId, problems, me: null }));
+    const lc = fakeLc() as unknown as LeetCodeAdapter;
+    const first = await syncAll({ repo, cf: cf as unknown as CodeforcesAdapter, lc, handles, now: () => NOW, retryDelaysMs: [0, 0] });
+    expect(first.cf.steps.find((s) => s.kind === "cf:results")?.status).toBe("error");
+    expect(await repo.getContestResults()).toEqual([]);
+
+    await syncAll({ repo, cf: cf as unknown as CodeforcesAdapter, lc, handles, now: () => NOW + 60, retryDelaysMs: [0, 0] });
+    expect((await repo.getContestResults())[0]).toMatchObject({ contestId: "cf:7", participated: true, solved: 2 });
+  });
+
+  it("looks again at a rated round already saved without your solves (older installs)", async () => {
+    const repo = await memoryRepo();
+    await repo.saveContestResult({ contestId: "cf:7", name: "Round 7", startTime: NOW - 3 * 3600, durationSeconds: 7200, participated: false, rank: 4321, solved: null, total: 4, problems: [], syncedAt: 1 });
+    const cf = fakeCf([sub(1, 1000)]);
+    ratedRound(cf);
+    await syncAll({ repo, cf: cf as unknown as CodeforcesAdapter, lc: fakeLc() as unknown as LeetCodeAdapter, handles, now: () => NOW, retryDelaysMs: [0, 0] });
+    expect(cf.getContestStanding).toHaveBeenCalledTimes(1);
+    expect((await repo.getContestResults())[0]).toMatchObject({ participated: true, solved: 2 });
   });
 });
 

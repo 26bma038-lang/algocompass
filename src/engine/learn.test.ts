@@ -12,6 +12,7 @@ import {
   lessonStage,
   libraryVideoCount,
   orderGroups,
+  suggestVideo,
   type CatalogVideo,
   type FlowProblem,
   type LearnHistory,
@@ -132,6 +133,24 @@ describe("continue learning", () => {
     expect(continueLearning(args(EMPTY_HISTORY, "smart", new Map([["graphs", 1]])))).toEqual({ kind: "video", videoId: "g1", topicId: "graphs" });
     // Without topic data it falls back to the path.
     expect(continueLearning(args(EMPTY_HISTORY, "smart")).kind).toBe("lesson");
+  });
+
+  it("suggests a video about the topic itself, not a lesson that only touches it (v1.4 audit: Implementation played Big-O)", () => {
+    const groups = buildLibrary(TOPICS, RES, PATH);
+    const impl = groups.find((g) => g.topicId === "implementation")!;
+    const bigO = PATH.steps[0]!.videos.en.find((v) => v.role === "main")!.id;
+    const pick = suggestVideo(impl, PATH, new Set(), "en")!;
+    expect(pick.id).not.toBe(bigO);
+    expect(RES.implementation!.videos.map((v) => v.id)).toContain(pick.id);
+    // Math is Basics' second topic: its lesson videos are never "the" Math suggestion.
+    const math = groups.find((g) => g.topicId === "math")!;
+    const mathPick = suggestVideo(math, PATH, new Set(), "en");
+    expect(mathPick?.step).toBeUndefined();
+    // Every topic's suggestion is one of its own videos.
+    for (const g of groups) {
+      const v = suggestVideo(g, PATH, new Set(), "en");
+      if (v?.step !== undefined) expect(PATH.steps[v.step]!.topics[0]).toBe(g.topicId);
+    }
   });
 
   it("ignores a remembered video that's no longer in the library", () => {
