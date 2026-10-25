@@ -3,7 +3,7 @@ import { Check, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { watchPath } from "@/components/shell/nav";
 import type { LibraryRole, LibraryVideo } from "@/engine/learn";
-import { thumbUrl } from "@/features/path/VideoPlayer";
+import { Thumb } from "@/features/path/VideoPlayer";
 import { cn } from "@/lib/utils";
 
 /** Pieces Learn, the lesson page and the watch page share. */
@@ -87,7 +87,7 @@ export function VideoRow({ v, topicId, watched, showLang }: { v: LibraryVideo; t
         className="group flex items-start gap-3 rounded-sm p-2 transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover"
       >
         <span className="relative aspect-video w-28 shrink-0 overflow-hidden rounded-xs bg-abyss-sunken">
-          <img src={thumbUrl(v.id, "mq")} alt="" loading="lazy" className="absolute inset-0 size-full object-cover" />
+          <Thumb id={v.id} size="mq" />
           <span
             aria-hidden
             className="absolute inset-0 grid place-items-center opacity-0 transition-opacity duration-[var(--dur-fast)] group-hover:opacity-100 group-focus-visible:opacity-100"

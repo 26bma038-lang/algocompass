@@ -6,7 +6,9 @@ import { EmptyState } from "@/components/EmptyState";
 import { learnTopicPath, lessonPath } from "@/components/shell/nav";
 import { useLibrary, useRecordLearn } from "@/data/learn";
 import { useWatchedVideos } from "@/data/path";
+import { useTopicReport } from "@/data/queries";
 import { useUiStore } from "@/data/uiStore";
+import { LABELS } from "@/lib/glossary";
 import { findVideo } from "@/engine/learn";
 import { VideoPlayer, WatchedButton, YouTubeButton } from "@/features/path/VideoPlayer";
 import { Breadcrumb, LANG_NAME, roleLabel, VideoRow } from "./parts";
@@ -22,6 +24,8 @@ export function Watch() {
   const watched = useWatchedVideos().data ?? new Map<string, number>();
   const record = useRecordLearn();
   const openTopic = useUiStore((s) => s.openTopic);
+  // "How strong am I at this?" only means something once there's solve history.
+  const hasData = useTopicReport().data?.hasData ?? false;
   const found = useMemo(() => {
     const topic = params.get("topic");
     const inTopic = groups.find((g) => g.topicId === topic);
@@ -96,13 +100,15 @@ export function Watch() {
             title={`More on ${group.name.toLowerCase()}`}
             description="Not watched yet comes first."
             actions={
-              <button
-                type="button"
-                onClick={() => openTopic(group.topicId)}
-                className="rounded-xs text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink"
-              >
-                Topic details
-              </button>
+              hasData ? (
+                <button
+                  type="button"
+                  onClick={() => openTopic(group.topicId)}
+                  className="rounded-xs text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink"
+                >
+                  {LABELS.howStrong}
+                </button>
+              ) : undefined
             }
           />
           <ul className="-mx-2 grid grid-cols-1 gap-x-4 lg:grid-cols-2">

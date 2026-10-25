@@ -132,3 +132,34 @@ export function YouTubeButton({ id }: { id: string }) {
 
 /** YouTube's thumbnail for a video (no request to YouTube beyond the image, CSP allows i.ytimg.com). */
 export const thumbUrl = (id: string, size: "mq" | "hq" = "hq") => `https://i.ytimg.com/vi/${id}/${size}default.jpg`;
+
+/**
+ * A video thumbnail that never reads as blank (v1.4: the audit's library showed an empty grey tile).
+ * A faint play glyph sits underneath until the image loads; a size that fails falls back to the
+ * other one, and if both fail the glyph stays. Fill a positioned, sunken box with it.
+ */
+export function Thumb({ id, size = "hq", lazy = true }: { id: string; size?: "mq" | "hq"; lazy?: boolean }) {
+  const order: ("mq" | "hq")[] = size === "mq" ? ["mq", "hq"] : ["hq", "mq"];
+  const [attempt, setAttempt] = useState(0);
+  const [loaded, setLoaded] = useState(false);
+  const src = order[attempt];
+  return (
+    <>
+      <span aria-hidden className="absolute inset-0 grid place-items-center text-ink-faint">
+        <Play className="size-5 opacity-60" strokeWidth={1.5} />
+      </span>
+      {src && (
+        <img
+          key={src}
+          src={thumbUrl(id, src)}
+          alt=""
+          loading={lazy ? "lazy" : "eager"}
+          decoding="async"
+          onLoad={() => setLoaded(true)}
+          onError={() => setAttempt((a) => a + 1)}
+          className={cn("absolute inset-0 size-full object-cover transition-opacity duration-[var(--dur-fast)]", loaded ? "opacity-100" : "opacity-0")}
+        />
+      )}
+    </>
+  );
+}

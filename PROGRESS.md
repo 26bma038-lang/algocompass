@@ -11,6 +11,16 @@ Not released. Plan: `docs/audit-v1.4/AUDIT.md`; screenshots in `docs/audit-v1.4/
 - **Checked:** a browser-mode script walks a fresh beginner to Step 1's Solve part and, at the landing spot and at six scroll positions, lists every visible element in the scroll area that overlaps the bar's box: none, at 1100x700 (Light and Dark) and 1440x900. Engine tests for the new goals (`quests.test.ts`).
 - **Decisions:** a footer slot instead of more bottom padding: padding only helps at the very end of the page, and any scroll position in between could still put a row under a floating bar. The lesson-step goal counts *recorded* steps, so the path watcher now refreshes today's goals when it records one.
 
+### Part 1: Learn (2026-10-25)
+
+- **Beginner Learn is short:** Continue learning, the Beginner Path roadmap (open), then the video library **folded** ("Browse all videos (147)"). The page is 1,105px tall at 1100x700 (the audit measured about 6,900px). Opened, the library is grouped by the **14 path steps** ("Step 1: Basics", with Open the lesson), each step holding its lesson videos and the videos of the topics it's the first to teach; the 19 topics the path never covers sit under a folded **More topics**. A search or a topic filter (`?topic=`, which also unfolds it) shows topics instead.
+- **Smart Learn:** Continue learning, then the library by topic, weakest first (the 8 weakest shown, "Show all 33 topics"), then the roadmap folded at the bottom.
+- **Every video once** (`buildLibrary`): a lesson video goes under its step's main topic (or the step topic the catalog files it under), and a catalog video listed under two topics under the first. The real library has 147 videos and 147 rows. Each group shows 4 videos, then "Show all N".
+- **Blank thumbnail fixed:** every thumbnail exists on YouTube (all 147 checked); the audit's grey tiles were lazy images not loaded yet when the screenshot ran. Thumbnails now sit on a faint play glyph until they load, fall back to the other size on an error, and keep the glyph if both fail (`Thumb` in `VideoPlayer.tsx`), so a tile never reads as empty.
+- **Plain words:** topics with a Codeforces-tag name get a plain one from the glossary (`TOPIC_PLAIN`: "Coding basics (implementation)", "Try everything (brute force)", "Build-the-answer problems (constructive)", "Interactive problems", "Range queries (data structures)"); the tag stays in brackets, so searching it still works. "Topic details" is now **How strong am I at this?**, shown only once there's solve history (it opens the Topic panel over Learn).
+- **Tests:** `learn.test.ts`: no duplicates in the real library, the filing rules, and the step grouping (14 steps, every video once, Sliding Window adds only its own lesson videos).
+- **Decisions:** step groups take a topic's catalog videos at the *first* step that teaches it (Arrays gets the hashing videos, Hashing only its lesson's), so nothing repeats. The beginner library folds "More topics" too, so opening the library stays at about 4,100px instead of 7,300px.
+
 ## Previous: v1.4 step 2a, a beginner's first 5 minutes (branch `v1.4`)
 
 Not released. The plan is `docs/audit-v1.4/AUDIT.md`; screenshots are in `docs/audit-v1.4/step2a/`.

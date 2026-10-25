@@ -9,6 +9,10 @@ import { usePrefs } from "./prefs";
 import { useTopicReport } from "./queries";
 import { readPref, writePref } from "./settings";
 import { topicWeakness } from "./sheets";
+import { plainTopicName } from "@/lib/glossary";
+
+/** Topics under their plain names (v1.4), the way the library shows them. */
+const PLAIN_TOPICS = TOPICS.map((t) => ({ id: t.id, name: plainTopicName(t.id, t.name) }));
 
 /**
  * Learn (v1.3): what you last opened (so "Continue learning" resumes it) and which lessons you've
@@ -62,7 +66,7 @@ export function useLibrary(): { groups: TopicGroup[]; weakness: Map<string, numb
   const pathData = path.data?.path ?? null;
   return useMemo(() => {
     const weakness = topicWeakness(report.data);
-    const groups = orderGroups(buildLibrary(TOPICS, RESOURCES, pathData), mode, weakness, pathData);
+    const groups = orderGroups(buildLibrary(PLAIN_TOPICS, RESOURCES, pathData), mode, weakness, pathData);
     return { groups, weakness, path: pathData, ready: pathData !== null };
   }, [report.data, mode, pathData]);
 }

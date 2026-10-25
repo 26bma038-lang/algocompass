@@ -11,12 +11,14 @@ import { usePath, useWatchedVideos, type PathView } from "@/data/path";
 import { usePrefs } from "@/data/prefs";
 import { useTopicReport } from "@/data/queries";
 import { useUiStore } from "@/data/uiStore";
-import { CONTESTS_MILESTONE_STEP, continueLearning, filterLibrary, findVideo, libraryVideoCount, type LibraryFilter, type TopicGroup } from "@/engine/learn";
+import { CONTESTS_MILESTONE_STEP, continueLearning, filterLibrary, findVideo, groupBySteps, libraryVideoCount, type LibraryFilter, type TopicGroup } from "@/engine/learn";
+import type { BeginnerPath } from "@/engine/path";
+import { LABELS } from "@/lib/glossary";
 import { mainVideo, nextAction } from "@/engine/path";
 import type { TopicStatus } from "@/engine/strength";
 import { TOPIC_BY_ID } from "@/engine/topics";
 import { stripProgress } from "@/features/path/shared";
-import { thumbUrl } from "@/features/path/VideoPlayer";
+import { Thumb } from "@/features/path/VideoPlayer";
 import { useRewardPulse } from "@/features/quests/QuestList";
 import { SectionStrip } from "@/features/sheets/SectionStrip";
 import { cn } from "@/lib/utils";
@@ -26,7 +28,7 @@ import { LANG_NAME, Segmented, VideoRow } from "./parts";
 function ResumeThumb({ id, label, onClick, minutes }: { id: string | null; label: string; onClick: () => void; minutes?: number }) {
   return (
     <button type="button" onClick={onClick} aria-label={label} className="group relative aspect-video w-full overflow-hidden rounded-md bg-abyss-sunken">
-      {id && <img src={thumbUrl(id)} alt="" className="absolute inset-0 size-full object-cover" />}
+      {id && <Thumb id={id} lazy={false} />}
       <span className="absolute inset-0 grid place-items-center">
         <span
           aria-hidden
@@ -250,50 +252,183 @@ function RoadmapCard({ view }: { view: PathView }) {
 
 const STATUS_WORD: Partial<Record<TopicStatus, string>> = { Weak: "Weak topic", Developing: "Still developing" };
 
-/** Every verified video, grouped by topic, with search and filters. */
-function LibraryCard({ groups }: { groups: TopicGroup[] }) {
+/** How many videos a group shows before "Show all" (two rows of two): the library stays short. */
+const PER_GROUP = 4;
+/** Topics the library shows before "Show all" (smart mode: the weakest ones first). */
+const TOPICS_SHOWN = 8;
+
+/** One group of the library: a path step (Beginner mode) or a topic, with its first few videos. */
+function GroupSection({
+  g,
+  watched,
+  showLang,
+  status,
+  howStrong,
+  lessonId,
+  showAll,
+}: {
+  g: TopicGroup;
+  watched: ReadonlySet<string>;
+  showLang: boolean;
+  status?: string;
+  /** Show "How strong am I at this?" (smart mode with topic data). */
+  howStrong: boolean;
+  /** A step group links to its lesson. */
+  lessonId?: string;
+  /** Filtered to this one topic: no "Show all" needed. */
+  showAll: boolean;
+}) {
+  const openTopic = useUiStore((s) => s.openTopic);
+  const [all, setAll] = useState(showAll);
+  const seen = g.videos.filter((v) => watched.has(v.id)).length;
+  const shown = all ? g.videos : g.videos.slice(0, PER_GROUP);
+  const headId = `lib-${lessonId ?? g.topicId}`;
+  return (
+    <section aria-labelledby={headId} className="flex flex-col gap-2 border-t border-glass-border pt-4 first:border-t-0 first:pt-0">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <h3 id={headId} className="text-title font-semibold text-ink">
+          {g.name}
+        </h3>
+        {status && <Pill>{status}</Pill>}
+        <span className="numeric text-label text-ink-muted">
+          {g.videos.length} {g.videos.length === 1 ? "video" : "videos"}
+          {seen > 0 ? `, ${seen} watched` : ""}
+        </span>
+        {lessonId ? (
+          <Link to={lessonPath(lessonId)} className="ml-auto rounded-xs text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
+            Open the lesson
+          </Link>
+        ) : (
+          howStrong && (
+            <button
+              type="button"
+              onClick={() => openTopic(g.topicId)}
+              className="ml-auto rounded-xs text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink"
+            >
+              {LABELS.howStrong}
+            </button>
+          )
+        )}
+      </div>
+      <ul className="-mx-2 grid grid-cols-1 gap-x-4 lg:grid-cols-2">
+        {shown.map((v) => (
+          <VideoRow key={`${v.lang}-${v.id}`} v={v} topicId={g.topicId} watched={watched.has(v.id)} showLang={showLang} />
+        ))}
+      </ul>
+      {g.videos.length > PER_GROUP && (
+        <button
+          type="button"
+          aria-expanded={all}
+          onClick={() => setAll((a) => !a)}
+          className="flex items-center gap-1 self-start rounded-xs text-body-sm text-ink-muted hover:text-ink"
+        >
+          <ChevronDown aria-hidden className={cn("size-4 transition-transform duration-[var(--dur-fast)]", all && "rotate-180")} />
+          {all ? "Show fewer" : `Show all ${g.videos.length}`}
+        </button>
+      )}
+    </section>
+  );
+}
+
+/**
+ * Every verified video, each once (v1.4). Smart mode: open, grouped by topic, weakest first.
+ * Beginner mode: folded behind "Browse all videos", and grouped by the 14 path steps (then More
+ * topics) so it reads like the roadmap above it. A search or a topic filter shows topics in both.
+ */
+function LibraryCard({ groups, path }: { groups: TopicGroup[]; path: BeginnerPath }) {
   const [params, setParams] = useSearchParams();
   const topicParam = params.get("topic");
   const topic = topicParam && TOPIC_BY_ID.has(topicParam) ? topicParam : null;
   const prefs = usePrefs().data;
   const mode = prefs?.mode ?? "smart";
+  const beginner = mode === "beginner";
+  const [open, setOpen] = useState(!beginner || topic !== null || params.has("q"));
   const [lang, setLang] = useState<LibraryFilter["lang"]>(prefs?.videoLang ?? "en");
   const [query, setQuery] = useState(params.get("q") ?? "");
   const [unwatchedOnly, setUnwatchedOnly] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [allTopics, setAllTopics] = useState(false);
   const watchedMap = useWatchedVideos().data;
   const watched = useMemo(() => new Set(watchedMap?.keys() ?? []), [watchedMap]);
   const report = useTopicReport().data;
-  const openTopic = useUiStore((s) => s.openTopic);
   const ref = useRef<HTMLElement>(null);
   const searchId = useId();
   const topicSelectId = useId();
 
-  // Arriving filtered to a topic (Topic Detail, a sheet section, Ctrl+K): bring the library into view.
+  // Arriving filtered to a topic (Topic Detail, a sheet section, Ctrl+K): open and bring the library into view.
   useEffect(() => {
-    if (topic) ref.current?.scrollIntoView({ block: "start" });
+    if (!topic) return;
+    setOpen(true);
+    ref.current?.scrollIntoView({ block: "start" });
   }, [topic]);
 
+  const count = libraryVideoCount(groups);
+  if (!open) {
+    return (
+      <section ref={ref} id="library" aria-labelledby="library-title" className="glass-card col-span-12 flex scroll-mt-4 flex-col gap-4 p-6">
+        <CardHeader
+          id="library-title"
+          title={LABELS.videoLibrary}
+          description={`${count} videos, grouped by the ${path.steps.length} steps, each checked on YouTube. Your lesson already plays the one you need; these are for when you want more.`}
+          actions={
+            <Button variant="outline" onClick={() => setOpen(true)}>
+              Browse all videos ({count})
+              <ChevronDown aria-hidden />
+            </Button>
+          }
+        />
+      </section>
+    );
+  }
+
+  const filtering = query.trim() !== "" || topic !== null;
   const shown = filterLibrary(groups, { lang, query, topic, unwatchedOnly }, watched);
   const status = new Map(report?.hasData ? report.topics.map((t) => [t.topicId, t.status]) : []);
+  const byStep = beginner && !filtering ? groupBySteps(shown, path) : null;
   const setTopic = (id: string | null) => {
     const next = new URLSearchParams(params);
     if (id) next.set("topic", id);
     else next.delete("topic");
     setParams(next, { replace: true });
   };
-  const count = libraryVideoCount(groups);
-  const order =
-    mode === "smart" ? (report?.hasData ? " Your weakest topics come first." : " Your weakest topics move to the top after your first update.") : " Beginner Path topics first, in step order.";
+  const order = beginner
+    ? " Grouped by the Beginner Path's steps, then more topics."
+    : report?.hasData
+      ? " Your weakest topics come first."
+      : " Your weakest topics move to the top after your first update.";
   const clear = () => {
     setQuery("");
     setUnwatchedOnly(false);
     setTopic(null);
     setLang("all");
   };
+  const topicSection = (g: TopicGroup) => (
+    <GroupSection
+      key={g.topicId}
+      g={g}
+      watched={watched}
+      showLang={lang === "all"}
+      status={beginner ? undefined : STATUS_WORD[status.get(g.topicId) ?? "Mastered"]}
+      howStrong={!beginner && !!report?.hasData}
+      showAll={topic === g.topicId}
+    />
+  );
 
   return (
     <section ref={ref} id="library" aria-labelledby="library-title" className="glass-card col-span-12 flex scroll-mt-4 flex-col gap-5 p-6">
-      <CardHeader id="library-title" title="Video library" description={`${count} videos across ${groups.length} topics, each checked on YouTube.${order}`} pill={`${watched.size} watched`} />
+      <CardHeader
+        id="library-title"
+        title={LABELS.videoLibrary}
+        description={`${count} videos, each checked on YouTube.${order}`}
+        pill={`${watched.size} watched`}
+        actions={
+          beginner ? (
+            <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
+              Hide videos
+            </Button>
+          ) : undefined
+        }
+      />
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative min-w-52 flex-1 basis-52">
           <label htmlFor={searchId} className="sr-only">
@@ -333,17 +468,19 @@ function LibraryCard({ groups }: { groups: TopicGroup[] }) {
           className="h-[38px] w-44 rounded-sm border border-glass-border bg-abyss-sunken px-3 text-body-sm text-ink hover:border-glass-border-strong"
         >
           <option value="">All topics</option>
-          {groups.map((g) => (
-            <option key={g.topicId} value={g.topicId}>
-              {g.name}
-            </option>
-          ))}
+          {[...groups]
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((g) => (
+              <option key={g.topicId} value={g.topicId}>
+                {g.name}
+              </option>
+            ))}
         </select>
       </div>
       {topic && (
         <div className="-mt-1 flex flex-wrap items-center gap-2 text-body-sm text-ink-muted">
           <span>
-            Showing <span className="text-ink">{TOPIC_BY_ID.get(topic)?.name}</span> only.
+            Showing <span className="text-ink">{groups.find((g) => g.topicId === topic)?.name ?? TOPIC_BY_ID.get(topic)?.name}</span> only.
           </span>
           <button type="button" onClick={() => setTopic(null)} className="flex items-center gap-1 rounded-xs text-ink underline decoration-glass-border-strong underline-offset-4">
             <X aria-hidden className="size-3.5" />
@@ -361,38 +498,38 @@ function LibraryCard({ groups }: { groups: TopicGroup[] }) {
             Clear filters
           </Button>
         </div>
+      ) : byStep ? (
+        <div className="flex flex-col gap-6">
+          {byStep.steps
+            .filter((g) => g.videos.length > 0)
+            .map((g) => (
+              <GroupSection key={`step-${g.step}`} g={g} watched={watched} showLang={lang === "all"} howStrong={false} lessonId={path.steps[g.step]!.id} showAll={false} />
+            ))}
+          {byStep.more.length > 0 && (
+            <div className="flex flex-col gap-4 border-t border-glass-border pt-5">
+              <button
+                type="button"
+                aria-expanded={moreOpen}
+                onClick={() => setMoreOpen((o) => !o)}
+                className="flex items-center gap-2 self-start rounded-xs text-left"
+              >
+                <span className="font-display text-headline font-semibold text-ink">{LABELS.moreTopics}</span>
+                <span className="numeric text-body-sm text-ink-muted">{byStep.more.length} topics the path doesn't cover</span>
+                <ChevronDown aria-hidden className={cn("size-4 text-ink-muted transition-transform duration-[var(--dur-fast)]", moreOpen && "rotate-180")} />
+              </button>
+              {moreOpen && <div className="flex flex-col gap-6">{byStep.more.map(topicSection)}</div>}
+            </div>
+          )}
+        </div>
       ) : (
         <div className="flex flex-col gap-6">
-          {shown.map((g) => {
-            const st = mode === "smart" ? STATUS_WORD[status.get(g.topicId) ?? "Mastered"] : undefined;
-            const seen = g.videos.filter((v) => watched.has(v.id)).length;
-            return (
-              <section key={g.topicId} aria-labelledby={`lib-${g.topicId}`} className="flex flex-col gap-2 border-t border-glass-border pt-4 first:border-t-0 first:pt-0">
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                  <h3 id={`lib-${g.topicId}`} className="text-title font-semibold text-ink">
-                    {g.name}
-                  </h3>
-                  {st && <Pill>{st}</Pill>}
-                  <span className="numeric text-label text-ink-muted">
-                    {g.videos.length} {g.videos.length === 1 ? "video" : "videos"}
-                    {seen > 0 ? `, ${seen} watched` : ""}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => openTopic(g.topicId)}
-                    className="ml-auto rounded-xs text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink"
-                  >
-                    Topic details
-                  </button>
-                </div>
-                <ul className="-mx-2 grid grid-cols-1 gap-x-4 lg:grid-cols-2">
-                  {g.videos.map((v) => (
-                    <VideoRow key={`${v.lang}-${v.id}`} v={v} topicId={g.topicId} watched={watched.has(v.id)} showLang={lang === "all"} />
-                  ))}
-                </ul>
-              </section>
-            );
-          })}
+          {(filtering || allTopics ? shown : shown.slice(0, TOPICS_SHOWN)).map(topicSection)}
+          {!filtering && shown.length > TOPICS_SHOWN && (
+            <Button variant="outline" className="self-start" aria-expanded={allTopics} onClick={() => setAllTopics((a) => !a)}>
+              {allTopics ? "Show fewer topics" : `Show all ${shown.length} topics`}
+              <ChevronDown aria-hidden className={cn("transition-transform duration-[var(--dur-fast)]", allTopics && "rotate-180")} />
+            </Button>
+          )}
         </div>
       )}
     </section>
@@ -400,19 +537,22 @@ function LibraryCard({ groups }: { groups: TopicGroup[] }) {
 }
 
 /**
- * Learn (v1.3): Continue learning, the Beginner Path's roadmap, and every verified video by topic.
- * Lessons open at /learn/path/:step, single videos at /learn/watch/:id.
+ * Learn: Continue learning first, then (v1.4) what fits the mode. Beginner mode: the Beginner Path's
+ * roadmap, then the video library folded. Smart mode: the library, weakest topics first, then the
+ * roadmap folded. Lessons open at /learn/path/:step, single videos at /learn/watch/:id.
  */
 export function Learn() {
   const path = usePath();
   const { groups, weakness } = useLibrary();
+  const beginner = usePrefs().data?.mode === "beginner";
   if (path.isLoading) return <p className="text-body-sm text-ink-muted">Loading your lessons…</p>;
   if (!path.data) return <p className="text-body-sm text-ink-muted">The lessons didn't load: {String(path.error ?? "unknown error")}</p>;
   return (
     <div className="grid grid-cols-12 items-start gap-6">
       <ContinueCard view={path.data} groups={groups} weakness={weakness} />
-      <RoadmapCard view={path.data} />
-      <LibraryCard groups={groups} />
+      {beginner && <RoadmapCard view={path.data} />}
+      <LibraryCard groups={groups} path={path.data.path} />
+      {!beginner && <RoadmapCard view={path.data} />}
     </div>
   );
 }

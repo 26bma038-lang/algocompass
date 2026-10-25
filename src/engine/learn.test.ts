@@ -7,6 +7,7 @@ import {
   EMPTY_HISTORY,
   filterLibrary,
   findVideo,
+  groupBySteps,
   lessonChecks,
   lessonNext,
   todayLessonAction,
@@ -54,17 +55,31 @@ describe("the video library", () => {
   const lib = buildLibrary(TOPICS_MINI, CAT, MINI);
 
   it("groups lesson and topic videos by topic, in catalog order, skipping topics with none", () => {
-    expect(lib.map((g) => g.topicId)).toEqual(["math", "arrays-hashing", "strings", "graphs"]);
-    // A step teaching two topics lists its videos under both.
-    expect(lib.find((g) => g.topicId === "math")!.videos.map((v) => v.id)).toEqual(["b-en", "b-hi", "b-en-x"]);
+    // Step b teaches strings then math: its videos go under its main topic only (v1.4), so Math is empty.
+    expect(lib.map((g) => g.topicId)).toEqual(["arrays-hashing", "strings", "graphs"]);
+    expect(lib.find((g) => g.topicId === "strings")!.videos.map((v) => v.id)).toEqual(["b-en", "b-hi", "s1", "b-en-x"]);
   });
 
-  it("keeps a video once per topic, with its lesson role winning over the catalog's", () => {
+  it("lists every video exactly once, with its lesson role winning over the catalog's (v1.4)", () => {
     const strings = lib.find((g) => g.topicId === "strings")!.videos;
-    expect(strings.filter((v) => v.id === "b-en")).toHaveLength(1);
     expect(strings.find((v) => v.id === "b-en")!.role).toBe("lesson");
     expect(strings.find((v) => v.id === "b-en")!.step).toBe(1);
+    const all = lib.flatMap((g) => g.videos.map((v) => v.id));
+    expect(all).toHaveLength(new Set(all).size);
     expect(libraryVideoCount(lib)).toBe(8);
+  });
+
+  it("files a lesson video under the step topic the catalog gives it, and a twice-listed catalog video under the first", () => {
+    const cat = { ...CAT, math: { videos: [{ id: "b-en-x", lang: "en", role: "lecture", minutes: 10, title: "x", channel: "Y" }] }, graphs: { videos: [...CAT.graphs!.videos, { id: "s1", lang: "hi", role: "intro", minutes: 3, title: "again", channel: "Luv" }] } } as Record<string, { videos: CatalogVideo[] }>;
+    const l = buildLibrary(TOPICS_MINI, cat, MINI);
+    expect(l.find((g) => g.topicId === "math")!.videos.map((v) => [v.id, v.role])).toEqual([["b-en-x", "lesson-extra"]]);
+    expect(l.find((g) => g.topicId === "graphs")!.videos.map((v) => v.id)).toEqual(["g1"]);
+  });
+
+  it("has no duplicate in the real catalog and path (the audit's Big-O video under Implementation and Math)", () => {
+    const real = buildLibrary(TOPICS, RES, PATH);
+    const all = real.flatMap((g) => g.videos.map((v) => v.id));
+    expect(all).toHaveLength(new Set(all).size);
   });
 
   it("covers every verified video in the real catalog and path, each with a length and channel", () => {
@@ -80,10 +95,10 @@ describe("the video library", () => {
       ["strings", 0.6],
       ["math", 0.1],
     ]);
-    expect(orderGroups(lib, "smart", weak, MINI).map((g) => g.topicId)).toEqual(["graphs", "strings", "math", "arrays-hashing"]);
+    expect(orderGroups(lib, "smart", weak, MINI).map((g) => g.topicId)).toEqual(["graphs", "strings", "arrays-hashing"]);
     // No topic data: catalog order.
-    expect(orderGroups(lib, "smart", new Map(), MINI).map((g) => g.topicId)).toEqual(["math", "arrays-hashing", "strings", "graphs"]);
-    expect(orderGroups(lib, "beginner", weak, MINI).map((g) => g.topicId)).toEqual(["arrays-hashing", "strings", "math", "graphs"]);
+    expect(orderGroups(lib, "smart", new Map(), MINI).map((g) => g.topicId)).toEqual(["arrays-hashing", "strings", "graphs"]);
+    expect(orderGroups(lib, "beginner", weak, MINI).map((g) => g.topicId)).toEqual(["arrays-hashing", "strings", "graphs"]);
   });
 
   it("filters by language, watched and topic, and searches topic names and video titles", () => {
@@ -97,6 +112,28 @@ describe("the video library", () => {
     expect(filterLibrary(lib, { ...f, query: "luv" }, new Set()).flatMap((g) => g.videos.map((v) => v.id))).toEqual(["s1"]);
     expect(filterLibrary(lib, { ...f, query: "nothing like this" }, new Set())).toEqual([]);
     expect(findVideo(lib, "g1")?.group.topicId).toBe("graphs");
+  });
+});
+
+describe("Beginner mode's library: by path step (v1.4)", () => {
+  it("makes one group per step, lesson videos first, then the topic videos the step is first to teach", () => {
+    const { steps, more } = groupBySteps(buildLibrary(TOPICS_MINI, CAT, MINI), MINI);
+    expect(steps.map((g) => g.name)).toEqual(["Step 1: a", "Step 2: b"]);
+    expect(steps[0]!.videos.map((v) => v.id)).toEqual(["a-en", "a-hi", "a-en-x"]);
+    expect(steps[1]!.videos.map((v) => v.id)).toEqual(["b-en", "b-hi", "b-en-x", "s1"]);
+    expect(more.map((g) => g.topicId)).toEqual(["graphs"]);
+  });
+
+  it("covers the real library: 14 steps, every video once, the rest under More topics", () => {
+    const groups = buildLibrary(TOPICS, RES, PATH);
+    const { steps, more } = groupBySteps(groups, PATH);
+    expect(steps).toHaveLength(14);
+    const ids = [...steps, ...more].flatMap((g) => g.videos.map((v) => v.id));
+    expect(ids).toHaveLength(new Set(ids).size);
+    expect(new Set(ids).size).toBe(libraryVideoCount(groups));
+    // Sliding Window shares its topic with Two Pointers: it gets its own lesson videos and nothing else.
+    expect(steps[5]!.videos.every((v) => v.step === 5)).toBe(true);
+    expect(more.some((g) => g.topicId === "implementation")).toBe(false);
   });
 });
 

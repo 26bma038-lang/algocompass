@@ -32,7 +32,26 @@ export const LABELS = {
   doThisNext: "Do this next",
   howToSolve: "How to solve on LeetCode",
   connectLc: "Connect LeetCode to tick automatically",
+  /** v1.4 step 2b: Learn. "Topic details" (a link that opened the Topic panel). */
+  howStrong: "How strong am I at this?",
+  videoLibrary: "Video library",
+  moreTopics: "More topics",
 } as const;
+
+/**
+ * Plain names for the topics whose Codeforces tag means nothing to a beginner (v1.4). The plain
+ * name comes first and the tag stays in brackets, so searching the tag still finds it.
+ */
+export const TOPIC_PLAIN: Readonly<Record<string, string>> = {
+  implementation: "Coding basics (implementation)",
+  "brute-force": "Try everything (brute force)",
+  constructive: "Build-the-answer problems (constructive)",
+  interactive: "Interactive problems",
+  "data-structures": "Range queries (data structures)",
+};
+
+/** A topic's name as the user reads it: the plain name where there is one. */
+export const plainTopicName = (id: string, name: string) => TOPIC_PLAIN[id] ?? name;
 
 /** "Updated 5m ago". */
 export const updatedAgo = (ago: string) => `${LABELS.updated} ${ago}`;

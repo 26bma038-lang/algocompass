@@ -40,37 +40,69 @@ export interface CatalogVideo {
 const ROLE_ORDER: Record<LibraryRole, number> = { lesson: 0, intro: 1, lecture: 2, walkthrough: 3, "lesson-extra": 4 };
 
 /**
- * Every video, once per topic it teaches. Beginner Path videos join each of their step's topics (so
- * Basics shows under Implementation and Math); topic videos come from the catalog. A video listed
- * by both keeps its lesson role. Topics with no video are left out.
+ * Every video exactly once (v1.4: the audit found the same video under several topics), in its
+ * best-fitting topic:
+ * - a Beginner Path video goes under its step's main topic, or under another of the step's topics
+ *   when the catalog files it there (Basics' Abdul Bari video is a Math video), keeping its lesson role;
+ * - a catalog video listed under two topics goes under the first, in catalog order.
+ * Topics with no video are left out.
  */
 export function buildLibrary(
   topics: readonly { id: string; name: string }[],
   catalog: Readonly<Record<string, { videos?: readonly CatalogVideo[] } | undefined>>,
   path: BeginnerPath | null,
 ): TopicGroup[] {
-  const byTopic = new Map<string, Map<string, LibraryVideo>>();
+  const filedUnder = new Map<string, string>();
+  for (const t of topics) for (const v of catalog[t.id]?.videos ?? []) if (!filedUnder.has(v.id)) filedUnder.set(v.id, t.id);
+  const byTopic = new Map<string, LibraryVideo[]>();
+  const placed = new Set<string>();
   const add = (topicId: string, v: LibraryVideo) => {
-    const m = byTopic.get(topicId) ?? new Map<string, LibraryVideo>();
-    byTopic.set(topicId, m);
-    const had = m.get(v.id);
-    if (!had || ROLE_ORDER[v.role] < ROLE_ORDER[had.role]) m.set(v.id, v);
+    if (placed.has(v.id)) return;
+    placed.add(v.id);
+    byTopic.set(topicId, [...(byTopic.get(topicId) ?? []), v]);
   };
   path?.steps.forEach((s, i) => {
     for (const lang of ["en", "hi"] as const) {
       for (const v of s.videos[lang]) {
-        const lv: LibraryVideo = { id: v.id, lang, role: v.role === "main" ? "lesson" : "lesson-extra", minutes: v.minutes, title: v.title, channel: v.channel, step: i };
-        for (const t of s.topics) add(t, lv);
+        const filed = filedUnder.get(v.id);
+        const topic = filed && s.topics.includes(filed) ? filed : s.topics[0];
+        if (topic) add(topic, { id: v.id, lang, role: v.role === "main" ? "lesson" : "lesson-extra", minutes: v.minutes, title: v.title, channel: v.channel, step: i });
       }
     }
   });
   for (const t of topics) for (const v of catalog[t.id]?.videos ?? []) add(t.id, { ...v });
   return topics.flatMap((t) => {
-    const vids = [...(byTopic.get(t.id)?.values() ?? [])];
+    const vids = [...(byTopic.get(t.id) ?? [])];
     if (!vids.length) return [];
     vids.sort((a, b) => ROLE_ORDER[a.role] - ROLE_ORDER[b.role] || (a.step ?? 99) - (b.step ?? 99));
     return [{ topicId: t.id, name: t.name, videos: vids }];
   });
+}
+
+/** A library group in Beginner mode's view: one per Beginner Path step (v1.4). */
+export interface StepGroup extends TopicGroup {
+  /** 0-based step index. */
+  step: number;
+}
+
+/**
+ * Beginner mode's library (v1.4): grouped by the 14 path steps, not the 33 topics. A step gets its
+ * own lesson videos plus the topic videos of the topics it's the first step to teach (Basics gets
+ * Implementation and Math; Sliding Window shares Two pointers with step 5, so it adds none). Topics
+ * the path never teaches come after, as "More topics". Every video still appears once.
+ */
+export function groupBySteps(groups: readonly TopicGroup[], path: BeginnerPath): { steps: StepGroup[]; more: TopicGroup[] } {
+  const firstStep = new Map<string, number>();
+  path.steps.forEach((s, i) => s.topics.forEach((t) => !firstStep.has(t) && firstStep.set(t, i)));
+  const all = groups.flatMap((g) => g.videos.map((v) => ({ v, topicId: g.topicId })));
+  const steps = path.steps.map((s, i): StepGroup => {
+    const lesson = all.filter((x) => x.v.step === i).map((x) => x.v);
+    const topical = all.filter((x) => x.v.step === undefined && firstStep.get(x.topicId) === i).map((x) => x.v);
+    lesson.sort((a, b) => ROLE_ORDER[a.role] - ROLE_ORDER[b.role]);
+    return { topicId: s.topics[0] ?? "implementation", name: `Step ${i + 1}: ${s.title}`, videos: [...lesson, ...topical], step: i };
+  });
+  const more = groups.filter((g) => !firstStep.has(g.topicId));
+  return { steps, more };
 }
 
 /** Distinct videos in the library (a video under two topics counts once). */
