@@ -12,7 +12,9 @@ import { shortName } from "@/features/home/ContestStrip";
 import { openExternal } from "@/lib/openExternal";
 import { topicIcon } from "@/lib/topicIcons";
 import { paletteScore } from "@/lib/paletteScore";
-import { learnTopicPath } from "./nav";
+import { learnTopicPath, lessonPath } from "./nav";
+import { usePath } from "@/data/path";
+import { hasAnyHandle, useHandles } from "@/data/settings";
 import { useNav } from "./useNav";
 
 /** Shortcut text as shown in kbd keys ("Ctrl 1"). */
@@ -75,7 +77,11 @@ export function CommandPalette() {
   const { data } = useHomeData();
   const nextContest = data?.upcoming.find((c) => c.platform === "cf") ?? data?.upcoming[0];
   const [search, setSearch] = useState("");
-  const nav = useNav().all;
+  const { all: nav, mode } = useNav();
+  const beginner = mode === "beginner";
+  const connected = hasAnyHandle(useHandles().data);
+  const path = usePath().data;
+  const lesson = path && path.current !== null ? path.steps[path.current]! : null;
 
   /** Close first, then act: the palette never lingers over where you're going. */
   const run = (fn: () => void) => () => {
@@ -83,9 +89,17 @@ export function CommandPalette() {
     fn();
   };
 
+  // v1.4: a beginner's first action is their lesson; Update only shows once there's an account to update.
   const entries: Entry[] = [
-    { key: "sync", group: "Actions", icon: RefreshCw, label: LABELS.updateNow, kbd: "Ctrl R", keywords: ["refresh", "sync"], onSelect: run(() => void useSyncStore.getState().run()) },
-    { key: "mix", group: "Actions", icon: Target, label: "Open today's problems", hint: "Practice", keywords: ["problems", "daily", "mix"], onSelect: run(() => navigate("/practice/mix")) },
+    ...(beginner && lesson
+      ? [{ key: "lesson", group: "Actions" as const, icon: GraduationCap, label: "Continue my lesson", hint: `Step ${path!.current! + 1}: ${lesson.step.title}`, keywords: ["lesson", "beginner path", "step", "next"], onSelect: run(() => navigate(lessonPath(lesson.step.id))) }]
+      : []),
+    ...(connected
+      ? [{ key: "sync", group: "Actions" as const, icon: RefreshCw, label: LABELS.updateNow, kbd: "Ctrl R", keywords: ["refresh", "sync"], onSelect: run(() => void useSyncStore.getState().run()) }]
+      : []),
+    ...(beginner && !connected
+      ? []
+      : [{ key: "mix", group: "Actions" as const, icon: Target, label: "Open today's problems", hint: "Practice", keywords: ["problems", "daily", "mix"], onSelect: run(() => navigate("/practice/mix")) }]),
     ...(nextContest
       ? [{ key: "contest", group: "Actions" as const, icon: CalendarClock, label: "Open next contest", hint: shortName(nextContest), keywords: ["round", "register", "codeforces"], onSelect: run(() => openExternal(nextContest.url)) }]
       : []),

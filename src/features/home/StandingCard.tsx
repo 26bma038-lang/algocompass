@@ -52,7 +52,10 @@ function Group({ title, items, empty, untried }: { title: string; items: Standin
   );
 }
 
-/** "Where you stand": strongest topics, what to work on next, and blind spots at your rating (scores out of 100). */
+/**
+ * "Where you stand": strongest topics, what to work on next, and topics you haven't tried at your
+ * rating (scores out of 100). v1.4: on Progress → Overview, full width, the three groups side by side.
+ */
 export function StandingCard({ report }: { report: TopicReport | undefined }) {
   return (
     <section aria-labelledby="standing-title" className="glass-card flex h-full flex-col gap-4 p-6">
@@ -68,16 +71,18 @@ export function StandingCard({ report }: { report: TopicReport | undefined }) {
         <p className="text-body-sm text-ink-muted">Topic strengths appear after the first update.</p>
       ) : (
         <>
-          <Group title="Strongest" items={report.standing.strengths} empty="Nothing strong yet" />
-          <Group title="Work on next" items={report.standing.weaknesses} empty="No weak spots found" />
-          <Group
-            title={`${LABELS.notTried} (common at your rating)`}
-            items={report.standing.blindSpots}
-            empty="None. You've tried everything common at your rating."
-            untried
-          />
-          <Link to="/progress/topics" className="text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
-            All {report.topics.length} topics on the Topics map
+          <div className="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-3">
+            <Group title="Strongest" items={report.standing.strengths} empty="Nothing strong yet" />
+            <Group title="Work on next" items={report.standing.weaknesses} empty="No weak spots found" />
+            <Group
+              title={`${LABELS.notTried} (common at your rating)`}
+              items={report.standing.blindSpots}
+              empty="None. You've tried everything common at your rating."
+              untried
+            />
+          </div>
+          <Link to="/progress/topics" className="self-start text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
+            See all {report.topics.length} topics
           </Link>
         </>
       )}

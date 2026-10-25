@@ -9,6 +9,7 @@ import {
   findVideo,
   lessonChecks,
   lessonNext,
+  todayLessonAction,
   lessonStage,
   libraryVideoCount,
   orderGroups,
@@ -217,5 +218,17 @@ describe("a lesson's Next button", () => {
     expect(lessonChecks({ watched: false, required: 2, requiredDone: 0 }, false, true)).toEqual({ watch: true, read: true, solve: true });
     expect(lessonStage(flow({ watched: true }))).toBe("read");
     expect(lessonStage(flow({ watched: true, read: true }))).toBe("solve");
+  });
+
+  it("Today's Do this next names the exact next action and opens the lesson at it (v1.4)", () => {
+    const video = { minutes: 15 };
+    expect(todayLessonAction(flow({}), video, 2)).toMatchObject({ kind: "watch", button: "Watch the video (15 min)", focus: "watch" });
+    expect(todayLessonAction(flow({}), video, 2).detail).toContain("2 easy problems");
+    expect(todayLessonAction(flow({ watched: true }), video, 2)).toMatchObject({ kind: "read", button: "Read the lesson", focus: "read" });
+    expect(todayLessonAction(flow({ watched: true, read: true }), video, 2)).toMatchObject({ kind: "solve", button: "Solve problem 1 of 2: Two Sum", focus: "solve" });
+    expect(todayLessonAction(flow({ watched: true, read: true, solved: ["p1"] }), video, 1).button).toBe("Solve problem 2 of 2: Valid Anagram");
+    expect(todayLessonAction(flow({ stepDone: true, nextStep: null }), video, 0)).toMatchObject({ kind: "finish", button: "Pick a sheet" });
+    // Never a bare count like 7/59: the words say which problem.
+    expect(todayLessonAction(flow({ watched: true, read: true }), video, 2).button).not.toMatch(/\d+\/\d+/);
   });
 });

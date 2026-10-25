@@ -259,6 +259,49 @@ export function lessonNext(args: {
   return { kind: "open", problem: p, index, of: required.length, label: `Open problem ${index + 1} of ${required.length}: ${p.title}` };
 }
 
+/** Today's "Do this next" for a lesson (v1.4): the exact next action, and where in the lesson it lands. */
+export interface TodayLessonAction {
+  kind: "watch" | "read" | "solve" | "next-step" | "finish";
+  /** The big button: "Watch the video (15 min)", "Read the lesson", "Solve problem 2 of 3: Running Sum". */
+  button: string;
+  /** One line under the title: what that involves. */
+  detail: string;
+  /** The lesson section to scroll to on arrival. */
+  focus: "watch" | "read" | "solve" | null;
+}
+
+/**
+ * The lesson's next action as Today shows it. Same order as the lesson's Next button
+ * (`lessonNext`), but each one is a way *into* the lesson: Today never ticks anything itself, and
+ * "Solve problem N" opens the lesson's Solve part (with its how-to) rather than LeetCode directly.
+ */
+export function todayLessonAction(next: LessonNext, video: { minutes: number } | null, problemsLeft: number): TodayLessonAction {
+  const rest = problemsLeft > 0 ? `, then ${problemsLeft} easy ${problemsLeft === 1 ? "problem" : "problems"}` : "";
+  switch (next.kind) {
+    case "watch":
+      return {
+        kind: "watch",
+        button: video ? `Watch the video (${video.minutes} min)` : "Watch the video",
+        detail: `A short video${video ? ` (${video.minutes} min)` : ""}, a few lines to read${rest}.`,
+        focus: "watch",
+      };
+    case "read":
+      return { kind: "read", button: "Read the lesson", detail: `The idea in a few lines, about 2 minutes${rest}.`, focus: "read" };
+    case "open":
+    case "solved":
+      return {
+        kind: "solve",
+        button: `Solve problem ${next.index + 1} of ${next.of}: ${next.problem.title}`,
+        detail: next.kind === "solved" ? `You opened it. Solved it? Tick it in the lesson.` : `On LeetCode. The lesson shows you how, step by step.`,
+        focus: "solve",
+      };
+    case "next-step":
+      return { kind: "next-step", button: `Start step: ${next.step.title}`, detail: "This step is done.", focus: null };
+    case "finish":
+      return { kind: "finish", button: "Pick a sheet", detail: "You finished the Beginner Path. A full sheet is the next step.", focus: null };
+  }
+}
+
 /** Which of Watch, Read and Solve are checked. Done steps check all three. */
 export function lessonChecks(p: Pick<StepProgress, "watched" | "required" | "requiredDone">, read: boolean, stepDone: boolean) {
   return {

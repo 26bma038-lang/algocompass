@@ -40,6 +40,14 @@ Not released. The plan is `docs/audit-v1.4/AUDIT.md`; screenshots are in `docs/a
 - **Rules as data:** `src/components/shell/topBarItems.ts` (which items per mode and step, and every label), tested in `topBarItems.test.ts`.
 - **Decision:** a beginner without an account has no synced activity, so after Step 3 the streak chip stays hidden rather than showing "No streak yet" forever; it appears with their first update. Counting hand ticks toward the streak would change the streak engine for everyone, so it waits for a later step.
 
+### Part 5: Today, one "do this next" (2026-10-25)
+
+- **Beginner Today:** two cards. **Do this next** (7 columns): "Step 1 of 14: Basics", its subtitle, the 14-segment strip, one line on what's involved, and one big button with the exact next action: **Watch the video (15 min)** → **Read the lesson** → **Solve problem 2 of 3: Running Sum**. It opens the lesson scrolled to that part (Read or Solve). Beside it, **Today's goals** in plain words, with no streak line. Gone: the "See all 14 steps" link, the followed-sheet card and the "Let your solves tick themselves" card (connecting LeetCode now happens inside the lesson, Part 6). Nothing on it says "after the first update".
+- **Smart Today:** three cards, all visible at 1100x700. **Do this next**: the first unsolved of today's problems ("Codeforces · difficulty 1100 · Sorting", why it was picked, **Open on Codeforces**, "I solved it" for LeetCode ones, the run meter "0 of 5 done today · All in Practice"); once those are done, the followed sheet's next problem. **Today's goals** (the streak is in the top bar only). A compact **Codeforces rating** card: rating, rank chip and progress to the next rank, "73 solved · 8 rated rounds · last change +29", and the next round.
+- **Moved:** Activity, LeetCode and Where you stand to Progress → Overview (Where you stand full width, its three groups side by side). Removed from Today: today's problem list (it's the Practice tab), Work on next (it repeated the same problems as the list: the duplicate the audit found; Practice's By topic has them), Later contests (they're on Contests), the followed sheet card (Practice → Sheets; its next problem feeds Do this next).
+- **Ctrl+K:** beginners get **Continue my lesson** first; **Update now** only appears once there's an account, and Today's problems is hidden for a beginner without one.
+- **Rules as data:** `todayLessonAction` (`src/engine/learn.ts`) and `pickDoThisNext` (`src/engine/today.ts`), tested. `WorkOnNext.tsx` and the unused `ContestStrip` component are deleted; `LcCard` and `RunMeter` moved to their own files.
+
 ## Previous: v1.3, Sheets + Beginner Path + video lessons (branch `v1.3`, released as v1.3.0/v1.3.1)
 
 ### v1.3 Learn: a top-level screen for every lesson (2026-10-18)

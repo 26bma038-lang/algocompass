@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Check, Lock, Play } from "lucide-react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { CardHeader } from "@/components/CardHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { lessonPath } from "@/components/shell/nav";
@@ -246,6 +246,14 @@ export function Lesson() {
     setPlayingId(null);
     setOpened(new Set());
   }, [stepId]);
+  // Arriving from Today's "Do this next" (v1.4): land on the part it named (Read or Solve).
+  const focus = (useLocation().state as { focus?: string } | null)?.focus;
+  const loaded = !!s;
+  useEffect(() => {
+    if (!loaded || (focus !== "read" && focus !== "solve")) return;
+    const t = window.setTimeout(() => scrollTo(focus), 150);
+    return () => window.clearTimeout(t);
+  }, [stepId, focus, loaded]);
 
   if (path.isLoading) return <p className="text-body-sm text-ink-muted">Loading the lesson…</p>;
   if (!view || !s) {

@@ -7,6 +7,9 @@ import { SegmentedTabs } from "@/components/SegmentedTabs";
 import { useHomeData, useTopicReport } from "@/data/queries";
 import { LevelCard, WeeklyGoalsCard } from "@/features/quests/Quests";
 import { WeeklyReviewCard } from "@/features/quests/WeeklyReview";
+import { ActivityHeatmap } from "@/features/home/ActivityHeatmap";
+import { StandingCard } from "@/features/home/StandingCard";
+import { LcCard } from "./LcCard";
 
 // Recharts loads only when the Overview tab opens.
 const RatingChart = lazy(() => import("@/features/home/RatingChart").then((m) => ({ default: m.RatingChart })));
@@ -39,9 +42,13 @@ function RatingCard() {
   return <RatingChart cf={data?.ratingHistory ?? []} lc={data?.lcContests ?? []} rating={data?.cf?.rating ?? null} />;
 }
 
-/** Overview: the rating chart and your level, then this week's goals and the weekly review. */
+/**
+ * Overview: the rating chart and your level, this week's goals and the weekly review, then (v1.4,
+ * moved from Today) your activity, LeetCode and where you stand by topic.
+ */
 export function ProgressOverview() {
   const report = useTopicReport();
+  const home = useHomeData().data;
   if (report.isLoading) return <p className="text-body-sm text-ink-muted">Adding up your history…</p>;
   if (!report.data?.hasData) {
     return (
@@ -65,6 +72,15 @@ export function ProgressOverview() {
       </div>
       <div className="col-span-12 lg:col-span-4">
         <WeeklyReviewCard />
+      </div>
+      <div className="col-span-12 lg:col-span-8">
+        <ActivityHeatmap activity={home?.activity ?? []} />
+      </div>
+      <div className="col-span-12 lg:col-span-4">
+        <LcCard lc={home?.lcStats ?? null} />
+      </div>
+      <div className="col-span-12">
+        <StandingCard report={report.data} />
       </div>
     </div>
   );
