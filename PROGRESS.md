@@ -1,6 +1,6 @@
 # AlgoCompass progress log
 
-## In progress: the landing website (branch `website`)
+## Done: the landing website (branch `website`, merged to master)
 
 A static site in `website/` (plain HTML, CSS and JS, no build step), deployed to GitHub Pages by `.github/workflows/pages.yml`. No app code changed. Screenshots in `docs/screenshots/website/`.
 
@@ -60,6 +60,12 @@ Mobile LCP 1.7 s, desktop 1.1 s; CLS 0 on both; TBT 0–10 ms. The remaining hin
 - **Fixed on the way:** SEO was 92 because Lighthouse's robots.txt fetch runs inside the page and the CSP's `connect-src` didn't include `'self'`; it does now. The first tool version ran Lighthouse synchronously, which froze the in-process server it was testing; it's async now.
 
 **Screenshots:** `docs/screenshots/website/`: the first screen (`desktop-dark.png`, `phone-light.png`, …), one per section (`-paths`, `-features`, `-how`, `-install`, `-faq`) and the full page as JPEG (`-full.jpg`), for desktop and phone in Light and Dark. `node website/tools/screens.mjs` regenerates them (the GitHub API is stubbed with the v1.4.0 release so they don't depend on the network).
+
+### Part 4: ship (2026-10-25)
+
+- README: the website link at the top and beside Download, and `website/` in the project structure. CLAUDE.md's folder layout lists `website/` too. The repo's homepage is set to the site (`gh repo edit --homepage`).
+- `website` merged into master and pushed. No app release: the app is unchanged.
+- **To go live:** GitHub → the repo's Settings → Pages → Build and deployment → Source: **GitHub Actions**. Then Actions → **Deploy website** → **Run workflow** (the run triggered by this push fails until Pages is on). The site: https://26bma038-lang.github.io/algocompass/
 
 ## In progress: v1.4 step 2b, no empty or overloaded screens (branch `v1.4`)
 

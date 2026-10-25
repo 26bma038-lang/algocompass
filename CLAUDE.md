@@ -32,6 +32,7 @@ src/
   data/            SQLite schema and queries (tauri-plugin-sql), the store wrapper, TanStack Query hooks.
   features/*/      One folder per screen: its route component, local components and hooks.
   components/ui/   shadcn/ui primitives and shared design-system components (adapted to DESIGN.md).
+website/           The landing site (static HTML/CSS/JS, GitHub Pages via .github/workflows/pages.yml). Not app code.
 src-tauri/         Rust side: window, tray, plugin registration, capabilities/permissions.
 ```
 
