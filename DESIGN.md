@@ -582,7 +582,7 @@ Light redefines the rank palette darker (newbie `#5F6675`, pupil `#127A3A`, spec
 
 ### Lesson focus mode
 - **Header:** a breadcrumb row (a 32px Back chevron, then "Learn › Beginner Path › Step 3", the current crumb in ink) with the language toggle on the right, then one baseline row: "Step 3 of 14", the title in headline, the subtitle.
-- **The video** is the page's hero: centred, `max-width: min(1120px, calc((100vh - 380px) * 16 / 9))`, so at 1100x700 its title row still clears the flow bar, and larger windows get a larger video. Below it: the title, "Main video, channel, N min", Mark as watched and Watch on YouTube.
+- **The video** is the page's hero: centred, `max-width: min(1120px, calc((100vh - 410px) * 16 / 9))`, so at 1100x700 its title row still clears the flow bar, and larger windows get a larger video. Below it: the title, "Main video, channel, N min", Mark as watched and Watch on YouTube.
 - **Read** (7) beside **More videos** (5), then **Solve** (12). The problem the Next button is on sits on a sunken fill.
 - **Flow bar:** sticky 16px from the bottom, on the Float plane (`abyss-raised`, strong hairline, `shadow-float`), so it never blurs text behind it. On the left, an ordered list: three 32px pills (a 24px numbered disc that becomes a Success check, then the word; Solve adds "1/3"), joined by 20px hairlines that turn Success once the step before is checked. The current stage takes accent-soft and its disc the accent. On the right, the single primary button, whose label is always the literal next action ("I've watched the video", "Open problem 2 of 3: Valid Anagram", "I solved Two Sum", "Next step: Arrays"). While it asks "I solved …", a ghost "Open it again" sits beside it.
 - **Toasts** move up 104px on lesson pages, so a "Step done" toast never covers Next.
@@ -616,3 +616,29 @@ Supersedes the older "Top bar controls" and "Level badge" text where they differ
 ### How to solve on LeetCode
 - Inline in the lesson's Solve card, above the problems: a 12px-radius tile with the accent-soft fill and an accent-line border, six numbered steps in two columns (24px accent circles, accent-ink numerals), and an outline "Got it". The Connect LeetCode row sits under the problems on Abyss Sunken.
 - The Beginner Path's progress is always counted in steps ("Step 3 of 14"), never problems.
+
+## No empty or overloaded screens (v1.4 step 2b)
+
+Additions; nothing above changed except where a line below says it supersedes it.
+
+### Lesson flow bar
+- **Supersedes "sticky 16px from the bottom":** the flow bar lives in a footer strip the shell keeps *under* the scroll area (`max-w-[1440px]`, 24px sides, 12px above, 16px below), so the page scrolls above it and nothing is ever hidden behind it. Same Float-plane bar, same single primary button. The strip is empty and hidden on every other screen.
+- The How-to-solve guide's **Got it** sits in the guide's header row, right of the title.
+
+### Learn
+- **Beginner:** Continue learning, the roadmap (open), then the library folded into one card with an outline "Browse all videos (147)". Opened, groups are the 14 path steps ("Step 1: Basics", a quiet "Open the lesson" link on the right), then a folded "More topics" toggle (headline + "N topics the path doesn't cover" + chevron).
+- **Smart:** Continue learning, the library (8 weakest topics, then an outline "Show all 33 topics"), the roadmap folded last.
+- **Every group** shows 4 videos (two rows of two), then a quiet chevron "Show all N". Each video appears once.
+- **Thumbnails** sit on a faint play glyph (Dusk, 60%) that shows until the image loads and stays if it fails; the image fades in over the fast duration.
+- Topic names come from the glossary's plain names ("Coding basics (implementation)").
+
+### Practice
+- **Beginner:** no tab row. "Problems from your lessons" (12 columns): one block per reached step (a 32px numbered tile: Success check when done, accent-soft when current; title; "You're here, 0 of 4 solved"; done steps folded), the next problem on a sunken fill with the page's only primary **Open**, then a dashed line for the steps not reached yet. Below, **Follow a popular sheet** in 8 columns, title-size heading (not headline), so it reads as secondary.
+- **Smart:** Today's problems · Sheets. One primary Open (the first unsolved row, on a sunken fill); every row ends in a 32px **⋯** button that opens the dropdown (Float plane: abyss-raised, strong hairline, shadow-float; 220px; items are a 14px label over a 12px muted line). Unfinished problems in two columns, only when there are any; More by topic is a folded card whose header is the toggle.
+- **Sheet page:** Next in this sheet leads as a wide sunken tile (words left, primary Open right); then progress and the strip; **Options** (outline, sliders icon) unfolds a sunken panel with the filters, "I've already done some" and the LeetCode note. A long section opens on 12 rows around the next problem, with quiet "Show the N problems above" / "Show all N problems in this step".
+
+### Progress
+- **Two tabs:** Overview · Topics. Badges (`/progress/badges`) and the map (`/progress/topics/map`) are pages under them with a quiet "‹ Overview" / "‹ Show as list" link.
+- **Beginner Overview:** Your path (7 columns: a 13px label, "Step 1 of 14" in Display, the strip, an underlined "Continue step 1: Basics →"), Your week (5 columns: seven 24px dots, accent-filled on days practised, today's letter in ink and semibold), Badges (12 columns, three tiles).
+- **Badges card:** three tiles (earned: sunken, raised white with slab shadow in Light; not yet: dashed outline with the hint), "See all 31" on the right of an inline header.
+- **Topics list:** rows of plain name + one muted "why" line, then the status word (Weak / Getting there / Strong / Mastered), a 6px accent bar and "8/100" in 12px; a quiet Watch link. Untried topics follow under "Topics you haven't tried". Without solve history: "Topics in the Beginner Path", the current step's topics on a sunken fill, done ones with a Success check.

@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Check, ExternalLink, Flame } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Pill } from "@/components/CardHeader";
-import { problemMeta, problemTitle, problemUrl } from "@/components/practice/ProblemRow";
+import { meta as problemMeta, title as problemTitle, url as problemUrl } from "@/components/practice/problemText";
 import { RunMeter } from "@/components/practice/RunMeter";
 import { Term } from "@/components/Term";
 import { Button } from "@/components/ui/button";

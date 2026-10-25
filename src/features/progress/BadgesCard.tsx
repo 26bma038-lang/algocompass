@@ -9,8 +9,8 @@ import { BADGES_PATH } from "./tabs";
 const date = (t: number) => new Date(t * 1000).toLocaleDateString(undefined, { day: "numeric", month: "short" });
 
 /**
- * Badges on Overview (v1.4: the Achievements tab became this card). The three latest earned, or the
- * three closest to being earned, and "See all" for the full set.
+ * Badges on Overview (v1.4: the Achievements tab became this card). The latest earned, then the
+ * closest to being earned to fill three, and "See all" for the full set.
  */
 export function BadgesCard({ columns = 3 }: { columns?: 1 | 3 }) {
   const { data } = useProgression();
@@ -25,7 +25,7 @@ export function BadgesCard({ columns = 3 }: { columns?: 1 | 3 }) {
           <h2 id="badges-title" className="font-display text-headline font-semibold text-ink">
             {LABELS.badges}
           </h2>
-          <p className="text-body-sm text-ink-muted">{earned ? `Your latest. ${got} of ${data.achievements.length} earned.` : "None yet. These three are the closest."}</p>
+          <p className="text-body-sm text-ink-muted">{earned === 0 ? "None yet. These are the closest." : earned < list.length ? `${got} of ${data.achievements.length} earned. Your latest, then the next to earn.` : `${got} of ${data.achievements.length} earned. Your latest.`}</p>
         </div>
         <Link
           to={BADGES_PATH}

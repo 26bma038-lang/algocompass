@@ -377,7 +377,7 @@ export function Lesson() {
           <p className="text-body-sm text-ink-muted">{step.subtitle}</p>
         </div>
         {/* As wide as the column allows while its title row and the Next bar still fit on screen (1100x700 included). */}
-        <div className="mx-auto w-full" style={{ maxWidth: "min(1120px, calc((100vh - 380px) * 16 / 9))" }}>
+        <div className="mx-auto w-full" style={{ maxWidth: "min(1120px, calc((100vh - 410px) * 16 / 9))" }}>
           <VideoPlayer key={current.id} video={current} watched={view.watched.has(current.id)} frameOnly />
           <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
             <div className="flex min-w-0 flex-col gap-0.5">

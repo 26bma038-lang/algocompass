@@ -70,11 +70,11 @@ describe("Your week and Badges", () => {
     expect(weekDays(monday, [at(0, 9), at(2, 23), at(2, 1), at(7, 1)])).toEqual([true, false, true, false, false, false, false]);
   });
 
-  it("shows the latest earned badges, or the three closest to earning before any", () => {
+  it("shows the latest earned badges, then the closest to earning to fill three", () => {
     const a = (id: string, unlocked: boolean, at: number | null, value = 0, target = 1): AchievementState => ({ id, unlocked, at, progress: { value, target, label: "" } });
-    expect(badgesToShow([a("x", true, 5), a("y", false, null), a("z", true, 9)]).list.map((b) => b.id)).toEqual(["z", "x"]);
+    expect(badgesToShow([a("x", true, 5), a("y", false, null), a("z", true, 9)]).list.map((b) => b.id)).toEqual(["z", "x", "y"]);
     const none = badgesToShow([a("p", false, null, 1, 10), a("q", false, null, 5, 10), a("r", false, null, 0, 3), a("s", false, null, 2, 4)]);
-    expect(none.earned).toBe(false);
+    expect(none.earned).toBe(0);
     expect(none.list.map((b) => b.id)).toEqual(["q", "s", "p"]);
   });
 });

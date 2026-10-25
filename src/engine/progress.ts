@@ -65,12 +65,12 @@ export function weekDays(weekFrom: number, times: readonly number[]): boolean[] 
 }
 
 /**
- * The badges Overview shows (three): the most recently earned, or, before any is earned, the three
- * closest to being earned (the most progress first), so the card is never empty.
+ * The badges Overview shows (three): the most recently earned first, then the ones closest to being
+ * earned (the most progress first) to fill the row, so the card is never empty or half empty.
  */
-export function badgesToShow<T extends AchievementState>(all: readonly T[], n = 3): { earned: boolean; list: T[] } {
-  const earned = all.filter((a) => a.unlocked).sort((a, b) => (b.at ?? 0) - (a.at ?? 0));
-  if (earned.length) return { earned: true, list: earned.slice(0, n) };
+export function badgesToShow<T extends AchievementState>(all: readonly T[], n = 3): { earned: number; list: T[] } {
+  const earned = all.filter((a) => a.unlocked).sort((a, b) => (b.at ?? 0) - (a.at ?? 0)).slice(0, n);
   const ratio = (a: T) => (a.progress && a.progress.target > 0 ? a.progress.value / a.progress.target : 0);
-  return { earned: false, list: [...all].sort((a, b) => ratio(b) - ratio(a)).slice(0, n) };
+  const next = all.filter((a) => !a.unlocked).sort((a, b) => ratio(b) - ratio(a));
+  return { earned: earned.length, list: [...earned, ...next].slice(0, n) };
 }
