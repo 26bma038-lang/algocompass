@@ -19,6 +19,12 @@ Not released. The plan is `docs/audit-v1.4/AUDIT.md`; screenshots are in `docs/a
 - **Test:** `src/lib/glossary.test.ts` scans every user-facing string (string literals and JSX text in `src/`, plus the tray in `lib.rs`) and fails on a retired name. Code identifiers (`useTodayQuests`, `"syncing"`) and the hidden Debug page don't count.
 - **Decisions:** terms get a tooltip every time rather than a one-time hint: it's the same help on every screen, and there's no extra "seen" state to keep. Search keywords keep the old words (typing "sync" or "mix" in Ctrl+K still finds Update now and Today's problems). Engine and table names (`quests`, `upsolve`) are unchanged.
 
+### Part 2: one sidebar (2026-10-25)
+
+- **Both modes:** Today · Learn · Practice · Progress · Contests, Settings at the bottom; Ctrl+1–5 follow it (`navFor`). In smart mode Learn moved up, so Ctrl+2 and Ctrl+3 swapped once. Beginners still get Contests at step 9 (Recursion), with the New badge, on Ctrl+5. The tray lists the screens in the same order (a test compares `lib.rs` with `navFor`).
+- **Tour v4** (`TOUR_VERSION` 4): smart mode sees it again, in sidebar order (Today → Learn → Practice → Sheets → Progress → Contests); the Learn tip says it moved above Practice.
+- **Decision:** beginners get no tour. Onboarding now drops them straight into Step 1 (Part 3), and every tip would walk them away from it; the sidebar already has labels and a one-line hint per item. The audit's single coach mark can come later.
+
 ## Previous: v1.3, Sheets + Beginner Path + video lessons (branch `v1.3`, released as v1.3.0/v1.3.1)
 
 ### v1.3 Learn: a top-level screen for every lesson (2026-10-18)

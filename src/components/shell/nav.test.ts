@@ -1,14 +1,16 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { ALL_NAV, isNavItemActive, LEGACY_REDIRECTS, legacyLessonRedirect, learnTopicPath, lessonPath, navFor, navItemFor, PRIMARY_NAV } from "./nav";
 
 const rows = (items: ReturnType<typeof navFor>) => items.map((n) => [n.label, n.to, n.shortcut]);
 
-describe("navigation (v1.3: Learn)", () => {
-  it("smart mode: Today · Practice · Learn · Progress · Contests on Ctrl+1–5", () => {
+describe("navigation (v1.4: one order)", () => {
+  it("smart mode: Today · Learn · Practice · Progress · Contests on Ctrl+1–5", () => {
     expect(rows(navFor("smart"))).toEqual([
       ["Today", "/", "1"],
-      ["Practice", "/practice", "2"],
-      ["Learn", "/learn", "3"],
+      ["Learn", "/learn", "2"],
+      ["Practice", "/practice", "3"],
       ["Progress", "/progress", "4"],
       ["Contests", "/contests", "5"],
     ]);
@@ -17,16 +19,18 @@ describe("navigation (v1.3: Learn)", () => {
     expect(navFor("smart").some((n) => n.badge)).toBe(false);
   });
 
-  it("Beginner mode: Today · Learn · Practice · Progress, Contests hidden until the milestone", () => {
-    expect(rows(navFor("beginner"))).toEqual([
-      ["Today", "/", "1"],
-      ["Learn", "/learn", "2"],
-      ["Practice", "/practice", "3"],
-      ["Progress", "/progress", "4"],
-    ]);
+  it("Beginner mode: the same order and shortcuts, Contests hidden until the milestone", () => {
+    expect(rows(navFor("beginner"))).toEqual(rows(navFor("smart")).slice(0, 4));
     const unlocked = navFor("beginner", { contestsUnlocked: true, contestsNew: true });
+    expect(rows(unlocked)).toEqual(rows(navFor("smart")));
     expect(unlocked.slice(-1)[0]).toMatchObject({ label: "Contests", shortcut: "5", badge: "New" });
     expect(navFor("beginner", { contestsUnlocked: true, contestsNew: false }).slice(-1)[0]!.badge).toBeUndefined();
+  });
+
+  it("the tray menu lists the screens in sidebar order", () => {
+    const rs = readFileSync(join(__dirname, "..", "..", "..", "src-tauri", "src", "lib.rs"), "utf8");
+    const tray = [...rs.matchAll(/"go:(\/[a-z]*)"/g)].map((m) => m[1]);
+    expect(tray).toEqual(navFor("smart").map((n) => n.to));
   });
 
   it("gives every screen a one-line description and a unique shortcut", () => {
@@ -61,18 +65,16 @@ describe("navigation (v1.3: Learn)", () => {
   });
 });
 
-describe("tip tour (v1.3)", () => {
-  it("is version 3: beginners meet Learn first and end on Today; smart mode adds Learn after Sheets", async () => {
+describe("tip tour (v1.4)", () => {
+  it("is version 4: smart mode follows the sidebar; beginners get no tour (they start in Step 1)", async () => {
     const { tourSteps, TOUR_VERSION } = await import("./TipTour");
-    expect(TOUR_VERSION).toBe(3);
-    const beginner = tourSteps(navFor("beginner"), "beginner");
-    expect(beginner.map((s) => s.title)).toEqual(["Learn", "Practice", "Progress", "Today"]);
-    expect(beginner[0]!.shortcut).toBe("2");
-    // Contests joins the beginner tour only once it's in the sidebar.
-    expect(tourSteps(navFor("beginner", { contestsUnlocked: true }), "beginner").map((s) => s.title)).toEqual(["Learn", "Practice", "Progress", "Contests", "Today"]);
+    expect(TOUR_VERSION).toBe(4);
+    expect(tourSteps(navFor("beginner"), "beginner")).toEqual([]);
+    expect(tourSteps(navFor("beginner", { contestsUnlocked: true }), "beginner")).toEqual([]);
     const smart = tourSteps(navFor("smart"), "smart");
-    expect(smart.map((s) => s.title)).toEqual(["Today", "Practice", "Sheets", "Learn", "Progress", "Contests"]);
-    expect([smart[2]!.anchor, smart[2]!.to]).toEqual(["/practice", "/practice/sheets"]);
-    for (const s of [...beginner, ...smart]) expect(PRIMARY_NAV.some((n) => n.to === s.anchor)).toBe(true);
+    expect(smart.map((s) => s.title)).toEqual(["Today", "Learn", "Practice", "Sheets", "Progress", "Contests"]);
+    expect(smart.map((s) => s.shortcut)).toEqual(["1", "2", "3", "3", "4", "5"]);
+    expect([smart[3]!.anchor, smart[3]!.to]).toEqual(["/practice", "/practice/sheets"]);
+    for (const s of smart) expect(PRIMARY_NAV.some((n) => n.to === s.anchor)).toBe(true);
   }, 30_000); // TipTour pulls in the data layer on first import
 });

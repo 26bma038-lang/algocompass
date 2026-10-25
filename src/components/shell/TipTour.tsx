@@ -9,8 +9,11 @@ import { useUiStore } from "@/data/uiStore";
 import type { NavItem } from "./nav";
 import { useNav } from "./useNav";
 
-/** Bump to show the tour again after a navigation change. v2 (v1.3): Sheets. v3 (v1.3): Learn. */
-export const TOUR_VERSION = 3;
+/**
+ * Bump to show the tour again after a navigation change. v2 (v1.3): Sheets. v3 (v1.3): Learn.
+ * v4 (v1.4): one sidebar order, Learn above Practice.
+ */
+export const TOUR_VERSION = 4;
 const PREF_KEY = "tipTourSeen";
 
 export interface TourStep {
@@ -26,6 +29,7 @@ export interface TourStep {
 type StepText = Omit<TourStep, "shortcut">;
 
 const TODAY: StepText = { anchor: "/", to: "/", title: "Today", body: "Start here every day. The one problem to do next, today's goals and your rating, so you know what to do in a couple of seconds." };
+const LEARN: StepText = { anchor: "/learn", to: "/learn", title: "Learn", body: "Every video lesson in one place, in English or Hindi, with the topics you're weakest at first. It sits above Practice now: learn a topic, then practise it." };
 const PRACTICE: StepText = { anchor: "/practice", to: "/practice", title: "Practice", body: "When you want more: today's problems, Codeforces problems you didn't finish, and problems for each topic you're working on." };
 const SHEETS: StepText = {
   anchor: "/practice",
@@ -33,22 +37,17 @@ const SHEETS: StepText = {
   title: "Sheets",
   body: "Follow a sheet like Striver's A2Z or NeetCode 150. Problems you solve on LeetCode or Codeforces tick themselves, in every sheet that has them.",
 };
-const LEARN: StepText = { anchor: "/learn", to: "/learn", title: "Learn", body: "Every video lesson in one place, in English or Hindi, with the topics you're weakest at first. The Beginner Path lives here too." };
 const PROGRESS: StepText = { anchor: "/progress", to: "/progress", title: "Progress", body: "How you're doing. Your rating chart, level, weekly goals and activity, your topics, and your achievements, as three tabs." };
 const CONTESTS: StepText = { anchor: "/contests", to: "/contests", title: "Contests", body: "Upcoming Codeforces rounds first, LeetCode contests below. Turn on \"I'll attend\" for a reminder before it starts." };
 
-const B_LEARN: StepText = { ...LEARN, body: "Your lessons live here. Continue learning picks up where you left off, and the Beginner Path's 14 steps take you from loops to dynamic programming, with videos in English or Hindi." };
-const B_TODAY: StepText = { ...TODAY, body: "Come back here every day. Do this next opens your next lesson in one click, with today's goals beside it. Ready? Press it now." };
-const B_PRACTICE: StepText = { ...PRACTICE, to: "/practice/sheets", body: "Sheets like Striver's A2Z for when you want more problems. Problems you solve tick themselves in every sheet that has them." };
-const B_PROGRESS: StepText = { ...PROGRESS, body: "Your level, weekly goals, your topics and your achievements. Contests join the sidebar once you finish the Recursion step." };
-
 /**
- * One step per screen, in the order of that mode's sidebar. Beginners meet Learn first (that's
- * where lessons are); smart mode keeps its order and adds Learn after Sheets.
+ * One step per screen, in sidebar order (smart mode). Beginners get no tour (v1.4): onboarding
+ * takes them straight into Step 1, and a tour would walk them away from it. Their sidebar has
+ * labels and a one-line hint on every item.
  */
 export function tourSteps(nav: readonly NavItem[], mode: "smart" | "beginner"): TourStep[] {
-  const steps = mode === "beginner" ? [B_LEARN, B_PRACTICE, B_PROGRESS, CONTESTS, B_TODAY] : [TODAY, PRACTICE, SHEETS, LEARN, PROGRESS, CONTESTS];
-  return steps.flatMap((st) => {
+  if (mode === "beginner") return [];
+  return [TODAY, LEARN, PRACTICE, SHEETS, PROGRESS, CONTESTS].flatMap((st) => {
     const item = nav.find((n) => n.to === st.anchor);
     return item ? [{ ...st, shortcut: item.shortcut }] : [];
   });
@@ -75,7 +74,7 @@ export function TipTour() {
   // Fixed once the tour opens, so a mode or milestone change mid-tour doesn't reshuffle it.
   const [frozen, setFrozen] = useState<TourStep[]>([]);
   const tour = frozen.length ? frozen : tourSteps(primary, mode);
-  const item = tour[Math.min(step, tour.length - 1)]!;
+  const item = tour[Math.min(step, tour.length - 1)];
 
   useEffect(() => {
     let alive = true;
@@ -90,7 +89,7 @@ export function TipTour() {
 
   // Point at the step's sidebar item; follow the sidebar as it expands or the window resizes.
   useLayoutEffect(() => {
-    if (!open) return;
+    if (!open || !item) return;
     const measure = () => setRect(document.querySelector(`[data-tour="${item.anchor}"]`)?.getBoundingClientRect() ?? null);
     measure();
     const t = window.setTimeout(measure, 320); // after the sidebar's spring settles
@@ -99,7 +98,7 @@ export function TipTour() {
       window.clearTimeout(t);
       window.removeEventListener("resize", measure);
     };
-  }, [open, item.anchor, expanded]);
+  }, [open, item?.anchor, expanded]);
 
   const finish = () => {
     setOpen(false);
@@ -128,7 +127,7 @@ export function TipTour() {
 
   return (
     <AnimatePresence>
-      {open && prefsReady && rect && (
+      {open && prefsReady && rect && item && (
         <>
           {/* The highlighted sidebar item: an accent outline, no dimming (the tour never blocks the app). */}
           <motion.span

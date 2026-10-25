@@ -44,21 +44,20 @@ export const SETTINGS_NAV: NavItem = { to: "/settings", label: "Settings", icon:
 export type NavMode = "smart" | "beginner";
 
 /**
- * The sidebar for a mode, with Ctrl+1… in sidebar order.
- * - Smart: Today · Practice · Learn · Progress · Contests.
- * - Beginner: Today · Learn · Practice · Progress, and Contests once the Beginner Path's Recursion
- *   step is done (`contestsUnlocked`), with a "New" badge until it's been opened (`contestsNew`).
+ * The sidebar, with Ctrl+1… in sidebar order. v1.4: one order in both modes, Today · Learn ·
+ * Practice · Progress · Contests (learn, then practise), so switching modes never moves anything.
+ * Beginner mode adds Contests once the Beginner Path's Recursion step is done (`contestsUnlocked`),
+ * with a "New" badge until it's been opened (`contestsNew`).
  */
 export function navFor(mode: NavMode, opts: { contestsUnlocked?: boolean; contestsNew?: boolean } = {}): NavItem[] {
   const s = SCREENS;
-  const screens: Screen[] =
-    mode === "beginner"
-      ? [s.today, s.learn, s.practice, s.progress, ...(opts.contestsUnlocked ? [{ ...s.contests, badge: opts.contestsNew ? "New" : undefined }] : [])]
-      : [s.today, s.practice, s.learn, s.progress, s.contests];
+  const contests: Screen[] =
+    mode === "smart" ? [s.contests] : opts.contestsUnlocked ? [{ ...s.contests, badge: opts.contestsNew ? "New" : undefined }] : [];
+  const screens: Screen[] = [s.today, s.learn, s.practice, s.progress, ...contests];
   return screens.map((n, i) => ({ ...n, shortcut: String(i + 1) }));
 }
 
-/** Every screen in smart order (shortcuts as in smart mode): for lookups that don't depend on the mode. */
+/** Every screen (shortcuts as in smart mode): for lookups that don't depend on the mode. */
 export const PRIMARY_NAV: NavItem[] = navFor("smart");
 export const ALL_NAV = [...PRIMARY_NAV, SETTINGS_NAV];
 

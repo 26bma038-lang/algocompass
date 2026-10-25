@@ -225,11 +225,11 @@ pub fn run() {
         .setup(|app| {
             let open = MenuItem::with_id(app, "open", "Open AlgoCompass", true, None::<&str>)?;
             let sync = MenuItem::with_id(app, "sync", "Update now", true, None::<&str>)?;
-            // The five screens (v1.3 adds Learn): open the window straight on one of them.
+            // The five screens, in sidebar order (v1.4): open the window straight on one of them.
             let screens = [
                 MenuItem::with_id(app, "go:/", "Today", true, None::<&str>)?,
-                MenuItem::with_id(app, "go:/practice", "Practice", true, None::<&str>)?,
                 MenuItem::with_id(app, "go:/learn", "Learn", true, None::<&str>)?,
+                MenuItem::with_id(app, "go:/practice", "Practice", true, None::<&str>)?,
                 MenuItem::with_id(app, "go:/progress", "Progress", true, None::<&str>)?,
                 MenuItem::with_id(app, "go:/contests", "Contests", true, None::<&str>)?,
             ];

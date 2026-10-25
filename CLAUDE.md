@@ -45,9 +45,8 @@ src-tauri/         Rust side: window, tray, plugin registration, capabilities/pe
 
 ## Screens (v1.3: five screens, Learn added)
 
-The sidebar depends on the mode, and Ctrl+1 to Ctrl+5 follow its order:
-- **Smart mode:** Today · Practice · Learn · Progress · Contests.
-- **Beginner mode:** Today · Learn · Practice · Progress. **Contests** appears only after the "ready for contests" milestone (Beginner Path step 9, Recursion, done; `CONTESTS_MILESTONE_STEP` in `src/engine/learn.ts`). It then shows a "New" badge (a dot when the sidebar is collapsed) until it's first opened (setting `contestsSeen`). The `/contests` route always works (tray, deep links).
+One sidebar order in both modes (v1.4), and Ctrl+1 to Ctrl+5 follow it: **Today · Learn · Practice · Progress · Contests**, Settings at the bottom.
+- **Beginner mode:** the same, except **Contests** appears only after the "ready for contests" milestone (Beginner Path step 9, Recursion, done; `CONTESTS_MILESTONE_STEP` in `src/engine/learn.ts`). It then shows a "New" badge (a dot when the sidebar is collapsed) until it's first opened (setting `contestsSeen`). The `/contests` route always works (tray, deep links).
 
 | Screen | Purpose |
 |---|---|
@@ -64,9 +63,9 @@ The sidebar depends on the mode, and Ctrl+1 to Ctrl+5 follow its order:
 - Nav lives in `src/components/shell/nav.ts`: `SCREENS` (labels, one-line descriptions for the hover hint and the subtitle under each title, `beginnerDescription`), and `navFor(mode, { contestsUnlocked, contestsNew })`, which assigns the shortcuts. Components read it through `useNav()` (`src/components/shell/useNav.ts`): sidebar, shortcuts, shortcut sheet, Ctrl+K and the tour. Path helpers: `lessonPath`, `learnTopicPath`, `watchPath`.
 - Redirects: v1.1 routes (`/skill-tree`, `/quests`, `/achievements`) and `/practice/path` → `/learn` via `LEGACY_REDIRECTS`; `/practice/path/:step` → `/learn/path/:step` (`legacyLessonRedirect`). Keep them. The route table is `routes` in `src/router.tsx` (`getRouter()` creates the hash router); `src/router.test.ts` matches paths against it.
 - **Continue learning** history is the setting `learn` (`src/data/learn.ts`: last lesson, last video, lessons read), in memory during a Debug preview.
-- The sidebar shows labels by default. A one-time tip tour (`TipTour.tsx`, `tourSteps(nav, mode)`, pref `tipTourSeen`) introduces the screens. v3 (v1.3 Learn): beginners get Learn → Practice → Progress → (Contests) → Today, ending on Start here; smart mode gets Today → Practice → Sheets → Learn → Progress → Contests. Bump `TOUR_VERSION` to show it again after a nav change.
+- The sidebar shows labels by default. A one-time tip tour (`TipTour.tsx`, `tourSteps(nav, mode)`, pref `tipTourSeen`) introduces the screens. v4 (v1.4): smart mode gets Today → Learn → Practice → Sheets → Progress → Contests; beginners get no tour (onboarding drops them straight into Step 1). Bump `TOUR_VERSION` to show it again after a nav change.
 - On a lesson page, toasts sit above the sticky flow bar (`Toaster` offset in `AppShell`); never let anything cover the Next button.
-- The tray menu has links to the five screens in smart order (`tray-navigate` event).
+- The tray menu has links to the five screens in sidebar order (`tray-navigate` event).
 
 App-wide: Ctrl+K command palette, Ctrl+R sync, `?` shortcut sheet, Ctrl+B sidebar, Ctrl+Shift+D hidden Debug page (raw tables, ceremony previews, and **Preview a profile**: reloads on the separate `sqlite:algocompass-preview.db`, wiped on entry, with in-memory settings, so a fresh beginner can be tried without touching real data; see `src/lib/sandbox.ts`).
 
