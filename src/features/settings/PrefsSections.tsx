@@ -176,8 +176,8 @@ function NotificationsSection({ prefs }: { prefs: AppPrefs }) {
           </div>
         </ToggleRow>
         <ToggleRow
-          title="Quest complete"
-          hint="When a sync finds you finished one of today's quests."
+          title="Goal complete"
+          hint="When an update finds you finished one of today's goals."
           checked={prefs.notify.quests}
           onChange={(v) => set({ quests: v })}
         />
@@ -202,7 +202,7 @@ function StartupSection() {
       <div className="mt-6 flex flex-col">
         <ToggleRow
           title="Launch on Windows startup"
-          hint={unavailable ? "Only available in the desktop app." : "Starts minimized to the tray, so reminders and syncs keep running."}
+          hint={unavailable ? "Only available in the desktop app." : "Starts minimized to the tray, so reminders and updates keep running."}
           checked={state.data === true}
           disabled={unavailable || state.isLoading || toggle.isPending}
           onChange={(v) => toggle.mutate(v)}

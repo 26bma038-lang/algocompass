@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 const MODES: { id: AppMode; title: string; body: string; icon: typeof Target }[] = [
   { id: "beginner", title: "Beginner", body: "Today leads with the Beginner Path. Handles are optional.", icon: GraduationCap },
-  { id: "smart", title: "Smart", body: "Today leads with your quests, today's mix and your Codeforces rating.", icon: Target },
+  { id: "smart", title: "Smart", body: "Today leads with your next problem, today's goals and your Codeforces rating.", icon: Target },
 ];
 
 /** Mode (Beginner or Smart) and the lesson video language. Both apply right away. */

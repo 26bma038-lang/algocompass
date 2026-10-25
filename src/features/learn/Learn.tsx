@@ -282,7 +282,7 @@ function LibraryCard({ groups }: { groups: TopicGroup[] }) {
   };
   const count = libraryVideoCount(groups);
   const order =
-    mode === "smart" ? (report?.hasData ? " Your weakest topics come first." : " Your weakest topics move to the top after your first sync.") : " Beginner Path topics first, in step order.";
+    mode === "smart" ? (report?.hasData ? " Your weakest topics come first." : " Your weakest topics move to the top after your first update.") : " Beginner Path topics first, in step order.";
   const clear = () => {
     setQuery("");
     setUnwatchedOnly(false);

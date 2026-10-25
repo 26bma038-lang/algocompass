@@ -13,6 +13,8 @@ import { useMixOfTheDay } from "@/data/recommendations";
 import type { QuestState } from "@/engine/quests";
 import { cn } from "@/lib/utils";
 import { QuestBar, QuestRow } from "./QuestList";
+import { LABELS, TERMS } from "@/lib/glossary";
+import { Term } from "@/components/Term";
 
 const plain = (n: number) => String(Math.round(n));
 
@@ -37,16 +39,16 @@ export function TodayQuestsCard() {
   if (isLoading || data === undefined) {
     return (
       <section className="glass-card p-6" aria-busy>
-        <h2 className="font-display text-headline font-semibold text-ink">Today's quests</h2>
-        <p className="mt-1 text-body-sm text-ink-muted">Loading today's quests…</p>
+        <h2 className="font-display text-headline font-semibold text-ink">{LABELS.goals}</h2>
+        <p className="mt-1 text-body-sm text-ink-muted">Loading today's goals…</p>
       </section>
     );
   }
   if (data === null) {
     return (
       <section className="glass-card p-6">
-        <h2 className="font-display text-headline font-semibold text-ink">Today's quests</h2>
-        <p className="mt-1 text-body-sm text-ink-muted">Today's quests are picked from your mix as soon as this sync finishes.</p>
+        <h2 className="font-display text-headline font-semibold text-ink">{LABELS.goals}</h2>
+        <p className="mt-1 text-body-sm text-ink-muted">Today's goals are picked from today's problems as soon as this update finishes.</p>
       </section>
     );
   }
@@ -55,8 +57,8 @@ export function TodayQuestsCard() {
     <section aria-labelledby="quests-title" className="glass-card flex flex-col gap-5 p-6">
       <CardHeader
         id="quests-title"
-        title="Today's quests"
-        description="Picked from today's mix. They check themselves off when a sync sees the accepted submission."
+        title={LABELS.goals}
+        description="Picked from today's problems. They check themselves off when an update sees your accepted solution."
         pill={
           <>
             {all && <Check aria-hidden className="size-3.5 text-success" strokeWidth={2.4} />}
@@ -72,7 +74,7 @@ export function TodayQuestsCard() {
         ))}
       </ul>
       <p className="text-label text-ink-muted">
-        LeetCode only shares your 20 latest solves. If you solved a quest's LeetCode problem earlier, use Mark solved.
+        LeetCode only shares your 20 latest solves. If you solved a goal's LeetCode problem earlier, use Mark solved.
       </p>
     </section>
   );
@@ -83,12 +85,18 @@ export function LevelCard() {
   const lit = data?.level != null;
   return (
     <section aria-labelledby="level-title" className="glass-card flex flex-col gap-4 p-6">
-      <CardHeader id="level-title" title="Level" />
+      <CardHeader id="level-title" title="Level" description={TERMS.level.hint} />
       <p className="flex items-baseline gap-2">
         <span className={cn("numeric font-display text-display leading-none font-semibold", lit ? "text-ink" : "text-ink-faint")}>
           {lit ? <NumberTicker id="level" value={data.level!} format={plain} /> : "–"}
         </span>
-        <span className="text-body-sm text-ink-muted">{lit ? `${data.title} · ${data.totalXp.toLocaleString()} XP` : "Solve a problem to reach level 1"}</span>
+        <span className="text-body-sm text-ink-muted">{lit ? (
+            <>
+              {data.title} · {data.totalXp.toLocaleString()} <Term id="xp" />
+            </>
+          ) : (
+            "Solve a problem to reach level 1"
+          )}</span>
       </p>
       {lit && (
         <div className="flex flex-col gap-1.5">

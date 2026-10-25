@@ -9,7 +9,7 @@ export function AscentBar({ rating }: { rating: number | null }) {
   const next = rating === null ? null : bandForRating(rating).next;
   const label =
     rating === null
-      ? "Rank progress appears after the first sync"
+      ? "Rank progress appears after the first update"
       : next
         ? `${Math.round(progress * 100)}% of the way to ${next.label}`
         : "Top rank reached";

@@ -20,7 +20,7 @@ type Screen = Omit<NavItem, "shortcut">;
 
 /** The five screens (v1.3: Learn joins Today, Practice, Progress and Contests). Plain names. */
 export const SCREENS = {
-  today: { to: "/", label: "Today", icon: Sun, description: "What to do today: quests, today's mix, your streak and rating", beginnerDescription: "Your next lesson on the Beginner Path, and today's quests" },
+  today: { to: "/", label: "Today", icon: Sun, description: "Your next problem, today's goals and your rating", beginnerDescription: "Your next lesson step and today's goals" },
   learn: {
     to: "/learn",
     label: "Learn",
@@ -32,14 +32,14 @@ export const SCREENS = {
     to: "/practice",
     label: "Practice",
     icon: Target,
-    description: "What to solve: today's mix, sheets like Striver A2Z, upsolves and problems by topic",
-    beginnerDescription: "Sheets like Striver A2Z, and today's mix of problems",
+    description: "Problems to solve: today's problems, sheets like Striver A2Z, and more by topic",
+    beginnerDescription: "Problem lists (sheets) like Striver A2Z, and today's problems",
   },
-  progress: { to: "/progress", label: "Progress", icon: LineChart, description: "How you're growing: rating, level, weekly goals, topics and achievements", alsoActiveOn: ["/topics"] },
+  progress: { to: "/progress", label: "Progress", icon: LineChart, description: "How you're doing: rating, level, weekly goals, topics and badges", alsoActiveOn: ["/topics"] },
   contests: { to: "/contests", label: "Contests", icon: CalendarDays, description: "Upcoming rounds, reminders and your past results" },
 } satisfies Record<string, Screen>;
 
-export const SETTINGS_NAV: NavItem = { to: "/settings", label: "Settings", icon: Settings, shortcut: ",", description: "Handles, mode, theme, weekly goals, notifications and startup" };
+export const SETTINGS_NAV: NavItem = { to: "/settings", label: "Settings", icon: Settings, shortcut: ",", description: "Usernames, mode, theme, weekly goals, reminders and startup" };
 
 export type NavMode = "smart" | "beginner";
 

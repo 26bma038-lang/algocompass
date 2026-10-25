@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { LABELS } from "@/lib/glossary";
 import { Command } from "cmdk";
 import { CalendarClock, GraduationCap, Keyboard, ListChecks, Network, PanelLeft, PlayCircle, RefreshCw, Search, Target, Trophy, type LucideIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -83,15 +84,15 @@ export function CommandPalette() {
   };
 
   const entries: Entry[] = [
-    { key: "sync", group: "Actions", icon: RefreshCw, label: "Sync now", kbd: "Ctrl R", keywords: ["refresh", "update"], onSelect: run(() => void useSyncStore.getState().run()) },
-    { key: "mix", group: "Actions", icon: Target, label: "Open today's mix", hint: "Today", keywords: ["problems", "daily"], onSelect: run(() => navigate("/")) },
+    { key: "sync", group: "Actions", icon: RefreshCw, label: LABELS.updateNow, kbd: "Ctrl R", keywords: ["refresh", "sync"], onSelect: run(() => void useSyncStore.getState().run()) },
+    { key: "mix", group: "Actions", icon: Target, label: "Open today's problems", hint: "Practice", keywords: ["problems", "daily", "mix"], onSelect: run(() => navigate("/practice/mix")) },
     ...(nextContest
       ? [{ key: "contest", group: "Actions" as const, icon: CalendarClock, label: "Open next contest", hint: shortName(nextContest), keywords: ["round", "register", "codeforces"], onSelect: run(() => openExternal(nextContest.url)) }]
       : []),
     { key: "keys", group: "Actions", icon: Keyboard, label: "Keyboard shortcuts", kbd: "?", keywords: ["help", "keys"], onSelect: run(() => setShortcuts(true)) },
     { key: "sidebar", group: "Actions", icon: PanelLeft, label: "Toggle sidebar", kbd: "Ctrl B", onSelect: run(toggleSidebar) },
     ...nav.map((n): Entry => ({ key: n.to, group: "Screens", icon: n.icon, label: n.label, kbd: keyLabel(n.shortcut), keywords: ["go", "screen", ...(SCREEN_KEYWORDS[n.to] ?? [])], onSelect: run(() => navigate(n.to)) })),
-    { key: "tab-topics", group: "Screens", icon: Network, label: "Topics map", hint: "Progress", keywords: ["skill tree", "graph", "mastery"], onSelect: run(() => navigate("/progress/topics")) },
+    { key: "tab-topics", group: "Screens", icon: Network, label: LABELS.topics, hint: "Progress", keywords: ["skill tree", "graph", "mastery", "map"], onSelect: run(() => navigate("/progress/topics")) },
     { key: "tab-achievements", group: "Screens", icon: Trophy, label: "Achievements", hint: "Progress", keywords: ["badges", "unlocks", "level", "xp"], onSelect: run(() => navigate("/progress/achievements")) },
     { key: "tab-sheets", group: "Screens", icon: ListChecks, label: "Sheets", hint: "Practice", keywords: ["striver", "a2z", "sde", "neetcode", "blind 75", "babbar", "450", "list"], onSelect: run(() => navigate("/practice/sheets")) },
     { key: "tab-path", group: "Screens", icon: GraduationCap, label: "Beginner Path", hint: "Learn", keywords: ["lessons", "videos", "start", "beginner", "steps"], onSelect: run(() => navigate("/learn")) },

@@ -184,7 +184,7 @@ export function useQuestWatcher() {
         if (prefs.notify.quests) {
           const doneNow = data.quests.filter((q) => q.done).length;
           for (const q of fresh) {
-            void notify(`Quest complete: +${q.xp} XP`, `${q.title}. ${doneNow} of ${data.total} quests done today.`);
+            void notify(`Goal complete: +${q.xp} XP`, `${q.title}. ${doneNow} of ${data.total} of today's goals done.`);
           }
         }
         await client.invalidateQueries({ queryKey: ["db", "quests"] });
@@ -245,7 +245,7 @@ export function useMarkSolved() {
       await refresh();
       toast(`Marked ${m.title} as solved`, {
         id: `manual-${m.platform}-${m.problemId}`,
-        description: "It counts for today's quests and won't be recommended again.",
+        description: "It counts for today's goals and won't be recommended again.",
         action: {
           label: "Undo",
           onClick: () => {

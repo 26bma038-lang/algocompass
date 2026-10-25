@@ -224,7 +224,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![set_reminders, set_tray_status])
         .setup(|app| {
             let open = MenuItem::with_id(app, "open", "Open AlgoCompass", true, None::<&str>)?;
-            let sync = MenuItem::with_id(app, "sync", "Sync now", true, None::<&str>)?;
+            let sync = MenuItem::with_id(app, "sync", "Update now", true, None::<&str>)?;
             // The five screens (v1.3 adds Learn): open the window straight on one of them.
             let screens = [
                 MenuItem::with_id(app, "go:/", "Today", true, None::<&str>)?,
@@ -234,7 +234,7 @@ pub fn run() {
                 MenuItem::with_id(app, "go:/contests", "Contests", true, None::<&str>)?,
             ];
             // Informational line, updated by the frontend.
-            let status = MenuItem::with_id(app, "status", "Quests: after the first sync", false, None::<&str>)?;
+            let status = MenuItem::with_id(app, "status", "Goals: after the first update", false, None::<&str>)?;
             let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
             let menu = Menu::with_items(
                 app,

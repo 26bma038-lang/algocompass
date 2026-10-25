@@ -126,7 +126,7 @@ export function Achievements() {
     return (
       <EmptyState icon={Trophy} title="Nothing unlocked yet">
         Achievements mark real milestones: rank promotions, long streaks, topics mastered. Your level and every unlock collect here after
-        the first sync, counted from your whole history.
+        the first update, counted from your whole history.
       </EmptyState>
     );
   }

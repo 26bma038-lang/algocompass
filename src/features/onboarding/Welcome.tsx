@@ -356,7 +356,7 @@ export function Welcome() {
               )}
             </Button>
             <span className="text-body-sm text-ink-faint">
-              {beginner ? "Takes you straight to Step 1." : mode === "smart" ? "We check that the handles exist before syncing." : "You can change this later in Settings."}
+              {beginner ? "Takes you straight to Step 1." : mode === "smart" ? "We check that the usernames exist, then fetch your history." : "You can change this later in Settings."}
             </span>
           </div>
         </form>
@@ -364,14 +364,14 @@ export function Welcome() {
         <section className="glass-card flex flex-col gap-4 p-6" aria-labelledby="first-sync-title">
           <div className="flex flex-col gap-1">
             <h2 id="first-sync-title" className="font-display text-headline font-semibold text-ink">
-              {phase === "syncing" ? "Fetching your history…" : cfFailed ? "The first sync didn't finish" : "All set"}
+              {phase === "syncing" ? "Fetching your history…" : cfFailed ? "The first update didn't finish" : "All set"}
             </h2>
             <p className="text-body-sm text-ink-muted">
               {phase === "syncing"
                 ? "About a minute the first time: Codeforces allows one request every two seconds, and the problemset is large."
                 : cfFailed
                   ? `${lastResult?.cf.errors[0] ?? "Codeforces didn't answer."} Your handles are saved; try again, or continue and it retries on its own.`
-                  : "Your stats are in. From now on AlgoCompass syncs on its own every two hours."}
+                  : "Your stats are in. From now on AlgoCompass updates on its own every two hours."}
             </p>
           </div>
           <SyncProgress withLc={lcHandle.trim() !== ""} />
@@ -380,7 +380,7 @@ export function Welcome() {
               <Button onClick={enter}>Open Today</Button>
               {cfFailed && (
                 <Button variant="outline" onClick={() => void useSyncStore.getState().run()}>
-                  Try the sync again
+                  Try the update again
                 </Button>
               )}
             </div>

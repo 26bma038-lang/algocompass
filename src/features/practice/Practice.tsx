@@ -1,4 +1,5 @@
 import { Suspense, useState, type ReactNode } from "react";
+import { LABELS } from "@/lib/glossary";
 import { Outlet } from "react-router-dom";
 import { RefreshCw, Target } from "lucide-react";
 import { CardHeader, Pill } from "@/components/CardHeader";
@@ -62,7 +63,7 @@ function MixCard({ mix, rec }: { mix: MixOfTheDay; rec: Recommender }) {
     <section aria-labelledby="mix-title" className="glass-card flex flex-col gap-6 p-6">
       <CardHeader
         id="mix-title"
-        title="Today's mix"
+        title={LABELS.todaysProblems}
         description={
           <>
             {cf.length > 0 && `${cf.length} Codeforces ${cf.length === 1 ? "problem" : "problems"} to sharpen your weakest topics`}
@@ -83,7 +84,7 @@ function MixCard({ mix, rec }: { mix: MixOfTheDay; rec: Recommender }) {
             )}
             <Button variant="outline" size="sm" onClick={() => reshuffle.mutate()} disabled={reshuffle.isPending}>
               <RefreshCw aria-hidden className={cn(reshuffle.isPending && "animate-spin")} />
-              New mix
+              {LABELS.newSet}
             </Button>
           </>
         }
@@ -91,7 +92,7 @@ function MixCard({ mix, rec }: { mix: MixOfTheDay; rec: Recommender }) {
 
       {items.length === 0 ? (
         <p className="text-body-sm text-ink-muted">
-          Nothing left to recommend in your current ranges. Mark a few problems too easy or too hard, or sync to pick up new Codeforces problems.
+          Nothing left to recommend in your current ranges. Mark a few problems too easy or too hard, or update to pick up new Codeforces problems.
         </p>
       ) : (
         <div className="flex flex-col gap-5">
@@ -126,7 +127,7 @@ function MixCard({ mix, rec }: { mix: MixOfTheDay; rec: Recommender }) {
         </div>
       )}
       <p className="text-label text-ink-muted">
-        Problems you solve are checked off after the next sync. LeetCode only shares your 20 most recent solves, so use Mark solved for
+        Problems you solve are checked off after the next update. LeetCode only shares your 20 most recent solves, so use Mark solved for
         anything you solved long ago.
       </p>
     </section>
@@ -141,7 +142,7 @@ function UpsolveCard({ rec }: { rec: Recommender }) {
     <section aria-labelledby="upsolve-title" className="glass-card flex flex-col gap-4 p-6">
       <CardHeader
         id="upsolve-title"
-        title="Upsolve"
+        title={LABELS.unfinished}
         description="Codeforces problems you tried and never got accepted, easiest first."
         pill={list.length > 0 ? `${list.length} open` : undefined}
       />
@@ -244,9 +245,9 @@ export function PracticeMix() {
   if (report.isLoading || rec.isLoading) return <p className="text-body-sm text-ink-muted">Picking your problems…</p>;
   if (!report.data?.hasData || !rec.data) {
     return (
-      <EmptyState icon={Target} title="Recommendations appear after the first sync">
+      <EmptyState icon={Target} title="Recommendations appear after the first update">
         AlgoCompass picks Codeforces problems just above your rating and LeetCode problems for topics you haven't learned yet, from your own
-        history. Add your handles in Settings, and they show up here once the first sync finishes.
+        history. Add your usernames in Settings, and they show up here once the first update finishes.
       </EmptyState>
     );
   }
@@ -259,8 +260,8 @@ export function PracticeMix() {
           <MixCard mix={mix.data} rec={rec.data} />
         ) : (
           <section className="glass-card flex flex-col gap-1 p-6" aria-busy={mix.isLoading || mix.data === null}>
-            <h2 className="font-display text-headline font-semibold text-ink">Today's mix</h2>
-            <p className="text-body-sm text-ink-muted">{mix.data === null ? "Picked as soon as this sync finishes, so it's built on your latest solves." : "Picking today's problems…"}</p>
+            <h2 className="font-display text-headline font-semibold text-ink">{LABELS.todaysProblems}</h2>
+            <p className="text-body-sm text-ink-muted">{mix.data === null ? "Picked as soon as this update finishes, so it's built on your latest solves." : "Picking today's problems…"}</p>
           </section>
         )}
       </div>
@@ -284,10 +285,10 @@ export function Practice() {
   const tabs = beginner
     ? [
         { to: "/practice/sheets", label: "Sheets" },
-        { to: "/practice/mix", label: "Today's mix" },
+        { to: "/practice/mix", label: LABELS.todaysProblems },
       ]
     : [
-        { to: "/practice", label: "Today's mix", end: true },
+        { to: "/practice", label: LABELS.todaysProblems, end: true },
         { to: "/practice/sheets", label: "Sheets" },
       ];
   return (

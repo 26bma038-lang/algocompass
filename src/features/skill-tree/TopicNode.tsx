@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { LABELS } from "@/lib/glossary";
 import { Handle, Position, type Node, type NodeProps } from "@xyflow/react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Crosshair, Lock } from "lucide-react";
@@ -45,7 +46,7 @@ function TopicNodeView({ data }: NodeProps<TopicFlowNode>) {
   const lit = data.status === "Strong" || data.status === "Mastered";
   const scored = !locked && !untouched;
   const unlocking = data.changedFrom !== null && isPromotion(data.changedFrom, data.status) && !reduce;
-  const word = data.blindSpot && untouched ? "Blind spot" : STATUS_WORD[data.status];
+  const word = data.blindSpot && untouched ? LABELS.notTriedShort : STATUS_WORD[data.status];
   const label = `${data.name}: ${word}${scored ? `, ${data.score} of 100` : ""}${data.workOnNext ? ", work on next" : ""}`;
 
   return (

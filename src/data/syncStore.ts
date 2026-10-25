@@ -90,7 +90,7 @@ export const useSyncStore = create<SyncState>((set, get) => ({
       for (const p of [result.cf, result.lc]) {
         // Offline isn't an error worth a toast: the top bar says "Offline, will retry".
         if (!p.ok && !p.offline) {
-          toast.error(`${PLATFORM_NAME[p.platform]} sync failed`, {
+          toast.error(`${PLATFORM_NAME[p.platform]} update failed`, {
             id: `sync-${p.platform}`,
             description: p.errors[0] ?? "Unknown error",
           });
@@ -99,7 +99,7 @@ export const useSyncStore = create<SyncState>((set, get) => ({
       if (result.cf.offline || result.lc.offline) scheduleOfflineRetry(() => void get().run());
       await queryClient.invalidateQueries({ queryKey: ["db"] });
     } catch (e) {
-      toast.error("Sync couldn't start", { id: "sync-start", description: (e as Error).message });
+      toast.error("The update couldn't start", { id: "sync-start", description: (e as Error).message });
     } finally {
       set({ syncing: false });
     }

@@ -68,7 +68,7 @@ export function TopicRecommendations({ topicId }: { topicId: string }) {
   const { data: rec, isLoading } = useRecommender();
   const plan = rec?.plans.get(topicId);
   if (isLoading) return <p className="text-body-sm text-ink-muted">Picking problems…</p>;
-  if (!rec || !plan) return <p className="text-body-sm text-ink-muted">Recommendations appear after the first sync.</p>;
+  if (!rec || !plan) return <p className="text-body-sm text-ink-muted">Recommendations appear after the first update.</p>;
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col items-start gap-2">

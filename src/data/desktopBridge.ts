@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { LABELS } from "@/lib/glossary";
 import { useQuery } from "@tanstack/react-query";
 import { useStreak } from "@/components/shell/useStreak";
 import { buildSchedule, streakCheckAt } from "@/engine/notifications";
@@ -71,7 +72,7 @@ export function useDesktopBridge() {
   }, [tick, prefs, streak]);
 
   useEffect(() => {
-    void setTrayStatus(quests ? `Quests ${quests.done}/${quests.total}` : "Quests: after the first sync");
+    void setTrayStatus(quests ? `${LABELS.goalsShort} ${quests.done}/${quests.total}` : `${LABELS.goalsShort}: after ${LABELS.firstUpdate}`);
   }, [quests?.done, quests?.total]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => onTraySync(() => void useSyncStore.getState().run()), []);

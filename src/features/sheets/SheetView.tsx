@@ -506,7 +506,7 @@ function SheetBody({ view }: { view: View }) {
                 {progress.done} of {progress.total} problems done
                 {progress.done > 0 &&
                   ` (${[
-                    progress.bySource.auto && `${progress.bySource.auto} synced`,
+                    progress.bySource.auto && `${progress.bySource.auto} from your solves`,
                     progress.bySource.manual && `${progress.bySource.manual} by hand`,
                     progress.bySource.bulk && `${progress.bySource.bulk} imported`,
                   ]

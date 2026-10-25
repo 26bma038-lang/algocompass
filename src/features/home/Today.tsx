@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { LABELS } from "@/lib/glossary";
 import { Check, Flame } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CardHeader, Pill } from "@/components/CardHeader";
@@ -122,7 +123,7 @@ function HeroCard({ cf, solved, history, nextCf }: { cf: CfUser | null; solved: 
             </span>
           </div>
         ) : (
-          <p className="text-body-sm text-ink-muted">{cf ? "Unrated" : "Not synced yet"}</p>
+          <p className="text-body-sm text-ink-muted">{cf ? "Unrated" : LABELS.notUpdated}</p>
         )}
       </div>
       <div className="flex min-w-0 flex-col gap-2">
@@ -192,7 +193,7 @@ function TodayCard({ withStreak = true }: { withStreak?: boolean }) {
       {/* Inline header (not CardHeader): its 256px title minimum would push the pill under the title in 5 columns. */}
       <div className="flex items-center justify-between gap-3">
         <h2 id="today-title" className="font-display text-headline font-semibold text-ink">
-          Today's quests
+          {LABELS.goals}
         </h2>
         {data && (
           <Pill>
@@ -221,7 +222,7 @@ function TodayCard({ withStreak = true }: { withStreak?: boolean }) {
             <span className="numeric font-display text-title font-semibold text-ink">{streak ? streak.current : "–"}</span>
             <span className="text-ink-muted"> day streak, </span>
             {!streak ? (
-              <span className="text-ink-muted">waiting for the first sync</span>
+              <span className="text-ink-muted">waiting for the first update</span>
             ) : state === "lit" ? (
               <span className="text-ink">practiced today ({plural(streak.todayCount, "solve")})</span>
             ) : (
@@ -237,7 +238,7 @@ function TodayCard({ withStreak = true }: { withStreak?: boolean }) {
           ))}
         </ul>
       ) : (
-        <p className="text-body-sm text-ink-muted">Today's quests appear after the first sync.</p>
+        <p className="text-body-sm text-ink-muted">Today's goals appear after the first update.</p>
       )}
     </section>
   );
@@ -252,7 +253,7 @@ function TodayMixCard() {
     <section aria-labelledby="mix-title" className="glass-card flex h-full flex-col gap-3 p-6">
       <CardHeader
         id="mix-title"
-        title="Today's mix"
+        title={LABELS.todaysProblems}
         description="Codeforces to sharpen, LeetCode to learn. The same set until midnight."
         pill={items.length > 0 ? `${done}/${items.length} solved` : undefined}
       />
@@ -264,7 +265,7 @@ function TodayMixCard() {
         </ul>
       ) : (
         <p className="text-body-sm text-ink-muted">
-          {mix.isLoading ? "Picking today's problems…" : "Today's mix is picked as soon as your first sync finishes."}
+          {mix.isLoading ? "Picking today's problems…" : "Today's problems are picked as soon as your first update finishes."}
         </p>
       )}
       <Link to="/practice" className="mt-auto self-start text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
@@ -327,7 +328,7 @@ function LcCard({ lc }: { lc: LcStatsRow }) {
           <span className="numeric font-display text-display leading-none font-semibold text-ink">
             {lc ? <NumberTicker id="lc-solved" value={lc.all_solved} format={plain} /> : "–"}
           </span>
-          <span className="text-body-sm text-ink-muted">{lc ? "solved" : "Not synced yet"}</span>
+          <span className="text-body-sm text-ink-muted">{lc ? "solved" : LABELS.notUpdated}</span>
         </p>
         {lc && (
           <dl className="flex gap-4">

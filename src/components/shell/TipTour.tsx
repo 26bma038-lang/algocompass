@@ -25,8 +25,8 @@ export interface TourStep {
 
 type StepText = Omit<TourStep, "shortcut">;
 
-const TODAY: StepText = { anchor: "/", to: "/", title: "Today", body: "Start here every day. Today's quests, today's mix and your streak are at the top, so you know what to do in a couple of seconds." };
-const PRACTICE: StepText = { anchor: "/practice", to: "/practice", title: "Practice", body: "When you want more: today's mix with feedback, Codeforces problems to upsolve, and problems for each topic you're working on." };
+const TODAY: StepText = { anchor: "/", to: "/", title: "Today", body: "Start here every day. The one problem to do next, today's goals and your rating, so you know what to do in a couple of seconds." };
+const PRACTICE: StepText = { anchor: "/practice", to: "/practice", title: "Practice", body: "When you want more: today's problems, Codeforces problems you didn't finish, and problems for each topic you're working on." };
 const SHEETS: StepText = {
   anchor: "/practice",
   to: "/practice/sheets",
@@ -34,13 +34,13 @@ const SHEETS: StepText = {
   body: "Follow a sheet like Striver's A2Z or NeetCode 150. Problems you solve on LeetCode or Codeforces tick themselves, in every sheet that has them.",
 };
 const LEARN: StepText = { anchor: "/learn", to: "/learn", title: "Learn", body: "Every video lesson in one place, in English or Hindi, with the topics you're weakest at first. The Beginner Path lives here too." };
-const PROGRESS: StepText = { anchor: "/progress", to: "/progress", title: "Progress", body: "How you're growing. Your rating chart, level and weekly goals, the Topics map, and your achievements, as three tabs." };
+const PROGRESS: StepText = { anchor: "/progress", to: "/progress", title: "Progress", body: "How you're doing. Your rating chart, level, weekly goals and activity, your topics, and your achievements, as three tabs." };
 const CONTESTS: StepText = { anchor: "/contests", to: "/contests", title: "Contests", body: "Upcoming Codeforces rounds first, LeetCode contests below. Turn on \"I'll attend\" for a reminder before it starts." };
 
 const B_LEARN: StepText = { ...LEARN, body: "Your lessons live here. Continue learning picks up where you left off, and the Beginner Path's 14 steps take you from loops to dynamic programming, with videos in English or Hindi." };
-const B_TODAY: StepText = { ...TODAY, body: "Come back here every day. Start here opens your next lesson in one click, with today's quests beside it. Ready? Press it now." };
+const B_TODAY: StepText = { ...TODAY, body: "Come back here every day. Do this next opens your next lesson in one click, with today's goals beside it. Ready? Press it now." };
 const B_PRACTICE: StepText = { ...PRACTICE, to: "/practice/sheets", body: "Sheets like Striver's A2Z for when you want more problems. Problems you solve tick themselves in every sheet that has them." };
-const B_PROGRESS: StepText = { ...PROGRESS, body: "Your level, weekly goals, the Topics map and your achievements. Contests join the sidebar once you finish the Recursion step." };
+const B_PROGRESS: StepText = { ...PROGRESS, body: "Your level, weekly goals, your topics and your achievements. Contests join the sidebar once you finish the Recursion step." };
 
 /**
  * One step per screen, in the order of that mode's sidebar. Beginners meet Learn first (that's

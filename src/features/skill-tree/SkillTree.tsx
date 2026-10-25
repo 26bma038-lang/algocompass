@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { LABELS } from "@/lib/glossary";
 import { Link, useLocation } from "react-router-dom";
 import {
   Background,
@@ -86,7 +87,7 @@ const FILTERS: { id: TreeFilter; label: string; hint: string }[] = [
   { id: "all", label: "All", hint: "Every topic" },
   { id: "unlocked", label: "Unlocked", hint: "Every topic except Locked ones" },
   { id: "weak", label: "Weak", hint: `Practiced but under ${STATUS_THRESHOLDS.strong}: Weak and Developing` },
-  { id: "blind", label: "Blind spots", hint: "Never solved, but common at your rating" },
+  { id: "blind", label: LABELS.notTriedShort, hint: `${LABELS.notTried}: never solved, but common at your rating` },
 ];
 
 const plateCls = "rounded-md border border-glass-border bg-abyss-raised/90 shadow-slab";
@@ -576,7 +577,7 @@ export function SkillTree() {
           }
         >
           Every topic you've practiced on Codeforces and LeetCode becomes a node, with a mastery ring
-          that fills as the topic gets stronger. Nodes unlock after the first sync.
+          that fills as the topic gets stronger. Nodes unlock after the first update.
         </EmptyState>
         <LockedTree />
       </div>

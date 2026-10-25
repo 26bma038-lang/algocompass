@@ -74,7 +74,7 @@ function ConnectCard() {
         <Link to="/settings" className="text-ink underline decoration-glass-border-strong underline-offset-4">
           Settings
         </Link>{" "}
-        and every lesson problem you solve there is ticked after the next sync. Until then, tick them by hand in each lesson.
+        and every lesson problem you solve there is ticked after the next update. Until then, tick them by hand in each lesson.
       </p>
     </section>
   );

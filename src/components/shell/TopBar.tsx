@@ -1,4 +1,5 @@
 import { Link, useLocation, useMatches, type Params, useNavigate } from "react-router-dom";
+import { LABELS, updatedAgo } from "@/lib/glossary";
 import { hasAnyHandle, useHandles } from "@/data/settings";
 import { useEffect, useState } from "react";
 import { AlertTriangle, Check, CloudOff, Flame, RefreshCw, ScrollText, Search } from "lucide-react";
@@ -105,7 +106,7 @@ function QuestChip() {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Link to="/" aria-label={`Quests: ${data.done} of ${data.total} done today. Open Today`} className={chipLink}>
+        <Link to="/" aria-label={`${LABELS.goals}: ${data.done} of ${data.total} done. Open Today`} className={chipLink}>
           {all ? (
             <Check aria-hidden className="size-4 text-success" strokeWidth={2.4} />
           ) : (
@@ -116,7 +117,7 @@ function QuestChip() {
           </span>
         </Link>
       </TooltipTrigger>
-      <TooltipContent side="bottom">{all ? "All of today's quests done" : `${data.done} of ${data.total} quests done today`}</TooltipContent>
+      <TooltipContent side="bottom">{all ? "All of today's goals done" : `${data.done} of ${data.total} of today's goals done`}</TooltipContent>
     </Tooltip>
   );
 }
@@ -161,7 +162,7 @@ function LevelBadge({ xp }: { xp: XpSummary | undefined }) {
       </TooltipTrigger>
       <TooltipContent side="bottom" align="end" className="w-[240px] p-3">
         {!hasData ? (
-          "Solve problems and finish quests to earn XP"
+          "Solve problems and finish goals to earn XP"
         ) : (
           <div className="flex flex-col gap-2">
             <div className="flex items-baseline justify-between gap-2">
@@ -183,7 +184,7 @@ function LevelBadge({ xp }: { xp: XpSummary | undefined }) {
                 <span className="numeric font-semibold text-ink">+{xp!.todayTotal} XP</span>
               </span>
               {xp!.today.length === 0 ? (
-                <span className="text-label text-ink-faint">Nothing yet. A solve or a quest earns XP.</span>
+                <span className="text-label text-ink-faint">Nothing yet. A solve or a goal earns XP.</span>
               ) : (
                 xp!.today.map((t) => (
                   <span key={t.kind} className="flex justify-between text-label text-ink-muted">
@@ -228,18 +229,18 @@ function SyncButton() {
   const offline = platforms.filter((p) => p.offline);
 
   const label = {
-    syncing: "Syncing…",
-    idle: "Not synced",
+    syncing: LABELS.updating,
+    idle: LABELS.notUpdated,
     offline: "Offline, will retry",
-    partial: "Sync incomplete",
-    ok: lastFinishedAt === null ? "Synced" : `Synced ${relativeTime(lastFinishedAt, nowMs)}`,
+    partial: "Update incomplete",
+    ok: lastFinishedAt === null ? LABELS.updated : updatedAgo(relativeTime(lastFinishedAt, nowMs)),
   }[status];
   const tip = {
     syncing: "Fetching Codeforces and LeetCode",
-    idle: "Sync now",
+    idle: LABELS.updateNow,
     offline: `Couldn't reach ${names(offline)}. Showing saved data. Retrying when you're back online, or click to retry now`,
     partial: `${names(failed)} failed. Click to retry`,
-    ok: "Sync now",
+    ok: `${LABELS.updateNow}: fetch your latest solves`,
   }[status];
 
   // Beginner mode with no handles: nothing to sync, so point at where to add one instead.
@@ -285,7 +286,7 @@ function SyncButton() {
           )}
           <span>{label}</span>
           <span className="sr-only" aria-live="polite">
-            {{ syncing: "Syncing", idle: "", offline: "Offline. Showing saved data, will retry", partial: "Sync incomplete", ok: "Sync complete" }[status]}
+            {{ syncing: LABELS.updating, idle: "", offline: "Offline. Showing saved data, will retry", partial: "Update incomplete", ok: "Update complete" }[status]}
           </span>
         </button>
       </TooltipTrigger>

@@ -37,7 +37,7 @@ export function generateQuests(mix: readonly QuestMixItem[], topicName: (id: str
   const out: QuestSpec[] = [];
   const cf = mix.find((m) => m.platform === "cf");
   if (cf) {
-    const rated = cf.rating !== null ? ` rated ${cf.rating}+` : "";
+    const rated = cf.rating !== null ? ` of difficulty ${cf.rating}+` : "";
     out.push({
       id: "cf_topic",
       kind: "cf_topic",

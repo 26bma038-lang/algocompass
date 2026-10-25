@@ -2,6 +2,7 @@ import { useId } from "react";
 import { ArrowDown, ArrowUp, ExternalLink, Swords } from "lucide-react";
 import { CardHeader } from "@/components/CardHeader";
 import { EmptyState } from "@/components/EmptyState";
+import { ContestName } from "@/components/Term";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { formatDuration, useContestsData, useSetAttending, type PastContest } from "@/data/contests";
@@ -58,7 +59,7 @@ function NextRound({ c, attending, nowMs }: { c: Contest; attending: boolean; no
           Next Codeforces round
         </span>
         <h2 id="next-round" className="font-display text-headline font-semibold text-ink">
-          {shortName(c)}
+          <ContestName name={shortName(c)} />
         </h2>
         <Meta c={c} />
       </div>
@@ -84,7 +85,9 @@ function ContestRow({ c, attending, nowMs }: { c: Contest; attending: boolean; n
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="flex items-center gap-2 text-body text-ink">
           <span aria-hidden className={cn("size-1.5 shrink-0 rounded-full", dot(c.platform))} />
-          <span className="truncate">{shortName(c)}</span>
+          <span className="truncate">
+            <ContestName name={shortName(c)} />
+          </span>
         </span>
         <Meta c={c} />
       </span>
@@ -103,7 +106,7 @@ function UpcomingList({ title, contests, attending, nowMs, note }: { title: stri
     <section aria-labelledby={headingId} className="glass-card flex flex-col gap-4 p-6">
       <CardHeader id={headingId} title={title} description={note} pill={contests.length > 0 ? `${contests.length} upcoming` : undefined} />
       {contests.length === 0 ? (
-        <p className="text-body-sm text-ink-muted">Nothing else is scheduled yet. New rounds appear after the next sync.</p>
+        <p className="text-body-sm text-ink-muted">Nothing else is scheduled yet. New rounds appear after the next update.</p>
       ) : (
         <ul className="flex flex-col">
           {contests.map((c) => (
@@ -178,7 +181,7 @@ function PastList({ past }: { past: PastContest[] }) {
         </table>
       )}
       <p className="text-label text-ink-muted">
-        After a Codeforces round you took part in, the problems just past what you solved go to Upsolve in Practice.
+        After a Codeforces round you took part in, the problems just past what you solved go to Unfinished problems in Practice.
       </p>
     </section>
   );
@@ -192,7 +195,7 @@ export function Contests() {
   if (!data || (data.upcoming.length === 0 && data.past.length === 0)) {
     return (
       <EmptyState icon={Swords} title="No contests loaded">
-        Upcoming Codeforces rounds are listed here first, with LeetCode weekly and biweekly contests below them. They appear after the first sync.
+        Upcoming Codeforces rounds are listed here first, with LeetCode weekly and biweekly contests below them. They appear after the first update.
       </EmptyState>
     );
   }

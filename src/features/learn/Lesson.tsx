@@ -108,7 +108,7 @@ function SolveCard({ step, view, focusKey }: { step: PathStep; view: PathView; f
       <CardHeader
         id="solve-title"
         title="3. Solve"
-        description="Easy problems, in order. Solve them on LeetCode and they tick themselves after the next sync. Solved one somewhere else? Tick it here."
+        description="Easy problems, in order. Solve each one on LeetCode, then tick it here."
         pill={`${s.requiredDone}/${s.required} required`}
       />
       <ul className="-mx-3 flex flex-col">

@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import { Term } from "@/components/Term";
+import { LABELS } from "@/lib/glossary";
 import { useUiStore } from "@/data/uiStore";
 import type { TopicReport } from "@/engine/report";
 import type { StandingItem } from "@/engine/standing";
@@ -58,16 +60,18 @@ export function StandingCard({ report }: { report: TopicReport | undefined }) {
         <h2 id="standing-title" className="font-display text-headline font-semibold text-ink">
           Where you stand
         </h2>
-        <span className="text-label text-ink-muted">Strength / 100</span>
+        <span className="text-label text-ink-muted">
+          <Term id="strength" /> / 100
+        </span>
       </div>
       {!report ? (
-        <p className="text-body-sm text-ink-muted">Topic strengths appear after the first sync.</p>
+        <p className="text-body-sm text-ink-muted">Topic strengths appear after the first update.</p>
       ) : (
         <>
           <Group title="Strongest" items={report.standing.strengths} empty="Nothing strong yet" />
           <Group title="Work on next" items={report.standing.weaknesses} empty="No weak spots found" />
           <Group
-            title="Blind spots at your rating"
+            title={`${LABELS.notTried} (common at your rating)`}
             items={report.standing.blindSpots}
             empty="None. You've tried everything common at your rating."
             untried

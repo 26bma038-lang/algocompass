@@ -11,6 +11,14 @@ Not released. The plan is `docs/audit-v1.4/AUDIT.md`; screenshots are in `docs/a
 - **Checked:** `npm test` 389 pass. Real Tauri window with your data (backup first: `algocompass.db.bak-v1.4` plus its `-wal`/`-shm`, and `settings.json.bak-v1.4`): an update finished with every step ok, Today's Codeforces card shows **Solved 73**, and all 9 past rounds have solve counts. Your DB had 122 CF submissions before and after, so the "Solved 0" in the audit was the browser run's empty answer, which this now retries. Screenshot: `after-part0-real-smart-today.png`.
 - **Decision:** a rated round whose `contest.status` stays empty is retried on every update (the results step shows an error). That's honest; the alternative, guessing "0 solved", would be a fabricated number.
 
+### Part 1: plain language everywhere (2026-10-25)
+
+- **One glossary:** `src/lib/glossary.ts` holds the labels (`LABELS`), the explained terms (`TERMS`) and the retired names (`RETIRED`). Screens, Ctrl+K, the shortcut sheet, the tray, toasts and notifications read from it.
+- **Renamed:** quests → **Today's goals** (and "Goal complete" notifications, the "First Goal" badge), Today's mix → **Today's problems** ("New mix" → "New set"), Upsolve → **Unfinished problems**, Sync → **Update** ("Update now", "Updated 5m ago", "after the first update"; the tray says "Update now" and "Goals 1/3"), blind spots → **Topics you haven't tried** ("Not tried yet" on the map's filter and nodes), Topics map → **Topics**. Quest titles say "of difficulty 1100+" instead of "rated 1100+". Handles are "usernames" in the nav hints.
+- **Terms explained:** `<Term>` (`src/components/Term.tsx`) is a dotted underline with a one-line tooltip from the glossary: XP (Level card), Level, Strength (Where you stand, the Topic panel), Div. 2 (every contest name on Contests, via `ContestName`). Rating and difficulty are explained where Today shows them (Part 5).
+- **Test:** `src/lib/glossary.test.ts` scans every user-facing string (string literals and JSX text in `src/`, plus the tray in `lib.rs`) and fails on a retired name. Code identifiers (`useTodayQuests`, `"syncing"`) and the hidden Debug page don't count.
+- **Decisions:** terms get a tooltip every time rather than a one-time hint: it's the same help on every screen, and there's no extra "seen" state to keep. Search keywords keep the old words (typing "sync" or "mix" in Ctrl+K still finds Update now and Today's problems). Engine and table names (`quests`, `upsolve`) are unchanged.
+
 ## Previous: v1.3, Sheets + Beginner Path + video lessons (branch `v1.3`, released as v1.3.0/v1.3.1)
 
 ### v1.3 Learn: a top-level screen for every lesson (2026-10-18)

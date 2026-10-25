@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+import { LABELS } from "@/lib/glossary";
 import { Outlet } from "react-router-dom";
 import { LineChart } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
@@ -12,7 +13,7 @@ const RatingChart = lazy(() => import("@/features/home/RatingChart").then((m) =>
 
 const TABS = [
   { to: "/progress", label: "Overview", end: true },
-  { to: "/progress/topics", label: "Topics map", end: false },
+  { to: "/progress/topics", label: LABELS.topics, end: false },
   { to: "/progress/achievements", label: "Achievements", end: false },
 ] as const;
 
@@ -44,8 +45,8 @@ export function ProgressOverview() {
   if (report.isLoading) return <p className="text-body-sm text-ink-muted">Adding up your history…</p>;
   if (!report.data?.hasData) {
     return (
-      <EmptyState icon={LineChart} title="Your progress starts after the first sync">
-        Your rating chart, level, weekly goals and weekly review collect here once your solve history has synced.
+      <EmptyState icon={LineChart} title="Your progress starts after the first update">
+        Your rating chart, level, weekly goals and weekly review collect here once your solve history is in.
       </EmptyState>
     );
   }

@@ -1,4 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { Term } from "@/components/Term";
+import { LABELS } from "@/lib/glossary";
 import { useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { BookOpen, ExternalLink, Lock, X } from "lucide-react";
@@ -206,6 +208,17 @@ function statusSentence(t: TopicStrength, blocking: readonly TopicStrength[]): s
   }
 }
 
+/** "Strength 8 of 100. …" with the word explained. */
+function StrengthSentence({ text }: { text: string }) {
+  if (!text.startsWith("Strength ")) return <>{text}</>;
+  return (
+    <>
+      <Term id="strength" />
+      {text.slice("Strength".length)}
+    </>
+  );
+}
+
 function PanelBody({ t, topics }: { t: TopicStrength; topics: readonly TopicStrength[] }) {
   const problems = useTopicProblems(t.topicId);
   const openTopic = useUiStore((s) => s.openTopic);
@@ -233,7 +246,9 @@ function PanelBody({ t, topics }: { t: TopicStrength; topics: readonly TopicStre
           </div>
           <div className="flex min-w-0 flex-col gap-1">
             <p className="font-display text-headline font-semibold text-ink">{t.status === "Untouched" ? "Not tried" : t.status}</p>
-            <p className="text-body-sm text-ink-muted">{statusSentence(t, prereqs.filter((p) => p.score < STATUS_THRESHOLDS.developing))}</p>
+            <p className="text-body-sm text-ink-muted">
+              <StrengthSentence text={statusSentence(t, prereqs.filter((p) => p.score < STATUS_THRESHOLDS.developing))} />
+            </p>
           </div>
         </div>
 
@@ -281,7 +296,7 @@ function PanelBody({ t, topics }: { t: TopicStrength; topics: readonly TopicStre
             />
           </dl>
 
-          <Section title="Upsolve" aside={attempted.length ? `${attempted.length} open` : undefined}>
+          <Section title={LABELS.unfinished} aside={attempted.length ? `${attempted.length} open` : undefined}>
             <ProblemList
               rows={attempted}
               empty={t.cfJudged ? "Nothing open. Every Codeforces problem you tried here is solved." : "No unsolved attempts here."}
@@ -420,7 +435,7 @@ export function TopicPanel() {
             {t && report.data ? (
               <PanelBody key={t.topicId} t={t} topics={report.data.topics} />
             ) : (
-              <p className="px-6 text-body-sm text-ink-muted">{report.isLoading ? "Loading…" : "This topic has no data yet. It fills in after the first sync."}</p>
+              <p className="px-6 text-body-sm text-ink-muted">{report.isLoading ? "Loading…" : "This topic has no data yet. It fills in after the first update."}</p>
             )}
           </div>
         </motion.aside>

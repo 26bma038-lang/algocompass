@@ -115,7 +115,7 @@ export function SheetList() {
           description={
             followed
               ? "Every sheet ticks itself from your LeetCode and Codeforces solves. A problem in several sheets is ticked in all of them."
-              : "The sheet you follow is pinned here and on Today with your next problem, and gives you a daily quest. Every sheet ticks itself from your LeetCode and Codeforces solves."
+              : "The sheet you follow is pinned here and on Today with your next problem, and gives you a daily goal. Every sheet ticks itself from your LeetCode and Codeforces solves."
           }
           pill={`${others.length} sheets`}
         />

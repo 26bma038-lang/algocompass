@@ -27,8 +27,8 @@ export const XP_KIND_LABEL: Record<XpKind, string> = {
   cf_solve: "Codeforces solves",
   lc_solve: "LeetCode solves",
   contest: "Contests",
-  upsolve: "Upsolves",
-  quest: "Quests",
+  upsolve: "Unfinished problems solved",
+  quest: "Goals",
   streak: "Streak days",
 };
 

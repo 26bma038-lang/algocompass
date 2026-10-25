@@ -62,13 +62,13 @@ export interface AchievementInput {
 
 export const ACHIEVEMENTS: readonly AchievementDef[] = [
   // Consistency
-  { id: "first_quest", category: "Consistency", title: "Quest Taken", hint: "Finish your first daily quest.", icon: "scroll" },
+  { id: "first_quest", category: "Consistency", title: "First Goal", hint: "Finish your first daily goal.", icon: "scroll" },
   { id: "streak_3", category: "Consistency", title: "Kindling", hint: "Practice 3 days in a row.", icon: "flame" },
   { id: "streak_7", category: "Consistency", title: "Week of Fire", hint: "Practice 7 days in a row.", icon: "flame" },
   { id: "streak_30", category: "Consistency", title: "Unbroken Month", hint: "Practice 30 days in a row.", icon: "flame" },
   { id: "streak_100", category: "Consistency", title: "Eternal Flame", hint: "Practice 100 days in a row.", icon: "crown" },
   { id: "active_100", category: "Consistency", title: "Hundred Days", hint: "Practice on 100 different days.", icon: "calendar" },
-  { id: "perfect_weeks_4", category: "Consistency", title: "Flawless Month", hint: "Finish every quest, every day, for a full week. Four times.", icon: "sparkles" },
+  { id: "perfect_weeks_4", category: "Consistency", title: "Flawless Month", hint: "Finish every goal, every day, for a full week. Four times.", icon: "sparkles" },
   // Codeforces
   { id: "cf_first_contest", category: "Codeforces", title: "Into the Arena", hint: "Take part in your first Codeforces round.", icon: "swords" },
   { id: "cf_contests_10", category: "Codeforces", title: "Arena Regular", hint: "Take part in 10 Codeforces rounds.", icon: "swords" },
@@ -89,7 +89,7 @@ export const ACHIEVEMENTS: readonly AchievementDef[] = [
   // Topics
   { id: "topic_strong", category: "Topics", title: "Specialty", hint: "Bring a topic to Strong.", icon: "brain" },
   { id: "topic_mastered", category: "Topics", title: "Mastery", hint: "Master a topic (needs a solve at or above your rating).", icon: "crown" },
-  { id: "topics_unlocked_10", category: "Topics", title: "Branching Out", hint: "Unlock 10 topics on the Topics map.", icon: "tree" },
+  { id: "topics_unlocked_10", category: "Topics", title: "Branching Out", hint: "Unlock 10 topics in Progress → Topics.", icon: "tree" },
   { id: "blind_spots_tried", category: "Topics", title: "No Blind Spots", hint: "Solve a problem in every topic common at your rating.", icon: "compass" },
   // Fun
   { id: "night_owl", category: "Fun", title: "Night Owl", hint: "Get an accepted solve between midnight and 4 am.", icon: "moon" },
@@ -232,7 +232,7 @@ const statusRule = (statuses: string[]): Rule => (input) => (input.topics?.some(
 const RULES: Record<string, Rule> = {
   first_quest: (input) => {
     const at = input.questDays.flatMap((d) => (d.done > 0 && d.lastAt !== null ? [d.lastAt] : [])).sort((a, b) => a - b)[0];
-    return at !== undefined ? earned(at) : notYet({ value: 0, target: 1, label: "Quests" });
+    return at !== undefined ? earned(at) : notYet({ value: 0, target: 1, label: "Goals" });
   },
   streak_3: streakRule(3),
   streak_7: streakRule(7),

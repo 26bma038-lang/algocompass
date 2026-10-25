@@ -1,4 +1,5 @@
 import { Dialog } from "radix-ui";
+import { LABELS } from "@/lib/glossary";
 import { X } from "lucide-react";
 import { useUiStore } from "@/data/uiStore";
 import type { NavItem } from "./nav";
@@ -9,7 +10,7 @@ const groups = (nav: NavItem[]): { title: string; keys: [string, string][] }[] =
     title: "Anywhere",
     keys: [
       ["Ctrl K", "Command palette"],
-      ["Ctrl R", "Sync now"],
+      ["Ctrl R", LABELS.updateNow],
       ["Ctrl B", "Toggle sidebar"],
       ["?", "This sheet"],
       ["Esc", "Close a panel, dialog or moment"],
@@ -17,7 +18,7 @@ const groups = (nav: NavItem[]): { title: string; keys: [string, string][] }[] =
   },
   { title: "Screens", keys: nav.map((n) => [`Ctrl ${n.shortcut}`, n.label]) },
   {
-    title: "Progress · Topics map",
+    title: `Progress · ${LABELS.topics}`,
     keys: [
       ["/", "Search topics"],
       ["Enter", "Open the best match"],

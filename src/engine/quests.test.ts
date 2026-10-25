@@ -22,7 +22,7 @@ describe("generateQuests", () => {
   it("makes one CF, one LC and one consistency quest from the mix", () => {
     const q = generateQuests(MIX, name);
     expect(q.map((x) => x.id)).toEqual(["cf_topic", "lc_topic", "any_solves"]);
-    expect(q[0]!.title).toBe("Solve 1 Sorting problem rated 1100+ on Codeforces");
+    expect(q[0]!.title).toBe("Solve 1 Sorting problem of difficulty 1100+ on Codeforces");
     expect(q[0]!.problemIds).toEqual(["2126-C", "1999-A"]);
     expect(q[1]!.title).toBe("Solve 1 Two pointers problem on LeetCode");
     expect(q[2]!.title).toBe(`Solve any ${CONSISTENCY_TARGET} problems today`);
