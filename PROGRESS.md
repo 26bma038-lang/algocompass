@@ -35,6 +35,13 @@ A static site in `website/` (plain HTML, CSS and JS, no build step), deployed to
 - **Theme toggle:** sun and moon swap with a turn; the page cross-fades through a View Transition (420ms), or a 400ms colour transition where that's unsupported.
 - **Anchors:** smooth scrolling with room for the fixed nav; FAQ answers fade up as they open.
 
+### Part 2: deploy to GitHub Pages (2026-10-25)
+
+- `.github/workflows/pages.yml` publishes `website/` (without `website/tools/`) on every push to master that touches `website/**` or the workflow, plus a manual "Run workflow" button. It uses the official Pages actions at their current majors (checkout v7, configure-pages v6, upload-pages-artifact v5, deploy-pages v5).
+- **One-time setup in GitHub:** Settings → Pages → Build and deployment → Source: **GitHub Actions**. Until that's set, the deploy step fails; after it, re-run the workflow (Actions → Deploy website → Run workflow).
+- The site lives at `https://26bma038-lang.github.io/algocompass/`. Every path in the page is relative, so it works under `/algocompass/`; `404.html` uses absolute `/algocompass/` paths because Pages serves it for any missing URL.
+- **Decision:** no build step. The site is hand-written static files, so the workflow only copies them; images, the OG card and favicons are generated locally by the scripts in `website/tools/` and committed.
+
 ## In progress: v1.4 step 2b, no empty or overloaded screens (branch `v1.4`)
 
 Not released. Plan: `docs/audit-v1.4/AUDIT.md`; screenshots in `docs/audit-v1.4/step2b/`.
