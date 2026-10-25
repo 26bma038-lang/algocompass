@@ -1,5 +1,5 @@
 import { Suspense, useState, type ReactNode } from "react";
-import { LABELS } from "@/lib/glossary";
+import { LABELS, solvedOf } from "@/lib/glossary";
 import { Outlet } from "react-router-dom";
 import { ChevronDown, RefreshCw, Target } from "lucide-react";
 import { CardHeader, Pill } from "@/components/CardHeader";
@@ -58,9 +58,7 @@ function MixCard({ mix, rec }: { mix: MixOfTheDay; rec: Recommender }) {
             {items.length > 0 && (
               <span className="flex items-center gap-3">
                 <RunMeter done={done} total={items.length} />
-                <Pill>
-                  {done}/{items.length} solved
-                </Pill>
+                <Pill>{solvedOf(done, items.length)}</Pill>
               </span>
             )}
             <Button variant="outline" size="sm" onClick={() => reshuffle.mutate()} disabled={reshuffle.isPending}>

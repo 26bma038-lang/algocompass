@@ -2,7 +2,8 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 import { splitDivisions } from "@/components/Term";
-import { LABELS, RETIRED, TERMS } from "./glossary";
+import { sheetShortName } from "@/engine/sheets";
+import { doneOf, LABELS, RETIRED, solvedOf, TERMS } from "./glossary";
 
 const ROOT = join(__dirname, "..", "..");
 
@@ -86,5 +87,17 @@ describe("plain-language labels (v1.4)", () => {
     ]);
     expect(splitDivisions("Round 1100, Div. 1 + Div. 2").filter((p) => p.div).map((p) => p.text)).toEqual(["Div. 1 + Div. 2"]);
     expect(splitDivisions("Weekly Contest 525")).toEqual([{ text: "Weekly Contest 525", div: false }]);
+  });
+});
+
+describe("counts carry their label (v1.4 polish)", () => {
+  it("says what a count counts", () => {
+    expect(solvedOf(0, 5)).toBe("0 of 5 solved");
+    expect(doneOf(2, 9)).toBe("2 of 9 done");
+  });
+  it("names Striver's sheets in full", () => {
+    expect(sheetShortName({ id: "striver-sde", short: "SDE" })).toBe("Striver SDE");
+    expect(sheetShortName({ id: "striver-a2z", short: "A2Z" })).toBe("Striver A2Z");
+    expect(sheetShortName({ id: "neetcode-150", short: "NeetCode 150" })).toBe("NeetCode 150");
   });
 });

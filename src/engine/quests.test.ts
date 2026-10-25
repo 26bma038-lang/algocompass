@@ -1,7 +1,7 @@
 ﻿import { describe, expect, it } from "vitest";
 import type { StoredQuest } from "@/data/types";
 import { weekCounts, weekEnd, weekStart } from "./goals";
-import { beginnerQuests, CONSISTENCY_TARGET, evaluateQuests, generateQuests, LESSON_PROBLEM_TITLE, newlyCompleted, QUEST_XP, sheetQuest, type QuestMixItem, type SolveEvent } from "./quests";
+import { beginnerQuests, CONSISTENCY_TARGET, evaluateQuests, generateQuests, goalTitle, LESSON_PROBLEM_TITLE, newlyCompleted, QUEST_XP, sheetQuest, type QuestMixItem, type SolveEvent } from "./quests";
 
 const names: Record<string, string> = { sorting: "Sorting", greedy: "Greedy", "two-pointers": "Two pointers" };
 const name = (id: string) => names[id] ?? id;
@@ -188,7 +188,7 @@ describe("sheet quest (v1.3)", () => {
   const members = (id: string) => (id === "striver-a2z" ? new Set(["lc:two-sum", "lc:3sum", "tuf:pattern-1", "cf:4-A"]) : undefined);
 
   it("asks for one problem from the followed sheet", () => {
-    expect(q).toMatchObject({ id: "sheet", kind: "sheet", title: "Solve 1 problem from A2Z", target: 1, sheetId: "striver-a2z", problemIds: ["lc:two-sum"], xp: QUEST_XP.sheet });
+    expect(q).toMatchObject({ id: "sheet", kind: "sheet", title: "Solve 1 problem from Striver A2Z", target: 1, sheetId: "striver-a2z", problemIds: ["lc:two-sum"], xp: QUEST_XP.sheet });
   });
 
   it("counts a LeetCode or Codeforces solve of any problem in the sheet, and a hand-ticked sheet-only problem", () => {
@@ -231,5 +231,22 @@ describe("a beginner's goals (v1.4)", () => {
     expect(evaluateQuests(qs, [lc("fizz-buzz", ["implementation"])], undefined, 0)[0]).toMatchObject({ progress: 0, done: false });
     expect(evaluateQuests(qs, [], undefined, 1)[0]).toMatchObject({ progress: 1, done: true });
     expect(evaluateQuests(qs, [], undefined, 2)[0]).toMatchObject({ progress: 1, done: true });
+  });
+});
+
+describe("goal titles say what they count (v1.4 polish)", () => {
+  const base = { kind: "sheet" as const, sheetId: "striver-sde" };
+  it("names Striver's sheets in full, for new and already-stored goals", () => {
+    expect(sheetQuest({ id: "striver-sde", short: "SDE", nextKey: null }).title).toBe("Solve 1 problem from Striver SDE");
+    expect(goalTitle({ ...base, title: "Solve 1 problem from SDE" })).toBe("Solve 1 problem from Striver SDE");
+    expect(goalTitle({ ...base, title: "Solve 1 problem from Striver SDE" })).toBe("Solve 1 problem from Striver SDE");
+    expect(goalTitle({ kind: "sheet", sheetId: "blind-75", title: "Solve 1 problem from Blind 75" })).toBe("Solve 1 problem from Blind 75");
+    expect(goalTitle({ kind: "sheet", sheetId: "beginner-path", title: LESSON_PROBLEM_TITLE })).toBe(LESSON_PROBLEM_TITLE);
+    expect(goalTitle({ kind: "any_solves", title: "Solve any 2 problems today" })).toBe("Solve any 2 problems today");
+  });
+  it("evaluateQuests shows the new title without touching the stored one", () => {
+    const stored = { ...sheetQuest({ id: "striver-a2z", short: "A2Z", nextKey: null }), title: "Solve 1 problem from A2Z", completedAt: null } as StoredQuest;
+    expect(evaluateQuests([stored], [])[0]!.title).toBe("Solve 1 problem from Striver A2Z");
+    expect(stored.title).toBe("Solve 1 problem from A2Z");
   });
 });

@@ -19,7 +19,8 @@ import type { Rec } from "@/engine/recommender";
 import { pickDoThisNext } from "@/engine/today";
 import { TOPIC_BY_ID } from "@/engine/topics";
 import { QuestBar, useRewardPulse } from "@/features/quests/QuestList";
-import { LABELS } from "@/lib/glossary";
+import { LABELS, solvedOf } from "@/lib/glossary";
+import { sheetShortName } from "@/engine/sheets";
 import { openExternal } from "@/lib/openExternal";
 import { bandForRating, bandProgress } from "@/lib/rank";
 import { cn } from "@/lib/utils";
@@ -72,10 +73,9 @@ function DoThisNextCard() {
   const progress =
     pick.kind !== "none" && pick.total > 0 ? (
       <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-glass-border pt-4 text-body-sm text-ink-muted">
+        <span className="font-medium text-ink">{LABELS.todaysProblems}</span>
         <RunMeter done={pick.done} total={pick.total} />
-        <span>
-          {pick.done} of {pick.total} done today
-        </span>
+        <span className="numeric">{solvedOf(pick.done, pick.total)}</span>
         <Link to="/practice" className="ml-auto underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
           All in Practice
         </Link>
@@ -123,7 +123,7 @@ function DoThisNextCard() {
             {p.title}
           </h2>
           <p className="text-body text-ink-muted">
-            Next in {sheet.sheet.short}: {sheet.sheet.sectionLabel} {pick.next.sectionIndex + 1}, {sheet.sheet.sections[pick.next.sectionIndex]?.title}
+            Next in {sheetShortName(sheet.sheet)}: {sheet.sheet.sectionLabel} {pick.next.sectionIndex + 1}, {sheet.sheet.sections[pick.next.sectionIndex]?.title}
             {p.difficulty ? `. ${p.difficulty}` : ""}
           </p>
           {pick.total > 0 && <p className="text-body-sm text-ink-muted">Today's problems are all done, so this comes from the sheet you follow.</p>}
@@ -249,26 +249,23 @@ function RatingCard({ cf, solved, history, nextCf }: { cf: CfUser | null; solved
 function TodayGoal({ q }: { q: QuestState }) {
   const pulse = useRewardPulse(q.id);
   return (
-    <li className={cn("flex flex-col gap-2 rounded-md bg-abyss-sunken px-4 py-2.5", pulse && "aura-pulse")}>
-      <span className="flex items-start gap-3">
-        {q.done ? (
-          <Check aria-hidden className="mt-0.5 size-4 shrink-0 text-success" strokeWidth={2.4} />
-        ) : (
-          <span
-            aria-hidden
-            className={cn("mt-1.5 size-2 shrink-0 rounded-full", q.kind === "cf_topic" ? "bg-platform-cf" : q.kind === "lc_topic" ? "bg-platform-lc" : "bg-accent-2")}
-          />
-        )}
-        <span className={cn("min-w-0 flex-1 text-body-sm", q.done ? "text-ink-muted" : "text-ink")}>
-          {q.title}
-          <span className="sr-only">. {q.done ? "Done" : `${q.progress} of ${q.target}`}</span>
-        </span>
-        <span aria-hidden className="numeric font-display text-body-sm font-semibold text-ink-muted">
-          {q.progress}/{q.target}
-        </span>
+    // Three fixed columns (v1.4 polish): the mark, the goal, and its counter right-aligned in a column
+    // of its own, so the counters line up down the card.
+    <li className={cn("grid grid-cols-[1rem_minmax(0,1fr)_2.75rem] items-start gap-x-3 gap-y-2 rounded-md bg-abyss-sunken px-4 py-2.5", pulse && "aura-pulse")}>
+      {q.done ? (
+        <Check aria-hidden className="mt-0.5 size-4 text-success" strokeWidth={2.4} />
+      ) : (
+        <span aria-hidden className="mt-1.5 size-2 justify-self-center rounded-full bg-ink-faint" />
+      )}
+      <span className={cn("text-body-sm", q.done ? "text-ink-muted" : "text-ink")}>
+        {q.title}
+        <span className="sr-only">. {q.done ? "Done" : `${q.progress} of ${q.target}`}</span>
+      </span>
+      <span aria-hidden className="numeric text-right font-display text-body-sm font-semibold text-ink-muted">
+        {q.progress}/{q.target}
       </span>
       {/* A one-problem goal is done or not; a bar only says something for bigger targets. */}
-      {q.target > 1 && <QuestBar value={q.progress / q.target} />}
+      {q.target > 1 && <QuestBar className="col-span-2 col-start-2" value={q.progress / q.target} />}
     </li>
   );
 }

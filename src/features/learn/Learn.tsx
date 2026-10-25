@@ -141,7 +141,7 @@ function ContinueCard({ view, groups, weakness }: { view: PathView; groups: Topi
           <li>
             <Pill className={s.requiredDone === s.required ? undefined : "bg-abyss-sunken text-ink-muted"}>
               {s.requiredDone === s.required && <Check aria-hidden className="size-3.5 text-success" strokeWidth={2.6} />}
-              {s.requiredDone}/{s.required} problems
+              {s.requiredDone} of {s.required} problems solved
             </Pill>
           </li>
         </ul>

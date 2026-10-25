@@ -9,7 +9,7 @@ import { FollowButton, NextTile, PathStepProgress, SheetCredit } from "./parts";
 import { PATH_SHEET_ID } from "@/data/sheets";
 import { SectionStrip } from "./SectionStrip";
 import { sheetPath } from "./paths";
-import { LABELS } from "@/lib/glossary";
+import { doneOf, LABELS } from "@/lib/glossary";
 
 
 /** The sheet you follow, leading the tab: progress, its shape, and the next problem to open. */
@@ -84,11 +84,9 @@ function SheetRow({ view, followed }: { view: SheetView; followed: boolean }) {
       {sheet.id === PATH_SHEET_ID ? (
         <PathStepProgress size="sm" />
       ) : (
-        <span className="flex w-24 flex-col items-end">
+        <span className="flex w-28 flex-col items-end">
           <span className="numeric font-display text-headline leading-none font-semibold text-ink">{progress.pct}%</span>
-          <span className="numeric text-label text-ink-muted">
-            {progress.done}/{progress.total}
-          </span>
+          <span className="numeric text-label text-ink-muted">{doneOf(progress.done, progress.total)}</span>
         </span>
       )}
       <FollowButton sheetId={sheet.id} followed={followed} />

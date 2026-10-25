@@ -1,4 +1,5 @@
 import type { Platform, QuestSpec, StoredQuest } from "@/data/types";
+import { sheetShortName } from "./sheets";
 
 /**
  * Daily quests and XP. Pure: the data layer hands in today's mix and today's solves.
@@ -85,7 +86,7 @@ export function sheetQuest(sheet: { id: string; short: string; nextKey: string |
   return {
     id: "sheet",
     kind: "sheet",
-    title: title ?? `Solve 1 problem from ${sheet.short}`,
+    title: title ?? `Solve 1 problem from ${sheetShortName(sheet)}`,
     target: 1,
     topicId: null,
     minRating: null,
@@ -152,6 +153,16 @@ export interface QuestState extends StoredQuest {
 }
 
 /**
+ * A goal's title as shown. Sheet goals made before v1.4 polish say "from SDE"; they read "from
+ * Striver SDE" now (the stored row isn't touched).
+ */
+export function goalTitle(q: Pick<StoredQuest, "kind" | "title" | "sheetId">): string {
+  if (q.kind !== "sheet" || !q.sheetId) return q.title;
+  const m = /^Solve 1 problem from (.+)$/.exec(q.title);
+  return m ? `Solve 1 problem from ${sheetShortName({ id: q.sheetId, short: m[1]! })}` : q.title;
+}
+
+/**
  * Progress per quest from today's solves (and, for the lesson-step goal, the Beginner Path steps
  * finished today). A quest stored as completed stays done.
  */
@@ -159,7 +170,7 @@ export function evaluateQuests(quests: readonly StoredQuest[], solves: readonly 
   return quests.map((q) => {
     const n = q.kind === "lesson_step" ? stepsToday : new Set(solves.filter((s) => countsFor(q, s, sheets)).map(solveKey)).size;
     const done = q.completedAt !== null || n >= q.target;
-    return { ...q, progress: done ? q.target : Math.min(n, q.target), done };
+    return { ...q, title: goalTitle(q), progress: done ? q.target : Math.min(n, q.target), done };
   });
 }
 

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { usePrefs } from "@/data/prefs";
 import { isSheetId, useSheet } from "@/data/sheets";
+import { sheetShortName } from "@/engine/sheets";
 import { OpenButton } from "./parts";
 import { SectionStrip } from "./SectionStrip";
 import { sheetPath } from "./paths";
@@ -20,7 +21,7 @@ export function FollowedSheetCard() {
       <div className="flex min-w-0 flex-col gap-1">
         <h2 id="followed-sheet-title" className="flex items-baseline gap-2 font-display text-headline font-semibold text-ink">
           <Link to={sheetPath(sheet.id)} className="truncate rounded-xs hover:underline hover:decoration-glass-border-strong hover:underline-offset-4">
-            {sheet.short}
+            {sheetShortName(sheet)}
           </Link>
           <span className="numeric">{progress.pct}%</span>
         </h2>

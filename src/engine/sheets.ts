@@ -127,6 +127,14 @@ export interface SheetProgress extends Progress {
 }
 
 /** Distinct problems in a list (a problem listed twice in one section counts once). */
+/**
+ * A sheet's name inside a sentence (v1.4 polish): "Striver SDE", not "SDE". Striver's two sheets
+ * have shorts ("A2Z", "SDE") that mean nothing without the creator's name.
+ */
+export function sheetShortName(sheet: { id: string; short: string }): string {
+  return sheet.id.startsWith("striver-") && !sheet.short.startsWith("Striver") ? `Striver ${sheet.short}` : sheet.short;
+}
+
 export function distinctKeys(problems: readonly SheetProblem[]): string[] {
   return [...new Set(problems.map((p) => p.key))];
 }

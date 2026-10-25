@@ -1,5 +1,17 @@
 # AlgoCompass progress log
 
+## In progress: v1.4 polish, from an outside design review (branch `polish`)
+
+Not released. Behaviour and data are unchanged: only labels, layout, colours and the shell's chrome. Screenshots in `docs/audit-v1.4/polish/`.
+
+### Part 1: every count says what it counts (2026-10-25)
+
+- **Today, smart mode:** the Do this next card's footer reads "Today's problems · ▰▰▱▱▱ · 0 of 5 solved" (it said "0 of 5 done today", without saying of what). Today's goals keeps its own title and "0/4 done" pill, so the two counts are labelled separately.
+- **Goal counters line up:** each goal row is a three-column grid (mark · goal · counter), the counter right-aligned in a fixed 44px column, and a goal's bar spans the text and counter columns.
+- **"Striver SDE", not "SDE":** `sheetShortName()` (`src/engine/sheets.ts`) puts "Striver" in front of Striver's two sheet shorts. New sheet goals use it, and `goalTitle()` (`src/engine/quests.ts`) shows already-stored goals ("Solve 1 problem from SDE") the new way when they're evaluated; the stored row isn't touched. Today's "Next in Striver A2Z: …" and the followed-sheet card use it too. The sheet JSON is generated and stays as it is.
+- **Other bare counts:** "2/9" on a sheet section, "34/150" under a sheet's percentage, "1/3 problems" on Continue learning and the "0/5 solved" pill on Today's problems now read "2 of 9 done", "34 of 150 done", "1 of 3 problems solved", "0 of 5 solved" (`solvedOf` / `doneOf` in the glossary). Counters inside a labelled row (a goal's "0/1", a badge's "13/30") stay compact.
+- **Tests:** `goalTitle` and `sheetShortName` (quests.test.ts, glossary.test.ts), the count helpers.
+
 ## Done: the landing website (branch `website`, merged to master)
 
 A static site in `website/` (plain HTML, CSS and JS, no build step), deployed to GitHub Pages by `.github/workflows/pages.yml`. No app code changed. Screenshots in `docs/screenshots/website/`.

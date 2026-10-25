@@ -78,6 +78,10 @@ export const TOPIC_PLAIN: Readonly<Record<string, string>> = {
 /** A topic's name as the user reads it: the plain name where there is one. */
 export const plainTopicName = (id: string, name: string) => TOPIC_PLAIN[id] ?? name;
 
+/** A count always says what it counts (v1.4 polish): "0 of 5 solved", "2 of 9 done". */
+export const solvedOf = (done: number, total: number) => `${done} of ${total} solved`;
+export const doneOf = (done: number, total: number) => `${done} of ${total} done`;
+
 /** "Updated 5m ago". */
 export const updatedAgo = (ago: string) => `${LABELS.updated} ${ago}`;
 

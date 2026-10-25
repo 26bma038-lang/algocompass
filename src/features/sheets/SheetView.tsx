@@ -13,7 +13,7 @@ import { useUiStore } from "@/data/uiStore";
 import { distinctKeys, sectionKeys, sectionWindow, type ProblemStatus, type Sheet, type SheetProblem } from "@/engine/sheets";
 import type { LcDifficulty } from "@/data/types";
 import { cn } from "@/lib/utils";
-import { LABELS } from "@/lib/glossary";
+import { doneOf, LABELS } from "@/lib/glossary";
 import { FollowButton, NextTile, OpenButton, PathStepProgress, SheetCredit, sourceLabel, TickBox, topicName } from "./parts";
 import { PATH_SHEET_ID } from "@/data/sheets";
 import { SectionStrip } from "./SectionStrip";
@@ -286,9 +286,7 @@ function SectionCard({
                   Done
                 </span>
               ) : (
-                <span className="numeric text-body-sm text-ink-muted">
-                  {progress.done}/{progress.total}
-                </span>
+                <span className="numeric text-body-sm text-ink-muted">{doneOf(progress.done, progress.total)}</span>
               )}
               <span
                 role="meter"
