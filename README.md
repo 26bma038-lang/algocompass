@@ -1,10 +1,12 @@
 # AlgoCompass
 
+**Website: [26bma038-lang.github.io/algocompass](https://26bma038-lang.github.io/algocompass/)**
+
 **Your competitive programming compass: one desktop app for Codeforces and LeetCode that finds your weak topics, tells you what to solve next, and keeps your streak alive. New to DSA? It teaches you step by step, with video lessons in English or Hindi. Following Striver's A2Z or NeetCode 150? It ticks your progress for you.**
 
 ![AlgoCompass: Today](docs/screenshots/today.png)
 
-**[Download for Windows](https://github.com/26bma038-lang/algocompass/releases/latest)** · Windows 10/11 · free · no account needed
+**[Download for Windows](https://github.com/26bma038-lang/algocompass/releases/latest)** · **[Website](https://26bma038-lang.github.io/algocompass/)** · Windows 10/11 · free · no account needed
 
 ## Why I built this
 
@@ -229,6 +231,7 @@ src-tauri/
   src/lib.rs     Window, tray, plugins, reminder scheduler
   migrations/    SQLite schema migrations
   capabilities/  Permission scope (only codeforces.com/api and leetcode.com/graphql)
+website/         The landing page (static HTML/CSS/JS, deployed to GitHub Pages)
 docs/screenshots README images
 DESIGN.md        The visual system ("The Rank Aura")
 ```

@@ -1,0 +1,38 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font",
+        "value": "geist fallback",
+        "createdAt": "2026-10-25T16:31:07.677Z",
+        "reason": "Claude: metric-matched local fallback face for Geist (CLS), not a new brand font"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "chakra fallback",
+        "createdAt": "2026-10-25T16:31:08.047Z",
+        "reason": "Claude: metric-matched local fallback face for Chakra Petch (CLS), not a new brand font"
+      },
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "website/tools/og.html"
+        ],
+        "createdAt": "2026-10-25T16:33:08.115Z",
+        "reason": "user brief: hero needs a slow ambient gradient glow; DESIGN.md ambient nebula; OG image mirrors it"
+      },
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "website/index.html"
+        ],
+        "createdAt": "2026-10-25T16:40:48.366Z",
+        "reason": "DESIGN.md Aura shadow: primary button glows on hover only (offset 8px, soft); user brief asks for an ambient glow"
+      }
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { width: 1200px; height: 630px; overflow: hidden; margin: 0; position: relative; background: var(--bg); }
+  .og-glow { position: absolute; inset: 0; }
+  .og-glow span { position: absolute; border-radius: 50%; filter: blur(110px); }
+  .og-glow span:nth-child(1) { left: 640px; top: 120px; width: 520px; height: 420px; background: var(--accent); opacity: 0.5; }
+  .og-glow span:nth-child(2) { left: 820px; top: 300px; width: 420px; height: 360px; background: var(--nebula); opacity: 0.8; }
+  .og-text { position: absolute; left: 72px; top: 64px; width: 560px; }
+  .og-brand { display: flex; align-items: center; gap: 14px; font-family: var(--font-display); font-weight: 600; font-size: 30px; }
+  .og-title { margin-top: 48px; font-family: var(--font-display); font-weight: 600; font-size: 72px; line-height: 0.98; letter-spacing: -0.025em; }
+  .og-sub { margin-top: 24px; color: var(--muted); font-size: 24px; line-height: 1.45; max-width: 26ch; }
+  .og-foot { position: absolute; left: 72px; bottom: 56px; display: flex; gap: 10px; }
+  .og-foot span { padding: 8px 16px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--ink); font-size: 20px; font-weight: 500; }
+  .og-foot span:first-child { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  .og-shot { position: absolute; left: 680px; top: 92px; width: 760px; perspective: 1400px; }
+  .og-shot img { width: 760px; border-radius: 14px; box-shadow: var(--shot-shadow); transform: rotateY(-14deg) rotateX(4deg); transform-origin: 0 50%; }
+</style>
+</head>
+<body>
+  <div class="og-glow"><span></span><span></span></div>
+  <div class="og-shot"><img src="../img/shots/today-dark-1100.webp" alt=""></div>
+  <div class="og-text">
+    <div class="og-brand"><img src="../favicon.svg" width="48" height="48" alt="">AlgoCompass</div>
+    <div class="og-title">Know exactly what to solve next</div>
+    <p class="og-sub">Codeforces, LeetCode, DSA sheets and beginner lessons in one app.</p>
+  </div>
+  <div class="og-foot"><span>Free for Windows</span><span>English and Hindi lessons</span></div>
+</body>
+</html>
