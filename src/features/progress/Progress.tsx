@@ -58,25 +58,18 @@ export function ProgressOverview() {
     );
   }
   return (
+    // Two columns that stack independently (v1.4), so a tall card on one side never leaves a hole on the other.
     <div className="grid grid-cols-12 items-start gap-6">
-      <div className="col-span-12 lg:col-span-8">
+      <div className="col-span-12 flex flex-col gap-6 lg:col-span-8">
         <Suspense fallback={<section aria-busy className="glass-card h-[300px] p-6" />}>
           <RatingCard />
         </Suspense>
+        <WeeklyGoalsCard />
+        <ActivityHeatmap activity={home?.activity ?? []} />
       </div>
       <div className="col-span-12 flex flex-col gap-6 lg:col-span-4">
         <LevelCard />
-      </div>
-      <div className="col-span-12 lg:col-span-8">
-        <WeeklyGoalsCard />
-      </div>
-      <div className="col-span-12 lg:col-span-4">
         <WeeklyReviewCard />
-      </div>
-      <div className="col-span-12 lg:col-span-8">
-        <ActivityHeatmap activity={home?.activity ?? []} />
-      </div>
-      <div className="col-span-12 lg:col-span-4">
         <LcCard lc={home?.lcStats ?? null} />
       </div>
       <div className="col-span-12">

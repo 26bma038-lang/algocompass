@@ -56,6 +56,16 @@ Not released. The plan is `docs/audit-v1.4/AUDIT.md`; screenshots are in `docs/a
 - **Rules as data:** `src/features/learn/solveGuide.ts` (the steps, when the guide is open, the connect state), tested.
 - **Decisions:** the guide panel sits above the problem list and the Connect row below it, so the problems stay the main thing once the guide is dismissed. The path counts in steps in smart mode too: one number in both places (the audit's double count, problem 7).
 
+### Part 7: check (2026-10-25)
+
+- **A beginner's first five minutes, in the real Tauri window** (Debug → Preview first launch, then Preview a fresh beginner; separate wiped DB, in-memory settings), 1100x700, Light and Dark. Welcome → "Yes, I'm new" → English → **Start lesson 1** (bottom edge at 580px of 700) → Step 1's lesson → I've watched the video → I've read it → the How-to-solve guide is open above the problems → Got it → three problems ticked by hand (the script never pressed Open, so no browser tab opened on your machine) → "Step 1 done" toast and **Next step: Arrays** → Today shows "Do this next: Step 2 of 14: Arrays, Watch the video (12 min)" and today's goals 2/2 → Practice → Sheets lists the Beginner Path as "Step 2 of 14, 1 step done" → Ctrl+K leads with Continue my lesson. Each preview was exited at the end.
+- **Smart, with your real data** (only screenshots; the theme was switched by attribute, not saved): Today's three cards fit at 1100x700; Progress → Overview now has two independent columns (the first layout left a 400px hole under This week, fixed) with Activity, LeetCode and Where you stand; Practice says Today's problems / New set; Contests explains Div. 2.
+- **Tests:** `npm test` 411 pass (glossary scan, onboarding flow, top bar per mode and unlock, Do this next for both modes, the solve guide, tour v4, tray order). `npm run build` passes (main chunk 512 KB; its 500 KB warning was there before). `npm run tauri dev` rebuilt Rust after each tray change and ran the whole session.
+- **Not run:** the impeccable critique pass (you're usage-limited and asked for no agents; DESIGN.md got a "Plain words and one next action (v1.4)" section by hand).
+- **Still open (later parts of the plan, not step 2a):** a beginner's Progress is still "Your progress starts after the first update" (`after-b09-progress-*`); Practice keeps its mode-specific tab order; Settings, the Learn library and the Topics list are unchanged.
+
+**After screenshots** (`docs/audit-v1.4/step2a/`, each in `-light` and `-dark`): `after-b00-fresh-beginner-today`, `after-b01-welcome`, `after-b02-lesson-watch`, `after-b03-solve-guide`, `after-b04-solve`, `after-b05-step-done`, `after-b06-today`, `after-b07-practice-sheets`, `after-b08-ctrlk`, `after-b09-progress`, `after-s01-today`, `after-s02-progress` (`-2`, `-3` scrolled), `after-s03-practice`, `after-s04-contests`, `after-s05-learn`; plus `after-part0-real-smart-today.png`. The "before" set is the audit's `b…`/`s…` screenshots in `docs/audit-v1.4/` and the two `before-*` files here.
+
 ## Previous: v1.3, Sheets + Beginner Path + video lessons (branch `v1.3`, released as v1.3.0/v1.3.1)
 
 ### v1.3 Learn: a top-level screen for every lesson (2026-10-18)

@@ -594,3 +594,25 @@ The same breadcrumb (Learn › topic › title), the video at `calc((100vh - 300
 - **Topic Detail → Watch:** a two-video preview that plays in the panel, then an outline "Watch lessons" button with a play icon.
 - **Sheet sections:** a quiet "Learn this topic" (play icon, 13px muted, glass-hover) to the right of each section's toggle row, outside the toggle button.
 - **Ctrl+K:** while searching, a topic also offers "Watch <topic> videos" (play icon), ranked just below the topic itself.
+
+## Plain words and one next action (v1.4)
+
+Supersedes the older "Top bar controls" and "Level badge" text where they differ.
+
+### Words
+- Labels come from one glossary (`src/lib/glossary.ts`): Today's goals (not quests), Today's problems (not today's mix), Unfinished problems (not upsolve), Update (not sync), Topics you haven't tried (not blind spots), Topics (not Topics map).
+- **Term:** a word that can't be avoided (XP, Level, rating, Div. 2, strength, difficulty, streak) gets a 1px dotted underline in Dusk (`decoration-ink-faint`, 3px offset), a help cursor, focusability, and a one-line Float tooltip from the glossary. It never changes the word's colour or weight.
+
+### Top bar
+- **Every control has a word or a clear tooltip;** nothing is a bare icon or an en dash. Streak: flame + "3 days" / "No streak". Goals: "Goals 0/4". Level plate: "Level 14", or "No level yet" on the unlit plate. Update: "Updated 1m ago".
+- **Beginner mode:** "Search" (with its word) and "Step X of 14" (a graduation cap, links to the current lesson). The streak and level join after Step 3, only once they exist. No Update or goals chip.
+
+### Buttons
+- **Large** (`size="lg"`, 44px, 20px side padding): only the one big next action on a screen (Welcome's Start lesson 1, Today's Do this next). Never two on one screen.
+
+### Do this next
+- The lead card on Today in both modes (7 of 12 columns): a small "Do this next" line in accent (body-sm, medium, sentence case, not an eyebrow), the title in Display, one plain source line, then the large primary button with the literal action ("Watch the video (15 min)", "Solve problem 2 of 3: Running Sum", "Open on Codeforces"). Smart Today has two more cards only: Today's goals (5 columns) and the compact rating card (full width, hero number + rank progress + next round). All three fit at 1100x700.
+
+### How to solve on LeetCode
+- Inline in the lesson's Solve card, above the problems: a 12px-radius tile with the accent-soft fill and an accent-line border, six numbered steps in two columns (24px accent circles, accent-ink numerals), and an outline "Got it". The Connect LeetCode row sits under the problems on Abyss Sunken.
+- The Beginner Path's progress is always counted in steps ("Step 3 of 14"), never problems.

@@ -169,7 +169,9 @@ export function PathStepProgress({ size }: { size: "lg" | "sm" }) {
     return (
       <span className="flex w-24 flex-col items-end">
         <span className="numeric font-display text-body font-semibold whitespace-nowrap text-ink">{label}</span>
-        <span className="numeric text-label text-ink-muted">{view.doneCount} done</span>
+        <span className="numeric text-label whitespace-nowrap text-ink-muted">
+          {view.doneCount} {view.doneCount === 1 ? "step" : "steps"} done
+        </span>
       </span>
     );
   }
