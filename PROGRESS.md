@@ -27,7 +27,7 @@ A static site in `website/` (plain HTML, CSS and JS, no build step), deployed to
 - **Ambient glow:** three blurred blobs (accent, light accent, deep indigo) behind the screenshot on 26/33/41s drift loops; paused off-screen.
 - **Download button:** magnetic (moves up to 8px toward the cursor within 40px of it), presses to 0.97, and a shine band sweeps across once after the load sequence and again on hover.
 - **Scroll reveals:** every section heading, lead, card and FAQ row fades up 24px when it enters, siblings 80ms apart; once per element.
-- **Feature showcase:** the list on the left scrolls; whichever item crosses the middle of the screen lights its rail and title, and the sticky frame on the right cross-fades to its screenshot (520ms, with a 1.5% settle). Six dots mark the position. On phones each screenshot sits under its text instead.
+- **Feature showcase:** the list on the left scrolls; whichever item crosses the middle of the screen lights its title and text, and the sticky frame on the right cross-fades to its screenshot (520ms, with a 1.5% settle). Six dots mark the position. On phones each screenshot sits under its text instead.
 - **Mini-demo (how it works):** a drawn Today card loops through four states, in sync with the highlighted step: the card; the lesson video's progress bar fills; "Open on LeetCode" turns into "Solved"; the sheet row ticks, its progress bar steps forward and the streak rolls 6 → 7 like an odometer. Paused off-screen and in a background tab; reduced motion shows the finished state.
 - **Count-ups:** 5, 147, 2, 0 count up from zero (ease-out, about 1–1.7s) when the stats scroll into view.
 - **Marquee:** the five sheet names drift left (38s loop), pausing on hover and off-screen; reduced motion shows them as a wrapped list.
@@ -41,6 +41,25 @@ A static site in `website/` (plain HTML, CSS and JS, no build step), deployed to
 - **One-time setup in GitHub:** Settings → Pages → Build and deployment → Source: **GitHub Actions**. Until that's set, the deploy step fails; after it, re-run the workflow (Actions → Deploy website → Run workflow).
 - The site lives at `https://26bma038-lang.github.io/algocompass/`. Every path in the page is relative, so it works under `/algocompass/`; `404.html` uses absolute `/algocompass/` paths because Pages serves it for any missing URL.
 - **Decision:** no build step. The site is hand-written static files, so the workflow only copies them; images, the OG card and favicons are generated locally by the scripts in `website/tools/` and committed.
+
+### Part 3: critique, polish and Lighthouse (2026-10-25)
+
+**Impeccable critique** (⚠️ degraded: single-context, because this task asked for no background agents and the harness's sub-agents only run in the background; the browser overlay step was skipped for the same budget, and its role was covered by Playwright screenshots of every section at 1440x900 and 390x844 in both themes). Detector: 29 findings on `index.html`.
+- **Fixed:** corner radii brought onto DESIGN.md's scale (6, 8, 12, 16, 22, pill; buttons 8, the screenshots 16, the big panels 22). The feature showcase lost its 2px coloured left rail (the craft floor bans coloured side borders on list items): the active item now lights its title (faint → ink) and text, and the dots under the screenshot carry the position. Rank ladder labels went from 11px to 12px. The showcase items are 52vh instead of 62vh, so the section scrolls less. The heading "Five screens, each with one job" became "Every screen has one job" (the list has six items: a lesson isn't a screen).
+- **Suppressed** (`.impeccable/config.json`, with reasons): the metric-matched fallback faces ("Geist Fallback", "Chakra Fallback") flagged as off-system fonts; `dark-glow` on `index.html` (the primary button's hover glow is DESIGN.md's Aura, and the brief asks for the ambient glow) and on `tools/og.html`.
+- **Left standing (false positives or pinned by the brief):** `design-system-color` for the v1.2 Light/Dark tokens (DESIGN.md's frontmatter still lists the original navy palette; the site uses the v1.2 values from `src/styles/globals.css`, which DESIGN.md's "Light and Dark (v1.2)" section defines); `overused-font: geist` and `marquee` (both in the brief); `cramped-padding` on the stats row, the FAQ list and the demo's title bar (each is a hairline rule above padded content, not text against a box edge).
+
+**Lighthouse 13** (`node website/tools/lighthouse.mjs`, local server with gzip and the github.io path layout):
+
+| | Performance | Accessibility | Best practices | SEO |
+|---|---|---|---|---|
+| Mobile | 100 | 100 | 100 | 100 |
+| Desktop | 98 | 100 | 100 | 100 |
+
+Mobile LCP 1.7 s, desktop 1.1 s; CLS 0 on both; TBT 0–10 ms. The remaining hints are GitHub Pages' fixed 10-minute cache and an estimated 51–122 KB from serving the 1100px screenshot where a slightly smaller one would do.
+- **Fixed on the way:** SEO was 92 because Lighthouse's robots.txt fetch runs inside the page and the CSP's `connect-src` didn't include `'self'`; it does now. The first tool version ran Lighthouse synchronously, which froze the in-process server it was testing; it's async now.
+
+**Screenshots:** `docs/screenshots/website/`: the first screen (`desktop-dark.png`, `phone-light.png`, …), one per section (`-paths`, `-features`, `-how`, `-install`, `-faq`) and the full page as JPEG (`-full.jpg`), for desktop and phone in Light and Dark. `node website/tools/screens.mjs` regenerates them (the GitHub API is stubbed with the v1.4.0 release so they don't depend on the network).
 
 ## In progress: v1.4 step 2b, no empty or overloaded screens (branch `v1.4`)
 

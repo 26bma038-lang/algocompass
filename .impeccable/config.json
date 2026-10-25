@@ -23,6 +23,15 @@
         ],
         "createdAt": "2026-10-25T16:33:08.115Z",
         "reason": "user brief: hero needs a slow ambient gradient glow; DESIGN.md ambient nebula; OG image mirrors it"
+      },
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "website/index.html"
+        ],
+        "createdAt": "2026-10-25T16:40:48.366Z",
+        "reason": "DESIGN.md Aura shadow: primary button glows on hover only (offset 8px, soft); user brief asks for an ambient glow"
       }
     ]
   }

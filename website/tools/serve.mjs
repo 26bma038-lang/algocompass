@@ -3,6 +3,7 @@
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
+import zlib from "node:zlib";
 import { fileURLToPath } from "node:url";
 
 const SITE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -25,8 +26,13 @@ export function serve(port = 4321) {
   const server = http.createServer((req, res) => {
     const url = new URL(req.url, "http://x");
     if (!url.pathname.startsWith("/algocompass/")) {
-      res.writeHead(302, { Location: "/algocompass/" });
-      return res.end();
+      // Like the github.io root: only the project path exists (so /robots.txt is a 404 there too).
+      if (url.pathname === "/" || url.pathname === "/algocompass") {
+        res.writeHead(302, { Location: "/algocompass/" });
+        return res.end();
+      }
+      res.writeHead(404, { "Content-Type": "text/plain" });
+      return res.end("Not found");
     }
     let rel = decodeURIComponent(url.pathname.slice("/algocompass/".length)) || "index.html";
     if (rel.endsWith("/")) rel += "index.html";
@@ -35,9 +41,14 @@ export function serve(port = 4321) {
       res.writeHead(404, { "Content-Type": "text/html; charset=utf-8" });
       return res.end(fs.readFileSync(path.join(SITE, "404.html")));
     }
-    const body = fs.readFileSync(file);
-    // GitHub Pages serves with gzip and a 10 minute cache; close enough for local checks.
-    res.writeHead(200, { "Content-Type": TYPES[path.extname(file)] ?? "application/octet-stream", "Cache-Control": "max-age=600" });
+    let body = fs.readFileSync(file);
+    // Like GitHub Pages: text is gzipped, and everything gets a 10 minute cache.
+    const headers = { "Content-Type": TYPES[path.extname(file)] ?? "application/octet-stream", "Cache-Control": "max-age=600" };
+    if (/text|svg|json|xml/.test(headers["Content-Type"]) && /gzip/.test(req.headers["accept-encoding"] ?? "")) {
+      body = zlib.gzipSync(body);
+      headers["Content-Encoding"] = "gzip";
+    }
+    res.writeHead(200, headers);
     res.end(body);
   });
   return new Promise((resolve) => server.listen(port, () => resolve(server)));

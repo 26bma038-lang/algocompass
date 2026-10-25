@@ -61,7 +61,7 @@ for (const [device, opts] of Object.entries(DEVICES)) {
     }
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
     await page.waitForTimeout(400);
-    await page.screenshot({ path: path.join(out, `${device}-${theme}-full.png`), fullPage: true });
+    await page.screenshot({ path: path.join(out, `${device}-${theme}-full.jpg`), fullPage: true, type: "jpeg", quality: 80 });
     console.log(device, theme);
     await ctx.close();
   }
