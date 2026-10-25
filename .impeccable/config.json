@@ -32,6 +32,30 @@
         ],
         "createdAt": "2026-10-25T16:40:48.366Z",
         "reason": "DESIGN.md Aura shadow: primary button glows on hover only (offset 8px, soft); user brief asks for an ambient glow"
+      },
+      {
+        "rule": "overused-font",
+        "value": "geist",
+        "createdAt": "2026-10-25T16:56:49.005Z",
+        "reason": "user brief pinned Geist for body text (and the app's DESIGN.md uses it)"
+      },
+      {
+        "rule": "marquee",
+        "value": "*",
+        "files": [
+          "website/index.html"
+        ],
+        "createdAt": "2026-10-25T16:56:49.381Z",
+        "reason": "user brief asked for a gentle marquee of the sheet names; pauses on hover/off-screen, static under reduced motion"
+      },
+      {
+        "rule": "marquee",
+        "value": "*",
+        "files": [
+          "website/tools/og.html"
+        ],
+        "createdAt": "2026-10-25T16:57:07.489Z",
+        "reason": "og.html only links the site stylesheet; the marquee rule belongs to the page (user brief)"
       }
     ]
   }
