@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- AlgoCompass app icon: source for `npm run tauri icon`.
+       Concept generated in Canva (diagonal compass needle, ring hub, two skill-tree nodes branching
+       off it), redrawn as vector so it stays crisp at 16px and the tile corners are transparent.
+       Colors: Abyss Raised navy tile, Expert Azure needle (the pre-sync accent), Starlight hub. -->
+  <defs>
+    <radialGradient id="ground" cx="50%" cy="35%" r="75%">
+      <stop offset="0" stop-color="#14204A"/>
+      <stop offset="1" stop-color="#070B16"/>
+    </radialGradient>
+    <linearGradient id="needle" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#3F6FE6"/>
+      <stop offset="1" stop-color="#7FA7FF"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="26"/>
+    </filter>
+  </defs>
+  <!-- Tile -->
+  <rect x="40" y="40" width="944" height="944" rx="212" fill="url(#ground)"/>
+  <rect x="40" y="40" width="944" height="944" rx="212" fill="none" stroke="#96ACE6" stroke-opacity="0.24" stroke-width="8"/>
+  <g transform="rotate(45 512 512)">
+    <!-- Glow behind the needle -->
+    <path d="M512 150 L606 512 L512 874 L418 512 Z" fill="#5B8CFF" opacity="0.5" filter="url(#glow)"/>
+    <!-- Needle (north-east tip lit, south-west a step darker) -->
+    <path d="M512 150 L606 512 L418 512 Z" fill="url(#needle)"/>
+    <path d="M512 874 L606 512 L418 512 Z" fill="#3558C4"/>
+  </g>
+  <!-- Skill-tree branches: two nodes wired to the hub -->
+  <g stroke="#5B8CFF" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M512 512 L392 392 L392 288"/>
+    <path d="M512 512 L632 632 L736 632"/>
+  </g>
+  <circle cx="392" cy="270" r="54" fill="#070B16" stroke="#5B8CFF" stroke-width="30"/>
+  <circle cx="754" cy="632" r="54" fill="#070B16" stroke="#5B8CFF" stroke-width="30"/>
+  <!-- Hub: the node ring -->
+  <circle cx="512" cy="512" r="96" fill="#070B16"/>
+  <circle cx="512" cy="512" r="70" fill="none" stroke="#E7ECF7" stroke-width="34"/>
+</svg>

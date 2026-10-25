@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://26bma038-lang.github.io/algocompass/sitemap.xml

@@ -1,5 +1,40 @@
 # AlgoCompass progress log
 
+## In progress: the landing website (branch `website`)
+
+A static site in `website/` (plain HTML, CSS and JS, no build step), deployed to GitHub Pages by `.github/workflows/pages.yml`. No app code changed. Screenshots in `docs/screenshots/website/`.
+
+### Part 1: the page (2026-10-25)
+
+**Design plan** (frontend-design pass, then checked against the brief):
+- **Colour:** the app's own v1.2 tokens, so the site and the app look like one product. Dark: ground `#0a0a0c`, raised `#131316`, ink `#f4f4f5`, mist `#a1a1aa`, indigo `#8b9bff` (+ `#b4beff`). Light: `#f6f6f7`, `#ffffff`, `#111114`, `#4f4f58`, indigo `#3a4bd0` (+ `#4654cc`). The Codeforces rank colours appear once, as the rank ladder in "Already practising?". Light/Dark follow the system; the toggle pins one, and picking what the system already shows un-pins it.
+- **Type:** Chakra Petch 600 for display only (a 100px two-line headline at desktop, tight leading), Geist variable for everything read. Both self-hosted from the app's fontsource packages (latin subsets, 38 KB together), with metric-matched local fallbacks so the swap doesn't shift the layout. Sentence case everywhere, no eyebrow labels.
+- **Layout:** left-aligned and editorial, one 1180px column. Hero: the headline across the width, the subhead and the download block side by side under it, then the real Today screenshot full-width, rising into place. Sections: stats + sheet marquee, two paths, a sticky feature showcase, how it works with a live mini-demo, install help, FAQ, a closing call, footer.
+- **Principles:** real screenshots and real numbers only (5 sheets, 147 videos, 14 steps, 2 languages, 0 accounts); one memorable thing per section; motion answers scrolling or the cursor and pauses when it can't be seen.
+- **What the review changed:** the first plan had an all-caps "New in 1.4" eyebrow, a `v1.4.0 · 4.3 MB · Windows` meta string and identical feature cards. Cut: no eyebrow; the meta line is a sentence ("Version 1.4.0, 4.3 MB. Free, for Windows 10 and 11."); features became the sticky showcase instead of a card grid, and the two path panels carry different content (a step list vs. checks and the rank ladder). Numbered markers only where the content is a sequence (how it works, the two install clicks).
+
+**Decisions:**
+- **Screenshots:** the brief says docs/screenshots, but those are v1.2/v1.3. The site uses the v1.4 captures in `docs/audit-v1.4/step2b` (and step2a for Contests), which show the released UI. `website/tools/images.mjs` turns them into WebP at 1100 and 640px, Light and Dark (14–59 KB each). The lesson captures came from the Debug preview sandbox and carry its "Preview: a fresh beginner profile" banner; the script cuts those 36 rows out and restores the plain background at the bottom, so every image stays 1100x700.
+- **Themed images** use `<picture><source media="(prefers-color-scheme: light)">`, so the browser fetches only the right one. A manual pick rewrites the sources' `media`.
+- **Download:** the markup links to `releases/latest` (works without JS, and is the fallback). `main.js` asks the GitHub API for the latest release, links the `*-setup.exe` asset and writes its version and size; the answer is cached in sessionStorage for an hour (the API allows 60 unauthenticated requests an hour per IP). Phones and tablets (an inline head script checks the user agent before first paint) get "AlgoCompass is a Windows app" with **Email me the link** (mailto with the site URL) and **Copy link** instead of a download. Mac and Linux desktops keep the button plus a "no Mac or Linux version yet" line.
+- **CSP** in a meta tag: self only, plus `connect-src https://api.github.com`; the theme script is allowed by its sha256 hash (`website/tools/csp-hash.mjs` recomputes it). No inline style attributes, no third-party scripts, fonts or CDNs, no tracking.
+- **The SmartScreen illustration** is drawn in HTML (two simplified dialogs: More info, then Run anyway, each target ringed with a cursor), not a screenshot, so it stays crisp and themes nothing it shouldn't: the dialog keeps Windows' blue in both themes.
+- **JS:** one file, no libraries (about 4 KB gzipped).
+
+**Motion** (all transform/opacity; `prefers-reduced-motion` turns off the tilt, magnet, glow drift, marquee, demo loop and count-ups and keeps plain fades):
+- **Hero load:** the two headline lines slide up out of a clip (110ms apart), then the subhead and download block fade up, then the screenshot rises in from 80px below with an 18° backward tilt (1.3s ease-out).
+- **Screenshot tilt:** follows the cursor over the hero, up to 6° sideways and 4° vertically, eased; mouse/trackpad only.
+- **Ambient glow:** three blurred blobs (accent, light accent, deep indigo) behind the screenshot on 26/33/41s drift loops; paused off-screen.
+- **Download button:** magnetic (moves up to 8px toward the cursor within 40px of it), presses to 0.97, and a shine band sweeps across once after the load sequence and again on hover.
+- **Scroll reveals:** every section heading, lead, card and FAQ row fades up 24px when it enters, siblings 80ms apart; once per element.
+- **Feature showcase:** the list on the left scrolls; whichever item crosses the middle of the screen lights its rail and title, and the sticky frame on the right cross-fades to its screenshot (520ms, with a 1.5% settle). Six dots mark the position. On phones each screenshot sits under its text instead.
+- **Mini-demo (how it works):** a drawn Today card loops through four states, in sync with the highlighted step: the card; the lesson video's progress bar fills; "Open on LeetCode" turns into "Solved"; the sheet row ticks, its progress bar steps forward and the streak rolls 6 → 7 like an odometer. Paused off-screen and in a background tab; reduced motion shows the finished state.
+- **Count-ups:** 5, 147, 2, 0 count up from zero (ease-out, about 1–1.7s) when the stats scroll into view.
+- **Marquee:** the five sheet names drift left (38s loop), pausing on hover and off-screen; reduced motion shows them as a wrapped list.
+- **Nav:** gains a blurred background after the first 24px of scroll; a 2px ascent bar under it fills with scroll progress (CSS scroll-driven animation, where supported), echoing the app's rank-progress bar.
+- **Theme toggle:** sun and moon swap with a turn; the page cross-fades through a View Transition (420ms), or a 400ms colour transition where that's unsupported.
+- **Anchors:** smooth scrolling with room for the fixed nav; FAQ answers fade up as they open.
+
 ## In progress: v1.4 step 2b, no empty or overloaded screens (branch `v1.4`)
 
 Not released. Plan: `docs/audit-v1.4/AUDIT.md`; screenshots in `docs/audit-v1.4/step2b/`.
