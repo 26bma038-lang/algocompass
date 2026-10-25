@@ -1,11 +1,11 @@
-import { Navigate } from "react-router-dom";
 import { usePrefs } from "@/data/prefs";
+import { LessonProblems } from "./LessonProblems";
 import { PracticeMix } from "./Practice";
+import { practiceIndexFor } from "./tabs";
 
-/** /practice: today's mix in smart mode; Beginner mode lands on Sheets (lessons are in Learn). */
+/** /practice (v1.4): today's problems in smart mode; the problems from your lessons in Beginner mode. */
 export function PracticeIndex() {
   const prefs = usePrefs();
   if (prefs.isLoading) return null;
-  if (prefs.data?.mode === "beginner") return <Navigate to="/practice/sheets" replace />;
-  return <PracticeMix />;
+  return practiceIndexFor(prefs.data?.mode ?? "smart") === "lessons" ? <LessonProblems /> : <PracticeMix />;
 }

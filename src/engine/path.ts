@@ -144,3 +144,31 @@ export function nextAction(p: StepProgress, video: PathVideo | null): NextAction
   if (left > 0) return { label: solve.charAt(0).toUpperCase() + solve.slice(1), button: "Solve the problems" };
   return { label: "Step complete", button: "Open the lesson" };
 }
+
+/** One step's problems on Practice in Beginner mode (v1.4). */
+export interface LessonProblemStep {
+  index: number;
+  step: PathStep;
+  state: "done" | "current";
+  problems: { problem: PathProblem; done: boolean }[];
+  solved: number;
+}
+
+/**
+ * "Problems from your lessons": the problems of every step you've reached (done steps and the
+ * current one), in path order, plus the one to do next: the current step's first unsolved required
+ * problem, else its first unsolved extra. Locked steps stay out; `lockedFrom` says where they start.
+ */
+export function lessonProblems(state: Pick<PathState, "steps" | "current">, isDone: (key: string) => boolean) {
+  const steps: LessonProblemStep[] = state.steps.flatMap((s, index) => {
+    if (s.state === "locked") return [];
+    const problems = s.step.problems.map((problem) => ({ problem, done: isDone(problem.key) }));
+    return [{ index, step: s.step, state: s.state, problems, solved: problems.filter((p) => p.done).length }];
+  });
+  const cur = steps.find((s) => s.state === "current");
+  const next = cur ? (cur.problems.find((p) => p.problem.required && !p.done) ?? cur.problems.find((p) => !p.done) ?? null) : null;
+  const total = steps.reduce((n, s) => n + s.problems.length, 0);
+  const solved = steps.reduce((n, s) => n + s.solved, 0);
+  const lockedFrom = state.current !== null && state.current + 1 < state.steps.length ? state.current + 1 : null;
+  return { steps, next: next?.problem ?? null, solved, total, lockedFrom };
+}

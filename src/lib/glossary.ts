@@ -36,6 +36,14 @@ export const LABELS = {
   howStrong: "How strong am I at this?",
   videoLibrary: "Video library",
   moreTopics: "More topics",
+  /** v1.4 step 2b: Practice. */
+  sheets: "Sheets",
+  lessonProblems: "Problems from your lessons",
+  followSheet: "Follow a popular sheet",
+  moreByTopic: "More by topic",
+  /** "Mark sections done" on a sheet page. */
+  alreadyDone: "I've already done some",
+  nextInSheet: "Next in this sheet",
 } as const;
 
 /**
@@ -97,6 +105,9 @@ export type TermId = keyof typeof TERMS;
 export const RETIRED: Record<string, string> = {
   "Today's quests": LABELS.goals,
   "Today's mix": LABELS.todaysProblems,
+  // v1.4 step 2b.
+  "Mark sections done": LABELS.alreadyDone,
+  "Topic details": LABELS.howStrong,
   "today's mix": LABELS.todaysProblems,
   "New mix": LABELS.newSet,
   Upsolve: LABELS.unfinished,

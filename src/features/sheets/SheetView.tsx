@@ -1,5 +1,5 @@
 import { memo, useEffect, useId, useMemo, useRef, useState } from "react";
-import { Check, ChevronDown, ChevronLeft, ListChecks, NotebookPen, PlayCircle, Search, X } from "lucide-react";
+import { Check, ChevronDown, ChevronLeft, ListChecks, NotebookPen, PlayCircle, Search, SlidersHorizontal, X } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { EmptyState } from "@/components/EmptyState";
 import { learnTopicPath } from "@/components/shell/nav";
@@ -10,9 +10,10 @@ import { RESOURCES } from "@/data/catalog";
 import { usePrefs } from "@/data/prefs";
 import { isSheetId, useBulkTick, useSaveNote, useSheet, useSheetNotes, type SheetView as View } from "@/data/sheets";
 import { useUiStore } from "@/data/uiStore";
-import { distinctKeys, sectionKeys, type ProblemStatus, type Sheet, type SheetProblem } from "@/engine/sheets";
+import { distinctKeys, sectionKeys, sectionWindow, type ProblemStatus, type Sheet, type SheetProblem } from "@/engine/sheets";
 import type { LcDifficulty } from "@/data/types";
 import { cn } from "@/lib/utils";
+import { LABELS } from "@/lib/glossary";
 import { FollowButton, NextTile, OpenButton, PathStepProgress, SheetCredit, sourceLabel, TickBox, topicName } from "./parts";
 import { PATH_SHEET_ID } from "@/data/sheets";
 import { SectionStrip } from "./SectionStrip";
@@ -46,7 +47,7 @@ function BulkPanel({ view, onClose }: { view: View; onClose: () => void }) {
       <div className="flex items-start justify-between gap-3">
         <div className="flex flex-col gap-0.5">
           <h3 id={`${id}-t`} className="text-title font-semibold text-ink">
-            Mark sections done
+            {LABELS.alreadyDone}
           </h3>
           <p className="max-w-[62ch] text-body-sm text-ink-muted">
             Already partway through? Tick every problem in the sections you've finished. Imported ticks don't count as today's solves, and you can
@@ -221,7 +222,13 @@ function SectionCard({
   notes,
   noteKey,
   setNoteKey,
+  nextKey,
+  windowed,
 }: {
+  /** The sheet's next problem: an opened long section shows the rows around it. */
+  nextKey: string | null;
+  /** Show a window of a long section (it opened by itself, nothing is filtered). */
+  windowed: boolean;
   sheet: Sheet;
   index: number;
   problems: SheetProblem[];
@@ -240,9 +247,13 @@ function SectionCard({
   const leadCounts = new Map<string, number>();
   for (const p of section.problems) if (p.topics[0]) leadCounts.set(p.topics[0], (leadCounts.get(p.topics[0]) ?? 0) + 1);
   const sectionTopic = [...leadCounts].sort((a, b) => b[1] - a[1])[0]?.[0];
+  // v1.4: a long section (A2Z's first step has 60 problems) opens on a window around the next one.
+  const [all, setAll] = useState(false);
+  const win = windowed && !all ? sectionWindow(problems.map((p) => p.key), nextKey) : { start: 0, end: problems.length };
+  const rows = problems.slice(win.start, win.end);
   // Sub-sections (A2Z's "FAQs (Medium)") as quiet headings inside the card.
   const groups: { sub: string | null; items: SheetProblem[] }[] = [];
-  for (const p of problems) {
+  for (const p of rows) {
     const last = groups[groups.length - 1];
     if (last && last.sub === (p.sub ?? null)) last.items.push(p);
     else groups.push({ sub: p.sub ?? null, items: [p] });
@@ -311,6 +322,11 @@ function SectionCard({
       </div>
       {open && (
         <div id={bodyId} className="flex flex-col gap-2 px-3 pb-3">
+          {win.start > 0 && (
+            <button type="button" onClick={() => setAll(true)} className="self-start rounded-xs px-3 pt-1 text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
+              Show the {win.start} {win.start === 1 ? "problem" : "problems"} above
+            </button>
+          )}
           {groups.map((g, gi) => (
             <div key={gi} className="flex flex-col">
               {g.sub && <h4 className="px-3 pt-2 pb-1 text-label text-ink-muted">{g.sub}</h4>}
@@ -334,6 +350,12 @@ function SectionCard({
               </ul>
             </div>
           ))}
+          {win.end < problems.length && (
+            <button type="button" onClick={() => setAll(true)} className="flex items-center gap-1 self-start rounded-xs px-3 pb-1 text-body-sm text-ink-muted hover:text-ink">
+              <ChevronDown aria-hidden className="size-4" />
+              Show all {problems.length} problems in this {sheet.sectionLabel.toLowerCase()}
+            </button>
+          )}
         </div>
       )}
     </section>
@@ -431,10 +453,13 @@ function SheetBody({ view }: { view: View }) {
   const [open, setOpen] = useState<Set<number>>(() => new Set(next ? [next.sectionIndex] : [0]));
   const [noteKey, setNoteKey] = useState<string | null>(null);
   const [bulk, setBulk] = useState(false);
+  const [options, setOptions] = useState(false);
   const pending = useRef<number | null>(null);
 
   const q = query.trim().toLowerCase();
   const filtering = q !== "" || filter !== "all" || diffs.size > 0;
+  // Active filters keep Options open, so nothing filters the list out of sight.
+  const showOptions = options || filtering;
   const visible = useMemo(
     () =>
       sheet.sections.map((s) =>
@@ -483,9 +508,9 @@ function SheetBody({ view }: { view: View }) {
           </div>
           <div className="flex items-center gap-2">
             <FollowButton sheetId={sheet.id} followed={followed} />
-            <Button variant="outline" size="sm" aria-expanded={bulk} onClick={() => setBulk((b) => !b)}>
-              <ListChecks aria-hidden />
-              Mark sections done
+            <Button variant="outline" size="sm" aria-expanded={showOptions} disabled={filtering} onClick={() => setOptions((o) => !o)}>
+              <SlidersHorizontal aria-hidden />
+              Options
             </Button>
           </div>
         </div>
@@ -499,7 +524,9 @@ function SheetBody({ view }: { view: View }) {
             </ul>
           </div>
         )}
-        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(300px,380px)]">
+        {/* v1.4: the next problem leads, right under the title. */}
+        <NextTile sheet={sheet} next={next} wide />
+        <div className="flex flex-col gap-4">
           <div className="flex min-w-0 flex-col gap-4">
             {sheet.id === PATH_SHEET_ID ? (
               <PathStepProgress size="lg" />
@@ -520,26 +547,35 @@ function SheetBody({ view }: { view: View }) {
               </p>
             )}
             <SectionStrip sections={progress.sections} titles={sheet.sections.map((s) => s.title)} label={sheet.sectionLabel} onSelect={jump} current={next?.sectionIndex} />
-            <p className="max-w-[68ch] text-body-sm text-ink-muted">
-              Problems you solve on LeetCode or Codeforces tick themselves after the next update. LeetCode's API only shows your 20 most recent solves,
-              so older ones won't appear: tick them here or use Mark sections done.
-            </p>
           </div>
-          <NextTile sheet={sheet} next={next} />
         </div>
-        {bulk && <BulkPanel view={view} onClose={() => setBulk(false)} />}
+        {/* Options (v1.4): filters, "I've already done some" and the LeetCode note, folded until asked for. */}
+        {showOptions && (
+          <div className="flex flex-col gap-4 rounded-md border border-glass-border bg-abyss-sunken p-4">
+            <Toolbar
+              query={query}
+              setQuery={setQuery}
+              filter={filter}
+              setFilter={setFilter}
+              diffs={diffs}
+              setDiffs={setDiffs}
+              allOpen={allOpen}
+              setAllOpen={(v) => setOpen(v ? new Set(sheet.sections.map((_, i) => i)) : new Set())}
+            />
+            <div className="flex flex-wrap items-center gap-3">
+              <Button variant="outline" size="sm" aria-expanded={bulk} onClick={() => setBulk((b) => !b)}>
+                <ListChecks aria-hidden />
+                {LABELS.alreadyDone}
+              </Button>
+              <p className="max-w-[68ch] text-body-sm text-ink-muted">
+                Problems you solve on LeetCode or Codeforces tick themselves after the next update. LeetCode only shares your 20 most recent solves, so tick
+                older ones here.
+              </p>
+            </div>
+            {bulk && <BulkPanel view={view} onClose={() => setBulk(false)} />}
+          </div>
+        )}
       </section>
-
-      <Toolbar
-        query={query}
-        setQuery={setQuery}
-        filter={filter}
-        setFilter={setFilter}
-        diffs={diffs}
-        setDiffs={setDiffs}
-        allOpen={allOpen}
-        setAllOpen={(v) => setOpen(v ? new Set(sheet.sections.map((_, i) => i)) : new Set())}
-      />
 
       {filtering && matches === 0 ? (
         <p className="text-body-sm text-ink-muted">No problems match. Clear the search or the filters to see the whole sheet.</p>
@@ -568,6 +604,8 @@ function SheetBody({ view }: { view: View }) {
                 notes={notes}
                 noteKey={noteKey}
                 setNoteKey={setNoteKey}
+                nextKey={next?.problem.key ?? null}
+                windowed={!filtering}
               />
             );
           })}

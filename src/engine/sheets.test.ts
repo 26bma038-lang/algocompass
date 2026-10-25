@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { nextInSheet, problemStatus, sectionKeys, sheetProgress, type Sheet, type SheetProblem, type SolveIndex, type TickRow } from "./sheets";
+import { nextInSheet, problemStatus, SECTION_ROWS, sectionKeys, sectionWindow, sheetProgress, type Sheet, type SheetProblem, type SolveIndex, type TickRow } from "./sheets";
 
 const p = (key: string, topics: string[] = ["arrays-hashing"], extra: Partial<SheetProblem> = {}): SheetProblem => ({
   key,
@@ -139,5 +139,19 @@ describe("smart next", () => {
   it("skips duplicates and solved problems, and is null when the sheet is done", () => {
     expect(nextInSheet(s, (k) => ["lc:a", "lc:b", "lc:c"].includes(k))?.problem.key).toBe("lc:d");
     expect(nextInSheet(s, () => true)).toBeNull();
+  });
+});
+
+describe("opening a long section (v1.4)", () => {
+  const keys = Array.from({ length: 60 }, (_, i) => `k${i}`);
+  it("shows a short section whole", () => {
+    expect(sectionWindow(keys.slice(0, 15), "k3")).toEqual({ start: 0, end: 15 });
+  });
+  it("starts a long one at the top, or two rows above the next problem", () => {
+    expect(sectionWindow(keys, null)).toEqual({ start: 0, end: SECTION_ROWS });
+    expect(sectionWindow(keys, "k1")).toEqual({ start: 0, end: SECTION_ROWS });
+    expect(sectionWindow(keys, "k30")).toEqual({ start: 28, end: 28 + SECTION_ROWS });
+    // Near the end it still shows a full window.
+    expect(sectionWindow(keys, "k59")).toEqual({ start: 60 - SECTION_ROWS, end: 60 });
   });
 });

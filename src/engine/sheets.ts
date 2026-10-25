@@ -215,3 +215,20 @@ export function nextInSheet(
   }
   return best;
 }
+
+// ---------- opening a sheet (v1.4) ----------
+
+/** Rows an opened section shows before "Show all" (A2Z's first step alone has 60). */
+export const SECTION_ROWS = 12;
+
+/**
+ * Which rows of a long section to show when a sheet opens: a window of `limit` rows that starts two
+ * rows above the next problem (so you see where you are), or at the top. Short sections (up to
+ * limit + 3 rows, so "Show 2 more" never appears) show whole. `end` is exclusive.
+ */
+export function sectionWindow(keys: readonly string[], nextKey: string | null, limit = SECTION_ROWS): { start: number; end: number } {
+  if (keys.length <= limit + 3) return { start: 0, end: keys.length };
+  const at = nextKey ? keys.indexOf(nextKey) : -1;
+  const start = Math.max(0, Math.min(at < 0 ? 0 : at - 2, keys.length - limit));
+  return { start, end: start + limit };
+}

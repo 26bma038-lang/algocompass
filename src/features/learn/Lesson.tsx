@@ -16,14 +16,13 @@ import { problemStatus } from "@/engine/sheets";
 import { LangToggle } from "@/features/path/shared";
 import { VideoPlayer, WatchedButton, YouTubeButton } from "@/features/path/VideoPlayer";
 import { useRewardPulse } from "@/features/quests/QuestList";
-import { OpenButton, sourceLabel, TickBox } from "@/features/sheets/parts";
+import { LessonProblemRow } from "@/features/path/LessonProblemRow";
 import { openExternal } from "@/lib/openExternal";
 import { cn } from "@/lib/utils";
 import { useShellFooter } from "@/components/shell/footerSlot";
 import { Breadcrumb } from "./parts";
 import { ConnectLeetCode, SolveGuide } from "./SolveHelp";
 import { solveGuideOpen } from "./solveGuide";
-import { Term } from "@/components/Term";
 import { LABELS } from "@/lib/glossary";
 
 function videosFor(step: PathStep, lang: VideoLang): PathVideo[] {
@@ -148,41 +147,9 @@ function SolveCard({ step, view, focusKey }: { step: PathStep; view: PathView; f
         />
       )}
       <ul className="-mx-3 flex flex-col">
-        {step.problems.map((p) => {
-          const st = idx ? problemStatus(p.key, idx) : { done: view.isDone(p.key), source: null, at: null };
-          return (
-            <li
-              key={p.key}
-              aria-current={focusKey === p.key ? "step" : undefined}
-              className={cn("flex items-center gap-3 rounded-sm px-3 py-2 transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover", focusKey === p.key && "bg-abyss-sunken")}
-            >
-              <TickBox problem={p} status={st} />
-              <span className="flex min-w-0 flex-1 flex-col">
-                <span className={cn("truncate text-body", st.done ? "text-ink-muted" : "text-ink")}>{p.title}</span>
-                <span className="flex items-center gap-1.5 text-label text-ink-muted">
-                  {st.done ? (
-                    <Check aria-hidden className="size-3.5 text-success" strokeWidth={2.4} />
-                  ) : (
-                    <span aria-hidden className={cn("size-1.5 rounded-full", p.cf ? "bg-platform-cf" : "bg-platform-lc")} />
-                  )}
-                  <span>
-                    <span className={st.done ? "text-ink" : undefined}>{st.done ? sourceLabel(p, st) : p.cf ? "Codeforces" : "LeetCode"}</span>
-                    {p.required ? ", required" : ", extra practice"}
-                  </span>
-                </span>
-              </span>
-              <span className="shrink-0 text-right text-body-sm text-ink-muted">
-                {p.difficulty ??
-                  (p.rating ? (
-                    <>
-                      <Term id="difficulty">difficulty</Term> <span className="numeric">{p.rating}</span>
-                    </>
-                  ) : null)}
-              </span>
-              <OpenButton problem={p} />
-            </li>
-          );
-        })}
+        {step.problems.map((p) => (
+          <LessonProblemRow key={p.key} p={p} status={idx ? problemStatus(p.key, idx) : { done: view.isDone(p.key), source: null, at: null }} next={focusKey === p.key} />
+        ))}
       </ul>
       <ConnectLeetCode />
     </section>

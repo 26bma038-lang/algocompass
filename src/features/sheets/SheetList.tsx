@@ -1,4 +1,4 @@
-import { ChevronRight, ListChecks } from "lucide-react";
+import { ChevronLeft, ChevronRight, ListChecks } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CardHeader } from "@/components/CardHeader";
 import { EmptyState } from "@/components/EmptyState";
@@ -9,6 +9,7 @@ import { FollowButton, NextTile, PathStepProgress, SheetCredit } from "./parts";
 import { PATH_SHEET_ID } from "@/data/sheets";
 import { SectionStrip } from "./SectionStrip";
 import { sheetPath } from "./paths";
+import { LABELS } from "@/lib/glossary";
 
 
 /** The sheet you follow, leading the tab: progress, its shape, and the next problem to open. */
@@ -98,7 +99,9 @@ function SheetRow({ view, followed }: { view: SheetView; followed: boolean }) {
 /** Practice → Sheets: the sheet you follow first, then every bundled sheet with its progress. */
 export function SheetList() {
   const sheets = useSheets();
-  const followedId = usePrefs().data?.followedSheet ?? null;
+  const prefs = usePrefs().data;
+  const followedId = prefs?.followedSheet ?? null;
+  const beginner = prefs?.mode === "beginner";
   if (sheets.isLoading) return <p className="text-body-sm text-ink-muted">Loading sheets…</p>;
   if (!sheets.data) {
     return (
@@ -112,6 +115,13 @@ export function SheetList() {
   const others = sheets.data.filter((v) => v !== followed);
   return (
     <div className="grid grid-cols-12 items-start gap-6">
+      {/* Beginner mode has no Practice tabs (v1.4): the way back to the lesson problems. */}
+      {beginner && (
+        <Link to="/practice" className="col-span-12 -mb-2 flex items-center gap-1 self-start justify-self-start rounded-xs text-body-sm text-ink-muted hover:text-ink">
+          <ChevronLeft aria-hidden className="size-4" />
+          {LABELS.lessonProblems}
+        </Link>
+      )}
       {followed && (
         <div className="col-span-12">
           <FollowedCard view={followed} />
@@ -135,7 +145,7 @@ export function SheetList() {
         </ul>
         <p className="text-label text-ink-muted">
           Sheets are built from each creator's original list and keep its order. LeetCode's API only shows your 20 most recent solves, so older solves
-          won't tick on their own: open a sheet and use Mark sections done, or tick them one by one.
+          won't tick on their own: open a sheet and use Options, I've already done some, or tick them one by one.
         </p>
       </section>
     </div>

@@ -395,7 +395,7 @@ export function TopicPanel() {
           id="topic-panel"
           tabIndex={-1}
           role="complementary"
-          aria-label={t ? `${t.name} details` : "Topic details"}
+          aria-label={t ? `${t.name} details` : "Topic"}
           initial={{ opacity: 0, x: 24 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 24, transition: { duration: 0.16, ease: [0.65, 0, 0.35, 1] } }}

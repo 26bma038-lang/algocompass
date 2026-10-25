@@ -7,6 +7,7 @@ import type { NextPick, ProblemStatus, Sheet, SheetProblem } from "@/engine/shee
 import { TOPIC_BY_ID } from "@/engine/topics";
 import { openExternal } from "@/lib/openExternal";
 import { cn } from "@/lib/utils";
+import { LABELS, plainTopicName } from "@/lib/glossary";
 import { stepLabel } from "@/components/shell/topBarItems";
 import { usePath } from "@/data/path";
 
@@ -117,14 +118,17 @@ export function FollowButton({ sheetId, followed }: { sheetId: string; followed:
   );
 }
 
-export const topicName = (id: string | undefined) => (id ? (TOPIC_BY_ID.get(id)?.name ?? id) : "");
+export const topicName = (id: string | undefined) => (id ? plainTopicName(id, TOPIC_BY_ID.get(id)?.name ?? id) : "");
 
-/** "Next in this sheet": the problem, where it sits, why it was picked, and Open. A sunken tile. */
-export function NextTile({ sheet, next, className }: { sheet: Sheet; next: NextPick | null; className?: string }) {
+/**
+ * "Next in this sheet": the problem, where it sits, why it was picked, and Open. A sunken tile.
+ * `wide` (v1.4, the sheet page's lead): one row, the words on the left and Open on the right.
+ */
+export function NextTile({ sheet, next, className, wide = false }: { sheet: Sheet; next: NextPick | null; className?: string; wide?: boolean }) {
   if (!next) {
     return (
       <div className={cn("flex flex-col gap-1 rounded-md bg-abyss-sunken p-4", className)}>
-        <span className="text-label text-ink-muted">Next in this sheet</span>
+        <span className="text-label text-ink-muted">{LABELS.nextInSheet}</span>
         <span className="flex items-center gap-1.5 text-body text-ink">
           <Check aria-hidden className="size-4 text-success" strokeWidth={2.4} />
           Every problem is done
@@ -135,9 +139,9 @@ export function NextTile({ sheet, next, className }: { sheet: Sheet; next: NextP
   const p = next.problem;
   const section = sheet.sections[next.sectionIndex];
   const target = openTarget(p);
-  return (
-    <div className={cn("flex flex-col gap-2 rounded-md bg-abyss-sunken p-4", className)}>
-      <span className="text-label text-ink-muted">Next in this sheet</span>
+  const words = (
+    <>
+      <span className="text-label text-ink-muted">{LABELS.nextInSheet}</span>
       <span className="text-title font-semibold text-ink">{p.title}</span>
       <span className="text-body-sm text-ink-muted">
         {sheet.sectionLabel} {next.sectionIndex + 1}, {section?.title}
@@ -147,6 +151,22 @@ export function NextTile({ sheet, next, className }: { sheet: Sheet; next: NextP
       {next.weakTopic && (
         <span className="text-body-sm text-ink-muted">Picked for {topicName(next.weakTopic).toLowerCase()}, one of your weaker topics.</span>
       )}
+    </>
+  );
+  if (wide) {
+    return (
+      <div className={cn("flex flex-wrap items-center justify-between gap-x-6 gap-y-3 rounded-md bg-abyss-sunken p-4", className)}>
+        <div className="flex min-w-0 flex-col gap-1">{words}</div>
+        <div className="flex flex-col items-end gap-1">
+          <OpenButton problem={p} variant="primary" label={target ? `Open on ${target.site}` : "Open"} />
+          {target?.autoTicks && <span className="text-label text-ink-muted">Solve on {target.site} to tick automatically.</span>}
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className={cn("flex flex-col gap-2 rounded-md bg-abyss-sunken p-4", className)}>
+      {words}
       <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
         <OpenButton problem={p} variant="primary" label={target ? `Open on ${target.site}` : "Open"} />
         {target?.autoTicks && <span className="text-label text-ink-muted">Solve on {target.site} to tick automatically.</span>}

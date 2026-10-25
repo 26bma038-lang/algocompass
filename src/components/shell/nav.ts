@@ -33,7 +33,7 @@ export const SCREENS = {
     label: "Practice",
     icon: Target,
     description: "Problems to solve: today's problems, sheets like Striver A2Z, and more by topic",
-    beginnerDescription: "Problem lists (sheets) like Striver A2Z, and today's problems",
+    beginnerDescription: "The problems from your lessons, and popular sheets when you want more",
   },
   progress: { to: "/progress", label: "Progress", icon: LineChart, description: "How you're doing: rating, level, weekly goals, topics and badges", alsoActiveOn: ["/topics"] },
   contests: { to: "/contests", label: "Contests", icon: CalendarDays, description: "Upcoming rounds, reminders and your past results" },

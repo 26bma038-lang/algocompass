@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import { describe, expect, it } from "vitest";
 import { TOPIC_BY_ID } from "./topics";
-import { mainVideo, nextAction, pathAsSheet, pathState, stepProgress, type BeginnerPath, type PathStep } from "./path";
+import { lessonProblems, mainVideo, nextAction, pathAsSheet, pathState, stepProgress, type BeginnerPath, type PathStep } from "./path";
 
 const PATH = JSON.parse(fs.readFileSync("src/data/path/beginner-path.json", "utf8")) as BeginnerPath;
 
@@ -129,5 +129,35 @@ describe("the Start here line", () => {
   it("falls back to the other language's main video when a step has none in yours", () => {
     const enOnly = { ...s, videos: { en: [video("e")], hi: [] } };
     expect(mainVideo(enOnly, "hi")?.id).toBe("e");
+  });
+});
+
+describe("Problems from your lessons (Practice in Beginner mode, v1.4)", () => {
+  it("lists done and current steps' problems in order, never a locked step's, and picks the next one", () => {
+    const path = PATH;
+    const first = path.steps[0]!;
+    const done = new Set(first.problems.filter((p) => p.required).map((p) => p.key));
+    const watched = new Set([first.videos.en.find((v) => v.role === "main")!.id]);
+    const st = pathState(path, (k) => done.has(k), watched, new Map());
+    const list = lessonProblems(st, (k) => done.has(k));
+    expect(list.steps.map((s) => [s.index, s.state])).toEqual([
+      [0, "done"],
+      [1, "current"],
+    ]);
+    expect(list.steps[0]!.problems.map((p) => p.problem.key)).toEqual(first.problems.map((p) => p.key));
+    expect(list.next?.key).toBe(path.steps[1]!.problems.find((p) => p.required)!.key);
+    expect(list.lockedFrom).toBe(2);
+    expect(list.solved).toBe(done.size);
+  });
+
+  it("a fresh beginner sees step 1 only; with every required problem solved the next is an extra", () => {
+    const path = PATH;
+    const fresh = lessonProblems(pathState(path, () => false, new Set(), new Map()), () => false);
+    expect(fresh.steps).toHaveLength(1);
+    expect(fresh.next?.key).toBe(path.steps[0]!.problems[0]!.key);
+    const req = new Set(path.steps[0]!.problems.filter((p) => p.required).map((p) => p.key));
+    // Not watched, so step 1 is still current: the next is its first extra problem.
+    const st = pathState(path, (k) => req.has(k), new Set(), new Map());
+    expect(lessonProblems(st, (k) => req.has(k)).next?.required).toBe(false);
   });
 });

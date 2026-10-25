@@ -1,6 +1,7 @@
-import { Check, ExternalLink } from "lucide-react";
+import { Check, ExternalLink, MoreHorizontal } from "lucide-react";
 import { cfProblemUrl, lcProblemUrl } from "@/adapters/links";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { LC_LISTS } from "@/data/catalog";
 import { useMarkSolved } from "@/data/quests";
@@ -12,6 +13,7 @@ import { verdictLabel } from "@/engine/topicProblems";
 import { TOPIC_BY_ID } from "@/engine/topics";
 import { openExternal } from "@/lib/openExternal";
 import { cn } from "@/lib/utils";
+import { plainTopicName } from "@/lib/glossary";
 
 export type RowProblem = Rec | UpsolveRec;
 
@@ -56,59 +58,51 @@ const FEEDBACK: { kind: FeedbackKind; label: string; hint: (p: RowProblem) => st
   { kind: "too_hard", label: "Too hard", hint: (p) => (p.platform === "cf" ? "Hide it and lower this topic's range by 100" : "Hide it and serve easier problems for this topic") },
 ];
 
-function Feedback({ p, topicId, kinds, reveal, compact = false }: { p: RowProblem; topicId: string; kinds: FeedbackKind[]; reveal: boolean; compact?: boolean }) {
+
+/**
+ * The row's "⋯" menu (v1.4): I solved it (LeetCode, which only shares your 20 latest solves), Skip,
+ * Too easy and Too hard, each with what it does. One small button instead of four text buttons.
+ */
+function RowMenu({ p, topicId, kinds }: { p: RowProblem; topicId: string; kinds: FeedbackKind[] }) {
   const feedback = useRecFeedback();
   const mark = useMarkSolved();
-  const btn = cn(
-    "rounded-xs px-1.5 text-label whitespace-nowrap text-ink-faint transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover hover:text-ink disabled:opacity-45",
-    compact ? "h-5" : "h-7",
-  );
+  const items = FEEDBACK.filter((f) => kinds.includes(f.kind));
+  if (p.platform !== "lc" && items.length === 0) return null;
   return (
-    <div
-      role="group"
-      aria-label={`Feedback on ${title(p)}`}
-      className={cn(
-        "flex shrink-0 items-center",
-        reveal && "opacity-0 transition-opacity duration-[var(--dur-fast)] group-hover:opacity-100 group-focus-within:opacity-100",
-        // Compact: no width until shown (snaps, no layout animation); the buttons stay focusable.
-        compact && "max-w-0 overflow-hidden group-hover:max-w-[340px] group-focus-within:max-w-[340px]",
-      )}
-    >
-      {/* LeetCode hides all but your 20 latest solves, so older ones are marked by hand. */}
-      {p.platform === "lc" && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              type="button"
-              disabled={mark.isPending}
-              onClick={() => mark.mutate({ platform: "lc", problemId: p.id, title: title(p), topicId })}
-              className={btn}
-            >
-              Mark solved
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="top">Already solved it? LeetCode only shares your 20 latest solves</TooltipContent>
-        </Tooltip>
-      )}
-      {FEEDBACK.filter((f) => kinds.includes(f.kind)).map((f) => (
-        <Tooltip key={f.kind}>
-          <TooltipTrigger asChild>
-            <button
-              type="button"
-              disabled={feedback.isPending}
-              onClick={() => feedback.mutate({ platform: p.platform, problemId: p.id, topicId, kind: f.kind, label: title(p) })}
-              className={btn}
-            >
-              {f.label}
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="top">{f.hint(p)}</TooltipContent>
-        </Tooltip>
-      ))}
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          aria-label={`More for ${title(p)}`}
+          className="grid size-8 shrink-0 place-items-center rounded-sm text-ink-muted transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover hover:text-ink data-[state=open]:bg-glass-hover data-[state=open]:text-ink"
+        >
+          <MoreHorizontal aria-hidden className="size-4" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        {p.platform === "lc" && (
+          <>
+            <DropdownMenuItem disabled={mark.isPending} onSelect={() => mark.mutate({ platform: "lc", problemId: p.id, title: title(p), topicId })}>
+              <span className="font-medium">I solved it</span>
+              <span className="text-label text-ink-muted">LeetCode only shares your 20 latest solves</span>
+            </DropdownMenuItem>
+            {items.length > 0 && <DropdownMenuSeparator />}
+          </>
+        )}
+        {items.map((f) => (
+          <DropdownMenuItem
+            key={f.kind}
+            disabled={feedback.isPending}
+            onSelect={() => feedback.mutate({ platform: p.platform, problemId: p.id, topicId, kind: f.kind, label: title(p) })}
+          >
+            <span className="font-medium">{f.label}</span>
+            <span className="text-label text-ink-muted">{f.hint(p)}</span>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
-
 function TopicChips({ p, max = 2 }: { p: RowProblem; max?: number }) {
   const openTopic = useUiStore((s) => s.openTopic);
   const lead = "topicId" in p ? p.topicId : undefined;
@@ -122,33 +116,32 @@ function TopicChips({ p, max = 2 }: { p: RowProblem; max?: number }) {
           onClick={() => openTopic(id)}
           className="h-6 max-w-[160px] truncate rounded-full border border-glass-border bg-glass px-2.5 text-label text-ink-muted transition-colors duration-[var(--dur-fast)] hover:border-glass-border-strong hover:text-ink"
         >
-          {TOPIC_BY_ID.get(id)?.name ?? id}
+          {plainTopicName(id, TOPIC_BY_ID.get(id)?.name ?? id)}
         </button>
       ))}
     </span>
   );
 }
-
 /**
  * One recommended problem. `comfortable` (Practice) shows topic chips and an Open button;
- * `compact` (Today, Topic Detail) folds the actions behind hover/focus to fit 440px.
- * Feedback goes to the topic the problem was recommended for (or its first topic).
+ * `compact` (Topic Detail, Unfinished problems) has an icon Open to fit 440px. Skip, Too easy, Too
+ * hard and I solved it live in the row's "⋯" menu (v1.4). `primary` fills Open: the one row on the
+ * screen that's the next thing to do. Feedback goes to the topic the problem was recommended for.
  */
 export function ProblemRow({
   p,
   density = "comfortable",
   done = false,
   feedback = ["skip", "too_easy", "too_hard"],
-  revealFeedback = false,
   chips = true,
+  primary = false,
 }: {
   p: RowProblem;
   density?: "comfortable" | "compact";
   done?: boolean;
   feedback?: FeedbackKind[];
-  /** Show feedback only on hover/focus (lists where it's secondary). */
-  revealFeedback?: boolean;
   chips?: boolean;
+  primary?: boolean;
 }) {
   const href = url(p);
   const name = title(p);
@@ -162,6 +155,7 @@ export function ProblemRow({
       className={cn(
         "group flex items-center gap-3 rounded-sm transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover",
         compact ? "px-2 py-1.5" : "px-3 py-2",
+        primary && "bg-abyss-sunken",
       )}
     >
       <span aria-hidden className={cn("size-1.5 shrink-0 rounded-full", p.platform === "cf" ? "bg-platform-cf" : "bg-platform-lc", done && "opacity-50")} />
@@ -176,12 +170,9 @@ export function ProblemRow({
             </>
           )}
           <span className="min-w-0 flex-1 truncate">{meta(p)}</span>
-          {/* Compact rows keep feedback on the second line, so revealing it never squeezes the title. */}
-          {compact && !done && feedback.length > 0 && <Feedback p={p} topicId={topicId} kinds={feedback} reveal compact />}
         </span>
       </span>
       {!compact && chips && <TopicChips p={p} />}
-      {!compact && !done && feedback.length > 0 && <Feedback p={p} topicId={topicId} kinds={feedback} reveal={revealFeedback} />}
       <Grade p={p} />
       {open &&
         (compact ? (
@@ -199,10 +190,13 @@ export function ProblemRow({
             <TooltipContent side="top">Open on {site}</TooltipContent>
           </Tooltip>
         ) : (
-          <Button variant="outline" size="sm" onClick={open} aria-label={`Open ${name} on ${site}`} className="shrink-0">
+          <Button variant={primary ? "primary" : "outline"} size="sm" onClick={open} aria-label={`Open ${name} on ${site}`} className="shrink-0">
             Open
           </Button>
         ))}
+      {!done && <RowMenu p={p} topicId={topicId} kinds={feedback} />}
+      {/* Keeps Open aligned on done rows, which have no menu. */}
+      {done && !compact && <span aria-hidden className="size-8 shrink-0" />}
     </li>
   );
 }
