@@ -18,6 +18,8 @@ const buttonVariants = cva(
       size: {
         default: "h-9 px-4",
         sm: "h-8 px-3 text-body-sm",
+        // v1.4: the one big next action (Welcome, Today's Do this next).
+        lg: "h-11 px-5",
         icon: "size-9",
       },
     },

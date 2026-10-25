@@ -25,6 +25,14 @@ Not released. The plan is `docs/audit-v1.4/AUDIT.md`; screenshots are in `docs/a
 - **Tour v4** (`TOUR_VERSION` 4): smart mode sees it again, in sidebar order (Today → Learn → Practice → Sheets → Progress → Contests); the Learn tip says it moved above Practice.
 - **Decision:** beginners get no tour. Onboarding now drops them straight into Step 1 (Part 3), and every tip would walk them away from it; the sidebar already has labels and a one-line hint per item. The audit's single coach mark can come later.
 
+### Part 3: onboarding (2026-10-25)
+
+- **Beginners are asked two things:** "New to DSA?" → Yes, then "Lesson videos in English / Hindi". No LeetCode or Codeforces fields at all. **Start lesson 1** (a new 44px `lg` button size) saves the mode and language and opens Step 1's lesson directly (`/learn/path/basics`), not Today. Beside it: "No account needed. You can change this later in Settings."
+- **Above the fold:** the welcome screen is shorter (the compass mark sits in the title row, one line of intro, shorter choice cards). At 1100x700 the button's bottom edge is at 580px, even with the preview banner showing.
+- **Smart users:** unchanged: language, Codeforces username (required), LeetCode (optional), the handle check and the first update with its step list.
+- **The rules are data** (`src/features/onboarding/flow.ts`: fields per mode, validation, button label, landing path), tested in `flow.test.ts`.
+- **Decision:** a beginner who typed a username before switching from "No" to "Yes" gets nothing saved: the beginner form has no fields, so nothing hidden is submitted.
+
 ## Previous: v1.3, Sheets + Beginner Path + video lessons (branch `v1.3`, released as v1.3.0/v1.3.1)
 
 ### v1.3 Learn: a top-level screen for every lesson (2026-10-18)

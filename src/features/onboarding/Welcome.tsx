@@ -1,18 +1,18 @@
 import { useId, useState, type FormEvent } from "react";
-import { AlertCircle, Check, Compass, GraduationCap, Loader2, Target } from "lucide-react";
+import { AlertCircle, ArrowRight, Check, Compass, GraduationCap, Loader2, Target } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { checkHandles, handlesStateKey, type HandleCheck } from "@/data/onboarding";
 import { prefsKey, updatePrefs, type VideoLang } from "@/data/prefs";
+import { loadPath } from "@/data/path";
 import { writeHandles, writeOnboarded } from "@/data/settings";
 import { handleCheckers, useSyncStore } from "@/data/syncStore";
 import { cn } from "@/lib/utils";
+import { landingPath, onboardingFields, primaryLabel, validateOnboarding, type OnboardingErrors, type OnboardingMode } from "./flow";
 
-// Same rules as Settings: Codeforces handles are 3–24 of letters, digits, _ . -; LeetCode letters, digits, _ -.
-const CF_HANDLE = /^[A-Za-z0-9_.-]{3,24}$/;
-const LC_HANDLE = /^[A-Za-z0-9_-]{1,40}$/;
 
 /** What the first sync is doing, in words (sync step kinds → labels). */
 const STEP_LABEL: Record<string, string> = {
@@ -118,8 +118,6 @@ function SyncProgress({ withLc }: { withLc: boolean }) {
   );
 }
 
-type Mode = "beginner" | "smart";
-
 /** A big radio card for the "New to DSA?" choice. */
 function Choice({ checked, onSelect, icon: Icon, title, body }: { checked: boolean; onSelect: () => void; icon: typeof Compass; title: string; body: string }) {
   return (
@@ -154,43 +152,40 @@ const LANGS: { id: VideoLang; label: string }[] = [
 ];
 
 /**
- * First launch. One form: "New to DSA?" first, then the video language, then handles.
- * - Beginner: both handles are optional. "Start learning" checks any handle you typed, saves, and
- *   opens Today on the Beginner Path straight away; the first sync runs in the background.
- * - Smart (the app before v1.3): the Codeforces handle is required, and the first sync runs here
- *   with a step list.
+ * First launch (v1.4). "New to DSA?" first, then the video language.
+ * - New to DSA: that's all. Start lesson 1 saves the mode and language and opens Step 1's lesson
+ *   directly. No accounts: LeetCode is offered inside the lesson, when it helps (Part 6 of step 2a).
+ * - Already practising: Codeforces (required) and LeetCode (optional) usernames, checked against the
+ *   platforms, then the first update runs here with a step list.
+ * The rules live in ./flow.ts.
  */
 export function Welcome() {
   const client = useQueryClient();
-  const [mode, setMode] = useState<Mode | null>(null);
+  const navigate = useNavigate();
+  const [mode, setMode] = useState<OnboardingMode | null>(null);
   const [lang, setLang] = useState<VideoLang>("en");
   const [cfHandle, setCf] = useState("");
   const [lcHandle, setLc] = useState("");
   const [checks, setChecks] = useState<{ cf?: HandleCheck; lc?: HandleCheck }>({});
-  const [formError, setFormError] = useState<{ cf?: string; lc?: string; mode?: string }>({});
+  const [formError, setFormError] = useState<OnboardingErrors>({});
   const [phase, setPhase] = useState<"form" | "checking" | "syncing" | "done">("form");
   const lastResult = useSyncStore((s) => s.lastResult);
+  const fields = onboardingFields(mode);
   const beginner = mode === "beginner";
 
   const enter = () => void client.invalidateQueries({ queryKey: handlesStateKey });
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
-    const cf = cfHandle.trim();
-    const lc = lcHandle.trim();
-    const errors: typeof formError = {};
-    if (!mode) errors.mode = "Pick one to continue. You can change it later in Settings.";
-    if (mode === "smart" && !cf) errors.cf = "Enter your Codeforces handle. Smart mode is built around your rating.";
-    else if (cf && !CF_HANDLE.test(cf)) errors.cf = "Use 3–24 letters, digits, dots, hyphens or underscores.";
-    if (lc && !LC_HANDLE.test(lc)) errors.lc = "Use letters, digits, hyphens or underscores.";
+    const errors = validateOnboarding(mode, { codeforces: cfHandle, leetcode: lcHandle });
     setFormError(errors);
     setChecks({});
     if (Object.keys(errors).length || !mode) return;
 
     let saved = { codeforces: "", leetcode: "" };
-    if (cf || lc) {
+    if (mode === "smart") {
       setPhase("checking");
-      const result = await checkHandles({ codeforces: cf, leetcode: lc }, handleCheckers);
+      const result = await checkHandles({ codeforces: cfHandle.trim(), leetcode: lcHandle.trim() }, handleCheckers);
       setChecks(result);
       const bad = (result.cf.status !== "ok" && result.cf.status !== "skipped") || (result.lc.status !== "ok" && result.lc.status !== "skipped");
       if (bad) {
@@ -206,7 +201,8 @@ export function Welcome() {
     client.setQueryData(prefsKey, prefs);
     await writeOnboarded();
     if (beginner) {
-      // Straight in: the Beginner Path needs no data. The app shell starts the first sync on its own.
+      // Straight into Step 1: the Beginner Path needs no data and no account.
+      navigate(landingPath(mode, (await loadPath()).steps[0]?.id));
       enter();
       return;
     }
@@ -218,41 +214,40 @@ export function Welcome() {
   const cfFailed = phase === "done" && lastResult !== null && !lastResult.cf.ok;
   const cfError = formError.cf ?? (checks.cf && "message" in checks.cf ? checks.cf.message : undefined);
   const lcError = formError.lc ?? (checks.lc && "message" in checks.lc ? checks.lc.message : undefined);
+  const pick = (m: OnboardingMode) => {
+    setMode(m);
+    setFormError({});
+  };
 
   return (
-    <div className="mx-auto flex w-full max-w-[600px] flex-col gap-6 py-10">
-      <div className="flex flex-col gap-3">
-        <span className="grid size-12 place-items-center rounded-md bg-accent-soft">
-          <Compass aria-hidden className="size-6 text-accent" strokeWidth={1.8} />
-        </span>
-        <h1 className="font-display text-display font-semibold text-ink">Welcome to AlgoCompass</h1>
+    <div className="mx-auto flex w-full max-w-[600px] flex-col gap-6 py-8">
+      <div className="flex flex-col gap-2">
+        <h1 className="flex items-center gap-3 font-display text-display font-semibold text-ink">
+          <span className="grid size-10 shrink-0 place-items-center rounded-md bg-accent-soft">
+            <Compass aria-hidden className="size-5 text-accent" strokeWidth={1.8} />
+          </span>
+          Welcome to AlgoCompass
+        </h1>
         <p className="max-w-[54ch] text-body text-ink-muted">
-          Learn data structures and algorithms step by step, follow a sheet like Striver's A2Z, and track your Codeforces and LeetCode progress.
-          Everything stays on this computer.
+          Learn DSA step by step, with videos in English or Hindi. Or track your Codeforces and LeetCode practice. Everything stays on this computer.
         </p>
       </div>
 
       {phase === "form" || phase === "checking" ? (
-        <form onSubmit={(e) => void submit(e)} noValidate className="glass-card flex flex-col gap-6 p-6" aria-busy={phase === "checking"}>
+        <form onSubmit={(e) => void submit(e)} noValidate className="glass-card flex flex-col gap-5 p-6" aria-busy={phase === "checking"}>
           <fieldset className="flex flex-col gap-3">
             <legend className="mb-3 font-display text-headline font-semibold text-ink">New to DSA?</legend>
             <div role="radiogroup" aria-label="New to DSA?" className="flex gap-3">
               <Choice
                 checked={mode === "beginner"}
-                onSelect={() => {
-                  setMode("beginner");
-                  setFormError((f) => ({ ...f, mode: undefined, cf: undefined }));
-                }}
+                onSelect={() => pick("beginner")}
                 icon={GraduationCap}
                 title="Yes, I'm new"
-                body="Start the Beginner Path: a short video, five lines to read and a few easy problems per step."
+                body="Short lessons, one step at a time: a video, a few lines to read, then a few easy problems."
               />
               <Choice
                 checked={mode === "smart"}
-                onSelect={() => {
-                  setMode("smart");
-                  setFormError((f) => ({ ...f, mode: undefined }));
-                }}
+                onSelect={() => pick("smart")}
                 icon={Target}
                 title="No, I already practise"
                 body="Track Codeforces and LeetCode, and get problems for your weakest topics every day."
@@ -266,97 +261,80 @@ export function Welcome() {
             )}
           </fieldset>
 
-          {mode && (
-            <>
-              <fieldset className="flex flex-col gap-2">
-                <legend className="mb-2 text-label text-ink-muted">Video language for lessons</legend>
-                <div role="radiogroup" aria-label="Video language" className="flex h-10 items-center gap-1 self-start rounded-md border border-glass-border bg-glass p-1">
-                  {LANGS.map((l) => (
-                    <button
-                      key={l.id}
-                      type="button"
-                      role="radio"
-                      aria-checked={lang === l.id}
-                      onClick={() => setLang(l.id)}
-                      className={cn(
-                        "flex h-8 items-center rounded-sm px-4 text-body-sm font-medium transition-colors duration-[var(--dur-fast)]",
-                        lang === l.id ? "bg-accent-soft text-ink" : "text-ink-muted hover:bg-glass-hover hover:text-ink",
-                      )}
-                    >
-                      {l.label}
-                    </button>
-                  ))}
-                </div>
-              </fieldset>
-
-              <div className="flex flex-col gap-5">
-                {beginner && (
-                  <p className="text-body-sm text-ink-muted">
-                    Both are optional. Add your LeetCode username and the problems you solve there tick themselves; you can add them later in Settings.
-                  </p>
-                )}
-                {beginner && (
-                  <Field
-                    label="LeetCode username (optional)"
-                    dot="bg-platform-lc"
-                    hint="Your solves on LeetCode tick the lesson problems for you."
-                    value={lcHandle}
-                    onChange={(v) => {
-                      setLc(v);
-                      setFormError((f) => ({ ...f, lc: undefined }));
-                      setChecks((c) => ({ ...c, lc: undefined }));
-                    }}
-                    error={lcError}
-                    ok={checks.lc?.status === "ok"}
-                  />
-                )}
-                <Field
-                  label={beginner ? "Codeforces handle (optional)" : "Codeforces handle"}
-                  dot="bg-platform-cf"
-                  hint={beginner ? "For later: contests and your rating." : "Required. Your rating, rounds and the problems you sharpen on."}
-                  value={cfHandle}
-                  onChange={(v) => {
-                    setCf(v);
-                    setFormError((f) => ({ ...f, cf: undefined }));
-                    setChecks((c) => ({ ...c, cf: undefined }));
-                  }}
-                  error={cfError}
-                  ok={checks.cf?.status === "ok"}
-                />
-                {!beginner && (
-                  <Field
-                    label="LeetCode username (optional)"
-                    dot="bg-platform-lc"
-                    hint="Where new topics are learned. Leave it empty to skip; you can add it later in Settings."
-                    value={lcHandle}
-                    onChange={(v) => {
-                      setLc(v);
-                      setFormError((f) => ({ ...f, lc: undefined }));
-                      setChecks((c) => ({ ...c, lc: undefined }));
-                    }}
-                    error={lcError}
-                    ok={checks.lc?.status === "ok"}
-                  />
-                )}
+          {fields.language && (
+            <fieldset className="flex flex-col gap-2">
+              <legend className="mb-2 text-label text-ink-muted">Lesson videos in</legend>
+              <div role="radiogroup" aria-label="Lesson videos in" className="flex h-10 items-center gap-1 self-start rounded-md border border-glass-border bg-glass p-1">
+                {LANGS.map((l) => (
+                  <button
+                    key={l.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={lang === l.id}
+                    onClick={() => setLang(l.id)}
+                    className={cn(
+                      "flex h-8 items-center rounded-sm px-4 text-body-sm font-medium transition-colors duration-[var(--dur-fast)]",
+                      lang === l.id ? "bg-accent-soft text-ink" : "text-ink-muted hover:bg-glass-hover hover:text-ink",
+                    )}
+                  >
+                    {l.label}
+                  </button>
+                ))}
               </div>
-            </>
+            </fieldset>
           )}
 
-          <div className="flex items-center gap-3">
-            <Button type="submit" disabled={phase === "checking"}>
+          {fields.handles.length > 0 && (
+            <div className="flex flex-col gap-5">
+              <Field
+                label="Codeforces username"
+                dot="bg-platform-cf"
+                hint="Required. Your rating, rounds and the problems you practise on."
+                value={cfHandle}
+                onChange={(v) => {
+                  setCf(v);
+                  setFormError((f) => ({ ...f, cf: undefined }));
+                  setChecks((c) => ({ ...c, cf: undefined }));
+                }}
+                error={cfError}
+                ok={checks.cf?.status === "ok"}
+              />
+              <Field
+                label="LeetCode username (optional)"
+                dot="bg-platform-lc"
+                hint="Where new topics are learned. Leave it empty to skip; you can add it later in Settings."
+                value={lcHandle}
+                onChange={(v) => {
+                  setLc(v);
+                  setFormError((f) => ({ ...f, lc: undefined }));
+                  setChecks((c) => ({ ...c, lc: undefined }));
+                }}
+                error={lcError}
+                ok={checks.lc?.status === "ok"}
+              />
+            </div>
+          )}
+
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <Button type="submit" size={beginner ? "lg" : "default"} disabled={phase === "checking"}>
               {phase === "checking" ? (
                 <>
                   <Loader2 aria-hidden className="animate-spin" />
                   Checking…
                 </>
-              ) : beginner ? (
-                "Start learning"
               ) : (
-                "Continue"
+                <>
+                  {primaryLabel(mode)}
+                  {beginner && <ArrowRight aria-hidden />}
+                </>
               )}
             </Button>
-            <span className="text-body-sm text-ink-faint">
-              {beginner ? "Takes you straight to Step 1." : mode === "smart" ? "We check that the usernames exist, then fetch your history." : "You can change this later in Settings."}
+            <span className="max-w-[40ch] text-body-sm text-ink-muted">
+              {beginner
+                ? "No account needed. You can change this later in Settings."
+                : mode === "smart"
+                  ? "We check that the usernames exist, then fetch your history."
+                  : "You can change this later in Settings."}
             </span>
           </div>
         </form>
@@ -370,7 +348,7 @@ export function Welcome() {
               {phase === "syncing"
                 ? "About a minute the first time: Codeforces allows one request every two seconds, and the problemset is large."
                 : cfFailed
-                  ? `${lastResult?.cf.errors[0] ?? "Codeforces didn't answer."} Your handles are saved; try again, or continue and it retries on its own.`
+                  ? `${lastResult?.cf.errors[0] ?? "Codeforces didn't answer."} Your usernames are saved; try again, or continue and it retries on its own.`
                   : "Your stats are in. From now on AlgoCompass updates on its own every two hours."}
             </p>
           </div>
