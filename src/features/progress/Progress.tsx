@@ -1,34 +1,31 @@
 import { lazy, Suspense } from "react";
-import { LABELS } from "@/lib/glossary";
 import { Outlet } from "react-router-dom";
 import { LineChart } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { SegmentedTabs } from "@/components/SegmentedTabs";
+import { usePrefs } from "@/data/prefs";
 import { useHomeData, useTopicReport } from "@/data/queries";
 import { LevelCard, WeeklyGoalsCard } from "@/features/quests/Quests";
 import { WeeklyReviewCard } from "@/features/quests/WeeklyReview";
 import { ActivityHeatmap } from "@/features/home/ActivityHeatmap";
 import { StandingCard } from "@/features/home/StandingCard";
+import { BadgesCard } from "./BadgesCard";
+import { BeginnerOverview } from "./BeginnerOverview";
 import { LcCard } from "./LcCard";
+import { PROGRESS_TABS } from "./tabs";
 
 // Recharts loads only when the Overview tab opens.
 const RatingChart = lazy(() => import("@/features/home/RatingChart").then((m) => ({ default: m.RatingChart })));
 
-const TABS = [
-  { to: "/progress", label: "Overview", end: true },
-  { to: "/progress/topics", label: LABELS.topics, end: false },
-  { to: "/progress/achievements", label: "Achievements", end: false },
-] as const;
-
 /**
- * Progress (v1.2): everything that shows growth, in one screen with three tabs. Each tab is its own
- * route, so /progress/topics and /progress/achievements deep-link (and the v1.1 routes redirect here).
+ * Progress (v1.4): two tabs, Overview and Topics, each its own route. Badges (`/progress/badges`)
+ * and the Topics map (`/progress/topics/map`) open under them; old links redirect.
  */
 export function Progress() {
   return (
     // --tree-above: the tab row (40px) plus its gap (24px), so the Topics map keeps its full height.
     <div className="flex flex-col gap-6 [--tree-above:64px]">
-      <SegmentedTabs label="Progress sections" tabs={TABS} />
+      <SegmentedTabs label="Progress sections" tabs={PROGRESS_TABS} />
       <Suspense fallback={<p className="text-body-sm text-ink-muted">Loading…</p>}>
         <Outlet />
       </Suspense>
@@ -43,10 +40,10 @@ function RatingCard() {
 }
 
 /**
- * Overview: the rating chart and your level, this week's goals and the weekly review, then (v1.4,
- * moved from Today) your activity, LeetCode and where you stand by topic.
+ * Overview, smart mode: the rating chart, level, this week's goals and the weekly review, your
+ * activity and LeetCode, badges, and where you stand by topic.
  */
-export function ProgressOverview() {
+function SmartOverview() {
   const report = useTopicReport();
   const home = useHomeData().data;
   if (report.isLoading) return <p className="text-body-sm text-ink-muted">Adding up your history…</p>;
@@ -70,6 +67,7 @@ export function ProgressOverview() {
       <div className="col-span-12 flex flex-col gap-6 lg:col-span-4">
         <LevelCard />
         <WeeklyReviewCard />
+        <BadgesCard columns={1} />
         <LcCard lc={home?.lcStats ?? null} />
       </div>
       <div className="col-span-12">
@@ -77,4 +75,11 @@ export function ProgressOverview() {
       </div>
     </div>
   );
+}
+
+/** Progress → Overview: Your path, Your week and Badges for a beginner (never empty); the full picture in smart mode. */
+export function ProgressOverview() {
+  const prefs = usePrefs();
+  if (prefs.isLoading) return null;
+  return prefs.data?.mode === "beginner" ? <BeginnerOverview /> : <SmartOverview />;
 }

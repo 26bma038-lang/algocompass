@@ -139,18 +139,18 @@ export function useProgressionWatcher() {
           // A handful at most, one by one; more than that (e.g. a rebuilt cache) is one summary, not a flood.
           if (fresh.length > MAX_TOASTS) {
             const titles = fresh.map((a) => a.def.title);
-            toast(`${fresh.length} achievements unlocked`, {
+            toast(`${fresh.length} badges earned`, {
               id: "ach-batch",
               description: `${titles.slice(0, 4).join(", ")}${titles.length > 4 ? ` and ${titles.length - 4} more` : ""}.`,
               icon: createElement(AchievementBadge, { icon: "medal", unlocked: true, size: "sm" }),
               duration: 8000,
               classNames: { icon: "!h-7 !w-7 !mr-1" },
-              action: { label: "View", onClick: () => (window.location.hash = "#/progress/achievements") },
+              action: { label: "View", onClick: () => (window.location.hash = "#/progress/badges") },
             });
-            if (hidden) void notify(`${fresh.length} achievements unlocked`, titles.join(", "));
+            if (hidden) void notify(`${fresh.length} badges earned`, titles.join(", "));
           }
           for (const a of fresh.length > MAX_TOASTS ? [] : fresh) {
-            toast(`Achievement unlocked: ${a.def.title}`, {
+            toast(`Badge earned: ${a.def.title}`, {
               id: `ach-${a.id}`,
               description: a.def.hint,
               icon: createElement(AchievementBadge, { icon: a.def.icon, unlocked: true, size: "sm" }),
@@ -158,7 +158,7 @@ export function useProgressionWatcher() {
               // Sonner's icon slot is 16px; the badge plate is 28px.
               classNames: { icon: "!h-7 !w-7 !mr-1" },
             });
-            if (hidden) void notify(`Achievement unlocked: ${a.def.title}`, a.def.hint);
+            if (hidden) void notify(`Badge earned: ${a.def.title}`, a.def.hint);
           }
           const ui = useUiStore.getState();
           if (rank !== null && seen.rank !== null && rank > seen.rank) {

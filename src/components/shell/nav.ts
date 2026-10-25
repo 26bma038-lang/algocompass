@@ -35,7 +35,14 @@ export const SCREENS = {
     description: "Problems to solve: today's problems, sheets like Striver A2Z, and more by topic",
     beginnerDescription: "The problems from your lessons, and popular sheets when you want more",
   },
-  progress: { to: "/progress", label: "Progress", icon: LineChart, description: "How you're doing: rating, level, weekly goals, topics and badges", alsoActiveOn: ["/topics"] },
+  progress: {
+    to: "/progress",
+    label: "Progress",
+    icon: LineChart,
+    description: "How you're doing: rating, level, weekly goals, topics and badges",
+    beginnerDescription: "How you're doing: your path, your week, badges and topics",
+    alsoActiveOn: ["/topics"],
+  },
   contests: { to: "/contests", label: "Contests", icon: CalendarDays, description: "Upcoming rounds, reminders and your past results" },
 } satisfies Record<string, Screen>;
 
@@ -63,9 +70,9 @@ export const ALL_NAV = [...PRIMARY_NAV, SETTINGS_NAV];
 
 /** Routes from v1.1 and their new home, so old links and muscle memory still land somewhere sensible. */
 export const LEGACY_REDIRECTS: Record<string, string> = {
-  "/skill-tree": "/progress/topics",
+  "/skill-tree": "/progress/topics/map",
   "/quests": "/",
-  "/achievements": "/progress/achievements",
+  "/achievements": "/progress/badges",
   // v1.3: the Beginner Path moved from a Practice tab to Learn.
   "/practice/path": "/learn",
 };

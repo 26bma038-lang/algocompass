@@ -8,7 +8,8 @@ import { humanizeTopic } from "@/lib/topics";
 
 // Today is the daily check-in, so it ships in the main chunk. Every other screen loads on first
 // visit (the Topics map brings @xyflow/react and dagre with it). AppShell suspends with a quiet line.
-const SkillTree = lazy(() => import("@/features/skill-tree/SkillTree").then((m) => ({ default: m.SkillTree })));
+const TopicsMap = lazy(() => import("@/features/progress/TopicsMap").then((m) => ({ default: m.TopicsMap })));
+const TopicsList = lazy(() => import("@/features/progress/Topics").then((m) => ({ default: m.TopicsList })));
 const TopicDetail = lazy(() => import("@/features/topic/TopicDetail").then((m) => ({ default: m.TopicDetail })));
 const Practice = lazy(() => import("@/features/practice/Practice").then((m) => ({ default: m.Practice })));
 const PracticeIndex = lazy(() => import("@/features/practice/PracticeIndex").then((m) => ({ default: m.PracticeIndex })));
@@ -66,8 +67,11 @@ export const routes: RouteObject[] = [
         handle: h("Progress"),
         children: [
           { index: true, element: <ProgressOverview /> },
-          { path: "topics", element: <SkillTree /> },
-          { path: "achievements", element: <Achievements /> },
+          // v1.4: two tabs. Topics is a list; the Skill Tree is "Show as map". Badges open from Overview.
+          { path: "topics", element: <TopicsList /> },
+          { path: "topics/map", element: <TopicsMap /> },
+          { path: "badges", element: <Achievements /> },
+          { path: "achievements", element: <Navigate to="/progress/badges" replace /> },
         ],
       },
       {

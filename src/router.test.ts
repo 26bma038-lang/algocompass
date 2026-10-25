@@ -34,7 +34,24 @@ describe("routes (v1.3: Learn)", () => {
   it("keeps Practice's tabs (no Beginner Path tab there any more) and the v1.1 redirects", () => {
     expect(resolve("/practice/sheets").chain).toEqual(["", "practice", "sheets"]);
     expect(resolve("/practice/sheets/a2z").params.sheetId).toBe("a2z");
-    expect(resolve("/skill-tree").to).toBe("/progress/topics");
+    expect(resolve("/skill-tree").to).toBe("/progress/topics/map");
     expect(resolve("/somewhere-else").to).toBe("/");
+  });
+});
+
+describe("routes (v1.4 step 2b: Progress has two tabs)", () => {
+  it("serves Overview, the Topics list, the map and the badges page", () => {
+    expect(resolve("/progress").chain).toEqual(["", "progress", "(index)"]);
+    expect(resolve("/progress/topics").chain).toEqual(["", "progress", "topics"]);
+    expect(resolve("/progress/topics/map").chain).toEqual(["", "progress", "topics/map"]);
+    expect(resolve("/progress/badges").chain).toEqual(["", "progress", "badges"]);
+    for (const p of ["/progress", "/progress/topics", "/progress/topics/map", "/progress/badges"]) expect(resolve(p).to).toBeNull();
+  });
+
+  it("keeps the old links working", () => {
+    expect(resolve("/progress/achievements").to).toBe("/progress/badges");
+    expect(resolve("/achievements").to).toBe("/progress/badges");
+    expect(resolve("/skill-tree").to).toBe("/progress/topics/map");
+    expect(resolve("/practice/mix").chain).toEqual(["", "practice", "mix"]);
   });
 });

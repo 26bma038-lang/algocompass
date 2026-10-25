@@ -37,7 +37,7 @@ const SHEETS: StepText = {
   title: "Sheets",
   body: "Follow a sheet like Striver's A2Z or NeetCode 150. Problems you solve on LeetCode or Codeforces tick themselves, in every sheet that has them.",
 };
-const PROGRESS: StepText = { anchor: "/progress", to: "/progress", title: "Progress", body: "How you're doing. Your rating chart, level, weekly goals and activity, your topics, and your achievements, as three tabs." };
+const PROGRESS: StepText = { anchor: "/progress", to: "/progress", title: "Progress", body: "How you're doing. Your rating chart, level, weekly goals, activity and badges, then your topics, weakest first, as two tabs." };
 const CONTESTS: StepText = { anchor: "/contests", to: "/contests", title: "Contests", body: "Upcoming Codeforces rounds first, LeetCode contests below. Turn on \"I'll attend\" for a reminder before it starts." };
 
 /**

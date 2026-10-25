@@ -1,4 +1,5 @@
-import { Check, Trophy } from "lucide-react";
+import { Check, ChevronLeft, Trophy } from "lucide-react";
+import { Link } from "react-router-dom";
 import { CardHeader } from "@/components/CardHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { NumberTicker } from "@/components/ui/number-ticker";
@@ -102,7 +103,7 @@ function LevelHeader({ xp, unlocked, total }: { xp: NonNullable<ReturnType<typeo
           <dd className="numeric font-display text-headline font-semibold text-ink">+{xp.todayTotal}</dd>
         </div>
         <div className="flex flex-col items-end gap-0.5">
-          <dt className="text-label text-ink-muted">Achievements</dt>
+          <dt className="text-label text-ink-muted">Badges</dt>
           <dd className="numeric font-display text-headline font-semibold text-ink">
             {unlocked}
             <span className="text-body text-ink-muted"> / {total}</span>
@@ -118,23 +119,36 @@ function LevelHeader({ xp, unlocked, total }: { xp: NonNullable<ReturnType<typeo
   );
 }
 
-/** Achievements: your level, then every achievement by category, earned ones first. */
+/**
+ * Badges (`/progress/badges`, "See all" on Overview; was the Achievements tab): your level, then
+ * every badge by category, earned ones first. v1.4: never empty. Before any history, each badge
+ * still shows what earns it.
+ */
 export function Achievements() {
   const { data, isLoading } = useProgression();
   if (isLoading) return <p className="text-body-sm text-ink-muted">Adding up your history…</p>;
-  if (!data?.hasData) {
+  if (!data) {
     return (
-      <EmptyState icon={Trophy} title="Nothing unlocked yet">
-        Achievements mark real milestones: rank promotions, long streaks, topics mastered. Your level and every unlock collect here after
-        the first update, counted from your whole history.
+      <EmptyState icon={Trophy} title="Badges didn't load">
+        Something went wrong adding up your history. Try again after the next update.
       </EmptyState>
     );
   }
   const unlocked = data.achievements.filter((a) => a.unlocked).length;
   return (
-    // Bento: the level hero, then one card per category with its achievements as tiles.
+    // Bento: the level hero, then one card per category with its badges as tiles.
     <div className="flex flex-col gap-6">
-      <LevelHeader xp={data.xp} unlocked={unlocked} total={data.achievements.length} />
+      <Link to="/progress" className="-mb-2 flex items-center gap-1 self-start rounded-xs text-body-sm text-ink-muted hover:text-ink">
+        <ChevronLeft aria-hidden className="size-4" />
+        Overview
+      </Link>
+      {data.hasData ? (
+        <LevelHeader xp={data.xp} unlocked={unlocked} total={data.achievements.length} />
+      ) : (
+        <p className="text-body text-ink-muted">
+          {unlocked} of {data.achievements.length} earned. Each badge says what earns it.
+        </p>
+      )}
       {CATEGORIES.map((cat) => {
         const list = data.achievements
           .filter((a) => a.def.category === cat)

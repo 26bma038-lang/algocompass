@@ -44,6 +44,23 @@ export const LABELS = {
   /** "Mark sections done" on a sheet page. */
   alreadyDone: "I've already done some",
   nextInSheet: "Next in this sheet",
+  /** v1.4 step 2b: Progress. Achievements. */
+  badges: "Badges",
+  badgeEarned: "Badge earned",
+  yourPath: "Your path",
+  yourWeek: "Your week",
+  showAsMap: "Show as map",
+  showAsList: "Show as list",
+} as const;
+
+/** A topic's strength status in plain words (v1.4): "Developing" reads as jargon, "Getting there" doesn't. */
+export const STATUS_WORDS = {
+  Weak: "Weak",
+  Developing: "Getting there",
+  Strong: "Strong",
+  Mastered: "Mastered",
+  Untouched: "Not tried yet",
+  Locked: "Not tried yet",
 } as const;
 
 /**
@@ -108,6 +125,9 @@ export const RETIRED: Record<string, string> = {
   // v1.4 step 2b.
   "Mark sections done": LABELS.alreadyDone,
   "Topic details": LABELS.howStrong,
+  Achievements: LABELS.badges,
+  "Achievement unlocked": LABELS.badgeEarned,
+  "achievements unlocked": "badges earned",
   "today's mix": LABELS.todaysProblems,
   "New mix": LABELS.newSet,
   Upsolve: LABELS.unfinished,

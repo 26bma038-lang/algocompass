@@ -43,7 +43,7 @@ describe("navigation (v1.4: one order)", () => {
   });
 
   it("redirects moved routes: v1.1 screens, and the Beginner Path from Practice to Learn", () => {
-    expect(LEGACY_REDIRECTS).toEqual({ "/skill-tree": "/progress/topics", "/quests": "/", "/achievements": "/progress/achievements", "/practice/path": "/learn" });
+    expect(LEGACY_REDIRECTS).toEqual({ "/skill-tree": "/progress/topics/map", "/quests": "/", "/achievements": "/progress/badges", "/practice/path": "/learn" });
     for (const to of Object.values(LEGACY_REDIRECTS)) expect(navItemFor(to)).toBeDefined();
     expect(legacyLessonRedirect("/practice/path/hashing")).toBe("/learn/path/hashing");
     expect(legacyLessonRedirect("/practice/path/")).toBe("/learn");
