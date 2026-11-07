@@ -271,7 +271,7 @@ function GroupSection({
   watched: ReadonlySet<string>;
   showLang: boolean;
   status?: string;
-  /** Show "How strong am I at this?" (smart mode with topic data). */
+  /** Show "View topic progress" (smart mode with topic data). */
   howStrong: boolean;
   /** A step group links to its lesson. */
   lessonId?: string;

@@ -3,6 +3,7 @@ import { Term } from "@/components/Term";
 import type { PathProblem } from "@/engine/path";
 import type { ProblemStatus } from "@/engine/sheets";
 import { OpenButton, sourceLabel, TickBox } from "@/features/sheets/parts";
+import { LABELS } from "@/lib/glossary";
 import { cn } from "@/lib/utils";
 
 /**
@@ -19,7 +20,12 @@ export function LessonProblemRow({ p, status, next = false, primaryOpen = false 
     >
       <TickBox problem={p} status={status} />
       <span className="flex min-w-0 flex-1 flex-col">
-        <span className={cn("truncate text-body", status.done ? "text-ink-muted" : "text-ink")}>{p.title}</span>
+        <span className="flex min-w-0 items-center gap-2">
+          <span className={cn("truncate text-body", status.done ? "text-ink-muted" : "text-ink")}>{p.title}</span>
+          {primaryOpen && !status.done && (
+            <span className="shrink-0 rounded-full bg-accent-soft px-2 py-px text-label font-semibold text-ink">{LABELS.recommendedNext}</span>
+          )}
+        </span>
         <span className="flex items-center gap-1.5 text-label text-ink-muted">
           {status.done ? (
             <Check aria-hidden className="size-3.5 text-success" strokeWidth={2.4} />
@@ -32,7 +38,7 @@ export function LessonProblemRow({ p, status, next = false, primaryOpen = false 
           </span>
         </span>
       </span>
-      <span className="shrink-0 text-right text-body-sm text-ink-muted">
+      <span className="w-24 shrink-0 text-right text-body-sm text-ink-muted">
         {p.difficulty ??
           (p.rating ? (
             <>
@@ -40,7 +46,7 @@ export function LessonProblemRow({ p, status, next = false, primaryOpen = false 
             </>
           ) : null)}
       </span>
-      <OpenButton problem={p} variant={primaryOpen ? "primary" : "outline"} />
+      <OpenButton problem={p} variant={primaryOpen ? "primary" : "outline"} withSite className="w-44" />
     </li>
   );
 }

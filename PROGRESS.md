@@ -33,6 +33,20 @@ Not released. Behaviour and data are unchanged: only labels, layout, colours and
 - **Read is never inferred:** `lessonChecks` used to tick Read on any done step (a step unlocks on video + problems, without reading). Read's check now comes only from the recorded "I've read it" (`learn.read`). Watch and Solve still check on a done step, since its unlock rule needs both. The Next button's order and the unlock rule are unchanged.
 - **Tests:** `pathDots` (path.test.ts), `lessonChecks` never inferring Read (learn.test.ts).
 
+### Part 4: Practice (2026-11-07)
+
+The brief for Parts 4–7 wasn't written into this log when Part 4 was interrupted; it's recorded here from the session prompt (Practice, Progress, colours and surfaces, check).
+
+- **"Recommended next":** the one row with the filled Open carries a small accent-soft "Recommended next" tag after its title, in Today's problems and in a beginner's Problems from your lessons. `recommendedNextId()` (`src/engine/today.ts`) picks it: the first unsolved problem in the order Practice lists them (Codeforces, then LeetCode), so it's always the same problem Today's Do this next opens. A solved row never carries it.
+- **Open says where:** "Open on Codeforces" / "Open on LeetCode" (`openLabel`, `siteName` in `problemText.ts`; `OpenButton withSite` for lesson problems). Compact rows (the Topic panel, Problems you tried) keep their icon button with the same words in its tooltip.
+- **Fixed columns:** difficulty 56px, Open 176px (fits the longer label), menu 32px, and done rows keep a 32px spacer, so Open buttons line up down the card whatever the title. Lesson problem rows use a 96px difficulty column.
+- **Topic chips wrap:** they moved under the title and meta line and wrap onto a second line instead of being cut to 160px.
+- **"Problems you tried"** replaces "Unfinished problems" (`LABELS.unfinished`; the card description is "Not accepted yet, easiest first."). Contests' past-results note and the XP breakdown ("Problems you tried, now solved") follow. "Unfinished problems" joins the retired names.
+- **Midnight copy:** "The same set until midnight." read as a restriction. It now says "A new set comes at midnight, or sooner with New set."
+- **"View topic progress"** replaces "How strong am I at this?" on Learn's topic groups and the Watch page (it opens the Topic panel).
+- **Decision:** sheet rows keep the short "Open" (a sheet section lists dozens of rows, and each row already shows its site); the sheet's Next tile already said "Open on LeetCode".
+- **Tests:** `recommendedNextId` matches `pickDoThisNext` (today.test.ts); the Open label and the new words (problemText.test.ts, glossary.test.ts).
+
 ## Done: the landing website (branch `website`, merged to master)
 
 A static site in `website/` (plain HTML, CSS and JS, no build step), deployed to GitHub Pages by `.github/workflows/pages.yml`. No app code changed. Screenshots in `docs/screenshots/website/`.

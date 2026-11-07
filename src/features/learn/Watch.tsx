@@ -24,7 +24,7 @@ export function Watch() {
   const watched = useWatchedVideos().data ?? new Map<string, number>();
   const record = useRecordLearn();
   const openTopic = useUiStore((s) => s.openTopic);
-  // "How strong am I at this?" only means something once there's solve history.
+  // "View topic progress" only means something once there's solve history.
   const hasData = useTopicReport().data?.hasData ?? false;
   const found = useMemo(() => {
     const topic = params.get("topic");

@@ -15,6 +15,16 @@ export type DoThisNext<P, S> =
   | { kind: "all-done"; done: number; total: number }
   | { kind: "none" };
 
+/**
+ * Practice's "Recommended next" tag (v1.4 polish): the first problem of today's set not solved yet,
+ * in the order Practice lists them (Codeforces, then LeetCode), so it's the same problem Today's Do
+ * this next picks.
+ */
+export function recommendedNextId(items: readonly { platform: "cf" | "lc"; problemId: string; done: boolean; rec: unknown }[]): string | null {
+  const listed = [...items.filter((i) => i.platform === "cf"), ...items.filter((i) => i.platform === "lc")];
+  return listed.find((i) => i.rec !== null && !i.done)?.problemId ?? null;
+}
+
 export function pickDoThisNext<P, S>(mix: readonly MixPick<P>[] | null | undefined, sheetNext: S | null | undefined): DoThisNext<P, S> {
   const items = (mix ?? []).filter((i): i is { rec: P; done: boolean } => i.rec !== null);
   const done = items.filter((i) => i.done).length;

@@ -59,7 +59,7 @@ describe("plain-language labels (v1.4)", () => {
     expect(LABELS).toMatchObject({
       goals: "Today's goals",
       todaysProblems: "Today's problems",
-      unfinished: "Unfinished problems",
+      unfinished: "Problems you tried",
       update: "Update",
       notTried: "Topics you haven't tried",
       topics: "Topics",

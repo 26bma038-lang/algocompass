@@ -14,6 +14,12 @@ export type RowProblem = Rec | UpsolveRec;
 const monthYear = (ts: number) => new Date(ts * 1000).toLocaleDateString(undefined, { month: "short", year: "numeric" });
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
+/** "Codeforces" / "LeetCode". */
+export const siteName = (platform: "cf" | "lc") => (platform === "cf" ? "Codeforces" : "LeetCode");
+
+/** A row's Open button says where it goes (v1.4 polish): "Open on Codeforces". */
+export const openLabel = (site: string) => `Open on ${site}`;
+
 export function title(p: RowProblem) {
   return p.platform === "lc" ? p.title : p.name;
 }

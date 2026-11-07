@@ -13,8 +13,10 @@ export const LABELS = {
   /** The mix of the day. */
   todaysProblems: "Today's problems",
   newSet: "New set",
-  /** Upsolve: Codeforces problems you tried and never got accepted. */
-  unfinished: "Unfinished problems",
+  /** Upsolve: Codeforces problems you tried and never got accepted ("Unfinished problems" until v1.4 polish). */
+  unfinished: "Problems you tried",
+  /** v1.4 polish: Practice's tag on the one problem to do now (the same one Today's Do this next picks). */
+  recommendedNext: "Recommended next",
   /** Sync. */
   update: "Update",
   updateNow: "Update now",
@@ -32,8 +34,8 @@ export const LABELS = {
   doThisNext: "Do this next",
   howToSolve: "How to solve on LeetCode",
   connectLc: "Connect LeetCode to tick automatically",
-  /** v1.4 step 2b: Learn. "Topic details" (a link that opened the Topic panel). */
-  howStrong: "How strong am I at this?",
+  /** v1.4 step 2b: Learn. The link that opens a topic's panel ("Topic details", then "How strong am I at this?"). */
+  howStrong: "View topic progress",
   videoLibrary: "Video library",
   moreTopics: "More topics",
   /** v1.4 step 2b: Practice. */
@@ -129,6 +131,10 @@ export const RETIRED: Record<string, string> = {
   // v1.4 step 2b.
   "Mark sections done": LABELS.alreadyDone,
   "Topic details": LABELS.howStrong,
+  // v1.4 polish.
+  "How strong am I at this?": LABELS.howStrong,
+  "Unfinished problems": LABELS.unfinished,
+  "unfinished problems": "problems you tried",
   Achievements: LABELS.badges,
   "Achievement unlocked": LABELS.badgeEarned,
   "achievements unlocked": "badges earned",
@@ -147,8 +153,8 @@ export const RETIRED: Record<string, string> = {
   quests: "goals",
   Quest: "Goal",
   quest: "goal",
-  upsolve: "unfinished problems",
-  upsolves: "unfinished problems",
+  upsolve: "problems you tried",
+  upsolves: "problems you tried",
   Sync: LABELS.update,
   sync: "update",
   Synced: LABELS.updated,

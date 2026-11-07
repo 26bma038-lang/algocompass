@@ -72,7 +72,20 @@ export function TickBox({ problem, status }: { problem: SheetProblem; status: Pr
 }
 
 /** Open: LeetCode when the problem is there, with the hint that it then ticks itself. */
-export function OpenButton({ problem, variant = "outline", label = "Open" }: { problem: SheetProblem; variant?: "outline" | "primary"; label?: string }) {
+export function OpenButton({
+  problem,
+  variant = "outline",
+  label = "Open",
+  withSite = false,
+  className,
+}: {
+  problem: SheetProblem;
+  variant?: "outline" | "primary";
+  label?: string;
+  /** "Open on LeetCode" instead of the bare label (v1.4 polish, Practice's lesson problems). */
+  withSite?: boolean;
+  className?: string;
+}) {
   const target = openTarget(problem);
   if (!target) {
     return <span className="w-14 shrink-0 text-right text-label text-ink-faint">No link</span>;
@@ -83,8 +96,8 @@ export function OpenButton({ problem, variant = "outline", label = "Open" }: { p
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button variant={variant} size="sm" onClick={() => openExternal(target.url)} aria-label={`Open ${problem.title} on ${target.site}`} className="shrink-0">
-          {label}
+        <Button variant={variant} size="sm" onClick={() => openExternal(target.url)} aria-label={`Open ${problem.title} on ${target.site}`} className={cn("shrink-0", className)}>
+          {withSite ? `Open on ${target.site}` : label}
         </Button>
       </TooltipTrigger>
       <TooltipContent side="top">

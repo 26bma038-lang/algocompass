@@ -181,7 +181,7 @@ function PastList({ past }: { past: PastContest[] }) {
         </table>
       )}
       <p className="text-label text-ink-muted">
-        After a Codeforces round you took part in, the problems just past what you solved go to Unfinished problems in Practice.
+        After a Codeforces round you took part in, the problems just past what you solved show up under Problems you tried, in Practice.
       </p>
     </section>
   );

@@ -14,6 +14,7 @@ import { useTopicReport } from "@/data/queries";
 import { useMixOfTheDay, useRecommender, useReshuffleMix, type MixOfTheDay } from "@/data/recommendations";
 import { useUiStore } from "@/data/uiStore";
 import type { Recommender, TopicPlan } from "@/engine/recommender";
+import { recommendedNextId } from "@/engine/today";
 import { cn } from "@/lib/utils";
 import { practiceTabs } from "./tabs";
 
@@ -37,8 +38,9 @@ function MixCard({ mix, rec }: { mix: MixOfTheDay; rec: Recommender }) {
   const lc = items.filter((i) => i.platform === "lc");
   const done = items.filter((i) => i.done).length;
   const learnTopic = lc[0] ? rec.plans.get(lc[0].topicId) : undefined;
-  // The one primary Open on the screen: the first problem not solved yet (Codeforces first, as listed).
-  const firstOpen = [...cf, ...lc].find((i) => !i.done)?.problemId;
+  // The one primary Open on the screen, tagged "Recommended next": the first problem not solved yet
+  // (Codeforces first, as listed), the same one Today's Do this next picks.
+  const firstOpen = recommendedNextId(items);
 
   return (
     <section aria-labelledby="mix-title" className="glass-card flex flex-col gap-6 p-6">
@@ -49,8 +51,8 @@ function MixCard({ mix, rec }: { mix: MixOfTheDay; rec: Recommender }) {
           <>
             {cf.length > 0 && `${cf.length} Codeforces ${cf.length === 1 ? "problem" : "problems"} for your weakest topics`}
             {cf.length > 0 && lc.length > 0 && ", and "}
-            {lc.length > 0 && `${lc.length} on LeetCode to learn ${learnTopic?.name.toLowerCase() ?? "your next topic"}`}. The same set until
-            midnight.
+            {lc.length > 0 && `${lc.length} on LeetCode to learn ${learnTopic?.name.toLowerCase() ?? "your next topic"}`}. A new set comes at
+            midnight, or sooner with {LABELS.newSet}.
           </>
         }
         actions={
@@ -118,7 +120,7 @@ function UnfinishedCard({ rec }: { rec: Recommender }) {
   const shown = all ? list : list.slice(0, 6);
   return (
     <section aria-labelledby="upsolve-title" className="glass-card flex flex-col gap-4 p-6">
-      <CardHeader id="upsolve-title" title={LABELS.unfinished} description="Codeforces problems you tried and never got accepted, easiest first." pill={`${list.length} open`} />
+      <CardHeader id="upsolve-title" title={LABELS.unfinished} description="Not accepted yet, easiest first." pill={`${list.length} open`} />
       <ul className="-mx-2 grid grid-cols-1 gap-x-6 lg:grid-cols-2">
         {shown.map((p) => (
           <ProblemRow key={p.id} p={p} density="compact" feedback={["skip"]} />
@@ -216,7 +218,7 @@ function MoreByTopicCard({ rec, avoid }: { rec: Recommender; avoid: ReadonlySet<
   );
 }
 
-/** Practice → Today's problems: the five picked for today, then unfinished problems, then more by topic (folded). */
+/** Practice → Today's problems: the five picked for today, then the problems you tried, then more by topic (folded). */
 export function PracticeMix() {
   const report = useTopicReport();
   const rec = useRecommender();
