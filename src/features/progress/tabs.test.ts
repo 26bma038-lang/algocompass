@@ -1,10 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { tabActive } from "@/components/SegmentedTabs";
-import { PROGRESS_TABS } from "./tabs";
+import { continuePractice, PROGRESS_TABS } from "./tabs";
 
 describe("Progress tabs (v1.4: two instead of three)", () => {
   it("are Overview and Topics", () => {
     expect(PROGRESS_TABS.map((t) => t.label)).toEqual(["Overview", "Topics"]);
+  });
+
+  it("has a way back to practice beside the tabs (v1.4 polish)", () => {
+    expect(continuePractice("smart", "/learn/path/basics")).toEqual({ to: "/practice", label: "Continue today's practice" });
+    expect(continuePractice("beginner", "/learn/path/arrays")).toEqual({ to: "/learn/path/arrays", label: "Continue today's practice" });
+    expect(continuePractice("beginner", null).to).toBe("/learn");
   });
 
   it("light Overview on the badges page and Topics on the map", () => {

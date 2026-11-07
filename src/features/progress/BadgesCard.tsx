@@ -41,12 +41,12 @@ export function BadgesCard({ columns = 3 }: { columns?: 1 | 3 }) {
             <span className="flex min-w-0 flex-col">
               <span className="truncate text-body-sm font-semibold text-ink">{a.def.title}</span>
               {a.unlocked ? (
-                <span className="flex items-center gap-1 text-label text-ink-muted">
+                <span className="flex items-center gap-1 text-body-sm text-ink-muted">
                   <Check aria-hidden className="size-3 text-success" strokeWidth={2.6} />
                   {a.at !== null ? `Earned ${date(a.at)}` : "Earned"}
                 </span>
               ) : (
-                <span className="line-clamp-2 text-label text-ink-muted">{a.def.hint}</span>
+                <span className="line-clamp-2 text-body-sm text-ink-muted">{a.def.hint}</span>
               )}
             </span>
           </li>

@@ -10,6 +10,7 @@ import { NumberTicker } from "@/components/ui/number-ticker";
 import { useProgression } from "@/data/progression";
 import { useTodayQuests, useWeeklyGoals } from "@/data/quests";
 import { useMixOfTheDay } from "@/data/recommendations";
+import { goalMeter } from "@/engine/progress";
 import type { QuestState } from "@/engine/quests";
 import { cn } from "@/lib/utils";
 import { QuestBar, QuestRow } from "./QuestList";
@@ -101,7 +102,7 @@ export function LevelCard() {
       {lit && (
         <div className="flex flex-col gap-1.5">
           <QuestBar value={data.progress} />
-          <span className="numeric text-label text-ink-muted">
+          <span className="numeric text-body-sm text-ink-muted">
             <NumberTicker id="level-xp" value={data.intoLevel} format={plain} /> of {data.toNext} XP to level {data.level! + 1}
           </span>
         </div>
@@ -110,48 +111,50 @@ export function LevelCard() {
   );
 }
 
-/** A goal ring: accent arc over a hairline track. Hitting the goal adds a check and words, never color alone. */
-export function GoalRing({ label, value, goal, dot }: { label: string; value: number; goal: number; dot?: string }) {
-  const r = 26;
-  const c = 2 * Math.PI * r;
-  const ratio = goal > 0 ? Math.min(1, value / goal) : 0;
-  const hit = goal > 0 && value >= goal;
+/**
+ * One weekly goal as a horizontal meter (v1.4 polish; empty rings read as nothing at all): the goal
+ * on the left, the bar, then "3 of 10" over "7 to go". Hitting it adds a check and words, never colour alone.
+ */
+export function GoalMeter({ label, value, goal }: { label: string; value: number; goal: number }) {
+  const { ratio, hit, count, note } = goalMeter(value, goal);
   return (
-    <div className="flex items-center gap-4">
-      <svg width="64" height="64" viewBox="0 0 64 64" role="img" aria-label={`${label}: ${value} of ${goal}${hit ? ", goal hit" : ""}`} className="shrink-0 -rotate-90">
-        <circle cx="32" cy="32" r={r} fill="none" stroke="var(--glass-border-strong)" strokeWidth="5" />
-        <circle
-          cx="32"
-          cy="32"
-          r={r}
-          fill="none"
-          stroke="var(--accent)"
-          strokeWidth="5"
-          strokeLinecap="round"
-          strokeDasharray={c}
-          strokeDashoffset={c * (1 - ratio)}
-          className="transition-[stroke-dashoffset] duration-[var(--dur-slow)] ease-out-quint"
+    <li className="grid grid-cols-[minmax(0,10rem)_minmax(0,1fr)_6.5rem] items-center gap-4">
+      <span className="text-body-sm text-ink">{label}</span>
+      <span
+        role="meter"
+        aria-label={label}
+        aria-valuemin={0}
+        aria-valuemax={Math.max(goal, 1)}
+        aria-valuenow={Math.min(value, Math.max(goal, 1))}
+        aria-valuetext={note ? `${count}, ${note.toLowerCase()}` : count}
+        className="relative block h-2 overflow-hidden rounded-full bg-glass-border-strong"
+      >
+        <span
+          className="absolute inset-0 origin-left rounded-full bg-accent transition-transform duration-[var(--dur-slow)] ease-out-quint"
+          style={{ transform: `scaleX(${ratio})` }}
         />
-      </svg>
-      <div className="flex min-w-0 flex-col">
-        <span className="flex items-center gap-1.5 text-label text-ink-muted">
-          {dot && <span aria-hidden className={cn("size-1.5 rounded-full", dot)} />}
-          {label}
+      </span>
+      <span className="flex flex-col items-end text-right">
+        <span className="numeric text-body-sm text-ink">
+          {goal > 0 ? (
+            <>
+              <span className="font-semibold">{value}</span> of {goal}
+            </>
+          ) : (
+            <span className="text-ink-muted">No goal set</span>
+          )}
         </span>
-        <span className="numeric font-display text-headline font-semibold text-ink">
-          {value}
-          <span className="text-body text-ink-muted"> / {goal}</span>
-        </span>
-        {hit ? (
-          <span className="flex items-center gap-1 text-label text-ink">
-            <Check aria-hidden className="size-3.5 text-success" strokeWidth={2.4} />
-            Goal hit
-          </span>
-        ) : (
-          <span className="text-label text-ink-muted">{goal - value} to go</span>
-        )}
-      </div>
-    </div>
+        {note &&
+          (hit ? (
+            <span className="flex items-center gap-1 text-body-sm text-ink">
+              <Check aria-hidden className="size-3.5 text-success" strokeWidth={2.4} />
+              {note}
+            </span>
+          ) : (
+            <span className="text-body-sm text-ink-muted">{note}</span>
+          ))}
+      </span>
+    </li>
   );
 }
 
@@ -167,7 +170,7 @@ export function WeeklyGoalsCard() {
         description="Weekly goals, Monday to Sunday. A problem counts in the week you first solve it."
         pill={daysLeft !== null ? `${daysLeft} ${daysLeft === 1 ? "day" : "days"} left` : undefined}
         actions={
-          <Link to="/settings" className="rounded-xs text-label text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
+          <Link to="/settings" className="rounded-xs text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
             Edit goals
           </Link>
         }
@@ -175,11 +178,11 @@ export function WeeklyGoalsCard() {
       {!data || !goals ? (
         <p className="text-body-sm text-ink-muted">Loading this week…</p>
       ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-          <GoalRing label="Codeforces problems" value={data.counts.cfProblems} goal={goals.cfProblems} dot="bg-platform-cf" />
-          <GoalRing label="LeetCode problems" value={data.counts.lcProblems} goal={goals.lcProblems} dot="bg-platform-lc" />
-          <GoalRing label="Contests" value={data.counts.contests} goal={goals.contests} />
-        </div>
+        <ul className="flex flex-col gap-4">
+          <GoalMeter label="Codeforces problems" value={data.counts.cfProblems} goal={goals.cfProblems} />
+          <GoalMeter label="LeetCode problems" value={data.counts.lcProblems} goal={goals.lcProblems} />
+          <GoalMeter label="Contests" value={data.counts.contests} goal={goals.contests} />
+        </ul>
       )}
     </section>
   );

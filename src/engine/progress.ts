@@ -74,3 +74,13 @@ export function badgesToShow<T extends AchievementState>(all: readonly T[], n = 
   const next = all.filter((a) => !a.unlocked).sort((a, b) => ratio(b) - ratio(a));
   return { earned: earned.length, list: [...earned, ...next].slice(0, n) };
 }
+
+/**
+ * One weekly goal as a horizontal meter (v1.4 polish): how full the bar is, and the words beside it
+ * ("3 of 10" over "7 to go" or "Goal hit"). A goal of 0 is "No goal set" with an empty bar.
+ */
+export function goalMeter(value: number, goal: number): { ratio: number; hit: boolean; count: string; note: string | null } {
+  if (goal <= 0) return { ratio: 0, hit: false, count: "No goal set", note: null };
+  const hit = value >= goal;
+  return { ratio: Math.min(1, value / goal), hit, count: `${value} of ${goal}`, note: hit ? "Goal hit" : `${goal - value} to go` };
+}

@@ -27,7 +27,7 @@ function Row({ item, untried }: { item: StandingItem; untried?: boolean }) {
             <span className="block h-full origin-left rounded-full bg-accent" style={{ transform: `scaleX(${item.score / 100})` }} />
           </span>
         )}
-        <span id={`why-${item.topicId}`} className="text-label text-ink-muted">
+        <span id={`why-${item.topicId}`} className="text-body-sm text-ink-muted">
           {item.reason}
         </span>
       </button>
@@ -38,7 +38,7 @@ function Row({ item, untried }: { item: StandingItem; untried?: boolean }) {
 function Group({ title, items, empty, untried }: { title: string; items: StandingItem[]; empty: string; untried?: boolean }) {
   return (
     <div className="flex flex-col gap-1">
-      <h3 className="text-label text-ink-muted">{title}</h3>
+      <h3 className="text-body-sm text-ink-muted">{title}</h3>
       {items.length === 0 ? (
         <p className="text-body-sm text-ink-muted">{empty}</p>
       ) : (
@@ -63,7 +63,7 @@ export function StandingCard({ report }: { report: TopicReport | undefined }) {
         <h2 id="standing-title" className="font-display text-headline font-semibold text-ink">
           Where you stand
         </h2>
-        <span className="text-label text-ink-muted">
+        <span className="text-body-sm text-ink-muted">
           <Term id="strength" /> / 100
         </span>
       </div>

@@ -47,6 +47,15 @@ The brief for Parts 4–7 wasn't written into this log when Part 4 was interrupt
 - **Decision:** sheet rows keep the short "Open" (a sheet section lists dozens of rows, and each row already shows its site); the sheet's Next tile already said "Open on LeetCode".
 - **Tests:** `recommendedNextId` matches `pickDoThisNext` (today.test.ts); the Open label and the new words (problemText.test.ts, glossary.test.ts).
 
+### Part 5: Progress (2026-11-07)
+
+- **Weekly goals are meters, not rings:** three rows (goal · bar · "3 of 10" over "7 to go" or "✓ Goal hit"), a 10rem label column and a 6.5rem count column so the bars line up. At 0 a ring was an empty circle that read as nothing; a bar with "0 of 10 · 10 to go" says where you are. A goal set to 0 reads "No goal set". The platform dots beside the labels are gone (the label already names the site). `goalMeter()` in `src/engine/progress.ts`; the bar is a `role="meter"` with the words as its value text.
+- **"Weekly details" fold:** the weekly review leads with rating, streak, topics that improved and next week's focus. The week-on-week solve counts and the goals hit/missed list (This week already shows the goals) fold under "Weekly details", closed by default.
+- **"Continue today's practice":** one outline button beside Progress's tabs, on both tabs. Smart mode goes to `/practice`; a beginner goes straight into the current lesson, or Learn once the path is done (`continuePractice` in `src/features/progress/tabs.ts`). Progress looks back; this is the way back to doing.
+- **Readable secondary text:** the lines that explain something on Progress went from 12px to 13px (`text-body-sm`): a topic's "why" and its score, Where you stand's reasons and group headings, a badge's hint and earned date, a goal's "to go", the level's XP line, the weekly review's date and headings, "Edit goals". Chart legends and the heatmap's month labels stay 12px.
+- **Decision:** Beginner Overview keeps Your path's "Continue step N: …" link even though the new button goes to the same lesson: the link names the step, and it's the card's own way in.
+- **Tests:** `goalMeter` (progress.test.ts), `continuePractice` (tabs.test.ts), the new labels (`LABELS.continuePractice`, `LABELS.weeklyDetails`).
+
 ## Done: the landing website (branch `website`, merged to master)
 
 A static site in `website/` (plain HTML, CSS and JS, no build step), deployed to GitHub Pages by `.github/workflows/pages.yml`. No app code changed. Screenshots in `docs/screenshots/website/`.

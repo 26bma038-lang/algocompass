@@ -41,7 +41,7 @@ function Row({ r }: { r: TopicRow }) {
       <button type="button" onClick={() => openTopic(r.topicId)} className="grid min-w-0 flex-1 grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] items-center gap-x-6 gap-y-1 text-left">
         <span className="flex min-w-0 flex-col">
           <span className="truncate text-body font-semibold text-ink">{r.name}</span>
-          <span className="truncate text-label text-ink-muted">{r.why}</span>
+          <span className="truncate text-body-sm text-ink-muted">{r.why}</span>
         </span>
         <span className="flex min-w-0 items-center gap-3">
           <span className={cn("w-28 shrink-0 text-body-sm", r.tried ? "text-ink" : "text-ink-muted")}>{STATUS_WORDS[r.status]}</span>
@@ -50,7 +50,7 @@ function Row({ r }: { r: TopicRow }) {
               <span aria-hidden className="h-1.5 min-w-12 flex-1 overflow-hidden rounded-full bg-glass-border-strong">
                 <span className="block h-full origin-left rounded-full bg-accent" style={{ transform: `scaleX(${r.score / 100})` }} />
               </span>
-              <span className="numeric w-12 shrink-0 text-right text-label text-ink-muted">{r.score}/100</span>
+              <span className="numeric w-14 shrink-0 text-right text-body-sm text-ink-muted">{r.score}/100</span>
             </>
           )}
         </span>
@@ -84,7 +84,7 @@ function PathTopicsCard({ beginner }: { beginner: boolean }) {
           <li key={r.topicId} className={cn("flex items-center gap-3 rounded-sm px-3 py-2.5", r.state === "current" && "bg-abyss-sunken")}>
             <span className="flex min-w-0 flex-1 flex-col">
               <span className={cn("truncate text-body font-semibold", r.state === "later" ? "text-ink-muted" : "text-ink")}>{name(r.topicId)}</span>
-              <span className="truncate text-label text-ink-muted">
+              <span className="truncate text-body-sm text-ink-muted">
                 {r.steps.map((i, k) => (
                   <span key={i}>
                     {k > 0 && ", "}

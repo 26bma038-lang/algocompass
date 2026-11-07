@@ -1,8 +1,11 @@
 import { lazy, Suspense } from "react";
-import { Outlet } from "react-router-dom";
-import { LineChart } from "lucide-react";
+import { Link, Outlet } from "react-router-dom";
+import { ArrowRight, LineChart } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { SegmentedTabs } from "@/components/SegmentedTabs";
+import { lessonPath } from "@/components/shell/nav";
+import { Button } from "@/components/ui/button";
+import { usePath } from "@/data/path";
 import { usePrefs } from "@/data/prefs";
 import { useHomeData, useTopicReport } from "@/data/queries";
 import { LevelCard, WeeklyGoalsCard } from "@/features/quests/Quests";
@@ -12,7 +15,7 @@ import { StandingCard } from "@/features/home/StandingCard";
 import { BadgesCard } from "./BadgesCard";
 import { BeginnerOverview } from "./BeginnerOverview";
 import { LcCard } from "./LcCard";
-import { PROGRESS_TABS } from "./tabs";
+import { continuePractice, PROGRESS_TABS } from "./tabs";
 
 // Recharts loads only when the Overview tab opens.
 const RatingChart = lazy(() => import("@/features/home/RatingChart").then((m) => ({ default: m.RatingChart })));
@@ -22,10 +25,23 @@ const RatingChart = lazy(() => import("@/features/home/RatingChart").then((m) =>
  * and the Topics map (`/progress/topics/map`) open under them; old links redirect.
  */
 export function Progress() {
+  const beginner = usePrefs().data?.mode === "beginner";
+  const view = usePath().data;
+  const cur = view && view.current !== null ? view.steps[view.current] : undefined;
+  const cont = continuePractice(beginner ? "beginner" : "smart", cur ? lessonPath(cur.step.id) : null);
   return (
     // --tree-above: the tab row (40px) plus its gap (24px), so the Topics map keeps its full height.
     <div className="flex flex-col gap-6 [--tree-above:64px]">
-      <SegmentedTabs label="Progress sections" tabs={PROGRESS_TABS} />
+      {/* v1.4 polish: Progress looks back; one button beside the tabs goes back to doing. */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <SegmentedTabs label="Progress sections" tabs={PROGRESS_TABS} />
+        <Button asChild variant="outline">
+          <Link to={cont.to}>
+            {cont.label}
+            <ArrowRight aria-hidden />
+          </Link>
+        </Button>
+      </div>
       <Suspense fallback={<p className="text-body-sm text-ink-muted">Loading…</p>}>
         <Outlet />
       </Suspense>

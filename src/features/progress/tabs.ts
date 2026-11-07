@@ -11,5 +11,14 @@ export const PROGRESS_TABS: readonly SegmentedTab[] = [
   { to: "/progress/topics", label: LABELS.topics },
 ];
 
+/**
+ * The "Continue today's practice" button beside Progress's tabs (v1.4 polish): smart mode goes to
+ * today's problems; a beginner goes straight back into the current lesson (Learn once the path is done).
+ */
+export function continuePractice(mode: "smart" | "beginner", currentLesson: string | null): { to: string; label: string } {
+  if (mode === "smart") return { to: "/practice", label: LABELS.continuePractice };
+  return { to: currentLesson ?? "/learn", label: LABELS.continuePractice };
+}
+
 export const BADGES_PATH = "/progress/badges";
 export const TOPICS_MAP_PATH = "/progress/topics/map";

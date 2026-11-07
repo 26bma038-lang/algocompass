@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { ArrowDown, ArrowUp, Check, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, ChevronDown, X } from "lucide-react";
 import { useStreak } from "@/components/shell/useStreak";
 import { CardHeader } from "@/components/CardHeader";
 import { Button } from "@/components/ui/button";
 import { usePrefs } from "@/data/prefs";
 import { useWeeklyReview } from "@/data/quests";
 import { useRecommender } from "@/data/recommendations";
+import { LABELS } from "@/lib/glossary";
 import { cn } from "@/lib/utils";
 
 const isSunday = () => new Date().getDay() === 0;
@@ -26,11 +27,13 @@ function Versus({ now, before }: { now: number; before: number }) {
 }
 
 /**
- * The week in one panel: solves per platform, topics that rose, rating, streak, goals hit or
- * missed, and one line on next week's focus. Open on Sundays, a click away on other days.
+ * The week in one panel: rating, streak, topics that rose and one line on next week's focus. The
+ * week-on-week comparisons and goals hit (This week already shows the goals) fold under "Weekly
+ * details" (v1.4 polish). Open on Sundays, a click away on other days.
  */
 export function WeeklyReviewCard() {
   const [open, setOpen] = useState(isSunday);
+  const [details, setDetails] = useState(false);
   const review = useWeeklyReview(open);
   const goals = usePrefs().data?.goals;
   const streak = useStreak();
@@ -66,18 +69,10 @@ export function WeeklyReviewCard() {
         <p className="text-body-sm text-ink-muted">Adding up your week…</p>
       ) : (
         <>
-          <p className="text-label text-ink-muted">
+          <p className="text-body-sm text-ink-muted">
             {new Date(d.from * 1000).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })} to today
           </p>
           <dl className="flex flex-col">
-            <Line label="Codeforces solved">
-              {d.counts.cfProblems}
-              <Versus now={d.counts.cfProblems} before={d.lastWeek.cfProblems} />
-            </Line>
-            <Line label="LeetCode solved">
-              {d.counts.lcProblems}
-              <Versus now={d.counts.lcProblems} before={d.lastWeek.lcProblems} />
-            </Line>
             <Line label="Rating">
               {d.rating.rounds === 0 ? (
                 <span className="text-ink-muted">No rated rounds</span>
@@ -96,7 +91,7 @@ export function WeeklyReviewCard() {
           </dl>
 
           <div className="flex flex-col gap-1.5">
-            <h3 className="text-label text-ink-muted">Topics that improved</h3>
+            <h3 className="text-body-sm text-ink-muted">Topics that improved</h3>
             {d.improved.length === 0 ? (
               <p className="text-body-sm text-ink-muted">No topic score rose yet this week.</p>
             ) : (
@@ -114,34 +109,58 @@ export function WeeklyReviewCard() {
             )}
           </div>
 
-          {goalRows.length > 0 && (
-            <div className="flex flex-col gap-1.5">
-              <h3 className="text-label text-ink-muted">
-                Goals: {hit} of {goalRows.length} hit
-              </h3>
-              <ul className="flex flex-col gap-1">
-                {goalRows.map((g) => {
-                  const ok = g.value >= g.goal;
-                  return (
-                    <li key={g.label} className="flex items-center gap-2 text-body-sm">
-                      {ok ? <Check aria-hidden className="size-3.5 text-success" strokeWidth={2.4} /> : <X aria-hidden className="size-3.5 text-ink-faint" strokeWidth={2.4} />}
-                      <span className={cn(ok ? "text-ink" : "text-ink-muted")}>{g.label}</span>
-                      <span className="numeric ml-auto text-ink-muted">
-                        {g.value} / {g.goal}
-                        <span className="sr-only">{ok ? ", hit" : ", not yet"}</span>
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
-
           {next && (
             <p className="rounded-sm border border-glass-border bg-abyss-sunken p-3 text-body-sm text-ink">
               <span className="text-ink-muted">Next week: </span>
               {next.mode === "learn" ? `learn ${next.name.toLowerCase()} on LeetCode` : `sharpen ${next.name.toLowerCase()} on Codeforces`}. {next.why}
             </p>
+          )}
+
+          <button
+            type="button"
+            aria-expanded={details}
+            aria-controls="weekly-details"
+            onClick={() => setDetails((v) => !v)}
+            className="flex items-center justify-between gap-2 rounded-xs border-t border-glass-border pt-3 text-left text-body-sm font-medium text-ink hover:underline hover:decoration-glass-border-strong hover:underline-offset-4"
+          >
+            {LABELS.weeklyDetails}
+            <ChevronDown aria-hidden className={cn("size-4 text-ink-muted transition-transform duration-[var(--dur-fast)]", details && "rotate-180")} />
+          </button>
+          {details && (
+            <div id="weekly-details" className="flex flex-col gap-4">
+              <dl className="flex flex-col">
+                <Line label="Codeforces solved">
+                  {d.counts.cfProblems}
+                  <Versus now={d.counts.cfProblems} before={d.lastWeek.cfProblems} />
+                </Line>
+                <Line label="LeetCode solved">
+                  {d.counts.lcProblems}
+                  <Versus now={d.counts.lcProblems} before={d.lastWeek.lcProblems} />
+                </Line>
+              </dl>
+              {goalRows.length > 0 && (
+                <div className="flex flex-col gap-1.5">
+                  <h3 className="text-body-sm text-ink-muted">
+                    Goals: {hit} of {goalRows.length} hit
+                  </h3>
+                  <ul className="flex flex-col gap-1">
+                    {goalRows.map((g) => {
+                      const ok = g.value >= g.goal;
+                      return (
+                        <li key={g.label} className="flex items-center gap-2 text-body-sm">
+                          {ok ? <Check aria-hidden className="size-3.5 text-success" strokeWidth={2.4} /> : <X aria-hidden className="size-3.5 text-ink-faint" strokeWidth={2.4} />}
+                          <span className={cn(ok ? "text-ink" : "text-ink-muted")}>{g.label}</span>
+                          <span className="numeric ml-auto text-ink-muted">
+                            {g.value} of {g.goal}
+                            <span className="sr-only">{ok ? ", hit" : ", not yet"}</span>
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+            </div>
           )}
         </>
       )}

@@ -4,7 +4,7 @@ import { STATUS_WORDS, plainTopicName } from "@/lib/glossary";
 import type { AchievementState } from "./achievements";
 import { weekStart } from "./goals";
 import { pathState, type BeginnerPath } from "./path";
-import { badgesToShow, pathTopics, topicRows, weekDays } from "./progress";
+import { badgesToShow, goalMeter, pathTopics, topicRows, weekDays } from "./progress";
 import type { TopicStrength } from "./strength";
 
 const PATH = JSON.parse(fs.readFileSync("src/data/path/beginner-path.json", "utf8")) as BeginnerPath;
@@ -76,5 +76,14 @@ describe("Your week and Badges", () => {
     const none = badgesToShow([a("p", false, null, 1, 10), a("q", false, null, 5, 10), a("r", false, null, 0, 3), a("s", false, null, 2, 4)]);
     expect(none.earned).toBe(0);
     expect(none.list.map((b) => b.id)).toEqual(["q", "s", "p"]);
+  });
+});
+
+describe("weekly goals as meters (v1.4 polish)", () => {
+  it("says how far along in words, never as an empty ring", () => {
+    expect(goalMeter(3, 10)).toEqual({ ratio: 0.3, hit: false, count: "3 of 10", note: "7 to go" });
+    expect(goalMeter(0, 2)).toEqual({ ratio: 0, hit: false, count: "0 of 2", note: "2 to go" });
+    expect(goalMeter(12, 10)).toEqual({ ratio: 1, hit: true, count: "12 of 10", note: "Goal hit" });
+    expect(goalMeter(4, 0)).toEqual({ ratio: 0, hit: false, count: "No goal set", note: null });
   });
 });

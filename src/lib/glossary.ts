@@ -17,6 +17,9 @@ export const LABELS = {
   unfinished: "Problems you tried",
   /** v1.4 polish: Practice's tag on the one problem to do now (the same one Today's Do this next picks). */
   recommendedNext: "Recommended next",
+  /** v1.4 polish: Progress. The button beside the tabs back to doing, and the weekly review's fold. */
+  continuePractice: "Continue today's practice",
+  weeklyDetails: "Weekly details",
   /** Sync. */
   update: "Update",
   updateNow: "Update now",
