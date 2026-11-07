@@ -15,7 +15,7 @@
 // Then npm run check:links verifies the result.
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { deriveCodeLang, loadTable } from "./lib/code-lang.mjs";
+import { deriveCodeLang, loadTable, playlistRoles } from "./lib/code-lang.mjs";
 import { fmt } from "./lib/fmt.mjs";
 import { pool } from "./lib/platforms.mjs";
 import { playlistVideos, spokenLanguage, ytPlaylistOembed } from "./lib/youtube.mjs";
@@ -54,7 +54,7 @@ await pool(todo, 3, async (p) => {
   if (!list.videos.length) return fail(`${p.id}: no playable videos`);
   p.title = o.title;
   p.channel = o.author;
-  const d = deriveCodeLang({ id: p.id, title: p.title, channel: p.channel }, new Set([p.kind === "walkthroughs" ? "walkthrough" : "lecture"]), table);
+  const d = deriveCodeLang({ id: p.id, title: p.title, channel: p.channel }, playlistRoles(p), table);
   if (d.error) return fail(`${p.id}: ${d.error}`);
   p.codeLang = d.codeLang;
   if (d.alsoCodeLang.length) p.alsoCodeLang = d.alsoCodeLang;

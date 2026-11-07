@@ -1,4 +1,5 @@
-// Verifies every link the app ships: src/data/resources.json and the curated LeetCode lists.
+// Verifies every link the app ships: src/data/resources.json, the curated LeetCode lists, the sheets,
+// the Beginner Path and its videos, and (v1.6) the full playlists in src/data/playlists.json.
 // Usage: npm run check:links            (exit code 1 if anything fails)
 //        npm run check:links -- --quiet (only print failures)
 //
@@ -190,6 +191,10 @@ failures += await checkSheets({ root, report, quiet, deep: process.argv.includes
 // ---- 5. Beginner Path problems and every video (oEmbed: 200, title and channel match). ----
 const { checkMedia } = await import("./lib/check-media.mjs");
 failures += await checkMedia({ root, report, quiet });
+
+// ---- 6. Full playlists (v1.6): oEmbed 200, title and channel exact; a changed video count warns. ----
+const { checkPlaylists } = await import("./lib/check-playlists.mjs");
+failures += await checkPlaylists({ root, report, quiet });
 
 console.log(failures ? `\n${failures} problem(s) found.` : "\nAll links verified.");
 process.exit(failures ? 1 : 0);

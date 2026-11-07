@@ -55,3 +55,6 @@ export function tagProblems(v, derived) {
   else if (also.join(",") !== derived.alsoCodeLang.join(",")) out.push(`alsoCodeLang is ${JSON.stringify(also)}, the table says ${JSON.stringify(derived.alsoCodeLang)}`);
   return out;
 }
+
+/** v1.6: a playlist is tagged like one video, with its title and channel; a walkthroughs playlist counts as a walkthrough. */
+export const playlistRoles = (p) => new Set([p.kind === "walkthroughs" ? "walkthrough" : "lecture"]);

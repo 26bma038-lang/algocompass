@@ -15,6 +15,14 @@ Not released. A learner gets whole YouTube playlists (every video, in order) ins
 - **Topics with no topic playlist** (a full course may still cover them): English: implementation, brute force, constructive, prefix sums, combinatorics, probability, geometry, divide & conquer, string algorithms, interactive, design. Hindi: implementation, brute force, greedy, probability, divide & conquer, game theory, flows/advanced graphs, design.
 - **Decisions:** Pepcoding's Level 2 series come in "C++ | English", "Java | English" and "C++ | Hindi" versions; all are in, so the language filter picks the right one. Pepcoding's 554-video "DSA - Level 1" and the Level 1 topic series are out: their titles name no language and they'd crowd every topic. Striver's A2Z course is `en` though a few early videos in it are in Hindi (the samples heard one).
 
+### Part 2: check:links checks the playlists (2026-11-07)
+
+- **`scripts/lib/check-playlists.mjs`**, section 6 of `npm run check:links`: every playlist's oEmbed must answer 200 with the stored title and channel exactly, carry the `codeLang` the table gives it, and have videos stored. Any of those fails the run.
+- **Count changes warn:** the playlist page is read again (three tries); when YouTube now lists a different number of playable videos than stored, or the page can't be read, it prints `warn  <title>: 315 videos stored, 316 on YouTube now (run npm run fill:playlists)`. Channels add videos to running series, so a changed count isn't a broken link.
+- **Offline, in `npm test`:** `src/data/playlists.test.ts`: every playlist is filled (title, channel, unique 11-character video ids, minutes), uses known languages, scopes, kinds and topics, carries the right `codeLang`, and every Beginner Path topic has an English topic playlist and a Hindi one except Greedy.
+- `playlistRoles()` (`scripts/lib/code-lang.mjs`) is the one place that says a walkthroughs playlist is tagged as a walkthrough; fill, check and test share it.
+- First run: 102/102 match; one transient "couldn't read the page" warning, which is why the page read now retries.
+
 ## Released: v1.5.0, the language you code in (branch `v1.5`, from `polish`, merged to master)
 
 **Released as v1.5.0 (2026-11-07):** this branch and the v1.4 polish under it were merged into master; the version was bumped in package.json, tauri.conf.json, Cargo.toml and Cargo.lock. Tag `v1.5.0`, GitHub release with `AlgoCompass_1.5.0_x64-setup.exe` (4.3 MB) and `AlgoCompass_1.5.0_x64_en-US.msi` (5.7 MB). There's no Android build ("APK"): AlgoCompass is a Windows desktop app, so the release carries the Windows installers. The website wasn't touched (its Pages workflow only runs on changes under `website/`).

@@ -20,3 +20,4 @@ export function loadTable(root: string): TagTable;
 export function videoUses(path: unknown, resources: unknown): { v: TaggedVideo; where: string; role: string; roles: Set<string> }[];
 export function deriveCodeLang(v: { id: string; title: string; channel: string }, roles: Set<string>, table: TagTable): Derived;
 export function tagProblems(v: { codeLang?: string; alsoCodeLang?: string[] }, derived: Derived): string[];
+export function playlistRoles(p: { kind: string }): Set<string>;
