@@ -2,7 +2,8 @@ import { GraduationCap, Target } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useHandles } from "@/data/settings";
 import { useUpdatePrefs, type AppMode, type AppPrefs } from "@/data/prefs";
-import { LangToggle } from "@/features/path/shared";
+import { CodeLangToggle, LangToggle } from "@/features/path/shared";
+import { LABELS } from "@/lib/glossary";
 import { cn } from "@/lib/utils";
 
 const MODES: { id: AppMode; title: string; body: string; icon: typeof Target }[] = [
@@ -10,7 +11,7 @@ const MODES: { id: AppMode; title: string; body: string; icon: typeof Target }[]
   { id: "smart", title: "Smart", body: "Today leads with your next problem, today's goals and your Codeforces rating.", icon: Target },
 ];
 
-/** Mode (Beginner or Smart) and the lesson video language. Both apply right away. */
+/** Mode (Beginner or Smart). Applies right away. */
 export function ModeSection({ prefs }: { prefs: AppPrefs }) {
   const update = useUpdatePrefs();
   const navigate = useNavigate();
@@ -47,12 +48,35 @@ export function ModeSection({ prefs }: { prefs: AppPrefs }) {
       {prefs.mode === "smart" && !cf && (
         <p className="mt-3 text-body-sm text-warning">Smart mode is built around your Codeforces rating: add your Codeforces handle above.</p>
       )}
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-glass-border pt-5">
-        <div className="flex flex-col gap-0.5">
-          <span className="text-body font-medium text-ink">Lesson video language</span>
-          <span className="text-body-sm text-ink-muted">For Beginner Path lessons and topic videos. Videos play inside the app.</span>
+    </section>
+  );
+}
+
+/**
+ * Language (v1.5): the language lesson videos speak, and the one you write code in. Both apply
+ * right away. The coding language decides each lesson's "Code it in …" video and which code shows first.
+ */
+export function LanguageSection() {
+  return (
+    <section aria-labelledby="language-title" className="glass-card p-6">
+      <h2 id="language-title" className="font-display text-headline font-semibold text-ink">
+        {LABELS.language}
+      </h2>
+      <div className="mt-5 flex flex-col divide-y divide-glass-border">
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-5">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-body font-medium text-ink">{LABELS.videoLanguage}</span>
+            <span className="text-body-sm text-ink-muted">For Beginner Path lessons and topic videos. Videos play inside the app.</span>
+          </div>
+          <LangToggle />
         </div>
-        <LangToggle />
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-5">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-body font-medium text-ink">{LABELS.codeIn}</span>
+            <span className="text-body-sm text-ink-muted">Lessons show code in this language first and point at a walkthrough in it.</span>
+          </div>
+          <CodeLangToggle />
+        </div>
       </div>
     </section>
   );

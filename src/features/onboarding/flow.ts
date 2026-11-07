@@ -2,7 +2,7 @@ import { lessonPath } from "@/components/shell/nav";
 
 /**
  * First launch, as data (v1.4), so the rules are testable without rendering:
- * - New to DSA: "New to DSA?" → video language → Start lesson 1. No accounts asked; LeetCode is
+ * - New to DSA: "New to DSA?" → video language and the language you code in (v1.5) → Start lesson 1. No accounts asked; LeetCode is
  *   offered later, inside the lesson, at the moment it helps.
  * - Already practising: video language, Codeforces username (required) and LeetCode (optional),
  *   then the first update.
@@ -16,9 +16,10 @@ export const CF_HANDLE = /^[A-Za-z0-9_.-]{3,24}$/;
 export const LC_HANDLE = /^[A-Za-z0-9_-]{1,40}$/;
 
 /** What the form shows once a mode is picked. */
-export function onboardingFields(mode: OnboardingMode | null): { language: boolean; handles: HandleField[] } {
-  if (mode === null) return { language: false, handles: [] };
-  return { language: true, handles: mode === "smart" ? ["codeforces", "leetcode"] : [] };
+export function onboardingFields(mode: OnboardingMode | null): { language: boolean; codeLang: boolean; handles: HandleField[] } {
+  if (mode === null) return { language: false, codeLang: false, handles: [] };
+  // v1.5: a beginner also picks the language they code in (it decides each lesson's walkthrough and code).
+  return { language: true, codeLang: mode === "beginner", handles: mode === "smart" ? ["codeforces", "leetcode"] : [] };
 }
 
 export interface OnboardingErrors {

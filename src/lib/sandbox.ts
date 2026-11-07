@@ -49,7 +49,7 @@ export function exitPreview() {
 export function previewSeed(kind: PreviewKind): Map<string, unknown> {
   if (kind === "welcome") return new Map();
   return new Map<string, unknown>([
-    ["prefs", { mode: "beginner", videoLang: "en", followedSheet: null }],
+    ["prefs", { mode: "beginner", videoLang: "en", codeLang: "cpp", followedSheet: null }],
     ["onboarded", true],
     ["handles", { codeforces: "", leetcode: "" }],
     ["tipTourSeen", 99],

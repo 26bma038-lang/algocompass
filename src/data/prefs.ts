@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { DEFAULT_CODE_LANG, isCodeLang, type CodeLang } from "@/engine/codeLang";
 import { DEFAULT_GOALS, type WeeklyGoals } from "@/engine/goals";
 import { readPref, writePref } from "./settings";
 
@@ -21,6 +22,7 @@ export interface NotifyPrefs {
  */
 export type AppMode = "smart" | "beginner";
 export type VideoLang = "en" | "hi";
+export type { CodeLang };
 
 export interface AppPrefs {
   goals: WeeklyGoals;
@@ -28,6 +30,8 @@ export interface AppPrefs {
   mode: AppMode;
   /** Language of lesson videos (English or Hindi). */
   videoLang: VideoLang;
+  /** v1.5: the language you write code in. Lessons point at walkthroughs in it and show its code first. */
+  codeLang: CodeLang;
   /** The sheet you follow: pinned first in Sheets and shown on Today. null = none. */
   followedSheet: string | null;
 }
@@ -37,6 +41,7 @@ export const DEFAULT_PREFS: AppPrefs = {
   notify: { contests: true, streak: true, streakTime: "20:00", quests: true },
   mode: "smart",
   videoLang: "en",
+  codeLang: DEFAULT_CODE_LANG,
   followedSheet: null,
 };
 
@@ -51,6 +56,7 @@ export async function readPrefs(): Promise<AppPrefs> {
     notify: { ...DEFAULT_PREFS.notify, ...saved?.notify },
     mode: saved?.mode === "beginner" ? "beginner" : "smart",
     videoLang: saved?.videoLang === "hi" ? "hi" : "en",
+    codeLang: isCodeLang(saved?.codeLang) ? saved.codeLang : DEFAULT_CODE_LANG,
     followedSheet: typeof saved?.followedSheet === "string" ? saved.followedSheet : null,
   };
 }

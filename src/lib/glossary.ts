@@ -56,7 +56,26 @@ export const LABELS = {
   yourWeek: "Your week",
   showAsMap: "Show as map",
   showAsList: "Show as list",
+  /** v1.5: the coding language. Settings' "Language" section holds both languages. */
+  language: "Language",
+  videoLanguage: "Video language",
+  codeIn: "I code in",
+  /** A video that explains the idea without coding in any one language. */
+  concept: "Concept",
+  allLanguages: "All languages",
 } as const;
+
+/** v1.5: the four coding languages, as the app names them. */
+export const CODE_LANG_NAMES = { cpp: "C++", java: "Java", python: "Python", js: "JavaScript" } as const;
+
+/** A video's language chip: "Concept", "C++", "Python"… */
+export const videoCodeLabel = (code: keyof typeof CODE_LANG_NAMES | "concept") => (code === "concept" ? LABELS.concept : CODE_LANG_NAMES[code]);
+
+/** The lesson slot for a walkthrough in your language: "Code it in Python". */
+export const codeItIn = (lang: keyof typeof CODE_LANG_NAMES) => `Code it in ${CODE_LANG_NAMES[lang]}`;
+
+/** Learn's default filter: your language's videos plus the ones that explain the idea ("Java + concepts"). */
+export const myLangAndConcepts = (lang: keyof typeof CODE_LANG_NAMES) => `${CODE_LANG_NAMES[lang]} + concepts`;
 
 /** A topic's strength status in plain words (v1.4): "Developing" reads as jargon, "Getting there" doesn't. */
 export const STATUS_WORDS = {

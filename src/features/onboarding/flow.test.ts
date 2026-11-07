@@ -5,9 +5,9 @@ import { landingPath, onboardingFields, primaryLabel, validateOnboarding } from 
 const none = { codeforces: "", leetcode: "" };
 
 describe("onboarding (v1.4)", () => {
-  it("asks a beginner only two things: New to DSA?, then the video language", () => {
-    expect(onboardingFields(null)).toEqual({ language: false, handles: [] });
-    expect(onboardingFields("beginner")).toEqual({ language: true, handles: [] });
+  it("asks a beginner New to DSA?, then the video language and the language they code in (v1.5)", () => {
+    expect(onboardingFields(null)).toEqual({ language: false, codeLang: false, handles: [] });
+    expect(onboardingFields("beginner")).toEqual({ language: true, codeLang: true, handles: [] });
     expect(primaryLabel("beginner")).toBe("Start lesson 1");
   });
 
@@ -24,7 +24,7 @@ describe("onboarding (v1.4)", () => {
   });
 
   it("keeps the handles for smart users: Codeforces required, LeetCode optional", () => {
-    expect(onboardingFields("smart")).toEqual({ language: true, handles: ["codeforces", "leetcode"] });
+    expect(onboardingFields("smart")).toEqual({ language: true, codeLang: false, handles: ["codeforces", "leetcode"] });
     expect(primaryLabel("smart")).toBe("Continue");
     expect(validateOnboarding("smart", none).cf).toMatch(/Codeforces username/);
     expect(validateOnboarding("smart", { codeforces: "ab", leetcode: "" }).cf).toMatch(/3–24/);

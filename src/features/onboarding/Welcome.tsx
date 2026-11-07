@@ -6,10 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { checkHandles, handlesStateKey, type HandleCheck } from "@/data/onboarding";
-import { prefsKey, updatePrefs, type VideoLang } from "@/data/prefs";
+import { prefsKey, updatePrefs, type CodeLang, type VideoLang } from "@/data/prefs";
+import { DEFAULT_CODE_LANG } from "@/engine/codeLang";
+import { CODE_LANG_OPTIONS } from "@/features/path/shared";
 import { loadPath } from "@/data/path";
 import { writeHandles, writeOnboarded } from "@/data/settings";
 import { handleCheckers, useSyncStore } from "@/data/syncStore";
+import { LABELS } from "@/lib/glossary";
 import { cn } from "@/lib/utils";
 import { landingPath, onboardingFields, primaryLabel, validateOnboarding, type OnboardingErrors, type OnboardingMode } from "./flow";
 
@@ -152,7 +155,7 @@ const LANGS: { id: VideoLang; label: string }[] = [
 ];
 
 /**
- * First launch (v1.4). "New to DSA?" first, then the video language.
+ * First launch (v1.4). "New to DSA?" first, then the video language (and, for a beginner, the language they code in: v1.5).
  * - New to DSA: that's all. Start lesson 1 saves the mode and language and opens Step 1's lesson
  *   directly. No accounts: LeetCode is offered inside the lesson, when it helps (Part 6 of step 2a).
  * - Already practising: Codeforces (required) and LeetCode (optional) usernames, checked against the
@@ -164,6 +167,7 @@ export function Welcome() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<OnboardingMode | null>(null);
   const [lang, setLang] = useState<VideoLang>("en");
+  const [codeLang, setCodeLang] = useState<CodeLang>(DEFAULT_CODE_LANG);
   const [cfHandle, setCf] = useState("");
   const [lcHandle, setLc] = useState("");
   const [checks, setChecks] = useState<{ cf?: HandleCheck; lc?: HandleCheck }>({});
@@ -197,7 +201,7 @@ export function Welcome() {
     }
     await writeHandles(saved);
     client.setQueryData(["settings", "handles"], saved);
-    const prefs = await updatePrefs({ mode, videoLang: lang });
+    const prefs = await updatePrefs({ mode, videoLang: lang, ...(mode === "beginner" ? { codeLang } : {}) });
     client.setQueryData(prefsKey, prefs);
     await writeOnboarded();
     if (beginner) {
@@ -262,26 +266,51 @@ export function Welcome() {
           </fieldset>
 
           {fields.language && (
-            <fieldset className="flex flex-col gap-2">
-              <legend className="mb-2 text-label text-ink-muted">Lesson videos in</legend>
-              <div role="radiogroup" aria-label="Lesson videos in" className="flex h-10 items-center gap-1 self-start rounded-md border border-glass-border bg-glass p-1">
-                {LANGS.map((l) => (
-                  <button
-                    key={l.id}
-                    type="button"
-                    role="radio"
-                    aria-checked={lang === l.id}
-                    onClick={() => setLang(l.id)}
-                    className={cn(
-                      "flex h-8 items-center rounded-sm px-4 text-body-sm font-medium transition-colors duration-[var(--dur-fast)]",
-                      lang === l.id ? "bg-accent-soft text-ink" : "text-ink-muted hover:bg-glass-hover hover:text-ink",
-                    )}
-                  >
-                    {l.label}
-                  </button>
-                ))}
-              </div>
-            </fieldset>
+            // v1.5: the video language and the coding language share one row, so Start lesson 1 stays in view at 1100x700.
+            <div className="flex flex-wrap items-start gap-x-6 gap-y-4">
+              <fieldset className="flex flex-col gap-2">
+                <legend className="mb-2 text-label text-ink-muted">Lesson videos in</legend>
+                <div role="radiogroup" aria-label="Lesson videos in" className="flex h-10 items-center gap-1 self-start rounded-md border border-glass-border bg-glass p-1">
+                  {LANGS.map((l) => (
+                    <button
+                      key={l.id}
+                      type="button"
+                      role="radio"
+                      aria-checked={lang === l.id}
+                      onClick={() => setLang(l.id)}
+                      className={cn(
+                        "flex h-8 items-center rounded-sm px-4 text-body-sm font-medium transition-colors duration-[var(--dur-fast)]",
+                        lang === l.id ? "bg-accent-soft text-ink" : "text-ink-muted hover:bg-glass-hover hover:text-ink",
+                      )}
+                    >
+                      {l.label}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+              {fields.codeLang && (
+                <fieldset className="flex flex-col gap-2">
+                  <legend className="mb-2 text-label text-ink-muted">{LABELS.codeIn}</legend>
+                  <div role="radiogroup" aria-label={LABELS.codeIn} className="flex h-10 items-center gap-1 self-start rounded-md border border-glass-border bg-glass p-1">
+                    {CODE_LANG_OPTIONS.map((l) => (
+                      <button
+                        key={l.id}
+                        type="button"
+                        role="radio"
+                        aria-checked={codeLang === l.id}
+                        onClick={() => setCodeLang(l.id)}
+                        className={cn(
+                          "flex h-8 items-center rounded-sm px-3 text-body-sm font-medium transition-colors duration-[var(--dur-fast)]",
+                          codeLang === l.id ? "bg-accent-soft text-ink" : "text-ink-muted hover:bg-glass-hover hover:text-ink",
+                        )}
+                      >
+                        {l.label}
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
+              )}
+            </div>
           )}
 
           {fields.handles.length > 0 && (

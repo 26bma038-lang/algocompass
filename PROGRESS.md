@@ -1,5 +1,18 @@
 # AlgoCompass progress log
 
+## In progress: v1.5, the language you code in (branch `v1.5`, from `polish`)
+
+Not released. A learner picks the language they write code in (C++, Java, Python or JavaScript), and lessons stop assuming one. No playlists yet.
+
+### Part 1: the `codeLang` pref (2026-11-07)
+
+- **Pref:** `codeLang` (`cpp | java | python | js`, default `cpp`) in `src/data/prefs.ts`, typed in `src/engine/codeLang.ts`. Like every pref it lives in tauri-plugin-store, so **no migration** was needed; unknown saved values fall back to C++.
+- **Onboarding:** a beginner picks "I code in" right after "Lesson videos in". The two pickers share one row, so **Start lesson 1** stays in view at 1100x700 (measured: the button's bottom edge at 545px). Smart onboarding doesn't ask (it's for lessons); smart users set it in Settings. `onboardingFields()` now returns `codeLang`.
+- **Settings:** one **Language** section under Mode: "Video language" (the English/Hindi switch moved here from Mode) and "I code in" (C++ · Java · Python · JavaScript). Both apply right away.
+- **Words:** `LABELS.language`, `videoLanguage`, `codeIn`, `concept`, `allLanguages`, plus `CODE_LANG_NAMES`, `videoCodeLabel`, `codeItIn` and `myLangAndConcepts` in the glossary.
+- **Decision:** default C++: most of the lesson videos that code at all code in C++, and Codeforces is C++-first.
+- **Tests:** prefs (default, saved alone, unknown values), onboarding fields, glossary labels.
+
 ## In progress: v1.4 polish, from an outside design review (branch `polish`)
 
 Not released. Behaviour and data are unchanged: only labels, layout, colours and the shell's chrome. Screenshots in `docs/audit-v1.4/polish/`.

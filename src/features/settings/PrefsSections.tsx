@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { usePrefs, useSavePrefs, type AppPrefs, type NotifyPrefs } from "@/data/prefs";
 import type { WeeklyGoals } from "@/engine/goals";
 import { autostartEnabled, setAutostart } from "@/lib/desktop";
-import { ModeSection } from "./ModeSection";
+import { LanguageSection, ModeSection } from "./ModeSection";
 import { ThemeSection } from "./ThemePicker";
 
 const GOAL_MAX = 200;
@@ -224,6 +224,7 @@ export function PrefsSections() {
   return (
     <>
       <ModeSection prefs={prefs} />
+      <LanguageSection />
       <ThemeSection />
       <GoalsSection prefs={prefs} />
       <NotificationsSection prefs={prefs} />

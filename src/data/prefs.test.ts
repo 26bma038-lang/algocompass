@@ -42,6 +42,15 @@ describe("mode and video language (v1.3)", () => {
     expect(await readPrefs()).toMatchObject({ mode: "smart", videoLang: "en", followedSheet: null });
   });
 
+  it("the coding language (v1.5) defaults to C++, saves on its own, and ignores unknown values", async () => {
+    const data = stubStorage({ "pref:prefs": JSON.stringify({ mode: "beginner", videoLang: "hi" }) });
+    expect((await readPrefs()).codeLang).toBe("cpp");
+    await updatePrefs({ codeLang: "python" });
+    expect(JSON.parse(data.get("pref:prefs")!)).toMatchObject({ mode: "beginner", videoLang: "hi", codeLang: "python" });
+    stubStorage({ "pref:prefs": JSON.stringify({ codeLang: "rust" }) });
+    expect((await readPrefs()).codeLang).toBe("cpp");
+  });
+
   it("the daily sheet quest follows the mode: the Beginner Path for beginners, the followed sheet otherwise", () => {
     expect(questSheetId({ mode: "beginner", followedSheet: null })).toBe("beginner-path");
     expect(questSheetId({ mode: "beginner", followedSheet: "neetcode-150" })).toBe("neetcode-150");

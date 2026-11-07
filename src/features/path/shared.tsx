@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import { stepLabel } from "@/components/shell/topBarItems";
 import { useUpdatePrefs, usePrefs, type VideoLang } from "@/data/prefs";
+import { CODE_LANGS, DEFAULT_CODE_LANG, type CodeLang } from "@/engine/codeLang";
 import { pathDots } from "@/engine/path";
+import { CODE_LANG_NAMES, LABELS } from "@/lib/glossary";
 import type { PathView as View } from "@/data/path";
 import { cn } from "@/lib/utils";
 
@@ -18,7 +20,7 @@ export function LangToggle() {
     { id: "hi", label: "Hindi" },
   ];
   return (
-    <div role="radiogroup" aria-label="Video language" className="flex h-9 items-center gap-1 rounded-md border border-glass-border bg-glass p-1">
+    <div role="radiogroup" aria-label={LABELS.videoLanguage} className="flex h-9 items-center gap-1 rounded-md border border-glass-border bg-glass p-1">
       {opts.map((o) => (
         <button
           key={o.id}
@@ -26,6 +28,34 @@ export function LangToggle() {
           role="radio"
           aria-checked={lang === o.id}
           onClick={() => lang !== o.id && update.mutate({ videoLang: o.id })}
+          className={cn(
+            "flex h-7 items-center rounded-sm px-3 text-body-sm font-medium transition-colors duration-[var(--dur-fast)]",
+            lang === o.id ? "bg-accent-soft text-ink" : "text-ink-muted hover:bg-glass-hover hover:text-ink",
+          )}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** The four coding languages as radio options (v1.5): onboarding, Settings and the lesson share them. */
+export const CODE_LANG_OPTIONS: { id: CodeLang; label: string }[] = CODE_LANGS.map((id) => ({ id, label: CODE_LANG_NAMES[id] }));
+
+/** "I code in": C++, Java, Python or JavaScript. Saved as a pref; applies right away. */
+export function CodeLangToggle() {
+  const lang = usePrefs().data?.codeLang ?? DEFAULT_CODE_LANG;
+  const update = useUpdatePrefs();
+  return (
+    <div role="radiogroup" aria-label={LABELS.codeIn} className="flex h-9 items-center gap-1 rounded-md border border-glass-border bg-glass p-1">
+      {CODE_LANG_OPTIONS.map((o) => (
+        <button
+          key={o.id}
+          type="button"
+          role="radio"
+          aria-checked={lang === o.id}
+          onClick={() => lang !== o.id && update.mutate({ codeLang: o.id })}
           className={cn(
             "flex h-7 items-center rounded-sm px-3 text-body-sm font-medium transition-colors duration-[var(--dur-fast)]",
             lang === o.id ? "bg-accent-soft text-ink" : "text-ink-muted hover:bg-glass-hover hover:text-ink",

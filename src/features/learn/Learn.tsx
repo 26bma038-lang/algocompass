@@ -438,7 +438,7 @@ function LibraryCard({ groups, path }: { groups: TopicGroup[]; path: BeginnerPat
           <Input id={searchId} type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search topics and videos" className="pl-9" />
         </div>
         <Segmented
-          label="Video language"
+          label={LABELS.videoLanguage}
           value={lang}
           onChange={setLang}
           options={[
