@@ -6,12 +6,17 @@ import { CardHeader } from "@/components/CardHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { lessonPath } from "@/components/shell/nav";
 import { Button } from "@/components/ui/button";
-import { useDismissSolveGuide, useLearnHistory, useRecordLearn, useSolveGuideSeen } from "@/data/learn";
+import { useDismissSolveGuide, useLearnHistory, useLibrary, useRecordLearn, useSolveGuideSeen } from "@/data/learn";
 import { usePath, useSetWatched, type PathView } from "@/data/path";
 import { usePrefs } from "@/data/prefs";
 import { openTarget, useSolveIndex, useTickProblem } from "@/data/sheets";
 import { lessonChecks, lessonNext, lessonStage, type LessonNext, type LessonStage } from "@/engine/learn";
 import { mainVideo, type PathStep, type PathVideo, type VideoLang } from "@/engine/path";
+import { DEFAULT_CODE_LANG, lessonCandidates, pickCodeItIn, type CodeItIn, type CodeLang } from "@/engine/codeLang";
+import type { LibraryVideo } from "@/engine/learn";
+import { CODE_TEMPLATES } from "@/data/path/templates";
+import { CodeChip } from "@/components/CodeChip";
+import { CodeTemplate } from "./CodeTemplate";
 import { problemStatus } from "@/engine/sheets";
 import { LangToggle } from "@/features/path/shared";
 import { VideoPlayer, WatchedButton, YouTubeButton } from "@/features/path/VideoPlayer";
@@ -20,10 +25,10 @@ import { LessonProblemRow } from "@/features/path/LessonProblemRow";
 import { openExternal } from "@/lib/openExternal";
 import { cn } from "@/lib/utils";
 import { useShellFooter } from "@/components/shell/footerSlot";
-import { Breadcrumb } from "./parts";
+import { Breadcrumb, LANG_NAME } from "./parts";
 import { ConnectLeetCode, SolveGuide } from "./SolveHelp";
 import { solveGuideOpen } from "./solveGuide";
-import { LABELS } from "@/lib/glossary";
+import { CODE_LANG_NAMES, codeItIn, LABELS } from "@/lib/glossary";
 
 function videosFor(step: PathStep, lang: VideoLang): PathVideo[] {
   const own = step.videos[lang];
@@ -32,14 +37,16 @@ function videosFor(step: PathStep, lang: VideoLang): PathVideo[] {
 
 const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
-/** Read: the pattern in five lines (when to use it, the idea, common mistakes). */
+/** Read: the pattern in five lines (when to use it, the idea, common mistakes), then a code template in your language (v1.5). */
 function ReadCard({ step, ahead = false, checked = false }: { step: PathStep; ahead?: boolean; checked?: boolean }) {
+  const codeLang = usePrefs().data?.codeLang ?? DEFAULT_CODE_LANG;
+  const code = CODE_TEMPLATES[step.id];
   return (
     <section id="read" aria-labelledby="read-title" className="glass-card flex h-full scroll-mt-4 flex-col gap-4 p-6">
       <CardHeader
         id="read-title"
         title={ahead ? "Read ahead" : "2. Read"}
-        description="The pattern in five lines."
+        description={code ? "The pattern in five lines, and code to start from." : "The pattern in five lines."}
         pill={
           checked ? (
             <>
@@ -71,12 +78,19 @@ function ReadCard({ step, ahead = false, checked = false }: { step: PathStep; ah
           ))}
         </div>
       </dl>
+      {code && (
+        <div className="flex flex-col gap-1">
+          <h3 className="text-label font-semibold text-ink-muted">The code</h3>
+          <CodeTemplate key={codeLang} code={code} mine={codeLang} />
+        </div>
+      )}
     </section>
   );
 }
 
 /** Other videos for this step: play one in the big player instead. */
-function MoreVideos({ list, current, main, view, onPick }: { list: PathVideo[]; current: PathVideo; main: PathVideo | null; view: PathView; onPick: (id: string) => void }) {
+function MoreVideos({ list, current, main, view, onPick }: { list: PathVideo[]; current: { id: string }; main: PathVideo | null; view: PathView; onPick: (id: string) => void }) {
+  const codeLang = usePrefs().data?.codeLang;
   const others = list.filter((v) => v.id !== current.id);
   if (!others.length) return null;
   return (
@@ -91,15 +105,79 @@ function MoreVideos({ list, current, main, view, onPick }: { list: PathVideo[]; 
               </span>
               <span className="flex min-w-0 flex-col">
                 <span className="line-clamp-2 text-body-sm text-ink">{v.title}</span>
-                <span className="text-label text-ink-muted">
-                  {v.role === "main" ? "Main video, " : ""}
-                  {v.channel}, {v.minutes} min{view.watched.has(v.id) ? ", watched" : ""}
+                <span className="flex min-w-0 items-center gap-1.5">
+                  <CodeChip video={v} mine={codeLang} />
+                  <span className="truncate text-label text-ink-muted">
+                    {v.role === "main" ? "Main video, " : ""}
+                    {v.channel}, {v.minutes} min{view.watched.has(v.id) ? ", watched" : ""}
+                  </span>
                 </span>
               </span>
             </button>
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+/**
+ * "Code it in <language>" (v1.5): the lesson's main video explains the idea; this points at a verified
+ * walkthrough that writes the code in your language. With none yet, it says so and offers the closest
+ * one in another language. Playing it uses the big player above.
+ */
+function CodeItCard({ result, codeLang, videoLang, playingId, watched, onPlay }: {
+  result: CodeItIn<LibraryVideo>;
+  codeLang: CodeLang;
+  videoLang: VideoLang;
+  playingId: string | null;
+  watched: ReadonlySet<string>;
+  onPlay: (id: string) => void;
+}) {
+  const name = CODE_LANG_NAMES[codeLang];
+  const video = result.kind === "match" ? result.video : result.alternative?.video;
+  return (
+    <section aria-labelledby="codeit-title" className="glass-card flex flex-col gap-3 p-6">
+      <CardHeader
+        id="codeit-title"
+        title={codeItIn(codeLang)}
+        description={
+          result.kind === "match"
+            ? `A walkthrough that writes the code in ${name}.`
+            : result.alternative
+              ? `No verified ${name} walkthrough for this lesson yet. The closest is in ${CODE_LANG_NAMES[result.alternative.lang]}; the code under Read is in ${name}.`
+              : `No verified ${name} walkthrough for this lesson yet. The code under Read is in ${name}.`
+        }
+      />
+      {video && (
+        <button
+          type="button"
+          onClick={() => onPlay(video.id)}
+          aria-pressed={playingId === video.id}
+          aria-label={`Play ${video.title} in the player`}
+          className={cn(
+            "-mx-2 flex items-center gap-3 rounded-sm px-2 py-1.5 text-left transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover",
+            playingId === video.id && "bg-glass-hover",
+          )}
+        >
+          <span className="grid size-8 shrink-0 place-items-center rounded-sm bg-abyss-sunken text-ink-muted">
+            {watched.has(video.id) ? <Check aria-hidden className="size-4 text-success" strokeWidth={2.4} /> : <Play aria-hidden className="ml-0.5 size-3.5" fill="currentColor" />}
+          </span>
+          <span className="flex min-w-0 flex-col">
+            <span className="line-clamp-2 text-body-sm text-ink">{video.title}</span>
+            <span className="flex min-w-0 items-center gap-1.5">
+              <CodeChip video={video} mine={codeLang} />
+              <span className="truncate text-label text-ink-muted">
+                {video.channel}, {video.minutes} min{video.lang !== videoLang ? `, ${LANG_NAME[video.lang]}` : ""}
+                {watched.has(video.id) ? ", watched" : ""}
+              </span>
+            </span>
+          </span>
+        </button>
+      )}
+      <Link to="/settings" className="self-start rounded-xs text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
+        Change the language you code in
+      </Link>
     </section>
   );
 }
@@ -242,6 +320,9 @@ export function Lesson() {
   const pulse = useRewardPulse(`path:${stepId ?? ""}`);
   const footer = useShellFooter();
   const [playingId, setPlayingId] = useState<string | null>(null);
+  const prefs = usePrefs().data;
+  const codeLang = prefs?.codeLang ?? DEFAULT_CODE_LANG;
+  const library = useLibrary();
   const [opened, setOpened] = useState<Set<string>>(new Set());
 
   const view = path.data;
@@ -319,7 +400,12 @@ export function Lesson() {
 
   const list = videosFor(step, lang);
   const main = mainVideo(step, lang);
-  const current = list.find((v) => v.id === playingId) ?? main ?? list[0]!;
+  // v1.5: the "Code it in" video can come from the library (another video language, or the lesson's topics).
+  const codeIt = pickCodeItIn<LibraryVideo>(lessonCandidates(library.groups, index, step.topics), codeLang, lang);
+  const codeItVideo = codeIt.kind === "match" ? codeIt.video : (codeIt.alternative?.video ?? null);
+  const pool: (PathVideo | LibraryVideo)[] = codeItVideo && !list.some((v) => v.id === codeItVideo.id) ? [...list, codeItVideo] : list;
+  const current = pool.find((v) => v.id === playingId) ?? main ?? list[0]!;
+  const currentKind = current.id === main?.id ? "Main video" : current.id === codeItVideo?.id ? "Walkthrough" : "Extra video";
   const stepDone = s.state === "done";
   const read = history?.read.includes(step.id) ?? false;
   const isDone = (key: string) => (idx ? problemStatus(key, idx).done : view.isDone(key));
@@ -382,8 +468,11 @@ export function Lesson() {
           <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
             <div className="flex min-w-0 flex-col gap-0.5">
               <span className="text-body font-semibold text-ink">{current.title}</span>
-              <span className="text-body-sm text-ink-muted">
-                {current.id === main?.id ? "Main video" : "Extra video"}, {current.channel}, {current.minutes} min
+              <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-body-sm text-ink-muted">
+                <CodeChip video={current} mine={codeLang} />
+                <span>
+                  {currentKind}, {current.channel}, {current.minutes} min
+                </span>
               </span>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -404,7 +493,18 @@ export function Lesson() {
       <div className="col-span-12 lg:col-span-7">
         <ReadCard step={step} checked={checks.read} />
       </div>
-      <div className="col-span-12 lg:col-span-5">
+      <div className="col-span-12 flex flex-col gap-6 lg:col-span-5">
+        <CodeItCard
+          result={codeIt}
+          codeLang={codeLang}
+          videoLang={lang}
+          playingId={playingId}
+          watched={view.watched}
+          onPlay={(id) => {
+            setPlayingId(id);
+            scrollTo("watch");
+          }}
+        />
         <MoreVideos
           list={list}
           current={current}

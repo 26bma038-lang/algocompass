@@ -1,7 +1,9 @@
 import { Fragment } from "react";
 import { Check, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { CodeChip } from "@/components/CodeChip";
 import { watchPath } from "@/components/shell/nav";
+import { usePrefs } from "@/data/prefs";
 import type { LibraryRole, LibraryVideo } from "@/engine/learn";
 import { Thumb } from "@/features/path/VideoPlayer";
 import { cn } from "@/lib/utils";
@@ -76,10 +78,11 @@ export function Breadcrumb({ crumbs }: { crumbs: Crumb[] }) {
 }
 
 /**
- * One library video: thumbnail with its length, the title, then the channel and what it is. A
+ * One library video: thumbnail with its length, the title, then what it codes in (v1.5), the channel and what it is. A
  * watched video says so in words and with a Success check. Opens the big player.
  */
 export function VideoRow({ v, topicId, watched, showLang }: { v: LibraryVideo; topicId: string; watched: boolean; showLang: boolean }) {
+  const mine = usePrefs().data?.codeLang;
   return (
     <li>
       <Link
@@ -102,9 +105,12 @@ export function VideoRow({ v, topicId, watched, showLang }: { v: LibraryVideo; t
         </span>
         <span className="flex min-w-0 flex-1 flex-col gap-0.5 pt-0.5">
           <span className="line-clamp-2 text-body-sm font-medium text-ink">{v.title}</span>
-          <span className="truncate text-label text-ink-muted">
-            {roleLabel(v)}, {v.channel}
-            {showLang ? `, ${LANG_NAME[v.lang]}` : ""}
+          <span className="flex min-w-0 items-center gap-1.5">
+            <CodeChip video={v} mine={mine} />
+            <span className="truncate text-label text-ink-muted">
+              {roleLabel(v)}, {v.channel}
+              {showLang ? `, ${LANG_NAME[v.lang]}` : ""}
+            </span>
           </span>
           {watched && (
             <span className="flex items-center gap-1 text-label text-ink">

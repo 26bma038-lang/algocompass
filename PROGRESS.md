@@ -27,6 +27,21 @@ Not released. A learner picks the language they write code in (C++, Java, Python
 - **Fix on the way:** `problemset.problems` now asks for `lang=en`; without it Codeforces sometimes answered with Russian names ("Арбуз") and check:links failed on Watermelon and Dragons.
 - `scripts/lib/fmt.mjs`: the data files' JSON layout, shared by fill-media and tag-videos.
 
+### Part 3: lessons in your language (2026-11-07)
+
+- **Code it in <language>:** a card in the lesson's right column, above More videos. `pickCodeItIn` (`src/engine/codeLang.ts`) looks through the lesson's own videos, then its topics' library videos (`lessonCandidates`), for one that codes in your language (its tag or `alsoCodeLang`), in your video language when there is one. It plays in the lesson's big player (now able to play a library video). With none, the card says "No verified Java walkthrough for this lesson yet", offers the closest one (your video language first, then the nearest language: C++ ↔ Java, Python ↔ JavaScript), and notes that the code under Read is in your language. Every lesson has an alternative in every language.
+- **Coverage today** (English video language; a Hindi video counts as a match and says "Hindi"):
+  - **C++: 14 of 14** lessons.
+  - **Python: 13 of 14**: Basics has none (closest: Errichto's CSES Introductory Problems, C++).
+  - **Java: 2 of 14**: Basics (Apna College, Hindi) and Linked List (Apna College, Hindi). The other 12 have none yet.
+  - **JavaScript: 0 of 14.** No JavaScript walkthrough is in the catalog yet.
+- **Read → The code:** a minimal template per lesson in all four languages (`src/data/path/templates.ts`, `CodeTemplate`): tabs with yours first and open, Copy, arrow keys between tabs. Each shows the pattern's shape (sum and pair loops, index of max, counting vowels, most frequent with a map, a pair sum with two pointers, a variable window, stack and queue basics, first-true binary search, digit sum, list length, node count, BFS distances, earliest-end greedy, no-neighbours DP), never the answer to one of the lesson's problems. Locked lessons show it under Read ahead too.
+- **Syntax checks** (`templates.test.ts`): JavaScript runs in `node:vm` (and five templates are checked for the right answers); C++ compiles with `g++ -std=c++17 -fsyntax-only` when g++ is installed (it is here: all 14 pass). Java (`javac`) and Python (`ast.parse`) run only where a real compiler or interpreter exists. This machine has a Java 8 runtime without javac and only Windows' python.exe stub, so those 28 checks are skipped here and were reviewed by hand.
+- **Language chip on every video card** (`CodeChip`): library rows, the Watch page, Continue learning, the lesson's player line, More videos, Code it in, the Topic panel. Yours is accent-soft; "Concept", "C++ · Python" in words.
+- **Learn filter:** "<Language> + concepts" (default) · "All languages", beside English / Hindi / Both (`filterLibrary`'s `codeLang`).
+- **Decision:** the filter starts on your language every visit (it isn't saved), so the library never stays narrowed by surprise; "All languages" is one click.
+- **Docs:** DESIGN.md "The language you code in (v1.5)", CLAUDE.md (Lesson, Learn toolbar, Settings, prefs, video tags). Settings' subtitle mentions languages.
+
 ## In progress: v1.4 polish, from an outside design review (branch `polish`)
 
 Not released. Behaviour and data are unchanged: only labels, layout, colours and the shell's chrome. Screenshots in `docs/audit-v1.4/polish/`.

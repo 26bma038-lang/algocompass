@@ -46,7 +46,7 @@ export const SCREENS = {
   contests: { to: "/contests", label: "Contests", icon: CalendarDays, description: "Upcoming rounds, reminders and your past results" },
 } satisfies Record<string, Screen>;
 
-export const SETTINGS_NAV: NavItem = { to: "/settings", label: "Settings", icon: Settings, shortcut: ",", description: "Usernames, mode, theme, weekly goals, reminders and startup" };
+export const SETTINGS_NAV: NavItem = { to: "/settings", label: "Settings", icon: Settings, shortcut: ",", description: "Usernames, mode, languages, theme, weekly goals, reminders and startup" };
 
 export type NavMode = "smart" | "beginner";
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Check, Play, PlayCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { CodeChip } from "@/components/CodeChip";
 import { learnTopicPath } from "@/components/shell/nav";
 import { Button } from "@/components/ui/button";
 import { RESOURCES, type TopicVideo } from "@/data/catalog";
@@ -23,6 +24,7 @@ const PREVIEW = 2;
  */
 export function TopicVideos({ topicId }: { topicId: string }) {
   const lang = usePrefs().data?.videoLang ?? "en";
+  const codeLang = usePrefs().data?.codeLang;
   const watched = useWatchedVideos().data ?? new Map<string, number>();
   const [playing, setPlaying] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -59,9 +61,12 @@ export function TopicVideos({ topicId }: { topicId: string }) {
                 </span>
                 <span className="flex min-w-0 flex-1 flex-col">
                   <span className="line-clamp-2 text-body-sm text-ink">{v.title}</span>
-                  <span className="truncate text-label text-ink-muted">
-                    {ROLE[v.role]}, {v.channel}, {v.minutes} min{v.lang !== lang ? `, ${LANG_NAME[v.lang]}` : ""}
-                    {seen ? ", watched" : ""}
+                  <span className="flex min-w-0 items-center gap-1.5">
+                    <CodeChip video={v} mine={codeLang} />
+                    <span className="truncate text-label text-ink-muted">
+                      {ROLE[v.role]}, {v.channel}, {v.minutes} min{v.lang !== lang ? `, ${LANG_NAME[v.lang]}` : ""}
+                      {seen ? ", watched" : ""}
+                    </span>
                   </span>
                 </span>
               </button>

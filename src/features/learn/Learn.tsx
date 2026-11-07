@@ -3,6 +3,7 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, ChevronRight, Lock, Play, Search, Trophy, X } from "lucide-react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { CardHeader, Pill } from "@/components/CardHeader";
+import { CodeChip } from "@/components/CodeChip";
 import { lessonPath, watchPath } from "@/components/shell/nav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,8 +13,9 @@ import { usePrefs } from "@/data/prefs";
 import { useTopicReport } from "@/data/queries";
 import { useUiStore } from "@/data/uiStore";
 import { CONTESTS_MILESTONE_STEP, continueLearning, filterLibrary, findVideo, groupBySteps, libraryVideoCount, type LibraryFilter, type TopicGroup } from "@/engine/learn";
+import { DEFAULT_CODE_LANG } from "@/engine/codeLang";
 import type { BeginnerPath } from "@/engine/path";
-import { LABELS } from "@/lib/glossary";
+import { LABELS, myLangAndConcepts } from "@/lib/glossary";
 import { mainVideo, nextAction } from "@/engine/path";
 import type { TopicStatus } from "@/engine/strength";
 import { TOPIC_BY_ID } from "@/engine/topics";
@@ -88,8 +90,11 @@ function ContinueCard({ view, groups, weakness }: { view: PathView; groups: Topi
             <h2 id="continue-title" className="line-clamp-2 font-display text-headline font-semibold text-ink">
               {v.title}
             </h2>
-            <p className="text-body-sm text-ink-muted">
-              {topic}, {v.channel}, {v.minutes} min, {LANG_NAME[v.lang]}
+            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-body-sm text-ink-muted">
+              <CodeChip video={v} mine={prefs?.codeLang} />
+              <span>
+                {topic}, {v.channel}, {v.minutes} min, {LANG_NAME[v.lang]}
+              </span>
             </p>
             <p className="flex items-center gap-1.5 text-body-sm text-ink">
               {seen ? (
@@ -346,6 +351,9 @@ function LibraryCard({ groups, path }: { groups: TopicGroup[]; path: BeginnerPat
   const [lang, setLang] = useState<LibraryFilter["lang"]>(prefs?.videoLang ?? "en");
   const [query, setQuery] = useState(params.get("q") ?? "");
   const [unwatchedOnly, setUnwatchedOnly] = useState(false);
+  // v1.5: your language plus concept videos by default; "All languages" shows every video.
+  const [code, setCode] = useState<"mine" | "all">("mine");
+  const codeLang = prefs?.codeLang ?? DEFAULT_CODE_LANG;
   const [moreOpen, setMoreOpen] = useState(false);
   const [allTopics, setAllTopics] = useState(false);
   const watchedMap = useWatchedVideos().data;
@@ -382,7 +390,7 @@ function LibraryCard({ groups, path }: { groups: TopicGroup[]; path: BeginnerPat
   }
 
   const filtering = query.trim() !== "" || topic !== null;
-  const shown = filterLibrary(groups, { lang, query, topic, unwatchedOnly }, watched);
+  const shown = filterLibrary(groups, { lang, query, topic, unwatchedOnly, codeLang: code === "mine" ? codeLang : null }, watched);
   const status = new Map(report?.hasData ? report.topics.map((t) => [t.topicId, t.status]) : []);
   const byStep = beginner && !filtering ? groupBySteps(shown, path) : null;
   const setTopic = (id: string | null) => {
@@ -401,6 +409,7 @@ function LibraryCard({ groups, path }: { groups: TopicGroup[]; path: BeginnerPat
     setUnwatchedOnly(false);
     setTopic(null);
     setLang("all");
+    setCode("all");
   };
   const topicSection = (g: TopicGroup) => (
     <GroupSection
@@ -445,6 +454,15 @@ function LibraryCard({ groups, path }: { groups: TopicGroup[]; path: BeginnerPat
             { id: "en", label: "English" },
             { id: "hi", label: "Hindi" },
             { id: "all", label: "Both" },
+          ]}
+        />
+        <Segmented
+          label="Coding language"
+          value={code}
+          onChange={setCode}
+          options={[
+            { id: "mine", label: myLangAndConcepts(codeLang) },
+            { id: "all", label: LABELS.allLanguages },
           ]}
         />
         <button

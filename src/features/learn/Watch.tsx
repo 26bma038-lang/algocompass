@@ -2,10 +2,12 @@ import { useEffect, useMemo } from "react";
 import { PlayCircle } from "lucide-react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { CardHeader } from "@/components/CardHeader";
+import { CodeChip } from "@/components/CodeChip";
 import { EmptyState } from "@/components/EmptyState";
 import { learnTopicPath, lessonPath } from "@/components/shell/nav";
 import { useLibrary, useRecordLearn } from "@/data/learn";
 import { useWatchedVideos } from "@/data/path";
+import { usePrefs } from "@/data/prefs";
 import { useTopicReport } from "@/data/queries";
 import { useUiStore } from "@/data/uiStore";
 import { LABELS } from "@/lib/glossary";
@@ -24,6 +26,7 @@ export function Watch() {
   const watched = useWatchedVideos().data ?? new Map<string, number>();
   const record = useRecordLearn();
   const openTopic = useUiStore((s) => s.openTopic);
+  const codeLang = usePrefs().data?.codeLang;
   // "View topic progress" only means something once there's solve history.
   const hasData = useTopicReport().data?.hasData ?? false;
   const found = useMemo(() => {
@@ -74,8 +77,11 @@ export function Watch() {
               <h2 id="video-title" className="text-title font-semibold text-ink">
                 {v.title}
               </h2>
-              <p className="text-body-sm text-ink-muted">
-                {roleLabel(v)}, {v.channel}, {v.minutes} min, {LANG_NAME[v.lang]}
+              <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-body-sm text-ink-muted">
+                <CodeChip video={v} mine={codeLang} />
+                <span>
+                  {roleLabel(v)}, {v.channel}, {v.minutes} min, {LANG_NAME[v.lang]}
+                </span>
               </p>
               {step && (
                 <p className="text-body-sm text-ink-muted">

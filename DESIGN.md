@@ -665,3 +665,13 @@ Supersedes the lines above where they differ.
 - Secondary lines on Progress (a topic's why, reasons, hints, "to go") are 13px (`text-body-sm`), not 12px.
 - **Your week (Beginner Overview)** is a horizontal meter too: seven 8px segments in a row, accent on days practised, the strong-hairline track otherwise (today's a touch darker), the day letters under them. Supersedes "seven 24px dots".
 - **Card headers never overflow a narrow card:** the title block's minimum width is `min(16rem, 100%)`, so in a 4-column card at 1100px the description wraps inside the padding.
+
+## The language you code in (v1.5)
+
+Additions; nothing above changes.
+
+- **Language chip** (`CodeChip`, `src/components/CodeChip.tsx`) on every video card (library rows, the Watch page, Continue learning, the lesson's player line, More videos, Code it in, the Topic panel): a 20px full-radius pill, 12px medium, "Concept", "C++", "Python", or "C++ · Python" when a title names two. Your own language gets the accent-soft fill with ink text; everything else is a hairline outline in Mist. The words carry the meaning; colour only marks "yours".
+- **Code it in <language>** card: the lesson's right column, above More videos. Card header (title "Code it in Python", one line saying what it is or "No verified Python walkthrough for this lesson yet. The closest is in C++…"), one video row in the More videos style (32px sunken play tile, title, chip, channel and length, the video language when it differs), then a quiet underlined "Change the language you code in" link to Settings. It plays in the lesson's big player.
+- **The code** (Read card, under Common mistakes; `CodeTemplate`): a tab row (28px tabs, accent-soft for the open one, yours first and open), a quiet Copy button on the right, then the code on an Abyss Sunken well with a hairline border, 12px radius, 16px padding, monospace 13px with relaxed leading, scrolling inside itself past 320px. Arrow keys move between tabs; the text is selectable.
+- **Learn toolbar:** a second segmented control after the video language: "<Language> + concepts" (default) · "All languages".
+- **Onboarding:** "Lesson videos in" and "I code in" sit side by side in one row, so the primary button stays in view at 1100x700. **Settings → Language:** two rows (label + one-line description on the left, the switch on the right), split by a hairline.

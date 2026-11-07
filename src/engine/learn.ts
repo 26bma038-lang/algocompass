@@ -1,4 +1,4 @@
-import type { CodeLang, VideoCode } from "./codeLang";
+import { fitsMyLang, type CodeLang, type VideoCode } from "./codeLang";
 import type { BeginnerPath, PathState, PathStep, StepProgress, VideoLang } from "./path";
 
 /**
@@ -147,6 +147,8 @@ export interface LibraryFilter {
   /** Only this topic, or null for every topic. */
   topic: string | null;
   unwatchedOnly: boolean;
+  /** v1.5: your coding language: concept videos plus the ones that code in it. null/absent = every language. */
+  codeLang?: CodeLang | null;
 }
 
 const norm = (s: string) => s.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "");
@@ -162,7 +164,7 @@ export function filterLibrary(groups: readonly TopicGroup[], f: LibraryFilter, w
     if (f.topic && g.topicId !== f.topic) return [];
     const topicHit = words.length > 0 && has(`${g.name} ${g.topicId.replace(/-/g, " ")}`);
     const videos = g.videos.filter(
-      (v) => (f.lang === "all" || v.lang === f.lang) && (!f.unwatchedOnly || !watched.has(v.id)) && (words.length === 0 || topicHit || has(`${v.title} ${v.channel}`)),
+      (v) => (f.lang === "all" || v.lang === f.lang) && (!f.codeLang || fitsMyLang(v, f.codeLang)) && (!f.unwatchedOnly || !watched.has(v.id)) && (words.length === 0 || topicHit || has(`${v.title} ${v.channel}`)),
     );
     return videos.length ? [{ ...g, videos }] : [];
   });
