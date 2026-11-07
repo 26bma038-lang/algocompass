@@ -11,11 +11,11 @@ import { TopicVideos } from "./TopicVideos";
 
 const PER_LIST = 3;
 
-function SubList({ label, platform, children }: { label: string; platform: "cf" | "lc"; children: React.ReactNode }) {
+function SubList({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1">
       <h4 className="flex items-center gap-1.5 text-label text-ink-muted">
-        <span aria-hidden className={platform === "cf" ? "size-1.5 rounded-full bg-platform-cf" : "size-1.5 rounded-full bg-platform-lc"} />
+        <span aria-hidden className="size-1.5 rounded-full bg-ink-faint" />
         {label}
       </h4>
       {children}
@@ -34,7 +34,7 @@ function Lists({ plan, rec }: { plan: TopicPlan; rec: Recommender }) {
   const learn = plan.canLearn ? rec.learn(plan.topicId, PER_LIST) : [];
   const sharpen = plan.canSharpen ? rec.sharpen(plan.topicId, PER_LIST) : [];
   const learnList = plan.canLearn && (
-    <SubList key="lc" label="Learn on LeetCode" platform="lc">
+    <SubList key="lc" label="Learn on LeetCode">
       {learn.length ? (
         <ul className="-mx-2 flex flex-col">
           {learn.map((p) => (
@@ -47,7 +47,7 @@ function Lists({ plan, rec }: { plan: TopicPlan; rec: Recommender }) {
     </SubList>
   );
   const sharpenList = plan.canSharpen && (
-    <SubList key="cf" label={`Sharpen on Codeforces, rated ${plan.window.lo} to ${plan.window.hi}`} platform="cf">
+    <SubList key="cf" label={`Sharpen on Codeforces, rated ${plan.window.lo} to ${plan.window.hi}`}>
       {sharpen.length ? (
         <ul className="-mx-2 flex flex-col">
           {sharpen.map((p) => (

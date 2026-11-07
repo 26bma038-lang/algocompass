@@ -492,8 +492,8 @@ This section supersedes the three colour themes (Neon Arcade, Ember, Ocean) and 
 ### Themes
 
 - **System** (default) resolves to Light or Dark from `prefers-color-scheme` and follows Windows live. **Light** and **Dark** are fixed. Saved v1.1 theme ids migrate to System.
-- **Dark:** near-black ground `#0A0A0C`, raised `#131316`, sunken `#060607`, white ink `#F4F4F5` (muted `#A1A1AA`, faint `#8B8B94`), neutral white-alpha glass borders. One restrained accent, indigo `#8B9BFF`; `--accent-2` is a lighter tint of it, not a second hue.
-- **Light:** off-white ground `#F6F6F7`, white raised, sunken `#ECECEF`, near-black ink `#111114` (muted `#4F4F58`, faint `#63636C`). The same indigo darkened to `#3A4BD0` with white `--accent-ink`.
+- **Dark:** near-black ground `#0A0A0C`, raised `#131316`, sunken `#060607`, white ink `#F4F4F5` (muted `#B4B4BC`, faint `#9A9AA3`; v1.4 polish, were `#A1A1AA` and `#8B8B94`), neutral white-alpha glass borders. One restrained accent, indigo `#8B9BFF`; `--accent-2` is a lighter tint of it, not a second hue.
+- **Light:** off-white ground `#F6F6F7`, white raised, sunken `#ECECEF`, near-black ink `#111114` (muted `#45454D`, faint `#5A5A63`; v1.4 polish, were `#4F4F58` and `#63636C`). The same indigo darkened to `#3A4BD0` with white `--accent-ink`.
 - **Contrast:** every text token, the accent, state hues (success, warning, danger), platform dots and all seven rank colours are ≥ 4.5:1 on ground, raised, sunken and glass in both themes.
 
 ### Rank colours on white
@@ -600,7 +600,7 @@ The same breadcrumb (Learn › topic › title), the video at `calc((100vh - 300
 Supersedes the older "Top bar controls" and "Level badge" text where they differ.
 
 ### Words
-- Labels come from one glossary (`src/lib/glossary.ts`): Today's goals (not quests), Today's problems (not today's mix), Unfinished problems (not upsolve), Update (not sync), Topics you haven't tried (not blind spots), Topics (not Topics map).
+- Labels come from one glossary (`src/lib/glossary.ts`): Today's goals (not quests), Today's problems (not today's mix), Problems you tried (not upsolve; "Unfinished problems" until the v1.4 polish), Update (not sync), Topics you haven't tried (not blind spots), Topics (not Topics map).
 - **Term:** a word that can't be avoided (XP, Level, rating, Div. 2, strength, difficulty, streak) gets a 1px dotted underline in Dusk (`decoration-ink-faint`, 3px offset), a help cursor, focusability, and a one-line Float tooltip from the glossary. It never changes the word's colour or weight.
 
 ### Top bar
@@ -634,7 +634,7 @@ Additions; nothing above changed except where a line below says it supersedes it
 
 ### Practice
 - **Beginner:** no tab row. "Problems from your lessons" (12 columns): one block per reached step (a 32px numbered tile: Success check when done, accent-soft when current; title; "You're here, 0 of 4 solved"; done steps folded), the next problem on a sunken fill with the page's only primary **Open**, then a dashed line for the steps not reached yet. Below, **Follow a popular sheet** in 8 columns, title-size heading (not headline), so it reads as secondary.
-- **Smart:** Today's problems · Sheets. One primary Open (the first unsolved row, on a sunken fill); every row ends in a 32px **⋯** button that opens the dropdown (Float plane: abyss-raised, strong hairline, shadow-float; 220px; items are a 14px label over a 12px muted line). Unfinished problems in two columns, only when there are any; More by topic is a folded card whose header is the toggle.
+- **Smart:** Today's problems · Sheets. One primary Open (the first unsolved row, on a sunken fill); every row ends in a 32px **⋯** button that opens the dropdown (Float plane: abyss-raised, strong hairline, shadow-float; 220px; items are a 14px label over a 12px muted line). Problems you tried in two columns, only when there are any; More by topic is a folded card whose header is the toggle.
 - **Sheet page:** Next in this sheet leads as a wide sunken tile (words left, primary Open right); then progress and the strip; **Options** (outline, sliders icon) unfolds a sunken panel with the filters, "I've already done some" and the LeetCode note. A long section opens on 12 rows around the next problem, with quiet "Show the N problems above" / "Show all N problems in this step".
 
 ### Progress
@@ -642,3 +642,26 @@ Additions; nothing above changed except where a line below says it supersedes it
 - **Beginner Overview:** Your path (7 columns: a 13px label, "Step 1 of 14" in Display, the strip, an underlined "Continue step 1: Basics →"), Your week (5 columns: seven 24px dots, accent-filled on days practised, today's letter in ink and semibold), Badges (12 columns, three tiles).
 - **Badges card:** three tiles (earned: sunken, raised white with slab shadow in Light; not yet: dashed outline with the hint), "See all 31" on the right of an inline header.
 - **Topics list:** rows of plain name + one muted "why" line, then the status word (Weak / Getting there / Strong / Mastered), a 6px accent bar and "8/100" in 12px; a quiet Watch link. Untried topics follow under "Topics you haven't tried". Without solve history: "Topics in the Beginner Path", the current step's topics on a sunken fill, done ones with a Success check.
+
+## Polish after an outside review (v1.4 polish)
+
+Supersedes the lines above where they differ.
+
+### Surfaces and colour
+- **Cards are mostly opaque:** `--glass` is 94% in both themes (was 62% in Dark, 78% in Light). The ambient glow tints the ground around cards, never the text inside them. Contrast for text is measured on the composite (`scripts/check-contrast.mjs`).
+- **Stronger secondary text:** Mist and Dusk are a step lighter in Dark and darker in Light (values in "Themes" above). Help lines under fields, hints and headings that are meant to be read use Mist, not Dusk; Dusk is for placeholders, en dashes and "Unrated".
+- **Platform markers are neutral:** every 6–8px platform dot (list rows, group headings, mode chips, field labels, the rating card) is Dusk (`bg-ink-faint`). The word next to it, or the group heading, names the site. Supersedes "Platform marks" and the mode-chip rule: CF Periwinkle and LeetCode Amber stay only where two series must be told apart, the rating chart's lines and legend and the Topic panel's CF/LC split bar.
+- **Rating chart bands are neutral:** alternate bands get a 4% ink wash, labelled with the rank name on the right. No rank colour in the fill (supersedes "rank bands at 10% of each rank color"). The dashed next-rank line keeps `--rank-next`.
+
+### Practice
+- **"Recommended next":** the one row with the primary Open carries a pill after its title: accent-soft fill, 12px semibold ink, full radius.
+- **Open says where:** "Open on Codeforces" / "Open on LeetCode", a fixed 176px button. Row columns are fixed: difficulty 56px, Open 176px, ⋯ 32px.
+- **Topic chips** sit under the meta line and wrap; they're never truncated.
+
+### Progress
+- **Weekly goals are meters:** one row per goal (label 10rem · 8px track in `glass-border-strong` with an accent fill · "3 of 10" over "7 to go" in a 6.5rem right column). Hitting a goal adds a Success check and "Goal hit". No rings.
+- **Weekly review** folds the week-on-week counts and goals list under a "Weekly details" toggle (13px medium ink, chevron, a hairline above).
+- **"Continue today's practice":** an outline button on the right of the tab row, on every Progress page.
+- Secondary lines on Progress (a topic's why, reasons, hints, "to go") are 13px (`text-body-sm`), not 12px.
+- **Your week (Beginner Overview)** is a horizontal meter too: seven 8px segments in a row, accent on days practised, the strong-hairline track otherwise (today's a touch darker), the day letters under them. Supersedes "seven 24px dots".
+- **Card headers never overflow a narrow card:** the title block's minimum width is `min(16rem, 100%)`, so in a 4-column card at 1100px the description wraps inside the padding.

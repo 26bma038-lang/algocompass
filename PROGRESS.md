@@ -56,6 +56,19 @@ The brief for Parts 4–7 wasn't written into this log when Part 4 was interrupt
 - **Decision:** Beginner Overview keeps Your path's "Continue step N: …" link even though the new button goes to the same lesson: the link names the step, and it's the card's own way in.
 - **Tests:** `goalMeter` (progress.test.ts), `continuePractice` (tabs.test.ts), the new labels (`LABELS.continuePractice`, `LABELS.weeklyDetails`).
 
+### Part 6: colours and surfaces (2026-11-07)
+
+- **Cards are mostly opaque:** `--glass` is 94% in both themes (Dark was 62%, Light 78%). The ambient glow no longer shows through behind text, so contrast inside a card is the contrast of its tokens. Row hovers and fills are unchanged.
+- **Stronger secondary text, same tokens:** Mist (`--ink-muted`) and Dusk (`--ink-faint`) moved a step toward the ink. Dark: muted `#A1A1AA` → `#B4B4BC` (9.0:1 on raised), faint `#8B8B94` → `#9A9AA3` (6.7:1). Light: muted `#4F4F58` → `#45454D` (9.5:1), faint `#63636C` → `#5A5A63` (6.8:1). No new tokens. Help lines and hints that were Dusk now use Mist (field help in Welcome and Settings, the video-language note, the sheet's note and source line, the XP popover's empty line, the tour's shortcut line, Ctrl+K hints, shortcut-sheet group titles, the heatmap's month labels). Dusk stays for placeholders, dashes and "Unrated".
+- **Checked:** `node scripts/check-contrast.mjs` (values updated; glass is now the 94% composite): every text, accent, state, platform and rank token is ≥ 4.5:1 on ground, raised, sunken and glass in both themes (lowest: Light warning on sunken, 4.73).
+- **Neutral platform markers:** every small platform dot (Practice group headings and rows, Today's source line and rating card, mode chips, lesson problem rows, sheet rows, goal rows, the Topic panel's lists, LeetCode card, field labels in Welcome and Settings) is Dusk. The word beside it already names the site. CF Periwinkle and LeetCode Amber stay where two series must be told apart: the rating chart's lines and legend, and the Topic panel's CF/LC split bar.
+- **No rank colour in the chart fill:** the rating chart's rank bands are a neutral zebra (alternate bands at 4% ink) with the rank names as labels. The dashed next-rank line keeps `--rank-next`, since it's rank progress.
+- **Found in the screenshots, fixed here:**
+  - The Level card's description ran past the card's right padding at 1100px: `CardHeader`'s title block had a fixed 16rem minimum width. It's now `min(16rem, 100%)`.
+  - Beginner Progress → Your week was seven empty 24px circles before any practice (the same "empty rings" problem as the weekly goals): it's now a seven-segment horizontal meter with the day letters under it.
+- **Decision:** the rating number, rank chip and rank progress keep the rank colour (CLAUDE.md reserves it for exactly those), and the platform tokens stay defined because the chart and the split bar use them.
+- **Docs:** DESIGN.md has a new "Polish after an outside review (v1.4 polish)" section and the new Mist/Dusk values; CLAUDE.md's glossary line says Problems you tried.
+
 ## Done: the landing website (branch `website`, merged to master)
 
 A static site in `website/` (plain HTML, CSS and JS, no build step), deployed to GitHub Pages by `.github/workflows/pages.yml`. No app code changed. Screenshots in `docs/screenshots/website/`.

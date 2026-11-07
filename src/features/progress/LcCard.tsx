@@ -16,7 +16,7 @@ export function LcCard({ lc }: { lc: LcStatsRow }) {
     return (
       <section aria-labelledby="lc-title" className="glass-card flex h-full flex-col gap-2 p-6">
         <h2 id="lc-title" className="flex items-center gap-2 font-display text-headline font-semibold text-ink">
-          <span aria-hidden className="size-2 rounded-full bg-platform-lc" />
+          <span aria-hidden className="size-2 rounded-full bg-ink-faint" />
           LeetCode
         </h2>
         <p className="text-body-sm text-ink-muted">
@@ -40,7 +40,7 @@ export function LcCard({ lc }: { lc: LcStatsRow }) {
     <section aria-labelledby="lc-title" className="glass-card flex h-full flex-col gap-3 p-6">
       <div className="flex items-center justify-between gap-3">
         <h2 id="lc-title" className="flex items-center gap-2 font-display text-headline font-semibold text-ink">
-          <span aria-hidden className="size-2 rounded-full bg-platform-lc" />
+          <span aria-hidden className="size-2 rounded-full bg-ink-faint" />
           LeetCode
         </h2>
         <span className="truncate text-body-sm text-ink-muted">{lc?.username ?? "…"}</span>

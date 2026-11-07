@@ -42,7 +42,7 @@ function SourceLine({ p }: { p: Rec }) {
   return (
     <p className="flex flex-wrap items-center gap-x-2 text-body text-ink-muted">
       <span className="flex items-center gap-1.5">
-        <span aria-hidden className={cn("size-2 rounded-full", p.platform === "cf" ? "bg-platform-cf" : "bg-platform-lc")} />
+        <span aria-hidden className="size-2 rounded-full bg-ink-faint" />
         {p.platform === "cf" ? "Codeforces" : "LeetCode"}
       </span>
       <span aria-hidden>·</span>
@@ -180,7 +180,7 @@ function RatingCard({ cf, solved, history, nextCf }: { cf: CfUser | null; solved
     <section aria-labelledby="hero-title" className="glass-card grid grid-cols-1 items-center gap-6 p-6 md:grid-cols-[auto_minmax(0,1fr)_minmax(0,0.8fr)]">
       <div className="flex min-w-0 flex-col gap-2">
         <h2 id="hero-title" className="flex items-baseline gap-2 text-title font-semibold text-ink">
-          <span aria-hidden className="size-2 self-center rounded-full bg-platform-cf" />
+          <span aria-hidden className="size-2 self-center rounded-full bg-ink-faint" />
           <span>
             Codeforces <Term id="rating">rating</Term>
           </span>

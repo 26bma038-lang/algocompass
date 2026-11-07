@@ -79,7 +79,7 @@ function Field({
           Found
         </p>
       ) : (
-        <p id={`${id}-help`} className="text-body-sm text-ink-faint">
+        <p id={`${id}-help`} className="text-body-sm text-ink-muted">
           {hint}
         </p>
       )}
@@ -288,7 +288,7 @@ export function Welcome() {
             <div className="flex flex-col gap-5">
               <Field
                 label="Codeforces username"
-                dot="bg-platform-cf"
+                dot="bg-ink-faint"
                 hint="Required. Your rating, rounds and the problems you practise on."
                 value={cfHandle}
                 onChange={(v) => {
@@ -301,7 +301,7 @@ export function Welcome() {
               />
               <Field
                 label="LeetCode username (optional)"
-                dot="bg-platform-lc"
+                dot="bg-ink-faint"
                 hint="Where new topics are learned. Leave it empty to skip; you can add it later in Settings."
                 value={lcHandle}
                 onChange={(v) => {

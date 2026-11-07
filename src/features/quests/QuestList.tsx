@@ -62,7 +62,7 @@ function QuestMark({ q }: { q: QuestState }) {
       ) : q.kind === "sheet" ? (
         <ListChecks aria-hidden className="size-3.5 text-ink-muted" strokeWidth={1.8} />
       ) : (
-        <span aria-hidden className={cn("size-1.5 rounded-full", q.kind === "cf_topic" ? "bg-platform-cf" : "bg-platform-lc")} />
+        <span aria-hidden className="size-1.5 rounded-full bg-ink-faint" />
       )}
     </span>
   );

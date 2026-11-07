@@ -172,7 +172,7 @@ export function TipTour() {
             <p id="tour-body" className="mt-2 text-body-sm text-ink-muted">
               {item.body}
             </p>
-            <p className="mt-2 text-label text-ink-faint">
+            <p className="mt-2 text-label text-ink-muted">
               {item.title === "Sheets" ? `A tab in Practice (Ctrl ${item.shortcut}).` : `Ctrl ${item.shortcut} jumps here from anywhere.`}
             </p>
             <div className="mt-4 flex items-center justify-between gap-2">

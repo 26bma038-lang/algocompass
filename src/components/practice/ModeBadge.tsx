@@ -14,7 +14,7 @@ export function ModeBadge({ mode, short = false, className }: { mode: TopicMode;
         className,
       )}
     >
-      <span aria-hidden className={cn("size-1.5 rounded-full", learn ? "bg-platform-lc" : "bg-platform-cf")} />
+      <span aria-hidden className="size-1.5 rounded-full bg-ink-faint" />
       {learn ? (short ? "Learn" : "Learn on LeetCode") : short ? "Sharpen" : "Sharpen on Codeforces"}
     </span>
   );

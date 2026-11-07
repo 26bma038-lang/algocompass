@@ -51,7 +51,7 @@ export function ShortcutSheet() {
           <div className="mt-5 grid grid-cols-2 gap-x-8 gap-y-5">
             {groups(nav).map((g) => (
               <section key={g.title} className="flex flex-col gap-1.5">
-                <h3 className="text-label text-ink-faint">{g.title}</h3>
+                <h3 className="text-label text-ink-muted">{g.title}</h3>
                 <dl className="flex flex-col gap-1">
                   {g.keys.map(([k, label]) => (
                     <div key={k} className="flex items-center justify-between gap-3">

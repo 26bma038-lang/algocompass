@@ -83,7 +83,7 @@ export function ProblemRow({
         primary && "bg-abyss-sunken",
       )}
     >
-      <span aria-hidden className={cn("size-1.5 shrink-0 rounded-full", p.platform === "cf" ? "bg-platform-cf" : "bg-platform-lc", done && "opacity-50")} />
+      <span aria-hidden className={cn("size-1.5 shrink-0 rounded-full bg-ink-faint", done && "opacity-50")} />
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="flex min-w-0 items-center gap-2">
           <span className={cn("truncate", compact ? "text-body-sm" : "text-body", done ? "text-ink-muted" : "text-ink")}>{name}</span>

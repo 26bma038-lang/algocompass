@@ -113,7 +113,7 @@ function ProblemList({ rows, empty, limit = 6 }: { rows: Row[]; empty: string; l
           const site = r.platform === "cf" ? "Codeforces" : "LeetCode";
           const body = (
             <>
-              <span aria-hidden className={cn("size-1.5 shrink-0 rounded-full", r.platform === "cf" ? "bg-platform-cf" : "bg-platform-lc")} />
+              <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-ink-faint" />
               <span className="flex min-w-0 flex-1 flex-col">
                 <span className="truncate text-body-sm text-ink">{r.name}</span>
                 <span className="truncate text-label text-ink-muted">

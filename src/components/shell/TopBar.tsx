@@ -170,7 +170,7 @@ function LevelBadge({ xp }: { xp: XpSummary | undefined }) {
                 <span className="numeric font-semibold text-ink">+{xp!.todayTotal} XP</span>
               </span>
               {xp!.today.length === 0 ? (
-                <span className="text-label text-ink-faint">Nothing yet. A solve or a goal earns XP.</span>
+                <span className="text-label text-ink-muted">Nothing yet. A solve or a goal earns XP.</span>
               ) : (
                 xp!.today.map((t) => (
                   <span key={t.kind} className="flex justify-between text-label text-ink-muted">

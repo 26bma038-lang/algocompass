@@ -67,7 +67,7 @@ export function ActivityHeatmap({ activity }: { activity: readonly DailyActivity
       <div ref={gridRef} role="img" aria-label={`Daily activity heatmap: ${summary}.`} className="flex justify-between gap-1">
         {weeks.map((col, w) => (
           <div key={w} aria-hidden className="flex shrink-0 flex-col gap-1" style={{ width: CELL }}>
-            <span className="h-4 text-label leading-none whitespace-nowrap text-ink-faint">
+            <span className="h-4 text-label leading-none whitespace-nowrap text-ink-muted">
               {/* First column: only when it starts early in its month, or it collides with the next label ("JanFeb"). */}
               {col[0] && (w === 0 ? col[0].date.getDate() <= 14 : col[0].date.getDate() <= 7) ? MONTH(col[0].date) : ""}
             </span>

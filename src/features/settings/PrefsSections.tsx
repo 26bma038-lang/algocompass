@@ -90,8 +90,8 @@ function GoalsSection({ prefs }: { prefs: AppPrefs }) {
         className="mt-6 flex flex-col gap-5"
       >
         <div className="grid grid-cols-3 gap-4">
-          <GoalField label="Codeforces problems" dot="bg-platform-cf" value={draft.cfProblems} error={errors.cfProblems} onChange={set("cfProblems")} />
-          <GoalField label="LeetCode problems" dot="bg-platform-lc" value={draft.lcProblems} error={errors.lcProblems} onChange={set("lcProblems")} />
+          <GoalField label="Codeforces problems" dot="bg-ink-faint" value={draft.cfProblems} error={errors.cfProblems} onChange={set("cfProblems")} />
+          <GoalField label="LeetCode problems" dot="bg-ink-faint" value={draft.lcProblems} error={errors.lcProblems} onChange={set("lcProblems")} />
           <GoalField label="Contests" value={draft.contests} error={errors.contests} onChange={set("contests")} />
         </div>
         <div className="flex items-center gap-3">
@@ -121,7 +121,7 @@ function ToggleRow({ title, hint, checked, onChange, disabled, children }: { tit
           <Label htmlFor={id} className="text-body font-medium text-ink">
             {title}
           </Label>
-          <p id={`${id}-hint`} className="text-body-sm text-ink-faint">
+          <p id={`${id}-hint`} className="text-body-sm text-ink-muted">
             {hint}
           </p>
         </div>

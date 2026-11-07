@@ -383,13 +383,13 @@ html.aura-shifting {
   --abyss: #0a0a0c;
   --abyss-raised: #131316;
   --abyss-sunken: #060607;
-  --glass: rgba(23, 23, 27, 0.62);
+  --glass: rgba(23, 23, 27, 0.94);
   --glass-hover: rgba(36, 36, 42, 0.72);
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-border-strong: rgba(255, 255, 255, 0.16);
   --ink: #f4f4f5;
-  --ink-muted: #a1a1aa;
-  --ink-faint: #8b8b94;
+  --ink-muted: #b4b4bc;
+  --ink-faint: #9a9aa3;
   --accent: #8b9bff;
   --accent-2: #b4beff;
   --accent-ink: #0a0a0c;
@@ -437,13 +437,13 @@ html.aura-shifting {
   --abyss: #f6f6f7;
   --abyss-raised: #ffffff;
   --abyss-sunken: #ececef;
-  --glass: rgba(255, 255, 255, 0.78);
+  --glass: rgba(255, 255, 255, 0.94);
   --glass-hover: rgba(236, 236, 241, 0.92);
   --glass-border: rgba(17, 17, 20, 0.09);
   --glass-border-strong: rgba(17, 17, 20, 0.17);
   --ink: #111114;
-  --ink-muted: #4f4f58;
-  --ink-faint: #63636c;
+  --ink-muted: #45454d;
+  --ink-faint: #5a5a63;
   /* The same indigo as Dark, darkened for contrast on white. */
   --accent: #3a4bd0;
   --accent-2: #4654cc;

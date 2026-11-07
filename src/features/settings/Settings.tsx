@@ -61,7 +61,7 @@ function HandleField({
           {error}
         </p>
       ) : (
-        <p id={`${id}-help`} className="text-body-sm text-ink-faint">
+        <p id={`${id}-help`} className="text-body-sm text-ink-muted">
           {hint}
         </p>
       )}
@@ -141,7 +141,7 @@ export function Settings() {
               <HandleField
                 label={beginner ? "Codeforces handle (optional)" : "Codeforces handle"}
                 hint="Used for rating, contests and sharpening practice."
-                dotClass="bg-platform-cf"
+                dotClass="bg-ink-faint"
                 value={draft.codeforces}
                 error={errors.codeforces}
                 onChange={update("codeforces")}
@@ -149,7 +149,7 @@ export function Settings() {
               <HandleField
                 label="LeetCode username (optional)"
                 hint="Used for learning new topics. Leave empty to skip LeetCode."
-                dotClass="bg-platform-lc"
+                dotClass="bg-ink-faint"
                 value={draft.leetcode}
                 error={errors.leetcode}
                 onChange={update("leetcode")}

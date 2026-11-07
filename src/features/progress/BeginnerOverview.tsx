@@ -53,18 +53,15 @@ function YourWeekCard() {
   return (
     <section aria-labelledby="your-week-title" className="glass-card flex h-full flex-col gap-5 p-6">
       <CardHeader id="your-week-title" title={LABELS.yourWeek} />
-      <ol aria-label="Days practised this week" className="flex items-end gap-3">
+      {/* v1.4 polish: a horizontal week meter, one segment a day (seven empty rings read as nothing). */}
+      <ol aria-label="Days practised this week" className="flex gap-1.5">
         {DAYS.map((d, i) => {
           const on = week?.days[i] ?? false;
           return (
-            <li key={i} className="flex flex-col items-center gap-1.5">
+            <li key={i} className="flex flex-1 flex-col items-center gap-1.5">
               <span
                 aria-hidden
-                className={cn(
-                  "size-6 rounded-full border",
-                  on ? "border-accent bg-accent" : "border-glass-border-strong bg-transparent",
-                  i === today && !on && "border-ink-muted",
-                )}
+                className={cn("h-2 w-full rounded-full", on ? "bg-accent" : "bg-glass-border-strong", i === today && !on && "bg-ink-faint/40")}
               />
               <span className={cn("text-label", i === today ? "font-semibold text-ink" : "text-ink-muted")}>{d}</span>
               <span className="sr-only">

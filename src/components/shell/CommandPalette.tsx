@@ -34,7 +34,7 @@ function Item({ icon: Icon, label, hint, kbd, keywords, onSelect }: { icon: Luci
     <Command.Item value={label} keywords={keywords} onSelect={onSelect} className={itemClass}>
       <Icon aria-hidden className="size-4 shrink-0" strokeWidth={1.8} />
       <span className="truncate text-ink">{label}</span>
-      {hint && <span className="truncate text-body-sm text-ink-faint">{hint}</span>}
+      {hint && <span className="truncate text-body-sm text-ink-muted">{hint}</span>}
       {kbd && <Kbd>{kbd}</Kbd>}
     </Command.Item>
   );

@@ -50,7 +50,7 @@ export function ModeSection({ prefs }: { prefs: AppPrefs }) {
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-glass-border pt-5">
         <div className="flex flex-col gap-0.5">
           <span className="text-body font-medium text-ink">Lesson video language</span>
-          <span className="text-body-sm text-ink-faint">For Beginner Path lessons and topic videos. Videos play inside the app.</span>
+          <span className="text-body-sm text-ink-muted">For Beginner Path lessons and topic videos. Videos play inside the app.</span>
         </div>
         <LangToggle />
       </div>

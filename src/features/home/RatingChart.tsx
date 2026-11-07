@@ -66,6 +66,8 @@ export function RatingChart({
     ...b,
     from: Number.isFinite(b.min) ? b.min : 0,
     to: RANK_BANDS[i + 1]?.min ?? 5000,
+    // v1.4 polish: neutral zebra bands, no rank colour in the fill. The rank names stay as labels.
+    shade: i % 2 === 1,
   })).filter((b) => b.to > lo && b.from < hi);
 
   return (
@@ -98,8 +100,8 @@ export function RatingChart({
                   key={b.rank}
                   y1={Math.max(b.from, lo)}
                   y2={Math.min(b.to, hi)}
-                  fill={`var(--${b.token})`}
-                  fillOpacity={0.1}
+                  fill="var(--ink)"
+                  fillOpacity={b.shade ? 0.04 : 0}
                   strokeOpacity={0}
                   ifOverflow="hidden"
                   label={{ value: b.label, position: "right", fill: "var(--ink-faint)", fontSize: 12 }}

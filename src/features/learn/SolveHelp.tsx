@@ -124,7 +124,7 @@ export function ConnectLeetCode() {
   return (
     <form onSubmit={(e) => void submit(e)} noValidate className="flex flex-col gap-2 rounded-md bg-abyss-sunken px-4 py-3" aria-busy={checking}>
       <label htmlFor={id} className="flex items-center gap-1.5 text-body-sm font-semibold text-ink">
-        <span aria-hidden className="size-1.5 rounded-full bg-platform-lc" />
+        <span aria-hidden className="size-1.5 rounded-full bg-ink-faint" />
         {LABELS.connectLc}
       </label>
       <div className="flex flex-wrap items-center gap-2">

@@ -30,7 +30,7 @@ export function LessonProblemRow({ p, status, next = false, primaryOpen = false 
           {status.done ? (
             <Check aria-hidden className="size-3.5 text-success" strokeWidth={2.4} />
           ) : (
-            <span aria-hidden className={cn("size-1.5 rounded-full", p.cf ? "bg-platform-cf" : "bg-platform-lc")} />
+            <span aria-hidden className="size-1.5 rounded-full bg-ink-faint" />
           )}
           <span>
             <span className={status.done ? "text-ink" : undefined}>{status.done ? sourceLabel(p, status) : p.cf ? "Codeforces" : "LeetCode"}</span>

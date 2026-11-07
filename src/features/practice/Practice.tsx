@@ -81,7 +81,7 @@ function MixCard({ mix, rec }: { mix: MixOfTheDay; rec: Recommender }) {
             <Group
               label={
                 <>
-                  <span aria-hidden className="size-1.5 rounded-full bg-platform-cf" />
+                  <span aria-hidden className="size-1.5 rounded-full bg-ink-faint" />
                   Practise on Codeforces
                 </>
               }
@@ -95,7 +95,7 @@ function MixCard({ mix, rec }: { mix: MixOfTheDay; rec: Recommender }) {
             <Group
               label={
                 <>
-                  <span aria-hidden className="size-1.5 rounded-full bg-platform-lc" />
+                  <span aria-hidden className="size-1.5 rounded-full bg-ink-faint" />
                   Learn on LeetCode
                 </>
               }

@@ -124,7 +124,7 @@ function NoteEditor({ problemKey, initial, onClose }: { problemKey: string; init
         }}
         className="w-full resize-y rounded-sm border border-glass-border bg-abyss-sunken px-3 py-2 text-body text-ink placeholder:text-ink-faint hover:border-glass-border-strong focus-visible:border-accent"
       />
-      <span className="text-label text-ink-faint">
+      <span className="text-label text-ink-muted">
         Private: kept only on this computer. Saved when you leave the box; Ctrl Enter or Esc saves and closes.
       </span>
     </div>
@@ -149,7 +149,7 @@ const Row = memo(function Row({
 }) {
   const openTopic = useUiStore((s) => s.openTopic);
   const site = p.lc ? "LeetCode" : p.cf ? "Codeforces" : p.links?.tuf ? "takeUforward" : p.links?.gfg ? "GeeksforGeeks" : p.links?.code360 ? "Code360" : null;
-  const dot = p.lc ? "bg-platform-lc" : p.cf ? "bg-platform-cf" : null;
+  const dot = p.lc || p.cf ? "bg-ink-faint" : null;
   const lead = p.topics.find((t) => t !== sectionTopic);
   return (
     <>
@@ -501,7 +501,7 @@ function SheetBody({ view }: { view: View }) {
             </h2>
             <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <SheetCredit sheet={sheet} />
-              <span className="text-body-sm text-ink-faint">Built from the original list, {fetchedLabel(sheet.fetched)}</span>
+              <span className="text-body-sm text-ink-muted">Built from the original list, {fetchedLabel(sheet.fetched)}</span>
             </p>
           </div>
           <div className="flex items-center gap-2">
