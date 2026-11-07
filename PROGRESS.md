@@ -69,6 +69,14 @@ The brief for Parts 4–7 wasn't written into this log when Part 4 was interrupt
 - **Decision:** the rating number, rank chip and rank progress keep the rank colour (CLAUDE.md reserves it for exactly those), and the platform tokens stay defined because the chart and the split bar use them.
 - **Docs:** DESIGN.md has a new "Polish after an outside review (v1.4 polish)" section and the new Mist/Dusk values; CLAUDE.md's glossary line says Problems you tried.
 
+### Part 7: check (2026-11-07)
+
+- **Tests:** 451 pass (`npm test`, including the LF migration check and the strict typecheck). New in this part: `src/styles/surfaces.test.ts` (cards ≥ 90% opaque in both themes; platform colours used only by the rating chart and the Topic panel's split bar; no rank colour in the chart bands). It caught three Contests dots Part 6 had missed, now neutral. The other new words and pieces were covered as they landed: labels (glossary.test.ts: Problems you tried, Recommended next, View topic progress, Continue today's practice, Weekly details), top bar (topBarItems.test.ts, Part 2), path strip (`pathDots`, Part 3), Practice tags and Open labels (today.test.ts, problemText.test.ts), goal meters (progress.test.ts).
+- **`npm run tauri dev`** (PowerShell): Vite up, the Rust side built in 28s and `algocompass.exe` launched. Stopped after the check; nothing was clicked in the real window (it holds the real database).
+- **Screenshots:** 26 in `docs/audit-v1.4/polish/`, Light and Dark at 1100x700, browser mode (smart: Today, Practice ×2, Progress overview / goals / weekly details open, Topics, Contests, Learn; beginner preview: Today, Practice, Progress, Topics). Parts 1–3 said screenshots were here, but the folder didn't exist; these cover them too (top bar, Beginner Today's path strip).
+- **Harness note:** after `emulateMedia` flips the colour scheme, headless Chromium sometimes kept painting text in the previous theme's colour (a Dark shot measured `#45454D` meta text, the Light value). The script forces a repaint after each flip; the app itself computes the right colour (checked with `getComputedStyle`).
+- **Not done:** no release, no version bump, no merge to master.
+
 ## Done: the landing website (branch `website`, merged to master)
 
 A static site in `website/` (plain HTML, CSS and JS, no build step), deployed to GitHub Pages by `.github/workflows/pages.yml`. No app code changed. Screenshots in `docs/screenshots/website/`.

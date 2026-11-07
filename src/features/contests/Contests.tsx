@@ -14,7 +14,6 @@ import { openExternal } from "@/lib/openExternal";
 import { cn } from "@/lib/utils";
 
 const PLATFORM = { cf: "Codeforces", lc: "LeetCode" } as const;
-const dot = (p: Contest["platform"]) => (p === "cf" ? "bg-platform-cf" : "bg-platform-lc");
 
 function AttendToggle({ c, attending }: { c: Contest; attending: boolean }) {
   const id = useId();
@@ -55,7 +54,7 @@ function NextRound({ c, attending, nowMs }: { c: Contest; attending: boolean; no
     <section aria-labelledby="next-round" className="glass-card flex flex-wrap items-end justify-between gap-6 p-6">
       <div className="flex min-w-0 flex-col gap-2">
         <span className="flex items-center gap-1.5 text-label text-ink-muted">
-          <span aria-hidden className="size-1.5 rounded-full bg-platform-cf" />
+          <span aria-hidden className="size-1.5 rounded-full bg-ink-faint" />
           Next Codeforces round
         </span>
         <h2 id="next-round" className="font-display text-headline font-semibold text-ink">
@@ -84,7 +83,7 @@ function ContestRow({ c, attending, nowMs }: { c: Contest; attending: boolean; n
     <li className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-glass-border py-3 first:border-t-0 first:pt-0 last:pb-0">
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="flex items-center gap-2 text-body text-ink">
-          <span aria-hidden className={cn("size-1.5 shrink-0 rounded-full", dot(c.platform))} />
+          <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-ink-faint" />
           <span className="truncate">
             <ContestName name={shortName(c)} />
           </span>
@@ -154,7 +153,7 @@ function PastList({ past }: { past: PastContest[] }) {
               <tr key={p.id} className="border-t border-glass-border">
                 <td className="py-2.5 pr-4">
                   <span className="flex items-center gap-2 text-body-sm text-ink">
-                    <span aria-hidden className={cn("size-1.5 shrink-0 rounded-full", dot(p.platform))} />
+                    <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-ink-faint" />
                     <span className="line-clamp-1">{p.platform === "cf" ? p.name.replace(/^Codeforces\s+/i, "") : p.name}</span>
                     <span className="sr-only">, {PLATFORM[p.platform]}</span>
                   </span>
