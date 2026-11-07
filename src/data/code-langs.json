@@ -1,5 +1,5 @@
 {
-  "$comment": "What each video codes in (v1.5): concept | cpp | java | python | js. `npm run tag:videos` (scripts/tag-videos.mjs) writes `codeLang` (and `alsoCodeLang` when a title names more than one language) onto every video in src/data/resources.json and src/data/path/beginner-path.json from this table; `npm run check:links` fails when a video's tag is missing, unknown or out of date, or its channel isn't listed here. Order of the rules: an override for the video id, then languages named in the title (the first one named is the tag, the rest go in alsoCodeLang), then the channel's rule. A channel's `codes` applies to every video (`when: always`) or only to walkthroughs (`when: walkthrough`: listed as a walkthrough in resources.json, or a title naming a LeetCode problem). Unsure means concept: a channel is only given a language when it codes on screen in that one language.",
+  "$comment": "What each video codes in (v1.5): concept | cpp | java | python | js. `npm run tag:videos` (scripts/tag-videos.mjs) writes `codeLang` (and `alsoCodeLang` when a title names more than one language) onto every video in src/data/resources.json and src/data/path/beginner-path.json from this table (and, v1.6, `npm run fill:playlists` onto every playlist in src/data/playlists.json, a walkthroughs playlist counting as a walkthrough); `npm run check:links` fails when a video's tag is missing, unknown or out of date, or its channel isn't listed here. Order of the rules: an override for the video id, then languages named in the title (the first one named is the tag, the rest go in alsoCodeLang), then the channel's rule. A channel's `codes` applies to every video (`when: always`) or only to walkthroughs (`when: walkthrough`: listed as a walkthrough in resources.json, or a title naming a LeetCode problem). Unsure means concept: a channel is only given a language when it codes on screen in that one language.",
   "titleRules": [
     { "pattern": "C\\+\\+", "lang": "cpp" },
     { "pattern": "\\bJava\\b(?!\\s*Script)", "lang": "java" },
@@ -20,8 +20,10 @@
     "Gate Smashers": { "codes": null, "why": "Whiteboard lectures; no language." },
     "Gaurav Sen": { "codes": null, "why": "Concept lectures." },
     "Josh's DevBox": { "codes": null, "why": "Animated explanation; no language." },
+    "Kunal Kushwaha": { "codes": "java", "when": "always", "why": "The Java + DSA bootcamp and its recursion and tree courses code in Java on screen." },
     "Khan Academy": { "codes": null, "why": "Maths, no code." },
     "Luv": { "codes": "cpp", "when": "always", "why": "The CP course codes in C++ on screen." },
+    "mycodeschool": { "codes": null, "why": "Whiteboard first, then C or C++; C isn't offered, so treated as concept." },
     "NeetCode": { "codes": "python", "when": "walkthrough", "why": "LeetCode solutions are coded in Python." },
     "NeetCodeIO": { "codes": "python", "when": "walkthrough", "why": "LeetCode solutions are coded in Python." },
     "Pepcoding": { "codes": null, "why": "Unsure of one language for this video." },

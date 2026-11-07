@@ -1,5 +1,20 @@
 # AlgoCompass progress log
 
+## In progress: v1.6, full playlists (branch `v1.6`, from master)
+
+Not released. A learner gets whole YouTube playlists (every video, in order) instead of a few videos picked from each.
+
+### Part 1: the playlists (2026-11-07)
+
+- **Data:** `src/data/playlists.json`, 102 playlists, **4,464 videos** (3,866 distinct; the big courses share some videos with the topic playlists). Curated per playlist: `id`, `lang`, `scope` (`course`: a whole DSA course; `topic`: one topic), `kind` (`lectures` | `walkthroughs`) and `topics`. Everything else (title, channel, `codeLang`/`alsoCodeLang`, and every video in playlist order with its title and minutes) is written by **`npm run fill:playlists`** (`scripts/fill-playlists.mjs`).
+- **Where the ids came from:** every id was read off the channel's own Playlists tab (`channelPlaylists()` in `scripts/lib/youtube.mjs`), never typed from memory, then checked with playlist oEmbed. Channels: take U forward, NeetCode, WilliamFiset, Abdul Bari, mycodeschool, Kunal Kushwaha, Pepcoding (English); CodeHelp - by Babbar, Aditya Verma, Apna College, Luv, Gate Smashers, Pepcoding (Hindi).
+- **No API key:** `scripts/lib/youtube.mjs` reads the public playlist page and its "load more" pages (YouTube's own web client calls), in both layouts YouTube serves today (`playlistVideoRenderer` rows and the newer `lockupViewModel` cards). It sends `SOCS=CAI` so a cookie-consent redirect (this machine's traffic exits in the EU) doesn't replace the page. Private and deleted entries are left out and counted; a video listed twice is kept once.
+- **Spoken language check:** the fill samples three videos per playlist and reads the language of YouTube's automatic captions. It's noisy on Indian English (it hears Bengali or Arabic now and then), so it only warns. It did move ten Pepcoding playlists I'd guessed were English to Hindi (the Level 3 series: Segment Tree, Range Queries, Constructive, Interactive, Geometry, Text Processing, Number Theory, Maths for CP, and Rajneesh Kumar's Two Pointer and DP); Game Theory - Level 3 stays English.
+- **What it codes in:** the same table and rules as single videos (`deriveCodeLang`), with the playlist's title and channel; a `walkthroughs` playlist counts as a walkthrough (NeetCode's are Python). New channels in `code-langs.json`: Kunal Kushwaha (Java, always) and mycodeschool (concept: C or C++, and C isn't offered).
+- **Counts:** English 48 playlists (7 full courses), Hindi 54 (8 full courses). By what they code in: concept 44, C++ 41, Java 12, Python 5 (NeetCode's three plus Pepcoding's Python Level 1 in English and in Hindi), JavaScript 0.
+- **Topics with no topic playlist** (a full course may still cover them): English: implementation, brute force, constructive, prefix sums, combinatorics, probability, geometry, divide & conquer, string algorithms, interactive, design. Hindi: implementation, brute force, greedy, probability, divide & conquer, game theory, flows/advanced graphs, design.
+- **Decisions:** Pepcoding's Level 2 series come in "C++ | English", "Java | English" and "C++ | Hindi" versions; all are in, so the language filter picks the right one. Pepcoding's 554-video "DSA - Level 1" and the Level 1 topic series are out: their titles name no language and they'd crowd every topic. Striver's A2Z course is `en` though a few early videos in it are in Hindi (the samples heard one).
+
 ## Released: v1.5.0, the language you code in (branch `v1.5`, from `polish`, merged to master)
 
 **Released as v1.5.0 (2026-11-07):** this branch and the v1.4 polish under it were merged into master; the version was bumped in package.json, tauri.conf.json, Cargo.toml and Cargo.lock. Tag `v1.5.0`, GitHub release with `AlgoCompass_1.5.0_x64-setup.exe` (4.3 MB) and `AlgoCompass_1.5.0_x64_en-US.msi` (5.7 MB). There's no Android build ("APK"): AlgoCompass is a Windows desktop app, so the release carries the Windows installers. The website wasn't touched (its Pages workflow only runs on changes under `website/`).
