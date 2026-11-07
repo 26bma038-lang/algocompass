@@ -42,6 +42,15 @@ Not released. A learner picks the language they write code in (C++, Java, Python
 - **Decision:** the filter starts on your language every visit (it isn't saved), so the library never stays narrowed by surprise; "All languages" is one click.
 - **Docs:** DESIGN.md "The language you code in (v1.5)", CLAUDE.md (Lesson, Learn toolbar, Settings, prefs, video tags). Settings' subtitle mentions languages.
 
+### Part 4: check (2026-11-07)
+
+- **`npm test`:** 494 pass, 29 skipped. The skipped ones are 28 Java/Python template compiles (no javac or real Python on this machine) and the existing live adapter test.
+- **`npm run check:links`:** all verified. 204/204 video uses match YouTube, 204/204 carry the right `codeLang`, 59/59 path problems match. It prints one note: the two Strings main videos code in one language.
+- **`npm run tauri dev`** (PowerShell): built in 1m 28s, `algocompass.exe` launched with no errors in the log; stopped after the check, nothing clicked (real database).
+- **Migrations:** none. `codeLang` is a pref in tauri-plugin-store, and the video tags live in the bundled JSON, so there's nothing to migrate.
+- **Screenshots:** 20 in `docs/audit-v1.4/lang/`, Light and Dark at 1100x700, browser mode, a fresh beginner: Welcome with "I code in", lesson 1 as a Python learner (player with its chip, Code it in, Read, the code tabs), Settings → Language, a locked lesson's code in Java, and the library filtered to "Java + concepts" and to "All languages".
+- **Not done:** no release, no version bump, no merge. No playlists (as asked).
+
 ## In progress: v1.4 polish, from an outside design review (branch `polish`)
 
 Not released. Behaviour and data are unchanged: only labels, layout, colours and the shell's chrome. Screenshots in `docs/audit-v1.4/polish/`.
