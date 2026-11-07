@@ -1,3 +1,4 @@
+import type { CodeLang, VideoCode } from "./codeLang";
 import type { BeginnerPath, PathState, PathStep, StepProgress, VideoLang } from "./path";
 
 /**
@@ -16,6 +17,9 @@ export interface LibraryVideo {
   minutes: number;
   title: string;
   channel: string;
+  /** v1.5: what it codes in, and other languages its title names. */
+  codeLang: VideoCode;
+  alsoCodeLang?: CodeLang[];
   /** Beginner Path step index (0-based) for lesson videos. */
   step?: number;
 }
@@ -34,6 +38,8 @@ export interface CatalogVideo {
   minutes: number;
   title: string;
   channel: string;
+  codeLang: VideoCode;
+  alsoCodeLang?: CodeLang[];
 }
 
 /** Library order inside a topic: the lesson's main video, then intro, lecture, walkthrough, lesson extras. */
@@ -66,7 +72,10 @@ export function buildLibrary(
       for (const v of s.videos[lang]) {
         const filed = filedUnder.get(v.id);
         const topic = filed && s.topics.includes(filed) ? filed : s.topics[0];
-        if (topic) add(topic, { id: v.id, lang, role: v.role === "main" ? "lesson" : "lesson-extra", minutes: v.minutes, title: v.title, channel: v.channel, step: i });
+        if (topic) {
+          const { id, minutes, title, channel, codeLang, alsoCodeLang } = v;
+          add(topic, { id, lang, role: v.role === "main" ? "lesson" : "lesson-extra", minutes, title, channel, codeLang, ...(alsoCodeLang ? { alsoCodeLang } : {}), step: i });
+        }
       }
     }
   });

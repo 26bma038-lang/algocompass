@@ -1,0 +1,36 @@
+{
+  "$comment": "What each video codes in (v1.5): concept | cpp | java | python | js. `npm run tag:videos` (scripts/tag-videos.mjs) writes `codeLang` (and `alsoCodeLang` when a title names more than one language) onto every video in src/data/resources.json and src/data/path/beginner-path.json from this table; `npm run check:links` fails when a video's tag is missing, unknown or out of date, or its channel isn't listed here. Order of the rules: an override for the video id, then languages named in the title (the first one named is the tag, the rest go in alsoCodeLang), then the channel's rule. A channel's `codes` applies to every video (`when: always`) or only to walkthroughs (`when: walkthrough`: listed as a walkthrough in resources.json, or a title naming a LeetCode problem). Unsure means concept: a channel is only given a language when it codes on screen in that one language.",
+  "titleRules": [
+    { "pattern": "C\\+\\+", "lang": "cpp" },
+    { "pattern": "\\bJava\\b(?!\\s*Script)", "lang": "java" },
+    { "pattern": "\\bPython\\b", "lang": "python" },
+    { "pattern": "\\bJavaScript\\b", "lang": "js" }
+  ],
+  "walkthroughTitle": "\\bLeetcode\\s*\\d+",
+  "channels": {
+    "Abdul Bari": { "codes": null, "why": "Whiteboard and slides; no language." },
+    "Aditya Verma": { "codes": null, "why": "Whiteboard pseudo-code; unsure of one language." },
+    "Apna College": { "codes": null, "why": "Mixes C++ and Java series; the title names the language when there is one." },
+    "CodeHelp - by Babbar": { "codes": "cpp", "when": "always", "why": "Love Babbar's DSA series codes in C++ on screen." },
+    "CodeWithHarry": { "codes": null, "why": "Codes in C, which the app doesn't offer; treated as concept." },
+    "Colin Galen": { "codes": null, "why": "Problem-solving streams; the reasoning, not one language." },
+    "College Wallah": { "codes": null, "why": "Unsure of one language." },
+    "Errichto Algorithms": { "codes": "cpp", "when": "walkthrough", "why": "Codes in C++ when solving; lectures are mostly the idea." },
+    "Errichto Hard Algorithms": { "codes": "cpp", "when": "walkthrough", "why": "Live C++ coding." },
+    "Gate Smashers": { "codes": null, "why": "Whiteboard lectures; no language." },
+    "Gaurav Sen": { "codes": null, "why": "Concept lectures." },
+    "Josh's DevBox": { "codes": null, "why": "Animated explanation; no language." },
+    "Khan Academy": { "codes": null, "why": "Maths, no code." },
+    "Luv": { "codes": "cpp", "when": "always", "why": "The CP course codes in C++ on screen." },
+    "NeetCode": { "codes": "python", "when": "walkthrough", "why": "LeetCode solutions are coded in Python." },
+    "NeetCodeIO": { "codes": "python", "when": "walkthrough", "why": "LeetCode solutions are coded in Python." },
+    "Pepcoding": { "codes": null, "why": "Unsure of one language for this video." },
+    "Simple Quant": { "codes": null, "why": "Maths, no code." },
+    "TLE Eliminators - by Priyansh": { "codes": null, "why": "Unsure of one language." },
+    "WilliamFiset": { "codes": null, "why": "Slides and animations; no language." },
+    "take U forward": { "codes": null, "why": "Shows pseudo-code, then C++ and Java side by side; the title names it when one language leads." }
+  },
+  "overrides": {
+    "M0tgJaQAo60": { "codeLang": "concept", "why": "Luv EP 10 is about complexity and constraints; the C++ snippets are incidental. Beginner Path step 1's Hindi main video." }
+  }
+}

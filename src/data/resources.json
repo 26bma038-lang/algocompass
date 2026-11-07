@@ -1,5 +1,5 @@
 {
-  "$comment": "Hand-picked study links per topic, in three tiers: learn (one article + one video), practice (a problem set) and deeper (one advanced resource). Every URL is verified by `npm run check:links` (scripts/check-links.mjs). Re-run it before adding or changing a link. The app adds a personalized Codeforces problemset filter (your topic tags at your rating) to each practice tier at runtime. v1.3: videos live in `videos` (YouTube id, lang en/hi, role intro/lecture/walkthrough); their title, channel and minutes are filled from YouTube by npm run fill:media and checked by npm run check:links.",
+  "$comment": "Hand-picked study links per topic, in three tiers: learn (one article + one video), practice (a problem set) and deeper (one advanced resource). Every URL is verified by `npm run check:links` (scripts/check-links.mjs). Re-run it before adding or changing a link. The app adds a personalized Codeforces problemset filter (your topic tags at your rating) to each practice tier at runtime. v1.3: videos live in `videos` (YouTube id, lang en/hi, role intro/lecture/walkthrough); their title, channel and minutes are filled from YouTube by npm run fill:media and checked by npm run check:links. v1.5: every video carries codeLang (concept, cpp, java, python or js), written by npm run tag:videos from src/data/code-langs.json and checked by npm run check:links.",
   "topics": {
     "implementation": {
       "learn": [
@@ -27,10 +27,10 @@
         }
       ],
       "videos": [
-        { "id": "xAeiXy8-9Y8", "lang": "en", "role": "intro", "title": "How to start Competitive Programming? For beginners!", "channel": "Errichto Algorithms", "minutes": 10 },
-        { "id": "pL7Jy3g62GM", "lang": "en", "role": "walkthrough", "title": "CSES Introductory Problems", "channel": "Errichto Algorithms", "minutes": 133 },
-        { "id": "lHJcLLsre70", "lang": "hi", "role": "intro", "title": "C++ Basics for Competitive Programming - Part 1 | CP Course | EP 2", "channel": "Luv", "minutes": 20 },
-        { "id": "AxB78suyqr8", "lang": "hi", "role": "lecture", "title": "Conditions, Loops, Jump Statements and Questions | C++ Basics - Part 3 | CP Course | EP 4", "channel": "Luv", "minutes": 28 }
+        { "id": "xAeiXy8-9Y8", "lang": "en", "role": "intro", "title": "How to start Competitive Programming? For beginners!", "channel": "Errichto Algorithms", "minutes": 10, "codeLang": "concept" },
+        { "id": "pL7Jy3g62GM", "lang": "en", "role": "walkthrough", "title": "CSES Introductory Problems", "channel": "Errichto Algorithms", "minutes": 133, "codeLang": "cpp" },
+        { "id": "lHJcLLsre70", "lang": "hi", "role": "intro", "title": "C++ Basics for Competitive Programming - Part 1 | CP Course | EP 2", "channel": "Luv", "minutes": 20, "codeLang": "cpp" },
+        { "id": "AxB78suyqr8", "lang": "hi", "role": "lecture", "title": "Conditions, Loops, Jump Statements and Questions | C++ Basics - Part 3 | CP Course | EP 4", "channel": "Luv", "minutes": 28, "codeLang": "cpp" }
       ]
     },
     "brute-force": {
@@ -59,9 +59,9 @@
         }
       ],
       "videos": [
-        { "id": "AxNNVECce8c", "lang": "en", "role": "lecture", "title": "L6. Recursion on Subsequences | Printing Subsequences", "channel": "take U forward", "minutes": 25 },
-        { "id": "xXKL9YBWgCY", "lang": "en", "role": "walkthrough", "title": "Bitwise Operations tutorial #1 | XOR, Shift, Subsets", "channel": "Errichto Algorithms", "minutes": 12 },
-        { "id": "mqCdA8mcJeo", "lang": "hi", "role": "lecture", "title": "What is Bit Masking with example Question | CP Course | EP 51", "channel": "Luv", "minutes": 23 }
+        { "id": "AxNNVECce8c", "lang": "en", "role": "lecture", "title": "L6. Recursion on Subsequences | Printing Subsequences", "channel": "take U forward", "minutes": 25, "codeLang": "concept" },
+        { "id": "xXKL9YBWgCY", "lang": "en", "role": "walkthrough", "title": "Bitwise Operations tutorial #1 | XOR, Shift, Subsets", "channel": "Errichto Algorithms", "minutes": 12, "codeLang": "cpp" },
+        { "id": "mqCdA8mcJeo", "lang": "hi", "role": "lecture", "title": "What is Bit Masking with example Question | CP Course | EP 51", "channel": "Luv", "minutes": 23, "codeLang": "cpp" }
       ]
     },
     "arrays-hashing": {
@@ -90,12 +90,12 @@
         }
       ],
       "videos": [
-        { "id": "PEnFFiQe1pM", "lang": "en", "role": "intro", "title": "Dynamic and Static Arrays", "channel": "WilliamFiset", "minutes": 12 },
-        { "id": "KEs5UyBJ39g", "lang": "en", "role": "lecture", "title": "Hashing | Maps | Time Complexity | Collisions | Division Rule of Hashing | Strivers A2Z DSA Course", "channel": "take U forward", "minutes": 60 },
-        { "id": "KLlXCFG5TnA", "lang": "en", "role": "walkthrough", "title": "Two Sum - Leetcode 1 - HashMap - Python", "channel": "NeetCode", "minutes": 8 },
-        { "id": "PyTK_g1l8V8", "lang": "hi", "role": "intro", "title": "8.1 Introduction to Arrays in C++ | Guaranteed Placement Course", "channel": "Apna College", "minutes": 13 },
-        { "id": "efET3lxYCkM", "lang": "hi", "role": "lecture", "title": "Pre-Computation Techniques Basics & Hashing | Competitive Programming Course | EP 12", "channel": "Luv", "minutes": 19 },
-        { "id": "0Fxc_jKj2vo", "lang": "hi", "role": "walkthrough", "title": "Two Sum | Find Duplicate | Find Repeating & Missing Values | Hashing Problems", "channel": "Apna College", "minutes": 54 }
+        { "id": "PEnFFiQe1pM", "lang": "en", "role": "intro", "title": "Dynamic and Static Arrays", "channel": "WilliamFiset", "minutes": 12, "codeLang": "concept" },
+        { "id": "KEs5UyBJ39g", "lang": "en", "role": "lecture", "title": "Hashing | Maps | Time Complexity | Collisions | Division Rule of Hashing | Strivers A2Z DSA Course", "channel": "take U forward", "minutes": 60, "codeLang": "concept" },
+        { "id": "KLlXCFG5TnA", "lang": "en", "role": "walkthrough", "title": "Two Sum - Leetcode 1 - HashMap - Python", "channel": "NeetCode", "minutes": 8, "codeLang": "python" },
+        { "id": "PyTK_g1l8V8", "lang": "hi", "role": "intro", "title": "8.1 Introduction to Arrays in C++ | Guaranteed Placement Course", "channel": "Apna College", "minutes": 13, "codeLang": "cpp" },
+        { "id": "efET3lxYCkM", "lang": "hi", "role": "lecture", "title": "Pre-Computation Techniques Basics & Hashing | Competitive Programming Course | EP 12", "channel": "Luv", "minutes": 19, "codeLang": "cpp" },
+        { "id": "0Fxc_jKj2vo", "lang": "hi", "role": "walkthrough", "title": "Two Sum | Find Duplicate | Find Repeating & Missing Values | Hashing Problems", "channel": "Apna College", "minutes": 54, "codeLang": "concept" }
       ]
     },
     "strings": {
@@ -124,11 +124,11 @@
         }
       ],
       "videos": [
-        { "id": "9UtInBqnCgA", "lang": "en", "role": "walkthrough", "title": "Valid Anagram - Leetcode 242 - Python", "channel": "NeetCode", "minutes": 12 },
-        { "id": "wiGpQwVHdE0", "lang": "en", "role": "walkthrough", "title": "Longest Substring Without Repeating Characters - Leetcode 3 - Python", "channel": "NeetCode", "minutes": 7 },
-        { "id": "W8hPsBquD6Y", "lang": "hi", "role": "lecture", "title": "13. Strings in C++  | Guaranteed Placement Course | Lecture 13", "channel": "Apna College", "minutes": 24 },
-        { "id": "abZEVCRYZP8", "lang": "hi", "role": "lecture", "title": "C++ Strings, Getline and Big Numbers for Competitive Programming | C++ Basics 4 | CP Course | EP 5", "channel": "Luv", "minutes": 23 },
-        { "id": "1pVI0yiEBR8", "lang": "hi", "role": "walkthrough", "title": "13.2 Strings Challenges | C++ Placement Course", "channel": "Apna College", "minutes": 12 }
+        { "id": "9UtInBqnCgA", "lang": "en", "role": "walkthrough", "title": "Valid Anagram - Leetcode 242 - Python", "channel": "NeetCode", "minutes": 12, "codeLang": "python" },
+        { "id": "wiGpQwVHdE0", "lang": "en", "role": "walkthrough", "title": "Longest Substring Without Repeating Characters - Leetcode 3 - Python", "channel": "NeetCode", "minutes": 7, "codeLang": "python" },
+        { "id": "W8hPsBquD6Y", "lang": "hi", "role": "lecture", "title": "13. Strings in C++  | Guaranteed Placement Course | Lecture 13", "channel": "Apna College", "minutes": 24, "codeLang": "cpp" },
+        { "id": "abZEVCRYZP8", "lang": "hi", "role": "lecture", "title": "C++ Strings, Getline and Big Numbers for Competitive Programming | C++ Basics 4 | CP Course | EP 5", "channel": "Luv", "minutes": 23, "codeLang": "cpp" },
+        { "id": "1pVI0yiEBR8", "lang": "hi", "role": "walkthrough", "title": "13.2 Strings Challenges | C++ Placement Course", "channel": "Apna College", "minutes": 12, "codeLang": "cpp" }
       ]
     },
     "math": {
@@ -157,10 +157,10 @@
         }
       ],
       "videos": [
-        { "id": "-OPohCQqi_E", "lang": "en", "role": "lecture", "title": "Computations Modulo P in Competitive Programming", "channel": "Errichto Algorithms", "minutes": 18 },
-        { "id": "9TlHvipP5yA", "lang": "en", "role": "intro", "title": "1.5.1 Time Complexity #1", "channel": "Abdul Bari", "minutes": 10 },
-        { "id": "KdePjukNs98", "lang": "hi", "role": "lecture", "title": "Lecture 24: Basic Maths for DSA || Sieve || Modular Arithmetics || Euclid’s Algorithm", "channel": "CodeHelp - by Babbar", "minutes": 44 },
-        { "id": "Y4KdgqV1IqA", "lang": "hi", "role": "lecture", "title": "Maths for DSA - One Shot | Euclid's Algorithm | Sieve of Eratosthenes | Modular Arithmetics", "channel": "Apna College", "minutes": 56 }
+        { "id": "-OPohCQqi_E", "lang": "en", "role": "lecture", "title": "Computations Modulo P in Competitive Programming", "channel": "Errichto Algorithms", "minutes": 18, "codeLang": "concept" },
+        { "id": "9TlHvipP5yA", "lang": "en", "role": "intro", "title": "1.5.1 Time Complexity #1", "channel": "Abdul Bari", "minutes": 10, "codeLang": "concept" },
+        { "id": "KdePjukNs98", "lang": "hi", "role": "lecture", "title": "Lecture 24: Basic Maths for DSA || Sieve || Modular Arithmetics || Euclid’s Algorithm", "channel": "CodeHelp - by Babbar", "minutes": 44, "codeLang": "cpp" },
+        { "id": "Y4KdgqV1IqA", "lang": "hi", "role": "lecture", "title": "Maths for DSA - One Shot | Euclid's Algorithm | Sieve of Eratosthenes | Modular Arithmetics", "channel": "Apna College", "minutes": 56, "codeLang": "concept" }
       ]
     },
     "sorting": {
@@ -189,10 +189,10 @@
         }
       ],
       "videos": [
-        { "id": "HGk_ypEuS24", "lang": "en", "role": "lecture", "title": "Sorting - Part 1 | Selection Sort, Bubble Sort, Insertion Sort | Strivers A2Z DSA Course", "channel": "take U forward", "minutes": 44 },
-        { "id": "ogjf7ORKfd8", "lang": "en", "role": "lecture", "title": "Merge Sort | Algorithm | Pseudocode | Dry Run | Code | Strivers A2Z DSA Course", "channel": "take U forward", "minutes": 50 },
-        { "id": "1jCFUv-Xlqo", "lang": "hi", "role": "lecture", "title": "Sorting Algorithms | Bubble Sort, Selection Sort & Insertion Sort | DSA Series by Shradha Ma'am", "channel": "Apna College", "minutes": 35 },
-        { "id": "4z9I6ZmeLOQ", "lang": "hi", "role": "walkthrough", "title": "Merge Sort | Code and Explanation | C++ Course - 19.1", "channel": "Apna College", "minutes": 17 }
+        { "id": "HGk_ypEuS24", "lang": "en", "role": "lecture", "title": "Sorting - Part 1 | Selection Sort, Bubble Sort, Insertion Sort | Strivers A2Z DSA Course", "channel": "take U forward", "minutes": 44, "codeLang": "concept" },
+        { "id": "ogjf7ORKfd8", "lang": "en", "role": "lecture", "title": "Merge Sort | Algorithm | Pseudocode | Dry Run | Code | Strivers A2Z DSA Course", "channel": "take U forward", "minutes": 50, "codeLang": "concept" },
+        { "id": "1jCFUv-Xlqo", "lang": "hi", "role": "lecture", "title": "Sorting Algorithms | Bubble Sort, Selection Sort & Insertion Sort | DSA Series by Shradha Ma'am", "channel": "Apna College", "minutes": 35, "codeLang": "concept" },
+        { "id": "4z9I6ZmeLOQ", "lang": "hi", "role": "walkthrough", "title": "Merge Sort | Code and Explanation | C++ Course - 19.1", "channel": "Apna College", "minutes": 17, "codeLang": "cpp" }
       ]
     },
     "greedy": {
@@ -221,10 +221,10 @@
         }
       ],
       "videos": [
-        { "id": "ARvQcqJ_-NY", "lang": "en", "role": "intro", "title": "3. Greedy Method -  Introduction", "channel": "Abdul Bari", "minutes": 12 },
-        { "id": "Yan0cv2cLy8", "lang": "en", "role": "walkthrough", "title": "Jump Game - Greedy - Leetcode 55", "channel": "NeetCode", "minutes": 16 },
-        { "id": "DHr-Mn_vzs0", "lang": "hi", "role": "walkthrough", "title": "Activity Selection Problem - Greedy Algorithm | C++ Placement Course | Lecture 33.3", "channel": "Apna College", "minutes": 9 },
-        { "id": "HZOUwKCKF5o", "lang": "hi", "role": "lecture", "title": "Lecture 140: GREEDY ALGORITHMS in 1 VIDEO", "channel": "CodeHelp - by Babbar", "minutes": 90 }
+        { "id": "ARvQcqJ_-NY", "lang": "en", "role": "intro", "title": "3. Greedy Method -  Introduction", "channel": "Abdul Bari", "minutes": 12, "codeLang": "concept" },
+        { "id": "Yan0cv2cLy8", "lang": "en", "role": "walkthrough", "title": "Jump Game - Greedy - Leetcode 55", "channel": "NeetCode", "minutes": 16, "codeLang": "python" },
+        { "id": "DHr-Mn_vzs0", "lang": "hi", "role": "walkthrough", "title": "Activity Selection Problem - Greedy Algorithm | C++ Placement Course | Lecture 33.3", "channel": "Apna College", "minutes": 9, "codeLang": "cpp" },
+        { "id": "HZOUwKCKF5o", "lang": "hi", "role": "lecture", "title": "Lecture 140: GREEDY ALGORITHMS in 1 VIDEO", "channel": "CodeHelp - by Babbar", "minutes": 90, "codeLang": "cpp" }
       ]
     },
     "constructive": {
@@ -253,8 +253,8 @@
         }
       ],
       "videos": [
-        { "id": "3D3XKJonua0", "lang": "en", "role": "walkthrough", "title": "Complete Constructive Problems Practice - Noob to Expert | Topic Stream 5", "channel": "Colin Galen", "minutes": 187 },
-        { "id": "-1GZodK4tvw", "lang": "hi", "role": "lecture", "title": "Implementation and Constructive Algorithms | Competitive Programming | Lecture 3", "channel": "College Wallah", "minutes": 158 }
+        { "id": "3D3XKJonua0", "lang": "en", "role": "walkthrough", "title": "Complete Constructive Problems Practice - Noob to Expert | Topic Stream 5", "channel": "Colin Galen", "minutes": 187, "codeLang": "concept" },
+        { "id": "-1GZodK4tvw", "lang": "hi", "role": "lecture", "title": "Implementation and Constructive Algorithms | Competitive Programming | Lecture 3", "channel": "College Wallah", "minutes": 158, "codeLang": "concept" }
       ]
     },
     "two-pointers": {
@@ -283,12 +283,12 @@
         }
       ],
       "videos": [
-        { "id": "9kdHxplyl5I", "lang": "en", "role": "lecture", "title": "L1. Introduction to Sliding Window and 2 Pointers | Templates | Patterns", "channel": "take U forward", "minutes": 37 },
-        { "id": "UuiTKBwPgAo", "lang": "en", "role": "walkthrough", "title": "Container with Most Water - Leetcode 11 - Python", "channel": "NeetCode", "minutes": 13 },
-        { "id": "gqXU1UyA8pk", "lang": "en", "role": "walkthrough", "title": "Longest Repeating Character Replacement - Leetcode 424 - Python", "channel": "NeetCode", "minutes": 21 },
-        { "id": "EHCGAZBbB88", "lang": "hi", "role": "intro", "title": "Sliding Window Introduction Identification And Types", "channel": "Aditya Verma", "minutes": 23 },
-        { "id": "LV-BgyeH8yo", "lang": "hi", "role": "lecture", "title": "Variable Size Sliding Window General Format", "channel": "Aditya Verma", "minutes": 16 },
-        { "id": "EbkMABpP52U", "lang": "hi", "role": "walkthrough", "title": "Container with Most Water Problem | Brute & Optimal Solution | Two Pointer Approach - Leetcode 11", "channel": "Apna College", "minutes": 32 }
+        { "id": "9kdHxplyl5I", "lang": "en", "role": "lecture", "title": "L1. Introduction to Sliding Window and 2 Pointers | Templates | Patterns", "channel": "take U forward", "minutes": 37, "codeLang": "concept" },
+        { "id": "UuiTKBwPgAo", "lang": "en", "role": "walkthrough", "title": "Container with Most Water - Leetcode 11 - Python", "channel": "NeetCode", "minutes": 13, "codeLang": "python" },
+        { "id": "gqXU1UyA8pk", "lang": "en", "role": "walkthrough", "title": "Longest Repeating Character Replacement - Leetcode 424 - Python", "channel": "NeetCode", "minutes": 21, "codeLang": "python" },
+        { "id": "EHCGAZBbB88", "lang": "hi", "role": "intro", "title": "Sliding Window Introduction Identification And Types", "channel": "Aditya Verma", "minutes": 23, "codeLang": "concept" },
+        { "id": "LV-BgyeH8yo", "lang": "hi", "role": "lecture", "title": "Variable Size Sliding Window General Format", "channel": "Aditya Verma", "minutes": 16, "codeLang": "concept" },
+        { "id": "EbkMABpP52U", "lang": "hi", "role": "walkthrough", "title": "Container with Most Water Problem | Brute & Optimal Solution | Two Pointer Approach - Leetcode 11", "channel": "Apna College", "minutes": 32, "codeLang": "concept" }
       ]
     },
     "prefix-sums": {
@@ -317,9 +317,9 @@
         }
       ],
       "videos": [
-        { "id": "PhgtNY_-CiY", "lang": "en", "role": "lecture", "title": "Prefix Sums - Problems, Code in C++ & Python", "channel": "Errichto Algorithms", "minutes": 21 },
-        { "id": "nZe7P674xZo", "lang": "hi", "role": "lecture", "title": "Pre-Computation using Prefix Sum in 1D/2D Arrays | Competitive Programming Course | EP 13", "channel": "Luv", "minutes": 24 },
-        { "id": "zwlCeWUGlE0", "lang": "hi", "role": "walkthrough", "title": "Prefix Sum + Hashing HARD Question | Competitive Programming Course | EP 16", "channel": "Luv", "minutes": 22 }
+        { "id": "PhgtNY_-CiY", "lang": "en", "role": "lecture", "title": "Prefix Sums - Problems, Code in C++ & Python", "channel": "Errichto Algorithms", "minutes": 21, "codeLang": "cpp", "alsoCodeLang": ["python"] },
+        { "id": "nZe7P674xZo", "lang": "hi", "role": "lecture", "title": "Pre-Computation using Prefix Sum in 1D/2D Arrays | Competitive Programming Course | EP 13", "channel": "Luv", "minutes": 24, "codeLang": "cpp" },
+        { "id": "zwlCeWUGlE0", "lang": "hi", "role": "walkthrough", "title": "Prefix Sum + Hashing HARD Question | Competitive Programming Course | EP 16", "channel": "Luv", "minutes": 22, "codeLang": "cpp" }
       ]
     },
     "binary-search": {
@@ -348,11 +348,11 @@
         }
       ],
       "videos": [
-        { "id": "s4DPM8ct1pI", "lang": "en", "role": "intro", "title": "Binary Search - Leetcode 704 - Python", "channel": "NeetCode", "minutes": 10 },
-        { "id": "GU7DpgHINWQ", "lang": "en", "role": "lecture", "title": "Binary Search tutorial (C++ and Python)", "channel": "Errichto Algorithms", "minutes": 28 },
-        { "id": "MHf6awe89xw", "lang": "en", "role": "lecture", "title": "BS-1. Binary Search Introduction | Real Life Example | Iterative | Recursive | Overflow Cases", "channel": "take U forward", "minutes": 33 },
-        { "id": "QNGL_t_o_QA", "lang": "hi", "role": "intro", "title": "2 Binary Search", "channel": "Aditya Verma", "minutes": 13 },
-        { "id": "IZP_8-JZqhM", "lang": "hi", "role": "lecture", "title": "16 Binary Search on Answer Concept", "channel": "Aditya Verma", "minutes": 7 }
+        { "id": "s4DPM8ct1pI", "lang": "en", "role": "intro", "title": "Binary Search - Leetcode 704 - Python", "channel": "NeetCode", "minutes": 10, "codeLang": "python" },
+        { "id": "GU7DpgHINWQ", "lang": "en", "role": "lecture", "title": "Binary Search tutorial (C++ and Python)", "channel": "Errichto Algorithms", "minutes": 28, "codeLang": "cpp", "alsoCodeLang": ["python"] },
+        { "id": "MHf6awe89xw", "lang": "en", "role": "lecture", "title": "BS-1. Binary Search Introduction | Real Life Example | Iterative | Recursive | Overflow Cases", "channel": "take U forward", "minutes": 33, "codeLang": "concept" },
+        { "id": "QNGL_t_o_QA", "lang": "hi", "role": "intro", "title": "2 Binary Search", "channel": "Aditya Verma", "minutes": 13, "codeLang": "concept" },
+        { "id": "IZP_8-JZqhM", "lang": "hi", "role": "lecture", "title": "16 Binary Search on Answer Concept", "channel": "Aditya Verma", "minutes": 7, "codeLang": "concept" }
       ]
     },
     "stacks-queues": {
@@ -381,11 +381,11 @@
         }
       ],
       "videos": [
-        { "id": "L3ud3rXpIxA", "lang": "en", "role": "intro", "title": "Stack Introduction", "channel": "WilliamFiset", "minutes": 12 },
-        { "id": "WTzjTskDFMg", "lang": "en", "role": "walkthrough", "title": "Valid Parentheses - Stack - Leetcode 20 - Python", "channel": "NeetCode", "minutes": 11 },
-        { "id": "e7XQLtOQM3I", "lang": "en", "role": "walkthrough", "title": "L5. Next Greater Element | Stack and Queue Playlist", "channel": "take U forward", "minutes": 18 },
-        { "id": "P1bAPZg5uaE", "lang": "hi", "role": "intro", "title": "1 Stack Introduction And Identification", "channel": "Aditya Verma", "minutes": 16 },
-        { "id": "JvuaAgDar1c", "lang": "hi", "role": "lecture", "title": "Stack Data Structure - Introduction | C++ Placement Course | Lecture 23.1", "channel": "Apna College", "minutes": 10 }
+        { "id": "L3ud3rXpIxA", "lang": "en", "role": "intro", "title": "Stack Introduction", "channel": "WilliamFiset", "minutes": 12, "codeLang": "concept" },
+        { "id": "WTzjTskDFMg", "lang": "en", "role": "walkthrough", "title": "Valid Parentheses - Stack - Leetcode 20 - Python", "channel": "NeetCode", "minutes": 11, "codeLang": "python" },
+        { "id": "e7XQLtOQM3I", "lang": "en", "role": "walkthrough", "title": "L5. Next Greater Element | Stack and Queue Playlist", "channel": "take U forward", "minutes": 18, "codeLang": "concept" },
+        { "id": "P1bAPZg5uaE", "lang": "hi", "role": "intro", "title": "1 Stack Introduction And Identification", "channel": "Aditya Verma", "minutes": 16, "codeLang": "concept" },
+        { "id": "JvuaAgDar1c", "lang": "hi", "role": "lecture", "title": "Stack Data Structure - Introduction | C++ Placement Course | Lecture 23.1", "channel": "Apna College", "minutes": 10, "codeLang": "cpp" }
       ]
     },
     "linked-lists": {
@@ -414,10 +414,10 @@
         }
       ],
       "videos": [
-        { "id": "-Yn5DU0_-lw", "lang": "en", "role": "intro", "title": "Linked Lists Introduction", "channel": "WilliamFiset", "minutes": 15 },
-        { "id": "G0_I-ZF0S38", "lang": "en", "role": "walkthrough", "title": "Reverse Linked List - Iterative AND Recursive - Leetcode 206 - Python", "channel": "NeetCode", "minutes": 11 },
-        { "id": "Crqgl10aIGQ", "lang": "hi", "role": "intro", "title": "Introduction to Linked List | C++ Placement Course | Lecture 22", "channel": "Apna College", "minutes": 15 },
-        { "id": "t7YaoQOFXzk", "lang": "hi", "role": "walkthrough", "title": "How to Reverse a Linked List? | Iterative + Recursive | Java Placement Course", "channel": "Apna College", "minutes": 20 }
+        { "id": "-Yn5DU0_-lw", "lang": "en", "role": "intro", "title": "Linked Lists Introduction", "channel": "WilliamFiset", "minutes": 15, "codeLang": "concept" },
+        { "id": "G0_I-ZF0S38", "lang": "en", "role": "walkthrough", "title": "Reverse Linked List - Iterative AND Recursive - Leetcode 206 - Python", "channel": "NeetCode", "minutes": 11, "codeLang": "python" },
+        { "id": "Crqgl10aIGQ", "lang": "hi", "role": "intro", "title": "Introduction to Linked List | C++ Placement Course | Lecture 22", "channel": "Apna College", "minutes": 15, "codeLang": "cpp" },
+        { "id": "t7YaoQOFXzk", "lang": "hi", "role": "walkthrough", "title": "How to Reverse a Linked List? | Iterative + Recursive | Java Placement Course", "channel": "Apna College", "minutes": 20, "codeLang": "java" }
       ]
     },
     "heaps": {
@@ -439,11 +439,11 @@
       ],
       "deeper": [],
       "videos": [
-        { "id": "wptevk0bshY", "lang": "en", "role": "intro", "title": "Priority Queue Introduction", "channel": "WilliamFiset", "minutes": 13 },
-        { "id": "jND_WJ8r7FE", "lang": "en", "role": "lecture", "title": "Indexed Priority Queue (UPDATED) | Data Structures", "channel": "WilliamFiset", "minutes": 25 },
-        { "id": "hOjcdrqMoQ8", "lang": "en", "role": "walkthrough", "title": "Kth Largest Element in a Stream - Leetcode 703 - Python", "channel": "NeetCode", "minutes": 11 },
-        { "id": "hW8PrQrvMNc", "lang": "hi", "role": "intro", "title": "1 Heap Introduction and Identification", "channel": "Aditya Verma", "minutes": 22 },
-        { "id": "3DdP6Ef8YZM", "lang": "hi", "role": "walkthrough", "title": "3 Return K largest Elements in array", "channel": "Aditya Verma", "minutes": 9 }
+        { "id": "wptevk0bshY", "lang": "en", "role": "intro", "title": "Priority Queue Introduction", "channel": "WilliamFiset", "minutes": 13, "codeLang": "concept" },
+        { "id": "jND_WJ8r7FE", "lang": "en", "role": "lecture", "title": "Indexed Priority Queue (UPDATED) | Data Structures", "channel": "WilliamFiset", "minutes": 25, "codeLang": "concept" },
+        { "id": "hOjcdrqMoQ8", "lang": "en", "role": "walkthrough", "title": "Kth Largest Element in a Stream - Leetcode 703 - Python", "channel": "NeetCode", "minutes": 11, "codeLang": "python" },
+        { "id": "hW8PrQrvMNc", "lang": "hi", "role": "intro", "title": "1 Heap Introduction and Identification", "channel": "Aditya Verma", "minutes": 22, "codeLang": "concept" },
+        { "id": "3DdP6Ef8YZM", "lang": "hi", "role": "walkthrough", "title": "3 Return K largest Elements in array", "channel": "Aditya Verma", "minutes": 9, "codeLang": "concept" }
       ]
     },
     "recursion-backtracking": {
@@ -465,12 +465,12 @@
       ],
       "deeper": [],
       "videos": [
-        { "id": "yVdKa8dnKiE", "lang": "en", "role": "intro", "title": "Re 1. Introduction to Recursion | Recursion Tree | Stack Space | Strivers A2Z DSA Course", "channel": "take U forward", "minutes": 23 },
-        { "id": "i05Ju7AftcM", "lang": "en", "role": "walkthrough", "title": "L14. N-Queens | Leetcode Hard | Backtracking", "channel": "take U forward", "minutes": 37 },
-        { "id": "dDokMfPpfu4", "lang": "en", "role": "walkthrough", "title": "Recursion for Beginners - Fibonacci Numbers", "channel": "NeetCode", "minutes": 10 },
-        { "id": "d59iXqly5FY", "lang": "hi", "role": "intro", "title": "Recursion from Scratch | Beginners Tutorial | Competitive Programming Course | Ep 17", "channel": "Luv", "minutes": 16 },
-        { "id": "kHi1DUhp9kM", "lang": "hi", "role": "lecture", "title": "Recursion Introduction and Identification", "channel": "Aditya Verma", "minutes": 33 },
-        { "id": "R8XzIfEY_xE", "lang": "hi", "role": "intro", "title": "1 Backtracking Course Overview", "channel": "Aditya Verma", "minutes": 5 }
+        { "id": "yVdKa8dnKiE", "lang": "en", "role": "intro", "title": "Re 1. Introduction to Recursion | Recursion Tree | Stack Space | Strivers A2Z DSA Course", "channel": "take U forward", "minutes": 23, "codeLang": "concept" },
+        { "id": "i05Ju7AftcM", "lang": "en", "role": "walkthrough", "title": "L14. N-Queens | Leetcode Hard | Backtracking", "channel": "take U forward", "minutes": 37, "codeLang": "concept" },
+        { "id": "dDokMfPpfu4", "lang": "en", "role": "walkthrough", "title": "Recursion for Beginners - Fibonacci Numbers", "channel": "NeetCode", "minutes": 10, "codeLang": "python" },
+        { "id": "d59iXqly5FY", "lang": "hi", "role": "intro", "title": "Recursion from Scratch | Beginners Tutorial | Competitive Programming Course | Ep 17", "channel": "Luv", "minutes": 16, "codeLang": "cpp" },
+        { "id": "kHi1DUhp9kM", "lang": "hi", "role": "lecture", "title": "Recursion Introduction and Identification", "channel": "Aditya Verma", "minutes": 33, "codeLang": "concept" },
+        { "id": "R8XzIfEY_xE", "lang": "hi", "role": "intro", "title": "1 Backtracking Course Overview", "channel": "Aditya Verma", "minutes": 5, "codeLang": "concept" }
       ]
     },
     "bitmasks": {
@@ -499,10 +499,10 @@
         }
       ],
       "videos": [
-        { "id": "xXKL9YBWgCY", "lang": "en", "role": "intro", "title": "Bitwise Operations tutorial #1 | XOR, Shift, Subsets", "channel": "Errichto Algorithms", "minutes": 12 },
-        { "id": "5Km3utixwZs", "lang": "en", "role": "walkthrough", "title": "Number of 1 Bits - Leetcode 191 - Python", "channel": "NeetCode", "minutes": 12 },
-        { "id": "yEa0vkjJSf0", "lang": "hi", "role": "intro", "title": "PLAYING WITH BITS | Set, Unset, Count Bits | CP Course | EP 48", "channel": "Luv", "minutes": 21 },
-        { "id": "LGrE0siZ-ZA", "lang": "hi", "role": "lecture", "title": "Learn these 10 Bitwise Tricks Or Regret Later | Competitive Programming Tricks Part 2", "channel": "TLE Eliminators - by Priyansh", "minutes": 29 }
+        { "id": "xXKL9YBWgCY", "lang": "en", "role": "intro", "title": "Bitwise Operations tutorial #1 | XOR, Shift, Subsets", "channel": "Errichto Algorithms", "minutes": 12, "codeLang": "cpp" },
+        { "id": "5Km3utixwZs", "lang": "en", "role": "walkthrough", "title": "Number of 1 Bits - Leetcode 191 - Python", "channel": "NeetCode", "minutes": 12, "codeLang": "python" },
+        { "id": "yEa0vkjJSf0", "lang": "hi", "role": "intro", "title": "PLAYING WITH BITS | Set, Unset, Count Bits | CP Course | EP 48", "channel": "Luv", "minutes": 21, "codeLang": "cpp" },
+        { "id": "LGrE0siZ-ZA", "lang": "hi", "role": "lecture", "title": "Learn these 10 Bitwise Tricks Or Regret Later | Competitive Programming Tricks Part 2", "channel": "TLE Eliminators - by Priyansh", "minutes": 29, "codeLang": "concept" }
       ]
     },
     "number-theory": {
@@ -531,10 +531,10 @@
         }
       ],
       "videos": [
-        { "id": "g5Fuxn_AvSk", "lang": "en", "role": "lecture", "title": "L6. Sieve of Eratosthenes | Maths Playlist", "channel": "take U forward", "minutes": 18 },
-        { "id": "T8PaMnb0GPo", "lang": "hi", "role": "lecture", "title": "Sieve Algorithm: How to find Prime Numbers Optimally ? | CP Course | EP 59", "channel": "Luv", "minutes": 16 },
-        { "id": "nDPo9hsDNvU", "lang": "hi", "role": "walkthrough", "title": "15.1 Sieve of Eratosthenes | Challenge | C++ Placement Course", "channel": "Apna College", "minutes": 11 },
-        { "id": "Gd9w8m-klho", "lang": "hi", "role": "lecture", "title": "Modular Multiplicative Inverse : Modular Arithmetic for Division | CP Course | EP 61", "channel": "Luv", "minutes": 17 }
+        { "id": "g5Fuxn_AvSk", "lang": "en", "role": "lecture", "title": "L6. Sieve of Eratosthenes | Maths Playlist", "channel": "take U forward", "minutes": 18, "codeLang": "concept" },
+        { "id": "T8PaMnb0GPo", "lang": "hi", "role": "lecture", "title": "Sieve Algorithm: How to find Prime Numbers Optimally ? | CP Course | EP 59", "channel": "Luv", "minutes": 16, "codeLang": "cpp" },
+        { "id": "nDPo9hsDNvU", "lang": "hi", "role": "walkthrough", "title": "15.1 Sieve of Eratosthenes | Challenge | C++ Placement Course", "channel": "Apna College", "minutes": 11, "codeLang": "cpp" },
+        { "id": "Gd9w8m-klho", "lang": "hi", "role": "lecture", "title": "Modular Multiplicative Inverse : Modular Arithmetic for Division | CP Course | EP 61", "channel": "Luv", "minutes": 17, "codeLang": "cpp" }
       ]
     },
     "combinatorics": {
@@ -563,10 +563,10 @@
         }
       ],
       "videos": [
-        { "id": "VJkvPTY6kZw", "lang": "en", "role": "lecture", "title": "All of Combinatorics in 30 Minutes", "channel": "Simple Quant", "minutes": 34 },
-        { "id": "le2enQgQ7Ws", "lang": "en", "role": "walkthrough", "title": "Complete Probability/Combinatorics Practice - Noob to Expert | Topic Stream 4", "channel": "Colin Galen", "minutes": 255 },
-        { "id": "J63JPxqmyzg", "lang": "hi", "role": "intro", "title": "Binary Exponentiation : Recursive Method | CP Course | EP 54.1", "channel": "Luv", "minutes": 13 },
-        { "id": "Gd9w8m-klho", "lang": "hi", "role": "lecture", "title": "Modular Multiplicative Inverse : Modular Arithmetic for Division | CP Course | EP 61", "channel": "Luv", "minutes": 17 }
+        { "id": "VJkvPTY6kZw", "lang": "en", "role": "lecture", "title": "All of Combinatorics in 30 Minutes", "channel": "Simple Quant", "minutes": 34, "codeLang": "concept" },
+        { "id": "le2enQgQ7Ws", "lang": "en", "role": "walkthrough", "title": "Complete Probability/Combinatorics Practice - Noob to Expert | Topic Stream 4", "channel": "Colin Galen", "minutes": 255, "codeLang": "concept" },
+        { "id": "J63JPxqmyzg", "lang": "hi", "role": "intro", "title": "Binary Exponentiation : Recursive Method | CP Course | EP 54.1", "channel": "Luv", "minutes": 13, "codeLang": "cpp" },
+        { "id": "Gd9w8m-klho", "lang": "hi", "role": "lecture", "title": "Modular Multiplicative Inverse : Modular Arithmetic for Division | CP Course | EP 61", "channel": "Luv", "minutes": 17, "codeLang": "cpp" }
       ]
     },
     "probability": {
@@ -595,9 +595,9 @@
         }
       ],
       "videos": [
-        { "id": "j__Kredt7vY", "lang": "en", "role": "intro", "title": "Expected Value: E(X)", "channel": "Khan Academy", "minutes": 15 },
-        { "id": "le2enQgQ7Ws", "lang": "en", "role": "lecture", "title": "Complete Probability/Combinatorics Practice - Noob to Expert | Topic Stream 4", "channel": "Colin Galen", "minutes": 255 },
-        { "id": "kPsDTGcrzGM", "lang": "en", "role": "walkthrough", "title": "Path with Maximum Probability - Leetcode 1514 - Python", "channel": "NeetCodeIO", "minutes": 13 }
+        { "id": "j__Kredt7vY", "lang": "en", "role": "intro", "title": "Expected Value: E(X)", "channel": "Khan Academy", "minutes": 15, "codeLang": "concept" },
+        { "id": "le2enQgQ7Ws", "lang": "en", "role": "lecture", "title": "Complete Probability/Combinatorics Practice - Noob to Expert | Topic Stream 4", "channel": "Colin Galen", "minutes": 255, "codeLang": "concept" },
+        { "id": "kPsDTGcrzGM", "lang": "en", "role": "walkthrough", "title": "Path with Maximum Probability - Leetcode 1514 - Python", "channel": "NeetCodeIO", "minutes": 13, "codeLang": "python" }
       ]
     },
     "geometry": {
@@ -626,7 +626,7 @@
         }
       ],
       "videos": [
-        { "id": "G9QTjWtK_TQ", "lang": "en", "role": "walkthrough", "title": "CSES Geometry Problem Set | Coding Live!", "channel": "Errichto Hard Algorithms", "minutes": 168 }
+        { "id": "G9QTjWtK_TQ", "lang": "en", "role": "walkthrough", "title": "CSES Geometry Problem Set | Coding Live!", "channel": "Errichto Hard Algorithms", "minutes": 168, "codeLang": "cpp" }
       ]
     },
     "trees": {
@@ -655,12 +655,12 @@
         }
       ],
       "videos": [
-        { "id": "_ANrF3FJm7I", "lang": "en", "role": "intro", "title": "L1. Introduction to Trees | Types of Trees", "channel": "take U forward", "minutes": 10 },
-        { "id": "jmy0LaGET1I", "lang": "en", "role": "lecture", "title": "L4. Binary Tree Traversals in Binary Tree | BFS | DFS", "channel": "take U forward", "minutes": 10 },
-        { "id": "hTM3phVI6YQ", "lang": "en", "role": "walkthrough", "title": "Maximum Depth of Binary Tree - 3 Solutions - Leetcode 104 - Python", "channel": "NeetCode", "minutes": 17 },
-        { "id": "_jKa4gycZTw", "lang": "hi", "role": "intro", "title": "Binary Tree Introduction | C++ Placement Course | Lecture 27.1", "channel": "Apna College", "minutes": 10 },
-        { "id": "67zlUtAr2LE", "lang": "hi", "role": "lecture", "title": "Binary Tree Traversals| Preorder, Inorder, Postorder Traversal | C++ Placement Course | Lecture 27.2", "channel": "Apna College", "minutes": 16 },
-        { "id": "5NiXlPrLslg", "lang": "hi", "role": "lecture", "title": "Lecture 62: Binary Trees & its Representation || Different types of Traversals", "channel": "CodeHelp - by Babbar", "minutes": 55 }
+        { "id": "_ANrF3FJm7I", "lang": "en", "role": "intro", "title": "L1. Introduction to Trees | Types of Trees", "channel": "take U forward", "minutes": 10, "codeLang": "concept" },
+        { "id": "jmy0LaGET1I", "lang": "en", "role": "lecture", "title": "L4. Binary Tree Traversals in Binary Tree | BFS | DFS", "channel": "take U forward", "minutes": 10, "codeLang": "concept" },
+        { "id": "hTM3phVI6YQ", "lang": "en", "role": "walkthrough", "title": "Maximum Depth of Binary Tree - 3 Solutions - Leetcode 104 - Python", "channel": "NeetCode", "minutes": 17, "codeLang": "python" },
+        { "id": "_jKa4gycZTw", "lang": "hi", "role": "intro", "title": "Binary Tree Introduction | C++ Placement Course | Lecture 27.1", "channel": "Apna College", "minutes": 10, "codeLang": "cpp" },
+        { "id": "67zlUtAr2LE", "lang": "hi", "role": "lecture", "title": "Binary Tree Traversals| Preorder, Inorder, Postorder Traversal | C++ Placement Course | Lecture 27.2", "channel": "Apna College", "minutes": 16, "codeLang": "cpp" },
+        { "id": "5NiXlPrLslg", "lang": "hi", "role": "lecture", "title": "Lecture 62: Binary Trees & its Representation || Different types of Traversals", "channel": "CodeHelp - by Babbar", "minutes": 55, "codeLang": "cpp" }
       ]
     },
     "graphs": {
@@ -689,12 +689,12 @@
         }
       ],
       "videos": [
-        { "id": "pcKY4hjDrxk", "lang": "en", "role": "intro", "title": "5.1 Graph Traversals - BFS & DFS -Breadth First Search and Depth First Search", "channel": "Abdul Bari", "minutes": 19 },
-        { "id": "7fujbpJ0LB4", "lang": "en", "role": "lecture", "title": "Depth First Search Algorithm | Graph Theory", "channel": "WilliamFiset", "minutes": 10 },
-        { "id": "pV2kpPD66nE", "lang": "en", "role": "walkthrough", "title": "NUMBER OF ISLANDS - Leetcode 200 - Python", "channel": "NeetCode", "minutes": 12 },
-        { "id": "b5kij1Akf9I", "lang": "hi", "role": "lecture", "title": "Lecture 86: BFS Traversal in Graph || C++ Placement Series", "channel": "CodeHelp - by Babbar", "minutes": 24 },
-        { "id": "aJa3U-hydXc", "lang": "hi", "role": "lecture", "title": "Lecture 87: DFS Traversal in Graph || C++ Placement Series", "channel": "CodeHelp - by Babbar", "minutes": 14 },
-        { "id": "M8jdDR5kV3k", "lang": "hi", "role": "lecture", "title": "Breadth First Search | BFS : The Only Tutorial You need | CP Course | EP 78", "channel": "Luv", "minutes": 24 }
+        { "id": "pcKY4hjDrxk", "lang": "en", "role": "intro", "title": "5.1 Graph Traversals - BFS & DFS -Breadth First Search and Depth First Search", "channel": "Abdul Bari", "minutes": 19, "codeLang": "concept" },
+        { "id": "7fujbpJ0LB4", "lang": "en", "role": "lecture", "title": "Depth First Search Algorithm | Graph Theory", "channel": "WilliamFiset", "minutes": 10, "codeLang": "concept" },
+        { "id": "pV2kpPD66nE", "lang": "en", "role": "walkthrough", "title": "NUMBER OF ISLANDS - Leetcode 200 - Python", "channel": "NeetCode", "minutes": 12, "codeLang": "python" },
+        { "id": "b5kij1Akf9I", "lang": "hi", "role": "lecture", "title": "Lecture 86: BFS Traversal in Graph || C++ Placement Series", "channel": "CodeHelp - by Babbar", "minutes": 24, "codeLang": "cpp" },
+        { "id": "aJa3U-hydXc", "lang": "hi", "role": "lecture", "title": "Lecture 87: DFS Traversal in Graph || C++ Placement Series", "channel": "CodeHelp - by Babbar", "minutes": 14, "codeLang": "cpp" },
+        { "id": "M8jdDR5kV3k", "lang": "hi", "role": "lecture", "title": "Breadth First Search | BFS : The Only Tutorial You need | CP Course | EP 78", "channel": "Luv", "minutes": 24, "codeLang": "cpp" }
       ]
     },
     "shortest-paths": {
@@ -723,11 +723,11 @@
         }
       ],
       "videos": [
-        { "id": "pSqmAO-m7Lk", "lang": "en", "role": "lecture", "title": "Dijkstra's Shortest Path Algorithm | Graph Theory", "channel": "WilliamFiset", "minutes": 25 },
-        { "id": "XB4MIexjvY0", "lang": "en", "role": "intro", "title": "3.6 Dijkstra Algorithm - Single Source Shortest Path - Greedy Method", "channel": "Abdul Bari", "minutes": 19 },
-        { "id": "V6H1qAeB-l4", "lang": "en", "role": "walkthrough", "title": "G-32. Dijkstra's Algorithm - Using Priority Queue - C++ and Java - Part 1", "channel": "take U forward", "minutes": 23 },
-        { "id": "F3PNsWE6_hM", "lang": "hi", "role": "lecture", "title": "Dijkstra Algorithm: Tutorial with Code & Example Question | CP Course | EP 82", "channel": "Luv", "minutes": 31 },
-        { "id": "dVUR3Rm6biE", "lang": "hi", "role": "lecture", "title": "Lecture 95: Dijkstra's Algorithm || C++ Placement Series", "channel": "CodeHelp - by Babbar", "minutes": 36 }
+        { "id": "pSqmAO-m7Lk", "lang": "en", "role": "lecture", "title": "Dijkstra's Shortest Path Algorithm | Graph Theory", "channel": "WilliamFiset", "minutes": 25, "codeLang": "concept" },
+        { "id": "XB4MIexjvY0", "lang": "en", "role": "intro", "title": "3.6 Dijkstra Algorithm - Single Source Shortest Path - Greedy Method", "channel": "Abdul Bari", "minutes": 19, "codeLang": "concept" },
+        { "id": "V6H1qAeB-l4", "lang": "en", "role": "walkthrough", "title": "G-32. Dijkstra's Algorithm - Using Priority Queue - C++ and Java - Part 1", "channel": "take U forward", "minutes": 23, "codeLang": "cpp", "alsoCodeLang": ["java"] },
+        { "id": "F3PNsWE6_hM", "lang": "hi", "role": "lecture", "title": "Dijkstra Algorithm: Tutorial with Code & Example Question | CP Course | EP 82", "channel": "Luv", "minutes": 31, "codeLang": "cpp" },
+        { "id": "dVUR3Rm6biE", "lang": "hi", "role": "lecture", "title": "Lecture 95: Dijkstra's Algorithm || C++ Placement Series", "channel": "CodeHelp - by Babbar", "minutes": 36, "codeLang": "cpp" }
       ]
     },
     "dsu": {
@@ -756,11 +756,11 @@
         }
       ],
       "videos": [
-        { "id": "ibjEGG7ylHk", "lang": "en", "role": "intro", "title": "Union Find Introduction", "channel": "WilliamFiset", "minutes": 6 },
-        { "id": "wU6udHRIkcc", "lang": "en", "role": "lecture", "title": "1.12 Disjoint Sets Data Structure - Weighted Union and Collapsing Find", "channel": "Abdul Bari", "minutes": 26 },
-        { "id": "aBxjDBC4M1U", "lang": "en", "role": "lecture", "title": "G-46. Disjoint Set | Union by Rank | Union by Size | Path Compression", "channel": "take U forward", "minutes": 42 },
-        { "id": "zEAmQqOpfzM", "lang": "hi", "role": "lecture", "title": "Disjoint Set Union (DSU) Tutorial with Code | CP Course | EP 85", "channel": "Luv", "minutes": 28 },
-        { "id": "L8SuKrpNc2Q", "lang": "hi", "role": "walkthrough", "title": "Disjoint Set Union Practice Questions | Code Monk | CP Course | EP 86", "channel": "Luv", "minutes": 16 }
+        { "id": "ibjEGG7ylHk", "lang": "en", "role": "intro", "title": "Union Find Introduction", "channel": "WilliamFiset", "minutes": 6, "codeLang": "concept" },
+        { "id": "wU6udHRIkcc", "lang": "en", "role": "lecture", "title": "1.12 Disjoint Sets Data Structure - Weighted Union and Collapsing Find", "channel": "Abdul Bari", "minutes": 26, "codeLang": "concept" },
+        { "id": "aBxjDBC4M1U", "lang": "en", "role": "lecture", "title": "G-46. Disjoint Set | Union by Rank | Union by Size | Path Compression", "channel": "take U forward", "minutes": 42, "codeLang": "concept" },
+        { "id": "zEAmQqOpfzM", "lang": "hi", "role": "lecture", "title": "Disjoint Set Union (DSU) Tutorial with Code | CP Course | EP 85", "channel": "Luv", "minutes": 28, "codeLang": "cpp" },
+        { "id": "L8SuKrpNc2Q", "lang": "hi", "role": "walkthrough", "title": "Disjoint Set Union Practice Questions | Code Monk | CP Course | EP 86", "channel": "Luv", "minutes": 16, "codeLang": "cpp" }
       ]
     },
     "dp": {
@@ -789,11 +789,11 @@
         }
       ],
       "videos": [
-        { "id": "YBSt1jYwVfU", "lang": "en", "role": "intro", "title": "Dynamic Programming lecture #1 - Fibonacci, iteration vs recursion", "channel": "Errichto Algorithms", "minutes": 20 },
-        { "id": "1mtvm2ubHCY", "lang": "en", "role": "lecture", "title": "Dynamic Programming lecture #2 - Coin change, double counting", "channel": "Errichto Algorithms", "minutes": 19 },
-        { "id": "Y0lT9Fck7qI", "lang": "en", "role": "walkthrough", "title": "Climbing Stairs - Dynamic Programming - Leetcode 70 - Python", "channel": "NeetCode", "minutes": 18 },
-        { "id": "nqowUJzG-iM", "lang": "hi", "role": "intro", "title": "Dynamic Programming | Introduction", "channel": "Aditya Verma", "minutes": 14 },
-        { "id": "u7DdPBAJttU", "lang": "hi", "role": "lecture", "title": "Introduction to Dynamic Programming | Tutorial | CP Course | EP 90", "channel": "Luv", "minutes": 22 }
+        { "id": "YBSt1jYwVfU", "lang": "en", "role": "intro", "title": "Dynamic Programming lecture #1 - Fibonacci, iteration vs recursion", "channel": "Errichto Algorithms", "minutes": 20, "codeLang": "concept" },
+        { "id": "1mtvm2ubHCY", "lang": "en", "role": "lecture", "title": "Dynamic Programming lecture #2 - Coin change, double counting", "channel": "Errichto Algorithms", "minutes": 19, "codeLang": "concept" },
+        { "id": "Y0lT9Fck7qI", "lang": "en", "role": "walkthrough", "title": "Climbing Stairs - Dynamic Programming - Leetcode 70 - Python", "channel": "NeetCode", "minutes": 18, "codeLang": "python" },
+        { "id": "nqowUJzG-iM", "lang": "hi", "role": "intro", "title": "Dynamic Programming | Introduction", "channel": "Aditya Verma", "minutes": 14, "codeLang": "concept" },
+        { "id": "u7DdPBAJttU", "lang": "hi", "role": "lecture", "title": "Introduction to Dynamic Programming | Tutorial | CP Course | EP 90", "channel": "Luv", "minutes": 22, "codeLang": "cpp" }
       ]
     },
     "divide-conquer": {
@@ -822,10 +822,10 @@
         }
       ],
       "videos": [
-        { "id": "2Rr2tW9zvRg", "lang": "en", "role": "intro", "title": "2 Divide And Conquer", "channel": "Abdul Bari", "minutes": 7 },
-        { "id": "mB5HXBb_HY8", "lang": "en", "role": "lecture", "title": "2.7.2.  Merge Sort Algorithm", "channel": "Abdul Bari", "minutes": 20 },
-        { "id": "4z9I6ZmeLOQ", "lang": "hi", "role": "lecture", "title": "Merge Sort | Code and Explanation | C++ Course - 19.1", "channel": "Apna College", "minutes": 17 },
-        { "id": "cQDtOBTy7_Y", "lang": "hi", "role": "lecture", "title": "Merge Sort Algorithm | Recursion & Backtracking", "channel": "Apna College", "minutes": 32 }
+        { "id": "2Rr2tW9zvRg", "lang": "en", "role": "intro", "title": "2 Divide And Conquer", "channel": "Abdul Bari", "minutes": 7, "codeLang": "concept" },
+        { "id": "mB5HXBb_HY8", "lang": "en", "role": "lecture", "title": "2.7.2.  Merge Sort Algorithm", "channel": "Abdul Bari", "minutes": 20, "codeLang": "concept" },
+        { "id": "4z9I6ZmeLOQ", "lang": "hi", "role": "lecture", "title": "Merge Sort | Code and Explanation | C++ Course - 19.1", "channel": "Apna College", "minutes": 17, "codeLang": "cpp" },
+        { "id": "cQDtOBTy7_Y", "lang": "hi", "role": "lecture", "title": "Merge Sort Algorithm | Recursion & Backtracking", "channel": "Apna College", "minutes": 32, "codeLang": "concept" }
       ]
     },
     "data-structures": {
@@ -854,11 +854,11 @@
         }
       ],
       "videos": [
-        { "id": "RgITNht_f4Q", "lang": "en", "role": "lecture", "title": "Fenwick Tree range queries", "channel": "WilliamFiset", "minutes": 14 },
-        { "id": "-dUiRtJ8ot0", "lang": "en", "role": "lecture", "title": "Segment Tree: Build and Query | Live Coding..", "channel": "take U forward", "minutes": 20 },
-        { "id": "DPiY9wFxGIw", "lang": "hi", "role": "lecture", "title": "Binary Indexed Trees / Fenwick Trees made easy | Part 1", "channel": "Luv", "minutes": 22 },
-        { "id": "xOogmSgym9Y", "lang": "hi", "role": "lecture", "title": "Segment Tree - Introduction and Build | C++ Placement Course | Lecture 40.1", "channel": "Apna College", "minutes": 21 },
-        { "id": "fIQABUIeWYg", "lang": "hi", "role": "intro", "title": "Fenwick Tree - Introduction | C++ Placement Course | Lecture 41.1", "channel": "Apna College", "minutes": 10 }
+        { "id": "RgITNht_f4Q", "lang": "en", "role": "lecture", "title": "Fenwick Tree range queries", "channel": "WilliamFiset", "minutes": 14, "codeLang": "concept" },
+        { "id": "-dUiRtJ8ot0", "lang": "en", "role": "lecture", "title": "Segment Tree: Build and Query | Live Coding..", "channel": "take U forward", "minutes": 20, "codeLang": "concept" },
+        { "id": "DPiY9wFxGIw", "lang": "hi", "role": "lecture", "title": "Binary Indexed Trees / Fenwick Trees made easy | Part 1", "channel": "Luv", "minutes": 22, "codeLang": "cpp" },
+        { "id": "xOogmSgym9Y", "lang": "hi", "role": "lecture", "title": "Segment Tree - Introduction and Build | C++ Placement Course | Lecture 40.1", "channel": "Apna College", "minutes": 21, "codeLang": "cpp" },
+        { "id": "fIQABUIeWYg", "lang": "hi", "role": "intro", "title": "Fenwick Tree - Introduction | C++ Placement Course | Lecture 41.1", "channel": "Apna College", "minutes": 10, "codeLang": "cpp" }
       ]
     },
     "tries": {
@@ -887,10 +887,10 @@
         }
       ],
       "videos": [
-        { "id": "oobqoCJlHA0", "lang": "en", "role": "walkthrough", "title": "Implement Trie (Prefix Tree) - Leetcode 208", "channel": "NeetCode", "minutes": 19 },
-        { "id": "dBGUmUQhjaM", "lang": "en", "role": "lecture", "title": "L1. Implement TRIE | INSERT | SEARCH | STARTSWITH", "channel": "take U forward", "minutes": 31 },
-        { "id": "Y6dOuGjwsxU", "lang": "hi", "role": "lecture", "title": "Lecture 79: Trie & its Implementation || C++ Placement Series", "channel": "CodeHelp - by Babbar", "minutes": 48 },
-        { "id": "VTr3Nh7BadI", "lang": "hi", "role": "walkthrough", "title": "Lecture 80: Longest Common Prefix Problem || Tries || C++ Placement Series", "channel": "CodeHelp - by Babbar", "minutes": 20 }
+        { "id": "oobqoCJlHA0", "lang": "en", "role": "walkthrough", "title": "Implement Trie (Prefix Tree) - Leetcode 208", "channel": "NeetCode", "minutes": 19, "codeLang": "python" },
+        { "id": "dBGUmUQhjaM", "lang": "en", "role": "lecture", "title": "L1. Implement TRIE | INSERT | SEARCH | STARTSWITH", "channel": "take U forward", "minutes": 31, "codeLang": "concept" },
+        { "id": "Y6dOuGjwsxU", "lang": "hi", "role": "lecture", "title": "Lecture 79: Trie & its Implementation || C++ Placement Series", "channel": "CodeHelp - by Babbar", "minutes": 48, "codeLang": "cpp" },
+        { "id": "VTr3Nh7BadI", "lang": "hi", "role": "walkthrough", "title": "Lecture 80: Longest Common Prefix Problem || Tries || C++ Placement Series", "channel": "CodeHelp - by Babbar", "minutes": 20, "codeLang": "cpp" }
       ]
     },
     "string-algorithms": {
@@ -919,10 +919,10 @@
         }
       ],
       "videos": [
-        { "id": "V5-7GzOfADQ", "lang": "en", "role": "lecture", "title": "9.1 Knuth-Morris-Pratt KMP String Matching Algorithm", "channel": "Abdul Bari", "minutes": 19 },
-        { "id": "qQ8vS2btsxI", "lang": "en", "role": "lecture", "title": "9.2 Rabin-Karp String Matching Algorithm", "channel": "Abdul Bari", "minutes": 24 },
-        { "id": "JEOj8U54Cek", "lang": "hi", "role": "lecture", "title": "String Hashing - String Algorithms | C++ Placement Course | Lecture 39.1", "channel": "Apna College", "minutes": 13 },
-        { "id": "-WdkLyTeZ3Q", "lang": "hi", "role": "intro", "title": "Rabin Karp - String Algorithms | C++ Placement Course | Lecture 39.4", "channel": "Apna College", "minutes": 5 }
+        { "id": "V5-7GzOfADQ", "lang": "en", "role": "lecture", "title": "9.1 Knuth-Morris-Pratt KMP String Matching Algorithm", "channel": "Abdul Bari", "minutes": 19, "codeLang": "concept" },
+        { "id": "qQ8vS2btsxI", "lang": "en", "role": "lecture", "title": "9.2 Rabin-Karp String Matching Algorithm", "channel": "Abdul Bari", "minutes": 24, "codeLang": "concept" },
+        { "id": "JEOj8U54Cek", "lang": "hi", "role": "lecture", "title": "String Hashing - String Algorithms | C++ Placement Course | Lecture 39.1", "channel": "Apna College", "minutes": 13, "codeLang": "cpp" },
+        { "id": "-WdkLyTeZ3Q", "lang": "hi", "role": "intro", "title": "Rabin Karp - String Algorithms | C++ Placement Course | Lecture 39.4", "channel": "Apna College", "minutes": 5, "codeLang": "cpp" }
       ]
     },
     "game-theory": {
@@ -951,8 +951,8 @@
         }
       ],
       "videos": [
-        { "id": "MboYbpE76js", "lang": "en", "role": "lecture", "title": "Grundy Numbers - Combinatorial Game Theory - I", "channel": "Gaurav Sen", "minutes": 11 },
-        { "id": "wzQgidFSzdw", "lang": "hi", "role": "walkthrough", "title": "Winner in Nim Game || Game theory ||  Competitive Programming", "channel": "Pepcoding", "minutes": 15 }
+        { "id": "MboYbpE76js", "lang": "en", "role": "lecture", "title": "Grundy Numbers - Combinatorial Game Theory - I", "channel": "Gaurav Sen", "minutes": 11, "codeLang": "concept" },
+        { "id": "wzQgidFSzdw", "lang": "hi", "role": "walkthrough", "title": "Winner in Nim Game || Game theory ||  Competitive Programming", "channel": "Pepcoding", "minutes": 15, "codeLang": "concept" }
       ]
     },
     "advanced-graphs": {
@@ -981,8 +981,8 @@
         }
       ],
       "videos": [
-        { "id": "LdOnanfc5TM", "lang": "en", "role": "lecture", "title": "Max Flow Ford Fulkerson | Network Flow | Graph Theory", "channel": "WilliamFiset", "minutes": 13 },
-        { "id": "GhjwOiJ4SqU", "lang": "en", "role": "lecture", "title": "Unweighted Bipartite Matching | Network Flow | Graph Theory", "channel": "WilliamFiset", "minutes": 11 }
+        { "id": "LdOnanfc5TM", "lang": "en", "role": "lecture", "title": "Max Flow Ford Fulkerson | Network Flow | Graph Theory", "channel": "WilliamFiset", "minutes": 13, "codeLang": "concept" },
+        { "id": "GhjwOiJ4SqU", "lang": "en", "role": "lecture", "title": "Unweighted Bipartite Matching | Network Flow | Graph Theory", "channel": "WilliamFiset", "minutes": 11, "codeLang": "concept" }
       ]
     },
     "interactive": {
@@ -1004,8 +1004,8 @@
       ],
       "deeper": [],
       "videos": [
-        { "id": "AK45-rrnYhY", "lang": "en", "role": "walkthrough", "title": "Interactive Problem D | Google Code Jam 2020 Qual Round", "channel": "Errichto Algorithms", "minutes": 28 },
-        { "id": "iNHbQ0diNZc", "lang": "hi", "role": "intro", "title": "Guide to Interactive Problems | C++ Placement Course | Lecture 43", "channel": "Apna College", "minutes": 11 }
+        { "id": "AK45-rrnYhY", "lang": "en", "role": "walkthrough", "title": "Interactive Problem D | Google Code Jam 2020 Qual Round", "channel": "Errichto Algorithms", "minutes": 28, "codeLang": "cpp" },
+        { "id": "iNHbQ0diNZc", "lang": "hi", "role": "intro", "title": "Guide to Interactive Problems | C++ Placement Course | Lecture 43", "channel": "Apna College", "minutes": 11, "codeLang": "cpp" }
       ]
     },
     "design": {
@@ -1034,8 +1034,8 @@
         }
       ],
       "videos": [
-        { "id": "7ABFKPK2hD4", "lang": "en", "role": "walkthrough", "title": "LRU Cache - Twitch Interview Question - Leetcode 146", "channel": "NeetCode", "minutes": 18 },
-        { "id": "z9bJUPxzFOw", "lang": "en", "role": "lecture", "title": "L18. Implement LRU Cache", "channel": "take U forward", "minutes": 25 }
+        { "id": "7ABFKPK2hD4", "lang": "en", "role": "walkthrough", "title": "LRU Cache - Twitch Interview Question - Leetcode 146", "channel": "NeetCode", "minutes": 18, "codeLang": "python" },
+        { "id": "z9bJUPxzFOw", "lang": "en", "role": "lecture", "title": "L18. Implement LRU Cache", "channel": "take U forward", "minutes": 25, "codeLang": "concept" }
       ]
     }
   }

@@ -58,7 +58,8 @@ let cfProblemsetCache = null;
 /** Every Codeforces problemset problem: Map("contestId-index" → { name, rating, tags }). One API call, cached. */
 export async function cfProblemset() {
   if (cfProblemsetCache) return cfProblemsetCache;
-  const res = await get("https://codeforces.com/api/problemset.problems");
+  // lang=en: without it the API sometimes answers with the Russian names ("Арбуз" for Watermelon).
+  const res = await get("https://codeforces.com/api/problemset.problems?lang=en");
   const j = await res.json();
   if (j.status !== "OK") throw new Error(`Codeforces problemset.problems: ${j.comment ?? "error"}`);
   cfProblemsetCache = new Map(j.result.problems.map((p) => [`${p.contestId}-${p.index}`, { name: p.name, rating: p.rating ?? null, tags: p.tags }]));

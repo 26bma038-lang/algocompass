@@ -7,6 +7,7 @@
 // Usage: npm run fill:media   (then npm run check:links verifies the result)
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
+import { fmt } from "./lib/fmt.mjs";
 import { cfProblemset, get, lcQuestions, pool, ytOembed } from "./lib/platforms.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -110,17 +111,6 @@ for (const s of path.steps) {
 }
 
 /** JSON with small objects (a video, a problem) and short arrays on one line, so diffs stay readable. */
-function fmt(v, ind = "") {
-  if (v === null || typeof v !== "object") return JSON.stringify(v);
-  const next = `${ind}  `;
-  const items = Array.isArray(v) ? v.map((x) => fmt(x, next)) : Object.entries(v).map(([k, x]) => `${JSON.stringify(k)}: ${fmt(x, next)}`);
-  const open = Array.isArray(v) ? "[" : "{";
-  const close = Array.isArray(v) ? "]" : "}";
-  const line = Array.isArray(v) ? `[${items.join(", ")}]` : `{ ${items.join(", ")} }`;
-  const record = !Array.isArray(v) && ("id" in v || "key" in v);
-  if (!items.some((s) => s.includes("\n")) && (line.length + ind.length <= 110 || (record && line.length <= 420))) return items.length ? line : `${open}${close}`;
-  return `${open}\n${items.map((s) => next + s).join(",\n")}\n${ind}${close}`;
-}
 const write = (file, doc) => fs.writeFileSync(file, `${fmt(doc)}\n`);
 write(PATH_FILE, path);
 write(RES_FILE, resources);

@@ -5,7 +5,7 @@ import { lessonProblems, mainVideo, nextAction, pathAsSheet, pathDots, pathState
 
 const PATH = JSON.parse(fs.readFileSync("src/data/path/beginner-path.json", "utf8")) as BeginnerPath;
 
-const video = (id: string, role: "main" | "extra" = "main", minutes = 12) => ({ id, role, minutes, title: id, channel: "c" });
+const video = (id: string, role: "main" | "extra" = "main", minutes = 12) => ({ id, role, minutes, title: id, channel: "c", codeLang: "concept" as const });
 const step = (id: string, required = 2, extra = 1): PathStep => ({
   id,
   title: id,
@@ -81,6 +81,9 @@ describe("step progress and unlocking", () => {
     // An extra video alone isn't enough.
     const withExtra = { ...s, videos: { en: [video("a-en"), video("a-x", "extra")], hi: [] } };
     expect(stepProgress(withExtra, solved, new Set(["a-x"])).complete).toBe(false);
+    // v1.5: a former main video (swapped for a concept video) still counts, so nobody re-watches.
+    const swapped = { ...s, videos: { en: [video("a-new"), { ...video("a-old", "extra"), wasMain: true }], hi: [] } };
+    expect(stepProgress(swapped, solved, new Set(["a-old"])).complete).toBe(true);
   });
 
   it("starts on step 1 with everything else locked", () => {

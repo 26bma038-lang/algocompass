@@ -23,9 +23,9 @@ import { pathState, type BeginnerPath, type PathStep } from "./path";
 import { TOPICS } from "./topics";
 
 const PATH = JSON.parse(fs.readFileSync("src/data/path/beginner-path.json", "utf8")) as BeginnerPath;
-const RES = JSON.parse(fs.readFileSync("src/data/resources.json", "utf8")).topics as Record<string, { videos: CatalogVideo[] }>;
+const RES = JSON.parse(fs.readFileSync("src/data/resources.json", "utf8")).topics as unknown as Record<string, { videos: CatalogVideo[] }>;
 
-const video = (id: string, role: "main" | "extra" = "main", minutes = 12) => ({ id, role, minutes, title: `Video ${id}`, channel: "Chan" });
+const video = (id: string, role: "main" | "extra" = "main", minutes = 12) => ({ id, role, minutes, title: `Video ${id}`, channel: "Chan", codeLang: "concept" as const });
 const step = (id: string, topics: string[]): PathStep => ({
   id,
   title: id,
@@ -49,7 +49,7 @@ const TOPICS_MINI = [
 const CAT = {
   strings: { videos: [{ id: "b-en", lang: "en", role: "intro", minutes: 9, title: "dupe of lesson", channel: "X" }, { id: "s1", lang: "hi", role: "lecture", minutes: 30, title: "Strings in Hindi", channel: "Luv" }] },
   graphs: { videos: [{ id: "g1", lang: "en", role: "intro", minutes: 15, title: "BFS and DFS", channel: "William Fiset" }] },
-} as Record<string, { videos: CatalogVideo[] }>;
+} as unknown as Record<string, { videos: CatalogVideo[] }>;
 
 describe("the video library", () => {
   const lib = buildLibrary(TOPICS_MINI, CAT, MINI);
@@ -70,7 +70,7 @@ describe("the video library", () => {
   });
 
   it("files a lesson video under the step topic the catalog gives it, and a twice-listed catalog video under the first", () => {
-    const cat = { ...CAT, math: { videos: [{ id: "b-en-x", lang: "en", role: "lecture", minutes: 10, title: "x", channel: "Y" }] }, graphs: { videos: [...CAT.graphs!.videos, { id: "s1", lang: "hi", role: "intro", minutes: 3, title: "again", channel: "Luv" }] } } as Record<string, { videos: CatalogVideo[] }>;
+    const cat = { ...CAT, math: { videos: [{ id: "b-en-x", lang: "en", role: "lecture", minutes: 10, title: "x", channel: "Y" }] }, graphs: { videos: [...CAT.graphs!.videos, { id: "s1", lang: "hi", role: "intro", minutes: 3, title: "again", channel: "Luv" }] } } as unknown as Record<string, { videos: CatalogVideo[] }>;
     const l = buildLibrary(TOPICS_MINI, cat, MINI);
     expect(l.find((g) => g.topicId === "math")!.videos.map((v) => [v.id, v.role])).toEqual([["b-en-x", "lesson-extra"]]);
     expect(l.find((g) => g.topicId === "graphs")!.videos.map((v) => v.id)).toEqual(["g1"]);

@@ -1,3 +1,4 @@
+import type { CodeLang, VideoCode } from "./codeLang";
 import type { Sheet, SheetProblem } from "./sheets";
 
 /**
@@ -17,6 +18,12 @@ export interface PathVideo {
   /** Exactly as YouTube's oEmbed reports them (filled by scripts/fill-media.mjs). */
   title: string;
   channel: string;
+  /** v1.5: what the video codes in (src/data/code-langs.json, written by npm run tag:videos). */
+  codeLang: VideoCode;
+  /** Other languages its title names ("Binary Search tutorial (C++ and Python)"). */
+  alsoCodeLang?: CodeLang[];
+  /** v1.5: a former main video (now an extra); watching it still counts for the step's Watch. */
+  wasMain?: boolean;
 }
 
 export interface PathProblem extends SheetProblem {
@@ -79,7 +86,7 @@ export interface StepProgress {
 }
 
 export function stepProgress(step: PathStep, isDone: (key: string) => boolean, watched: ReadonlySet<string>): StepProgress {
-  const mains = [...step.videos.en, ...step.videos.hi].filter((v) => v.role === "main");
+  const mains = [...step.videos.en, ...step.videos.hi].filter((v) => v.role === "main" || v.wasMain);
   const w = mains.some((v) => watched.has(v.id));
   const req = step.problems.filter((p) => p.required);
   const reqDone = req.filter((p) => isDone(p.key)).length;

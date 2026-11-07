@@ -1,5 +1,6 @@
 import resourcesData from "./resources.json";
 import lcListsData from "./lc_lists.json";
+import type { CodeLang, VideoCode } from "@/engine/codeLang";
 import type { CuratedLcProblem } from "@/engine/recommender";
 import type { LcDifficulty } from "./types";
 
@@ -23,6 +24,9 @@ export interface TopicVideo {
   minutes: number;
   title: string;
   channel: string;
+  /** v1.5: what it codes in (npm run tag:videos). */
+  codeLang: VideoCode;
+  alsoCodeLang?: CodeLang[];
 }
 
 export interface TopicResources {

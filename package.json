@@ -20,7 +20,8 @@
     "check:links": "node scripts/check-links.mjs",
     "gen:lc-lists": "node scripts/gen-lc-lists.mjs",
     "gen:sheets": "node scripts/gen-sheets.mjs",
-    "fill:media": "node scripts/fill-media.mjs"
+    "fill:media": "node scripts/fill-media.mjs",
+    "tag:videos": "node scripts/tag-videos.mjs"
   },
   "dependencies": {
     "@dagrejs/dagre": "^3.1.1",

@@ -13,6 +13,20 @@ Not released. A learner picks the language they write code in (C++, Java, Python
 - **Decision:** default C++: most of the lesson videos that code at all code in C++, and Codeforces is C++-first.
 - **Tests:** prefs (default, saved alone, unknown values), onboarding fields, glossary labels.
 
+### Part 2: every video tagged with what it codes in (2026-11-07)
+
+- **The table:** `src/data/code-langs.json` (committed). Rules in order: an override for one video id, then the languages a title names (the first named is the tag, the rest go in `alsoCodeLang`: "Binary Search tutorial (C++ and Python)" is cpp + python), then the channel's rule. A channel codes in one language `always` (Luv, CodeHelp - by Babbar: C++), only on `walkthrough`s (NeetCode: Python; Errichto: C++; a walkthrough is a resources.json walkthrough or a title naming a LeetCode problem), or never (`codes: null`: Abdul Bari, WilliamFiset, Aditya Verma, Gate Smashers, take U forward, Apna College without a language in the title…). **Unsure means concept**: a channel only gets a language when it codes on screen in that one language; every entry says why.
+- **Tags on the data:** `npm run tag:videos` (`scripts/tag-videos.mjs`, rules in `scripts/lib/code-lang.mjs`) writes `codeLang` (and `alsoCodeLang`) onto every video in resources.json and beginner-path.json. 153 videos: **concept 78, C++ 53, Python 20, Java 2, JavaScript 0** (plus 2 also in Python and 1 also in Java).
+- **check:links** now fails when a video's tag is missing, unknown, or differs from what the table gives, or its channel isn't in the table, and prints the per-language counts. The same check runs offline in `npm test` (`src/data/codeLangs.test.ts`).
+- **Beginner Path main videos are concept videos** in 26 of 28 slots. 14 swaps, all verified with oEmbed (title and channel exact) and lengths filled by `npm run fill:media`:
+  - From videos already in the app: English Sliding Window (take U forward L1), Stack and Queue (WilliamFiset), Binary Search (take U forward BS-1), Linked List (WilliamFiset), Trees (take U forward L1); Hindi Basics (Luv EP 10, overridden to concept: it's about complexity and constraints) and Recursion (Aditya Verma).
+  - New: English Two Pointers (Josh's DevBox, an animated intro); Hindi Arrays, Hashing, Linked List, Trees, Graphs and Greedy (Gate Smashers whiteboard lectures).
+  - The old main stays in the step as an extra with `wasMain: true`, and `stepProgress` counts a watched former main, so nobody who already watched it has to again. Greedy (Hindi) dropped its 3-minute Apna "Greedy Algorithm - Introduction" extra to stay within two extras plus the former main.
+  - **Not swapped: Strings, both languages** (NeetCode Valid Anagram, Python; Apna "Strings in C++"). No verified concept video turned up; every candidate coded in one language (often C). The check prints them as a note.
+- **Decision:** Hindi Two Pointers keeps Apna College's "Container with Most Water" as main. Its title names no language and Apna College has no single language, so the rule tags it concept, though it is a problem walkthrough.
+- **Fix on the way:** `problemset.problems` now asks for `lang=en`; without it Codeforces sometimes answered with Russian names ("Арбуз") and check:links failed on Watermelon and Dragons.
+- `scripts/lib/fmt.mjs`: the data files' JSON layout, shared by fill-media and tag-videos.
+
 ## In progress: v1.4 polish, from an outside design review (branch `polish`)
 
 Not released. Behaviour and data are unchanged: only labels, layout, colours and the shell's chrome. Screenshots in `docs/audit-v1.4/polish/`.

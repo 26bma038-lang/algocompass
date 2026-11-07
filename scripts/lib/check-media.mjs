@@ -3,9 +3,12 @@
 // - Every video (Beginner Path lessons and resources.json topic videos): YouTube oEmbed answers 200
 //   (it refuses deleted, private and non-embeddable videos), and its title and author_name match the
 //   stored title and channel exactly.
+// - v1.5: every video carries the codeLang (concept, cpp, java, python, js) that
+//   src/data/code-langs.json gives it (scripts/lib/code-lang.mjs), and its channel is in that table.
 // - Every path problem: the LeetCode slug exists with the stored title, is Easy and free; a
 //   Codeforces id exists in problemset.problems with the stored name.
 import fs from "node:fs";
+import { deriveCodeLang, loadTable, tagProblems, videoUses } from "./code-lang.mjs";
 import { cfProblemset, lcQuestions, pool, ytOembed } from "./platforms.mjs";
 
 export async function checkMedia({ root, report, quiet }) {
@@ -43,6 +46,25 @@ export async function checkMedia({ root, report, quiet }) {
     else vOk++;
   }
   if (!quiet) console.log(`ok    ${vOk}/${videos.length} video uses match YouTube (title and channel)`);
+
+  // ---- what each video codes in (v1.5) ----
+  const table = loadTable(root);
+  let tOk = 0;
+  const byCode = {};
+  for (const { v, roles, where } of videoUses(path, resources)) {
+    const problems = tagProblems(v, deriveCodeLang(v, roles, table));
+    if (problems.length) fail(`${where} · ${v.id}`, problems.join("; "));
+    else {
+      tOk++;
+      byCode[v.codeLang] = new Set([...(byCode[v.codeLang] ?? []), v.id]);
+    }
+  }
+  if (!quiet) {
+    console.log(`ok    ${tOk}/${videos.length} video uses carry the codeLang the table gives (src/data/code-langs.json)`);
+    console.log(`      ${Object.entries(byCode).map(([k, s]) => `${k} ${s.size}`).join(", ")} videos`);
+    const coded = path.steps.flatMap((s) => Object.entries(s.videos).flatMap(([lang, list]) => list.filter((v) => v.role === "main" && v.codeLang !== "concept").map((v) => `${s.title} (${lang}): ${v.codeLang}`)));
+    if (coded.length) console.log(`note  Beginner Path main videos that code in one language (no verified concept video yet): ${coded.join("; ")}`);
+  }
 
   // ---- path problems ----
   const problems = path.steps.flatMap((s) => s.problems.map((p) => ({ ...p, step: s.title })));
