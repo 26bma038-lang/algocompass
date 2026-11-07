@@ -185,17 +185,22 @@ export interface LearnHistory {
   video: { id: string; at: number } | null;
   /** Lessons whose Read part you've been through (it has no other record). */
   read: string[];
+  /** v1.6: the playlist part you last opened, and the last part opened in each playlist. */
+  playlist: { id: string; videoId: string; at: number } | null;
+  playlistAt: Record<string, string>;
 }
 
-export const EMPTY_HISTORY: LearnHistory = { lesson: null, video: null, read: [] };
+export const EMPTY_HISTORY: LearnHistory = { lesson: null, video: null, read: [], playlist: null, playlistAt: {} };
 
 export type ContinueTarget =
   | { kind: "lesson"; stepIndex: number; fresh: boolean }
   | { kind: "video"; videoId: string; topicId: string }
+  | { kind: "playlist"; playlistId: string; videoId: string }
   | { kind: "done" };
 
 /**
- * "Continue learning": the most recent of your last lesson and last video. A lesson that's since
+ * "Continue learning": the most recent of your last lesson, last video and (v1.6) last playlist
+ * part (a playlist the app no longer ships is skipped). A lesson that's since
  * been finished (or is locked) resumes at the current step instead. With no history, Beginner mode
  * (or no topic data) starts the path; smart mode starts the weakest topic's first unwatched video.
  */
@@ -208,11 +213,15 @@ export function continueLearning(args: {
   weakness: ReadonlyMap<string, number>;
   watched: ReadonlySet<string>;
   lang: VideoLang;
+  /** v1.6: the playlists the app ships (a saved playlist that's gone is skipped). */
+  playlistIds?: ReadonlySet<string>;
 }): ContinueTarget {
-  const { history, path, pathData, groups, mode, weakness, watched, lang } = args;
+  const { history, path, pathData, groups, mode, weakness, watched, lang, playlistIds } = args;
   const pathTarget = (): ContinueTarget => (path.current === null ? { kind: "done" } : { kind: "lesson", stepIndex: path.current, fresh: false });
   const lessonAt = history.lesson?.at ?? -1;
   const videoAt = history.video?.at ?? -1;
+  const pl = history.playlist;
+  if (pl && pl.at > lessonAt && pl.at >= videoAt && playlistIds?.has(pl.id)) return { kind: "playlist", playlistId: pl.id, videoId: pl.videoId };
   if (history.video && videoAt > lessonAt) {
     const found = findVideo(groups, history.video.id);
     if (found) return { kind: "video", videoId: found.video.id, topicId: found.group.topicId };

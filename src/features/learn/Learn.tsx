@@ -4,18 +4,20 @@ import { Check, ChevronDown, ChevronRight, Lock, Play, Search, Trophy, X } from 
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { CardHeader, Pill } from "@/components/CardHeader";
 import { CodeChip } from "@/components/CodeChip";
-import { lessonPath, watchPath } from "@/components/shell/nav";
+import { lessonPath, playlistPath, watchPath } from "@/components/shell/nav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLearnHistory, useLibrary } from "@/data/learn";
 import { usePath, useWatchedVideos, type PathView } from "@/data/path";
+import { usePlaylists } from "@/data/playlists";
 import { usePrefs } from "@/data/prefs";
 import { useTopicReport } from "@/data/queries";
 import { useUiStore } from "@/data/uiStore";
 import { CONTESTS_MILESTONE_STEP, continueLearning, filterLibrary, findVideo, groupBySteps, libraryVideoCount, type LibraryFilter, type TopicGroup } from "@/engine/learn";
 import { DEFAULT_CODE_LANG } from "@/engine/codeLang";
+import { resumeIndex } from "@/engine/playlists";
 import type { BeginnerPath } from "@/engine/path";
-import { LABELS, myLangAndConcepts } from "@/lib/glossary";
+import { LABELS, myLangAndConcepts, partOf } from "@/lib/glossary";
 import { mainVideo, nextAction } from "@/engine/path";
 import type { TopicStatus } from "@/engine/strength";
 import { TOPIC_BY_ID } from "@/engine/topics";
@@ -25,6 +27,8 @@ import { useRewardPulse } from "@/features/quests/QuestList";
 import { SectionStrip } from "@/features/sheets/SectionStrip";
 import { cn } from "@/lib/utils";
 import { LANG_NAME, Segmented, VideoRow } from "./parts";
+import { PlaylistMeter } from "./Playlist";
+import { PlaylistsCard } from "./Playlists";
 
 /** A big thumbnail that resumes with one click (the card's one bold element). */
 function ResumeThumb({ id, label, onClick, minutes }: { id: string | null; label: string; onClick: () => void; minutes?: number }) {
@@ -54,9 +58,43 @@ function ContinueCard({ view, groups, weakness }: { view: PathView; groups: Topi
   const lang = prefs?.videoLang ?? "en";
   const mode = prefs?.mode ?? "smart";
   const watched = useWatchedVideos().data ?? new Map<string, number>();
-  if (!history) return <section aria-busy className="glass-card col-span-12 h-[228px]" />;
-  const target = continueLearning({ history, path: view, pathData: view.path, groups, mode, weakness, watched: new Set(watched.keys()), lang });
+  const playlists = usePlaylists().data;
+  // A saved playlist part needs the playlists loaded before it can be resumed.
+  if (!history || (history.playlist && !playlists)) return <section aria-busy className="glass-card col-span-12 h-[228px]" />;
+  const playlistIds = new Set(playlists?.map((p) => p.id));
+  const target = continueLearning({ history, path: view, pathData: view.path, groups, mode, weakness, watched: new Set(watched.keys()), lang, playlistIds });
   const total = view.steps.length;
+
+  if (target.kind === "playlist") {
+    const p = playlists!.find((x) => x.id === target.playlistId)!;
+    // The part the playlist opens on: the one last opened, or the next one if that's been watched.
+    const i = resumeIndex(p, target.videoId, new Set(watched.keys()));
+    const v = p.videos[i]!;
+    const open = () => navigate(playlistPath(p.id));
+    return (
+      <section aria-labelledby="continue-title" className="glass-card col-span-12 grid grid-cols-1 items-center gap-6 p-6 md:grid-cols-[320px_minmax(0,1fr)]">
+        <ResumeThumb id={v.id} label={`Resume ${p.title}`} onClick={open} minutes={v.minutes} />
+        <div className="flex min-w-0 flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <p className="line-clamp-1 text-body-sm text-ink-muted">Continue learning: {p.title}</p>
+            <h2 id="continue-title" className="line-clamp-2 font-display text-headline font-semibold text-ink">
+              {v.title}
+            </h2>
+            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-body-sm text-ink-muted">
+              <CodeChip video={p} mine={prefs?.codeLang} />
+              <span>
+                {partOf(i + 1, p.videos.length)}, {p.channel}, {v.minutes} min, {LANG_NAME[p.lang]}
+              </span>
+            </p>
+            <PlaylistMeter p={p} watched={new Set(watched.keys())} className="mt-1" />
+          </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <Button onClick={open}>{LABELS.continuePlaylist}</Button>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   if (target.kind === "done") {
     return (
@@ -556,8 +594,8 @@ function LibraryCard({ groups, path }: { groups: TopicGroup[]; path: BeginnerPat
 
 /**
  * Learn: Continue learning first, then (v1.4) what fits the mode. Beginner mode: the Beginner Path's
- * roadmap, then the video library folded. Smart mode: the library, weakest topics first, then the
- * roadmap folded. Lessons open at /learn/path/:step, single videos at /learn/watch/:id.
+ * roadmap, then (v1.6) the playlists, then the video library folded. Smart mode: the playlists, the
+ * library, weakest topics first, then the roadmap folded. Lessons open at /learn/path/:step, single videos at /learn/watch/:id.
  */
 export function Learn() {
   const path = usePath();
@@ -569,6 +607,7 @@ export function Learn() {
     <div className="grid grid-cols-12 items-start gap-6">
       <ContinueCard view={path.data} groups={groups} weakness={weakness} />
       {beginner && <RoadmapCard view={path.data} />}
+      <PlaylistsCard groups={groups} />
       <LibraryCard groups={groups} path={path.data.path} />
       {!beginner && <RoadmapCard view={path.data} />}
     </div>

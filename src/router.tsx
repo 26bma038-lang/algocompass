@@ -17,6 +17,7 @@ const PracticeMix = lazy(() => import("@/features/practice/Practice").then((m) =
 const Learn = lazy(() => import("@/features/learn/Learn").then((m) => ({ default: m.Learn })));
 const Lesson = lazy(() => import("@/features/learn/Lesson").then((m) => ({ default: m.Lesson })));
 const Watch = lazy(() => import("@/features/learn/Watch").then((m) => ({ default: m.Watch })));
+const PlaylistPage = lazy(() => import("@/features/learn/Playlist").then((m) => ({ default: m.PlaylistPage })));
 const SheetList = lazy(() => import("@/features/sheets/SheetList").then((m) => ({ default: m.SheetList })));
 const SheetView = lazy(() => import("@/features/sheets/SheetView").then((m) => ({ default: m.SheetView })));
 const Progress = lazy(() => import("@/features/progress/Progress").then((m) => ({ default: m.Progress })));
@@ -58,6 +59,7 @@ export const routes: RouteObject[] = [
           { path: "path", element: <Navigate to="/learn#path" replace /> },
           { path: "path/:stepId", element: <Lesson /> },
           { path: "watch/:videoId", element: <Watch /> },
+          { path: "playlist/:playlistId", element: <PlaylistPage /> },
         ],
       },
       { path: "practice/path/:stepId", element: <LegacyLesson /> },

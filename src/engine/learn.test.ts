@@ -156,14 +156,14 @@ describe("continue learning", () => {
   });
 
   it("resumes the most recent of the last lesson and the last video", () => {
-    const h: LearnHistory = { lesson: { stepId: "a", at: 100 }, video: { id: "g1", at: 200 }, read: [] };
+    const h: LearnHistory = { ...EMPTY_HISTORY, lesson: { stepId: "a", at: 100 }, video: { id: "g1", at: 200 } };
     expect(continueLearning(args(h))).toEqual({ kind: "video", videoId: "g1", topicId: "graphs" });
     expect(continueLearning(args({ ...h, lesson: { stepId: "a", at: 300 } }))).toEqual({ kind: "lesson", stepIndex: 0, fresh: false });
   });
 
   it("moves on to the current step once the last lesson is done", () => {
     const done = state(["a-en"], ["lc:a-1", "lc:a-2"]);
-    const h: LearnHistory = { lesson: { stepId: "a", at: 100 }, video: null, read: [] };
+    const h: LearnHistory = { ...EMPTY_HISTORY, lesson: { stepId: "a", at: 100 } };
     expect(continueLearning(args(h, "beginner", new Map(), done))).toEqual({ kind: "lesson", stepIndex: 1, fresh: false });
   });
 
@@ -192,7 +192,16 @@ describe("continue learning", () => {
   });
 
   it("ignores a remembered video that's no longer in the library", () => {
-    expect(continueLearning(args({ lesson: null, video: { id: "gone", at: 5 }, read: [] })).kind).toBe("lesson");
+    expect(continueLearning(args({ ...EMPTY_HISTORY, video: { id: "gone", at: 5 } })).kind).toBe("lesson");
+  });
+
+  it("resumes a playlist when its part is the most recent thing opened (v1.6)", () => {
+    const h: LearnHistory = { ...EMPTY_HISTORY, lesson: { stepId: "a", at: 100 }, video: { id: "g1", at: 200 }, playlist: { id: "PL1", videoId: "v7", at: 300 }, playlistAt: { PL1: "v7" } };
+    const ids = new Set(["PL1"]);
+    expect(continueLearning({ ...args(h), playlistIds: ids })).toEqual({ kind: "playlist", playlistId: "PL1", videoId: "v7" });
+    // A newer lesson wins; a playlist the app no longer ships is skipped.
+    expect(continueLearning({ ...args({ ...h, lesson: { stepId: "a", at: 400 } }), playlistIds: ids }).kind).toBe("lesson");
+    expect(continueLearning({ ...args(h), playlistIds: new Set() })).toEqual({ kind: "video", videoId: "g1", topicId: "graphs" });
   });
 });
 

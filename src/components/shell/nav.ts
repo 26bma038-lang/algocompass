@@ -25,8 +25,8 @@ export const SCREENS = {
     to: "/learn",
     label: "Learn",
     icon: GraduationCap,
-    description: "Video lessons for every topic, weakest first, and the Beginner Path",
-    beginnerDescription: "The Beginner Path's lessons and a video for every topic",
+    description: "Full YouTube playlists and videos for every topic, weakest first, and the Beginner Path",
+    beginnerDescription: "The Beginner Path's lessons, full YouTube playlists and a video for every topic",
   },
   practice: {
     to: "/practice",
@@ -90,6 +90,8 @@ export function legacyLessonRedirect(pathname: string): string | null {
 export const learnTopicPath = (topicId: string) => `/learn?topic=${encodeURIComponent(topicId)}`;
 /** One library video, in the big player. */
 export const watchPath = (videoId: string) => `/learn/watch/${videoId}`;
+/** v1.6: a full playlist, at one part (`videoId`) or where you left off. */
+export const playlistPath = (playlistId: string, videoId?: string) => `/learn/playlist/${playlistId}${videoId ? `?v=${encodeURIComponent(videoId)}` : ""}`;
 
 export function isNavItemActive(item: Pick<NavItem, "to" | "alsoActiveOn">, pathname: string) {
   if (item.to === "/") return pathname === "/";

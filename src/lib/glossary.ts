@@ -63,7 +63,19 @@ export const LABELS = {
   /** A video that explains the idea without coding in any one language. */
   concept: "Concept",
   allLanguages: "All languages",
+  /** v1.6: full YouTube playlists. */
+  playlists: "Playlists",
+  fullCourses: "Full courses",
+  continuePlaylist: "Continue where I left off",
+  watchedNext: "I've watched it, next part",
+  watchedLast: "I've watched it",
 } as const;
+
+/** v1.6: a playlist part, "Part 12 of 56". */
+export const partOf = (n: number, of: number) => `Part ${n} of ${of}`;
+
+/** v1.6: "3 of 29 watched". */
+export const watchedOf = (done: number, total: number) => `${done} of ${total} watched`;
 
 /** v1.5: the four coding languages, as the app names them. */
 export const CODE_LANG_NAMES = { cpp: "C++", java: "Java", python: "Python", js: "JavaScript" } as const;

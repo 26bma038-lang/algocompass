@@ -28,10 +28,19 @@ export async function readLearnHistory(): Promise<LearnHistory> {
   const lesson = saved?.lesson && typeof saved.lesson.stepId === "string" && typeof saved.lesson.at === "number" ? saved.lesson : null;
   const video = saved?.video && typeof saved.video.id === "string" && typeof saved.video.at === "number" ? saved.video : null;
   const read = Array.isArray(saved?.read) ? saved.read.filter((r): r is string => typeof r === "string") : [];
-  return { lesson, video, read };
+  const p = saved?.playlist;
+  const playlist = p && typeof p.id === "string" && typeof p.videoId === "string" && typeof p.at === "number" ? p : null;
+  const at = saved?.playlistAt;
+  const playlistAt = at && typeof at === "object" && !Array.isArray(at) ? Object.fromEntries(Object.entries(at).filter((e): e is [string, string] => typeof e[1] === "string")) : {};
+  return { lesson, video, read, playlist, playlistAt };
 }
 
-export type LearnEvent = { kind: "lesson"; stepId: string } | { kind: "video"; id: string } | { kind: "read"; stepId: string };
+export type LearnEvent =
+  | { kind: "lesson"; stepId: string }
+  | { kind: "video"; id: string }
+  | { kind: "read"; stepId: string }
+  /** v1.6: a playlist part opened (Continue learning and "Continue where I left off" resume it). */
+  | { kind: "playlist"; id: string; videoId: string };
 
 /** Applies one event (read fresh, so quick successive events don't overwrite each other). */
 export async function recordLearn(e: LearnEvent, now = Math.floor(Date.now() / 1000)): Promise<LearnHistory> {
@@ -41,7 +50,9 @@ export async function recordLearn(e: LearnEvent, now = Math.floor(Date.now() / 1
       ? { ...h, lesson: { stepId: e.stepId, at: now } }
       : e.kind === "video"
         ? { ...h, video: { id: e.id, at: now } }
-        : { ...h, read: h.read.includes(e.stepId) ? h.read : [...h.read, e.stepId] };
+        : e.kind === "playlist"
+          ? { ...h, playlist: { id: e.id, videoId: e.videoId, at: now }, playlistAt: { ...h.playlistAt, [e.id]: e.videoId } }
+          : { ...h, read: h.read.includes(e.stepId) ? h.read : [...h.read, e.stepId] };
   await writePref(KEY, next);
   return next;
 }

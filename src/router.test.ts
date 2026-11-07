@@ -19,6 +19,8 @@ describe("routes (v1.3: Learn)", () => {
     expect(lesson.chain.slice(-1)[0]).toBe("path/:stepId");
     expect(lesson.params.stepId).toBe("hashing");
     expect(resolve("/learn/watch/xAeiXy8-9Y8").params.videoId).toBe("xAeiXy8-9Y8");
+    // v1.6: a full playlist.
+    expect(resolve("/learn/playlist/PLgUwDviBIf0oE3gA41TKO2H5bHpPd7fzn").params.playlistId).toBe("PLgUwDviBIf0oE3gA41TKO2H5bHpPd7fzn");
     expect(resolve("/learn").leaf?.element).toBeTruthy();
   });
 
