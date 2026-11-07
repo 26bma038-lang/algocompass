@@ -41,6 +41,9 @@ describe("matching videos to the language you code in (v1.5)", () => {
       { topicId: "c", videos: [{ id: "c-1" }] },
     ];
     expect(lessonCandidates(groups, 0, ["b", "a"]).map((x) => x.id)).toEqual(["a-own", "b-own", "b-1", "a-other"]);
+    // The lesson's main video (already playing) comes after its extras.
+    const withMain = [{ topicId: "a", videos: [{ id: "main", step: 0, role: "lesson" }, { id: "extra", step: 0, role: "lesson-extra" }, { id: "topic", role: "walkthrough" }] }];
+    expect(lessonCandidates(withMain, 0, ["a"]).map((x) => x.id)).toEqual(["extra", "topic", "main"]);
   });
 });
 

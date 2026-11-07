@@ -17,10 +17,15 @@ export function CodeTemplate({ code, mine }: { code: Record<CodeLang, string>; m
   const [copied, setCopied] = useState(false);
   const id = useId();
   const copy = () => {
-    void navigator.clipboard?.writeText(code[tab]).then(() => {
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1500);
-    });
+    navigator.clipboard
+      ?.writeText(code[tab])
+      .then(() => {
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 1500);
+      })
+      .catch(() => {
+        // Clipboard refused (no permission): the code stays selectable, so copying by hand still works.
+      });
   };
   const move = (dir: 1 | -1) => {
     const next = order[(order.indexOf(tab) + dir + order.length) % order.length]!;

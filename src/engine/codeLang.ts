@@ -62,11 +62,12 @@ export function pickCodeItIn<V extends Coded & { lang: "en" | "hi" }>(candidates
 
 /**
  * The "Code it in" candidates for Beginner Path step `step` (0-based), most relevant first: the
- * lesson's own videos, then the videos filed under its topics (its main topic first).
+ * lesson's own videos, then the videos filed under its topics (its main topic first). The lesson's
+ * main video goes last: it's already in the player, so the slot should point somewhere new.
  */
-export function lessonCandidates<V extends { step?: number }>(groups: readonly { topicId: string; videos: readonly V[] }[], step: number, topics: readonly string[]): V[] {
+export function lessonCandidates<V extends { step?: number; role?: string }>(groups: readonly { topicId: string; videos: readonly V[] }[], step: number, topics: readonly string[]): V[] {
   const all = groups.flatMap((g) => g.videos.map((v) => ({ v, topicId: g.topicId })));
   const own = all.filter((x) => x.v.step === step).map((x) => x.v);
   const topical = topics.flatMap((t) => all.filter((x) => x.topicId === t && x.v.step !== step).map((x) => x.v));
-  return [...own, ...topical];
+  return [...own.filter((v) => v.role !== "lesson"), ...topical, ...own.filter((v) => v.role === "lesson")];
 }

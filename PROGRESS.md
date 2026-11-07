@@ -1,8 +1,15 @@
 # AlgoCompass progress log
 
-## In progress: v1.5, the language you code in (branch `v1.5`, from `polish`)
+## Released: v1.5.0, the language you code in (branch `v1.5`, from `polish`, merged to master)
 
-Not released. A learner picks the language they write code in (C++, Java, Python or JavaScript), and lessons stop assuming one. No playlists yet.
+**Released as v1.5.0 (2026-11-07):** this branch and the v1.4 polish under it were merged into master; the version was bumped in package.json, tauri.conf.json, Cargo.toml and Cargo.lock. Tag `v1.5.0`, GitHub release with `AlgoCompass_1.5.0_x64-setup.exe` (4.3 MB) and `AlgoCompass_1.5.0_x64_en-US.msi` (5.7 MB). There's no Android build ("APK"): AlgoCompass is a Windows desktop app, so the release carries the Windows installers. The website wasn't touched (its Pages workflow only runs on changes under `website/`).
+
+**Pre-release audit:** `npm test` 494 pass (29 skipped: Java/Python compiles with no compiler here, and the live adapter test), `npm run check:links` all verified, `npm run build` green, `npm run tauri build` 7m 39s with no sql.js in the desktop bundle. Two fixes from reading the diff:
+- **Code it in skipped the video already playing:** for a lesson whose main video codes in your language (Strings), the slot pointed at that same main video. `lessonCandidates` now puts the lesson's main video last, so the slot names a different walkthrough when one exists (Strings in Python: NeetCode's Longest Substring).
+- **Copy never rejects silently:** a refused clipboard write is caught (the code stays selectable).
+- **Checked and left as is:** the main bundle is 514 kB in the browser build (Vite's 500 kB warning; the desktop build has no sql.js); existing installs get `codeLang` C++ until they pick one in Settings, and Learn's filter shows which language it's using ("C++ + concepts"), one click from "All languages".
+
+A learner picks the language they write code in (C++, Java, Python or JavaScript), and lessons stop assuming one. No playlists yet.
 
 ### Part 1: the `codeLang` pref (2026-11-07)
 
