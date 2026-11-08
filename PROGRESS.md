@@ -45,6 +45,16 @@ Not released. A learner gets whole YouTube playlists (every video, in order) ins
 - **README refreshed** for the current app: the two modes, the five screens in sidebar order with their current names (Do this next, Today's goals, Today's problems, Problems you tried, Sheets, Overview / Topics, Badges, Update), the coding language (v1.5), Code it in, the code templates, and Playlists marked "new in v1.6". No retired names. The data scripts list adds `tag:videos` and `fill:playlists`; credits cover video and playlist channels; the roadmap drops what shipped and adds must-do problems per video.
 - **New screenshots:** 19 in `docs/screenshots/v1.5/`, 1100x700, browser mode (Smart mode with a real Codeforces + LeetCode profile, and a fresh beginner). The old top-level `docs/screenshots/*.png` are no longer referenced by the README; they're left in place.
 
+### Part 5: check (2026-11-08)
+
+- **`npm test`:** 506 pass, 29 skipped (28 Java/Python template compiles with no javac or real Python on this machine, and the live adapter test).
+- **`npm run check:links`:** all verified, exit 0. 153 videos (204 uses), 5 sheets (1,281 problems), 291 curated LeetCode problems, 86 URLs, and **102/102 playlists** (oEmbed 200, title, channel and codeLang exact). No playlist's video count has changed since the fill.
+- **`npm run build`:** green. The playlist data is its own lazy chunk (495 kB, 127 kB gzipped); the main bundle is unchanged.
+- **`npm run tauri dev`** (PowerShell): built in 2m 28s, `algocompass.exe` launched and responding, no errors in the log; stopped after the check, nothing clicked (real database). The first two attempts failed only because the browser-mode Vite I'd used for screenshots still held port 1420.
+- **Migrations:** none. Playlist progress is the existing `video_watched` table and the `learn` setting.
+- **Screenshots:** 20 in `docs/audit-v1.6/playlists/`, Light and Dark at 1100x700, browser mode, a fresh beginner: the Playlists card, a playlist at part 1, after three "I've watched it, next part" clicks, wandered to part 20 (Continue where I left off), Continue learning resuming the playlist, rows with progress, Hindi + All languages, a Java learner's "Java + concepts", filtered to Dynamic programming, and Today's goal rows on the new Row surface.
+- **Not done:** no release, no version bump, no merge.
+
 ## Released: v1.5.0, the language you code in (branch `v1.5`, from `polish`, merged to master)
 
 **Released as v1.5.0 (2026-11-07):** this branch and the v1.4 polish under it were merged into master; the version was bumped in package.json, tauri.conf.json, Cargo.toml and Cargo.lock. Tag `v1.5.0`, GitHub release with `AlgoCompass_1.5.0_x64-setup.exe` (4.3 MB) and `AlgoCompass_1.5.0_x64_en-US.msi` (5.7 MB). There's no Android build ("APK"): AlgoCompass is a Windows desktop app, so the release carries the Windows installers. The website wasn't touched (its Pages workflow only runs on changes under `website/`).
