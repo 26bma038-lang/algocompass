@@ -9,6 +9,8 @@ import { EmptyState } from "@/components/EmptyState";
 import { ModeBadge } from "@/components/practice/ModeBadge";
 import { ProblemRow } from "@/components/practice/ProblemRow";
 import { RunMeter } from "@/components/practice/RunMeter";
+import { useDueRevisions } from "@/data/revisions";
+import { ReviewCard } from "@/components/practice/ReviewCard";
 import { Button } from "@/components/ui/button";
 import { useTopicReport } from "@/data/queries";
 import { useMixOfTheDay, useRecommender, useReshuffleMix, type MixOfTheDay } from "@/data/recommendations";
@@ -31,7 +33,7 @@ function Group({ label, children }: { label: ReactNode; children: ReactNode }) {
   );
 }
 
-function MixCard({ mix, rec }: { mix: MixOfTheDay; rec: Recommender }) {
+function MixCard({ mix, rec, reviewFirst }: { mix: MixOfTheDay; rec: Recommender; reviewFirst: boolean }) {
   const reshuffle = useReshuffleMix();
   const items = mix.items.filter((i) => i.rec !== null);
   const cf = items.filter((i) => i.platform === "cf");
@@ -40,7 +42,7 @@ function MixCard({ mix, rec }: { mix: MixOfTheDay; rec: Recommender }) {
   const learnTopic = lc[0] ? rec.plans.get(lc[0].topicId) : undefined;
   // The one primary Open on the screen, tagged "Recommended next": the first problem not solved yet
   // (Codeforces first, as listed), the same one Today's Do this next picks.
-  const firstOpen = recommendedNextId(items);
+  const firstOpen = reviewFirst ? null : recommendedNextId(items);
 
   return (
     <section aria-labelledby="mix-title" className="glass-card flex flex-col gap-6 p-6">
@@ -223,6 +225,7 @@ export function PracticeMix() {
   const report = useTopicReport();
   const rec = useRecommender();
   const mix = useMixOfTheDay();
+  const due = useDueRevisions().data ?? [];
 
   if (report.isLoading || rec.isLoading) return <p className="text-body-sm text-ink-muted">Picking your problems…</p>;
   if (!report.data?.hasData || !rec.data) {
@@ -236,8 +239,9 @@ export function PracticeMix() {
 
   return (
     <div className="flex flex-col gap-6">
+      <ReviewCard />
       {mix.data ? (
-        <MixCard mix={mix.data} rec={rec.data} />
+        <MixCard mix={mix.data} rec={rec.data} reviewFirst={due.length > 0} />
       ) : (
         <section className="glass-card flex flex-col gap-1 p-6" aria-busy={mix.isLoading || mix.data === null}>
           <h2 className="font-display text-headline font-semibold text-ink">{LABELS.todaysProblems}</h2>

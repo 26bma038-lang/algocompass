@@ -20,6 +20,16 @@ describe("smart Today's Do this next (v1.4)", () => {
   });
 });
 
+describe("a review comes first (v1.7)", () => {
+  it("beats today's set and the sheet", () => {
+    expect(pickDoThisNext([item("a"), item("b", true)], { id: "sheet" }, { key: "lc:x" })).toEqual({ kind: "review", due: { key: "lc:x" }, done: 1, total: 2 });
+    expect(pickDoThisNext(null, null, { key: "lc:x" })).toMatchObject({ kind: "review", total: 0 });
+  });
+  it("changes nothing when nothing is due", () => {
+    expect(pickDoThisNext([item("a")], null, null)).toMatchObject({ kind: "mix" });
+  });
+});
+
 describe("Practice's Recommended next tag (v1.4 polish)", () => {
   const mix = (platform: "cf" | "lc", problemId: string, done = false) => ({ platform, problemId, done, rec: { id: problemId } });
   it("is the first unsolved problem as Practice lists them (Codeforces, then LeetCode)", () => {

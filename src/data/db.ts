@@ -6,6 +6,7 @@ import migration0003 from "../../src-tauri/migrations/0003_recommender.sql?raw";
 import migration0004 from "../../src-tauri/migrations/0004_quests.sql?raw";
 import migration0005 from "../../src-tauri/migrations/0005_achievements.sql?raw";
 import migration0006 from "../../src-tauri/migrations/0006_sheets.sql?raw";
+import migration0007 from "../../src-tauri/migrations/0007_revision.sql?raw";
 
 /** Must match `DB_URL` in src-tauri/src/lib.rs (where the Rust side runs migrations). */
 export const DB_URL = "sqlite:algocompass.db";
@@ -20,7 +21,7 @@ export interface SqlDriver {
   select<T>(sql: string, params?: SqlValue[]): Promise<T[]>;
 }
 
-export const MIGRATIONS = [migration0001, migration0002, migration0003, migration0004, migration0005, migration0006];
+export const MIGRATIONS = [migration0001, migration0002, migration0003, migration0004, migration0005, migration0006, migration0007];
 
 async function tauriDriver(): Promise<SqlDriver> {
   const { default: Database } = await import("@tauri-apps/plugin-sql");

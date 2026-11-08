@@ -1,8 +1,28 @@
 # AlgoCompass progress log
 
-## In progress: v1.6, full playlists (branch `v1.6`, from master)
+## In progress: v1.7 (branch `v1.7`, from master at v1.6.0)
 
-Not released. A learner gets whole YouTube playlists (every video, in order) instead of a few videos picked from each.
+Not released. Auto-updates, a revision queue, notes, "Stuck?" and a daily reminder.
+
+### Part 1: auto-updater (2026-11-09)
+
+- **Plugins:** `tauri-plugin-updater` and `tauri-plugin-process` (Rust + JS), registered in `lib.rs`; capabilities `updater:default` and `process:allow-restart`. Docs checked with context7 (`/tauri-apps/tauri-docs`). The check runs inside the updater plugin's own HTTP client, so the CSP and the `http` plugin's URL scope are unchanged.
+- **Signing key:** `%USERPROFILE%\.tauri\algocompass.key` (no password; `.gitignore` already ignores `*.key`), public half `algocompass.key.pub`, whose content is the `pubkey` in `tauri.conf.json`. **Back the key up: lose it and no installed copy can ever accept an update.** `createUpdaterArtifacts: true`, endpoint `https://github.com/26bma038-lang/algocompass/releases/latest/download/latest.json`, Windows `installMode: passive` (a small progress window, no prompts).
+- **In the app** (`src/lib/updater.ts`): a quiet check 20 s after launch and every 6 h while the app runs, but only when the last check is over a day old (`updateCheckDue`, saved as pref `updateCheckedAt`). Offline or no new version: silence. A found update downloads in the background, then `UpdateBanner` (under the title bar) says "AlgoCompass X is ready. Restart to update". Settings → **App updates** shows the version and **Check for updates** (says "You have the latest version" or why it couldn't check). Nothing happens in a plain browser or a Debug preview profile.
+- **`scripts/release.mjs`** (PowerShell): builds with the key in `TAURI_SIGNING_PRIVATE_KEY`, writes `release-out/latest.json` (version, notes, `windows-x86_64` signature and the release's setup.exe URL) and copies the setup.exe and .msi next to it; `--publish notes.md` then runs `gh release create vX.Y.Z` with all three files. `release-out/` is git-ignored. **The first release with the updater (v1.7.0) is the first that can update itself;** v1.6.0 and older installs need one manual install.
+- `package-lock.json` version now follows `package.json` (it said 1.2.0).
+
+### Part 2: revision queue (2026-11-09)
+
+- **Rule:** a solved problem comes back 7 days and again 30 days after the solve; 3 days instead of 7 if you said you needed help. A review you call **Still hard** comes back in 3 days and counts as "needed help". Both reviews done = finished. A first review that happens after the 30-day mark finishes it (`afterReview`, `src/engine/revision.ts`, pure).
+- **Migration `0007_revision.sql`** (LF): `revisions(problem_key, needed_help, stage, next_at, updated_at)`. Rows exist only for flagged or reviewed problems; the solve time always comes from your real solves (synced Codeforces and LeetCode, manual marks), never copied.
+- **Only solves from the day the queue first ran count** (pref `revisionSince`, set on first read). Decision: queuing an old history would put hundreds of "due" problems on day one. So nothing is due in the first 3 to 7 days after updating; that's expected.
+- **Where:** Practice → Today's problems gets a **Due for review** card first (up to 5, most overdue first; Open, **I solved it again**, **Still hard**); while one is due the mix's "Recommended next" tag steps aside so there's one primary button. Today's **Do this next** shows the most overdue review before anything else (`pickDoThisNext(mix, sheetNext, due)`). Every row's ⋯ menu has **I solved it, but needed help** (a LeetCode row also marks it solved; Codeforces ticks itself at the next update).
+- **Tests:** `revision.test.ts` (schedule, help, since, caps, review outcomes), `revisions.test.ts` (migration, records, manual solves in sql.js), `today.test.ts`.
+
+## v1.6, full playlists and Practice this (released as v1.6.0 on 2026-11-09)
+
+Released. A learner gets whole YouTube playlists (every video, in order) instead of a few videos picked from each.
 
 ### Part 1: the playlists (2026-11-07)
 

@@ -49,6 +49,7 @@ export const TABLES = [
   "achievements",
   "sheet_ticks",
   "sheet_notes",
+  "revisions",
   "video_watched",
   "path_steps",
   "sync_log",
@@ -534,6 +535,21 @@ export class Repo {
       `INSERT INTO sheet_notes (problem_key, body, updated_at) VALUES ($1, $2, $3)
        ON CONFLICT(problem_key) DO UPDATE SET body = excluded.body, updated_at = excluded.updated_at`,
       [key, body, now],
+    );
+  }
+
+  async getRevisions(): Promise<{ key: string; neededHelp: boolean; stage: number; nextAt: number | null }[]> {
+    const rows = await this.db.select<{ problem_key: string; needed_help: number; stage: number; next_at: number | null }>(
+      'SELECT problem_key, needed_help, stage, next_at FROM revisions',
+    );
+    return rows.map((r) => ({ key: r.problem_key, neededHelp: r.needed_help === 1, stage: r.stage, nextAt: r.next_at }));
+  }
+
+  async saveRevision(r: { key: string; neededHelp: boolean; stage: number; nextAt: number | null }, now: number) {
+    await this.db.execute(
+      `INSERT INTO revisions (problem_key, needed_help, stage, next_at, updated_at) VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT(problem_key) DO UPDATE SET needed_help = excluded.needed_help, stage = excluded.stage, next_at = excluded.next_at, updated_at = excluded.updated_at`,
+      [r.key, r.neededHelp ? 1 : 0, r.stage, r.nextAt, now],
     );
   }
 
