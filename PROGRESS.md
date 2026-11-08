@@ -101,6 +101,18 @@ After any video (a library video, a playlist part, a lesson's extra video) a "Pr
 - **Screenshots:** 12 in `docs/audit-v1.6/mustdo/`, Light and Dark at 1100x700, browser mode, a fresh beginner: the Watch page (binary search), a playlist part with "Solved in this video" (Koko Eating Bananas), "Practice what you just watched" after **I've watched it, next part** with a row ticked, the Watch page after Mark as watched (the ticked problem gone, the next one in), a lesson's extra video, and the empty state on a course intro.
 - **Not done:** no release, no version bump, no merge.
 
+### Sharpen on Codeforces (v1.6, parts 10 to 13)
+
+Practice this ends with real Codeforces problems at your level, and topics the sheets barely cover are filled with them. LeetCode is where a topic is learned; Codeforces is where it's sharpened.
+
+#### Part 10: the problemset, cached (2026-11-08)
+
+- **No new adapter code or table:** `CodeforcesAdapter.getProblemset()` already reads `problemset.problems` (tags, rating, and `solvedCount` joined from `problemStatistics`), and `cf_problems` already caches it. What was missing: the sync only fetched it with a Codeforces handle, so a beginner never had it.
+- **`ensureCfProblemset`** (`src/data/cfProblemset.ts`): returns the cached list when the last successful fetch is under a day old; otherwise fetches through the shared adapter (`getCfAdapter()` in `syncStore.ts`, so the CF rate-limit queue is shared), saves it and logs `cf:problemset` in `sync_log`, the same kind the sync's step checks, so the two never fetch twice in a day. **Fail soft:** on any error it returns the saved list marked `stale` with the error, or an empty list with the error when nothing was ever saved; nothing throws.
+- **`useCfProblemset()`:** TanStack query `["cf", "problemset"]`, deliberately not under `["db"]`, so a tick doesn't re-read 10,000 rows.
+- **Migrations:** none.
+- **Tests:** `src/data/cfProblemset.test.ts` (one fetch a day, offline with and without a saved list, sharing the day with the sync's step) on the real schema (sql.js).
+
 ## Released: v1.5.0, the language you code in (branch `v1.5`, from `polish`, merged to master)
 
 **Released as v1.5.0 (2026-11-07):** this branch and the v1.4 polish under it were merged into master; the version was bumped in package.json, tauri.conf.json, Cargo.toml and Cargo.lock. Tag `v1.5.0`, GitHub release with `AlgoCompass_1.5.0_x64-setup.exe` (4.3 MB) and `AlgoCompass_1.5.0_x64_en-US.msi` (5.7 MB). There's no Android build ("APK"): AlgoCompass is a Windows desktop app, so the release carries the Windows installers. The website wasn't touched (its Pages workflow only runs on changes under `website/`).

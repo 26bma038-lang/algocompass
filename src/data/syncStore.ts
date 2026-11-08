@@ -19,6 +19,9 @@ export const OFFLINE_RETRY_MS = 5 * 60 * 1000;
 const cf = new CodeforcesAdapter();
 const lc = new LeetCodeAdapter();
 
+/** The shared Codeforces adapter (v1.6: the problemset for "Sharpen on Codeforces" loads without a sync). */
+export const getCfAdapter = () => cf;
+
 let repoPromise: Promise<Repo> | null = null;
 export function getRepo(): Promise<Repo> {
   repoPromise ??= getDb().then(async (db) => {
