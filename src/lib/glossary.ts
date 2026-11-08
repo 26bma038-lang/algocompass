@@ -77,7 +77,15 @@ export const LABELS = {
   iSolvedIt: "I solved it",
   solved: "Solved",
   notRated: "Not rated",
+  /** v1.6: Codeforces problems after the sheet rows. */
+  sharpenOnCf: "Sharpen on Codeforces",
 } as const;
+
+/** v1.6: how many people solved a Codeforces problem, "Solved by 40k" (1,234 → 1.2k, 980 → 980). */
+export const solvedBy = (n: number) => {
+  const short = n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M` : n >= 10_000 ? `${Math.round(n / 1000)}k` : n >= 1000 ? `${(n / 1000).toFixed(1).replace(/\.0$/, "")}k` : String(n);
+  return `Solved by ${short}`;
+};
 
 /** v1.6: why a must-do problem is on the list, "On 4 of 5 popular sheets". */
 export const onSheets = (n: number, of: number) => `On ${n} of ${of} popular sheets`;

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { CfProblem } from "./types";
+import type { CfProblem, CfUser } from "./types";
 import type { Repo } from "./repo";
 import { PROBLEMSET_TTL_SECONDS } from "./sync";
 import { getCfAdapter, getRepo } from "./syncStore";
@@ -51,5 +51,13 @@ export function useCfProblemset() {
     queryFn: async () => ensureCfProblemset(await getRepo(), () => getCfAdapter().getProblemset()),
     staleTime: 60 * 60 * 1000,
     structuralSharing: false,
+  });
+}
+
+/** Your Codeforces rating from the last update, or null (no handle, or unrated). */
+export function useCfRating() {
+  return useQuery({
+    queryKey: ["db", "cf-rating"],
+    queryFn: async () => (await (await getRepo()).getProfile<CfUser>("cf"))?.data.rating ?? null,
   });
 }

@@ -5,16 +5,21 @@ import { CardHeader } from "@/components/CardHeader";
 import { Term } from "@/components/Term";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useCfProblemset, useCfRating } from "@/data/cfProblemset";
 import { useProblemPool } from "@/data/mustDo";
+import { usePrefs } from "@/data/prefs";
 import { openTarget, useSolveIndex, useTickProblem } from "@/data/sheets";
-import { difficultyRank, mustDo, namedProblem, videoTopic, type MustDoPick, type PoolProblem } from "@/engine/mustDo";
-import { problemStatus, type ProblemStatus } from "@/engine/sheets";
+import { cfKey, cfSharpen, sharpenCount, sharpenWindow } from "@/engine/cfSharpen";
+import { difficultyRank, mustDo, namedProblem, topicProblemCount, videoTopic, type MustDoPick, type PoolProblem } from "@/engine/mustDo";
+import { problemStatus, type ProblemStatus, type SheetProblem } from "@/engine/sheets";
+import { TOPIC_BY_ID } from "@/engine/topics";
+import type { CfProblem } from "@/data/types";
 import { OpenButton, topicName } from "@/features/sheets/parts";
-import { LABELS, onSheets } from "@/lib/glossary";
+import { LABELS, onSheets, solvedBy } from "@/lib/glossary";
 import { cn } from "@/lib/utils";
 
 /** 1 to 3 bars for Easy, Medium, Hard (a Codeforces rating by its band); none when no one rates it. */
-function DifficultyChip({ p }: { p: PoolProblem }) {
+function DifficultyChip({ p }: { p: Pick<SheetProblem, "difficulty" | "difficultyFrom" | "rating"> }) {
   const rank = difficultyRank(p);
   const level = Number.isFinite(rank) ? Math.floor(rank) : 0;
   const label = p.difficulty ?? (typeof p.rating === "number" ? null : LABELS.notRated);
@@ -53,7 +58,7 @@ function why(p: PoolProblem, sheetCount: number): string | null {
 }
 
 /** "I solved it": the same tick as a sheet's tick box (a LeetCode or Codeforces problem also counts as a solve). */
-function SolvedButton({ p, status, onTick }: { p: PoolProblem; status: ProblemStatus; onTick: (key: string) => void }) {
+function SolvedButton({ p, status, onTick }: { p: SheetProblem; status: ProblemStatus; onTick: (key: string) => void }) {
   const tick = useTickProblem();
   if (status.done) {
     return (
@@ -121,12 +126,38 @@ function Row({ pick, sheetCount, status, onTick }: { pick: MustDoPick; sheetCoun
   );
 }
 
+/** A Codeforces problem as a sheet problem, so Open, the chip and I solved it work the same (key "cf:<id>"). */
+function asSheetProblem(p: CfProblem, topic: string): SheetProblem {
+  return { key: cfKey(p), title: p.name, difficulty: null, rating: p.rating, topics: [topic], cf: p.key };
+}
+
+/** A "Sharpen on Codeforces" row: rating chip, name, "Codeforces · Solved by 40k", I solved it, Open on Codeforces. */
+function CfRow({ p, solvedCount, status, onTick }: { p: SheetProblem; solvedCount: number | null; status: ProblemStatus; onTick: (key: string) => void }) {
+  return (
+    <li className="flex items-center gap-3 rounded-sm px-3 py-2 transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover">
+      <DifficultyChip p={p} />
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className={cn("truncate text-body", status.done ? "text-ink-muted" : "text-ink")}>{p.title}</span>
+        <span className="flex min-w-0 items-center gap-1.5 text-label text-ink-muted">
+          <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-ink-faint" />
+          <span className="truncate">
+            Codeforces{solvedCount ? <> · {solvedBy(solvedCount)}</> : null}
+          </span>
+        </span>
+      </span>
+      <SolvedButton p={p} status={status} onTick={onTick} />
+      <OpenButton problem={p} withSite className="w-44" />
+    </li>
+  );
+}
+
 /**
  * "Practice this" (v1.6): after a video, a few must-do problems for its topic, easy to hard (the
  * problem the video solves first). Each row: difficulty chip, title, where it's solved and why it's
  * here ("On 4 of 5 popular sheets"), I solved it (the sheets' tick) and Open. Marking the video
- * watched pulses the card and brings it into view. An honest empty state when the topic is unknown
- * or the sheets have nothing left for it.
+ * watched pulses the card and brings it into view. Then "Sharpen on Codeforces": two real
+ * Codeforces problems for the topic at your level (more when the sheets barely cover it). An honest
+ * empty state when the topic is unknown or nothing is left for it.
  */
 export function PracticeThis({
   videoTitle,
@@ -163,6 +194,22 @@ export function PracticeThis({
   const topic = topicProp !== undefined ? topicProp : videoTopic(videoTitle, filed ?? [], named);
   const rows = pool && idx ? (topic || named ? mustDo(pool, topic ?? "", (k) => problemStatus(k, idx).done, { named, keep, exclude }) : []) : null;
 
+  // Sharpen on Codeforces: your rating's window (800 to 1200 with none, or in Beginner mode).
+  const cf = useCfProblemset().data;
+  const rating = useCfRating().data ?? null;
+  const beginner = usePrefs().data?.mode === "beginner";
+  const cfWindow = sharpenWindow(rating, beginner);
+  const thin = !!(pool && topic && topicProblemCount(pool, topic) < 3);
+  const cfRows =
+    rows && cf && idx && topic
+      ? cfSharpen(cf.problems, topic, cfWindow, (k) => problemStatus(k, idx).done, sharpenCount(rows.length, pool ? topicProblemCount(pool, topic) : 0), {
+          keep,
+          exclude: new Set([...rows.map((r) => r.problem.key), ...(exclude ?? [])]),
+        })
+      : [];
+  // Codeforces has tags for this topic, but the list couldn't load (offline, never fetched).
+  const cfMissing = !!(topic && (TOPIC_BY_ID.get(topic)?.cfTags.length ?? 0) > 0 && cf && !cf.problems.length && cf.error);
+
   // "I've watched it": a short aura pulse on the card, scrolled into view.
   const ref = useRef<HTMLElement>(null);
   const was = useRef(watched);
@@ -171,7 +218,8 @@ export function PracticeThis({
     if (watched && !was.current && ref.current) {
       setPulse(true);
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      ref.current.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
+      // The card's top at the top of the view, so its header and first rows show without scrolling.
+      ref.current.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
     }
     was.current = watched;
   }, [watched]);
@@ -184,11 +232,17 @@ export function PracticeThis({
   const description = !rows
     ? "Loading problems from the popular sheets…"
     : rows.length === 0
-      ? undefined
+      ? cfRows.length && topicWords
+        ? `The popular sheets barely cover ${topicWords}, so these are from Codeforces.`
+        : undefined
       : topicWords
-        ? `Problems on ${topicWords} that the popular sheets agree on, easy to hard.`
+        ? thin
+          ? `The popular sheets barely cover ${topicWords}, so Codeforces fills in.`
+          : `The popular sheets' picks for ${topicWords}, easy to hard.`
         : "The problem this video solves.";
-  const solved = rows ? rows.filter((r) => status(r.problem.key).done).length : 0;
+  const total = (rows?.length ?? 0) + cfRows.length;
+  const solved = (rows ?? []).filter((r) => status(r.problem.key).done).length + cfRows.filter((p) => status(cfKey(p)).done).length;
+  const tick = (k: string) => setKeep((s) => new Set(s).add(k));
 
   return (
     <section
@@ -206,7 +260,7 @@ export function PracticeThis({
             {description}
           </>
         }
-        pill={rows && rows.length > 0 ? `${solved} of ${rows.length} solved` : undefined}
+        pill={total > 0 ? `${solved} of ${total} solved` : undefined}
         actions={actions}
       />
       {rows && rows.length > 0 && (
@@ -217,18 +271,41 @@ export function PracticeThis({
               pick={r}
               sheetCount={pool!.sheetCount}
               status={status(r.problem.key)}
-              onTick={(k) => setKeep((s) => new Set(s).add(k))}
+              onTick={tick}
             />
           ))}
         </ul>
       )}
-      {rows && rows.length === 0 && (
+      {cfRows.length > 0 && (
+        <div className={cn("flex flex-col gap-1", rows && rows.length > 0 && "border-t border-glass-border pt-3")}>
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <h3 className="text-body font-semibold text-ink">{LABELS.sharpenOnCf}</h3>
+            <p className="numeric text-label text-ink-muted">
+              Difficulty {cfWindow.lo} to {cfWindow.hi}
+              {rating === null || beginner ? ", Codeforces' easiest" : ", around your rating"}, most solved first
+              {cf?.stale ? ". From the saved list (Codeforces couldn't be reached)" : ""}
+            </p>
+          </div>
+          <ul className="-mx-3 flex flex-col">
+            {cfRows.map((p) => {
+              const sp = asSheetProblem(p, topic!);
+              return <CfRow key={sp.key} p={sp} solvedCount={p.solvedCount} status={status(sp.key)} onTick={tick} />;
+            })}
+          </ul>
+        </div>
+      )}
+      {cfMissing && rows && rows.length > 0 && (
+        <p className="text-label text-ink-muted">Codeforces problems for this topic show once the app can reach Codeforces.</p>
+      )}
+      {rows && rows.length === 0 && cfRows.length === 0 && (
         <div className="flex items-start gap-3 rounded-md bg-abyss-sunken p-4">
           <Dumbbell aria-hidden className="mt-0.5 size-4 shrink-0 text-ink-muted" strokeWidth={1.8} />
           <p className="text-body-sm text-ink-muted">
             {topic ? (
               <>
-                The popular sheets have no {topicWords} problems left for you here: you've solved them, or the sheets barely cover this topic.{" "}
+                {cfMissing
+                  ? `The popular sheets have nothing left on ${topicWords} for you, and Codeforces couldn't be reached to fill in. Its problems show once the app can reach it again.`
+                  : `The popular sheets and Codeforces have nothing left on ${topicWords} for you here.`}{" "}
                 <Link to="/practice" className="text-ink underline decoration-glass-border-strong underline-offset-4">
                   Find more in Practice
                 </Link>
