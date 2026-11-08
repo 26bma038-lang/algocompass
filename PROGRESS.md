@@ -88,6 +88,19 @@ After any video (a library video, a playlist part, a lesson's extra video) a "Pr
 - **Words** (`glossary.ts`): `practiceThis`, `practiceJustWatched`, `solvedInVideo`, `fromPath`, `iSolvedIt`, `solved`, `notRated`, and `onSheets(n, of)`; the glossary test checks them.
 - **Docs:** CLAUDE.md (Watch, Playlist, the must-do rules), DESIGN.md (the card).
 
+#### Part 9: check (2026-11-08)
+
+- **Coverage, counted over every video in the app** (3,921 distinct videos: library, lessons, the 102 playlists; nothing solved yet): **94.5% (3,704) get 3 or more must-do problems.** By where they show: library 84% (112 of 134), lesson videos 100%, course parts 96.5%, topic-playlist parts 93.6%. **66 course parts name no topic** (course intros, setup, "Complete Git and GitHub Tutorial", Abdul Bari's opening lectures) and get the empty state.
+- **"Solved in this video": 273 distinct videos** name a problem in the data exactly (160 distinct problems), mostly NeetCode's walkthroughs, Striver's BS-, G-, DP- and L- series, Pepcoding's and Aditya Verma's problem videos.
+- **Topics with too few problems (fewer than 3 in all five sheets and the path):** constructive 0, probability 0, flows / advanced graphs 0, combinatorics 1, game theory 1, brute force 2, geometry 2, range queries (data structures) 2. Number theory and interactive have exactly 3. Videos on those topics (about 200, most of them Pepcoding Level 3 and Luv parts) show a short list or the empty state. Filling them needs a source beyond the sheets (the curated `lc_lists.json`, or Codeforces problemset by tag), which would break "On N of 5 popular sheets"; left for a decision.
+- **`npm test`:** 546 pass, 29 skipped (the same Java/Python template compiles and the live adapter test).
+- **`npm run check:links`:** all verified, exit 0: 86 URLs, 291 curated LeetCode problems, 5 sheets (1,281 problems; 661 LeetCode rows with LeetCode's exact difficulty and `difficultyFrom: "lc"`), 153 videos (204 uses), 102 playlists.
+- **`npm run build`:** green; Practice this is its own 18 kB chunk (7 kB gzipped) loaded by Watch, Playlist and Lesson; the main bundle is unchanged (514 kB).
+- **`npm run tauri dev`** (PowerShell): `algocompass.exe` launched and responding against the dev Vite, no errors in the log; stopped after the check, nothing clicked. The first two tries failed only because my browser-mode Vite (screenshots) still held port 1420 through open connections without listening, so `netstat` showed no listener; stopping it fixed it. No Rust changes, so cargo didn't rebuild.
+- **Migrations:** none. Ticks are the existing `sheet_ticks` / `manual_solves`; difficulties live in the bundled JSON.
+- **Screenshots:** 12 in `docs/audit-v1.6/mustdo/`, Light and Dark at 1100x700, browser mode, a fresh beginner: the Watch page (binary search), a playlist part with "Solved in this video" (Koko Eating Bananas), "Practice what you just watched" after **I've watched it, next part** with a row ticked, the Watch page after Mark as watched (the ticked problem gone, the next one in), a lesson's extra video, and the empty state on a course intro.
+- **Not done:** no release, no version bump, no merge.
+
 ## Released: v1.5.0, the language you code in (branch `v1.5`, from `polish`, merged to master)
 
 **Released as v1.5.0 (2026-11-07):** this branch and the v1.4 polish under it were merged into master; the version was bumped in package.json, tauri.conf.json, Cargo.toml and Cargo.lock. Tag `v1.5.0`, GitHub release with `AlgoCompass_1.5.0_x64-setup.exe` (4.3 MB) and `AlgoCompass_1.5.0_x64_en-US.msi` (5.7 MB). There's no Android build ("APK"): AlgoCompass is a Windows desktop app, so the release carries the Windows installers. The website wasn't touched (its Pages workflow only runs on changes under `website/`).
