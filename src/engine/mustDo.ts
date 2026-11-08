@@ -297,6 +297,11 @@ export function partTopics(titles: readonly string[], filed: readonly string[], 
   return out;
 }
 
+/** How many problems in the sheets and the path a topic has at all (solved or not): under 3 is a thin topic. */
+export function topicProblemCount(pool: Pick<ProblemPool, "problems">, topic: string): number {
+  return pool.problems.filter((p) => p.topics.includes(topic)).length;
+}
+
 // ---------- the list ----------
 
 export type MustDoReason = "video" | "sheets" | "path";

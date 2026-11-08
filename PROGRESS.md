@@ -113,6 +113,14 @@ Practice this ends with real Codeforces problems at your level, and topics the s
 - **Migrations:** none.
 - **Tests:** `src/data/cfProblemset.test.ts` (one fetch a day, offline with and without a saved list, sharing the day with the sync's step) on the real schema (sql.js).
 
+#### Part 11: the engine (2026-11-08)
+
+`src/engine/cfSharpen.ts`, pure, tested in `cfSharpen.test.ts`.
+- **`sharpenWindow(rating, beginner)`:** the same window Today's problems use (your rating rounded to 100, up to 200 above, from `recommender.ts`), or **800 to 1200** with no rating or in Beginner mode.
+- **`cfSharpen(problems, topic, window, isSolved, n = 2, { keep, exclude })`:** problems whose Codeforces tags map to the topic (topics.json, `topicsForTags`), rating inside the window, from a real round (a problemset-only problem has no page to open), no April Fools (`*special`) problems, not solved (by the app's key `cf:<id>`, so a sheet tick, a manual tick or a synced solve all count), not already on the card. **Most solved first** (the classics), then lower rating, then the newer round.
+- **`sharpenCount(sheetRows, sheetProblemsInTopic)`:** 2 Codeforces rows on every card; a thin topic (fewer than 3 problems in the sheets and the path, `topicProblemCount` in `mustDo.ts`) fills the card up to 5 rows with them.
+- **Coverage on today's problemset (11,000 problems):** every thin topic now fills: constructive 535 problems at 800–1200, brute force 540, data structures 100, game theory 75, geometry 64, combinatorics 42, flows / advanced graphs 14, probability 5. **Topics with no Codeforces tag** get no Codeforces rows (Codeforces has no tag for them): arrays & hashing, prefix sums, stacks & queues, linked lists, heaps, recursion & backtracking, tries, design. Divide & conquer has 1 problem at 800–1200.
+
 ## Released: v1.5.0, the language you code in (branch `v1.5`, from `polish`, merged to master)
 
 **Released as v1.5.0 (2026-11-07):** this branch and the v1.4 polish under it were merged into master; the version was bumped in package.json, tauri.conf.json, Cargo.toml and Cargo.lock. Tag `v1.5.0`, GitHub release with `AlgoCompass_1.5.0_x64-setup.exe` (4.3 MB) and `AlgoCompass_1.5.0_x64_en-US.msi` (5.7 MB). There's no Android build ("APK"): AlgoCompass is a Windows desktop app, so the release carries the Windows installers. The website wasn't touched (its Pages workflow only runs on changes under `website/`).
