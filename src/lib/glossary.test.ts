@@ -3,7 +3,7 @@ import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 import { splitDivisions } from "@/components/Term";
 import { sheetShortName } from "@/engine/sheets";
-import { doneOf, LABELS, RETIRED, solvedOf, TERMS } from "./glossary";
+import { doneOf, LABELS, onSheets, RETIRED, solvedOf, TERMS } from "./glossary";
 
 const ROOT = join(__dirname, "..", "..");
 
@@ -70,7 +70,11 @@ describe("plain-language labels (v1.4)", () => {
       update: "Update",
       notTried: "Topics you haven't tried",
       topics: "Topics",
+      practiceThis: "Practice this",
+      solvedInVideo: "Solved in this video",
+      iSolvedIt: "I solved it",
     });
+    expect(onSheets(4, 5)).toBe("On 4 of 5 popular sheets");
     // A replacement never contains the word it replaces.
     for (const [old, now] of Object.entries(RETIRED)) expect(now.toLowerCase()).not.toContain(old.toLowerCase());
   });

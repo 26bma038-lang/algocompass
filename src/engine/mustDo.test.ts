@@ -122,6 +122,20 @@ describe("mustDo", () => {
     expect(rows.find((r) => r.problem.key === "lc:e1")?.reason).toBe("sheets");
   });
 
+  it("prefers the topic's own easy problems to a harder one that a single section files there", () => {
+    const p = buildPool(
+      [
+        sheet("a", [prob("lc:own1", "Easy", ["t"]), prob("lc:own2", "Easy", ["t"]), prob("lc:own3", "Easy", ["t"]), prob("lc:visitor", "Medium", ["t", "u"])]),
+        sheet("b", [prob("lc:visitor", "Medium", ["u", "t"])]),
+        sheet("c", [prob("lc:visitor", "Medium", ["u"])]),
+      ],
+      "x",
+    );
+    expect(keys(mustDo(p, "t", none, { n: 3 }))).toEqual(["lc:own1", "lc:own2", "lc:own3"]);
+    // With room to spare, the visitor joins.
+    expect(keys(mustDo(p, "t", none))).toEqual(["lc:own1", "lc:own2", "lc:own3", "lc:visitor"]);
+  });
+
   it("drops LeetCode Premium problems below free ones on as many sheets", () => {
     const p = buildPool([sheet("a", [prob("lc:paid", "Easy", ["t"], { premium: true }), prob("lc:free", "Easy", ["t"])])], "x");
     expect(keys(mustDo(p, "t", none, { n: 1 }))).toEqual(["lc:free"]);
@@ -213,6 +227,14 @@ describe("real must-do lists", () => {
     // The list never goes back down in difficulty.
     const ranks = rows.map((r) => difficultyRank(r.problem));
     expect([...ranks].sort((x, y) => x - y)).toEqual(ranks);
+  });
+
+  it("lists a topic's own problems before ones a single section files there", () => {
+    // A2Z files Reverse Linked List under "Logic Building" once; it's a linked-list problem.
+    const rl = real.problems.find((p) => p.key === "lc:reverse-linked-list")!;
+    expect(rl.leadTopics[0]).toBe("linked-lists");
+    expect(keys(mustDo(real, "implementation", none))).not.toContain("lc:reverse-linked-list");
+    for (const r of mustDo(real, "implementation", none)) expect(r.problem.leadTopics[0]).toBe("implementation");
   });
 
   it("Two Sum is on four of the five popular sheets", () => {

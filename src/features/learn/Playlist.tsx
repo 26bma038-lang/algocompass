@@ -7,13 +7,16 @@ import { playlistPath } from "@/components/shell/nav";
 import { Button } from "@/components/ui/button";
 import { useLearnHistory, useRecordLearn } from "@/data/learn";
 import { useSetWatched, useWatchedVideos } from "@/data/path";
+import { useProblemPool } from "@/data/mustDo";
 import { usePlaylists } from "@/data/playlists";
 import { usePrefs } from "@/data/prefs";
+import { partTopics } from "@/engine/mustDo";
 import { frontierIndex, lengthLabel, playlistMinutes, playlistProgress, resumeIndex, type Playlist } from "@/engine/playlists";
 import { LABELS, partOf, watchedOf } from "@/lib/glossary";
 import { cn } from "@/lib/utils";
 import { VideoPlayer, WatchedButton, YouTubeButton } from "@/features/path/VideoPlayer";
 import { Breadcrumb, LANG_NAME } from "./parts";
+import { PracticeThis } from "./PracticeThis";
 
 /** Learn's Playlists card lives at /learn#playlists. */
 const PLAYLISTS_CRUMB = "/learn#playlists";
@@ -59,6 +62,9 @@ export function PlaylistPage() {
   const codeLang = usePrefs().data?.codeLang;
   // Playback starts on its own only once you've picked a part on this page.
   const [picked, setPicked] = useState(false);
+  // v1.6: after "I've watched it, next part", Practice this stays on the part you just watched.
+  const [justWatched, setJustWatched] = useState<number | null>(null);
+  const pool = useProblemPool().data;
   const listRef = useRef<HTMLOListElement>(null);
 
   const p = playlists.data?.find((x) => x.id === playlistId);
@@ -70,6 +76,8 @@ export function PlaylistPage() {
   const ready = !!p && history !== undefined && watchedMap !== undefined;
   const index = askedAt >= 0 ? askedAt : resumeAt;
   const v = p?.videos[index];
+  // Each part's topic: its own words, the problem it solves, or the part before it (partTopics).
+  const topics = useMemo(() => (p && pool ? partTopics(p.videos.map((x) => x.title), p.scope === "course" ? [] : p.topics, pool) : null), [p, pool]);
 
   // Pin the part in the URL once known, so moving around (and Back) is stable.
   useEffect(() => {
@@ -112,14 +120,20 @@ export function PlaylistPage() {
   const total = p.videos.length;
   const go = (i: number) => {
     setPicked(true);
+    setJustWatched(null);
     navigate(playlistPath(p.id, p.videos[i]!.id), { replace: true });
   };
   const seen = watched.has(v.id);
   const last = index === total - 1;
   const next = () => {
     if (!seen) setWatched.mutate({ videoId: v.id, watched: true });
-    if (!last) go(index + 1);
+    if (!last) {
+      go(index + 1);
+      setJustWatched(index);
+    }
   };
+  const practiceAt = justWatched !== null && justWatched === index - 1 ? justWatched : index;
+  const practiced = p.videos[practiceAt]!;
   // "Continue where I left off" on the page: the part after the furthest one you've watched, when
   // you've wandered off it (not when it's simply the next part after the one you just watched).
   const frontier = frontierIndex(p, watched);
@@ -215,6 +229,26 @@ export function PlaylistPage() {
           })}
         </ol>
       </aside>
+      {/* v1.6: must-do problems for the part, full width so every row fits on one line. */}
+      <PracticeThis
+        videoTitle={practiced.title}
+        topic={topics?.[practiceAt] ?? null}
+        watched={watched.has(practiced.id)}
+        title={practiceAt !== index ? LABELS.practiceJustWatched : LABELS.practiceThis}
+        subtitle={practiceAt !== index ? `${partOf(practiceAt + 1, total)}: ${practiced.title}` : undefined}
+        actions={
+          practiceAt !== index ? (
+            <button
+              type="button"
+              onClick={() => setJustWatched(null)}
+              className="rounded-xs text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink"
+            >
+              This part's problems
+            </button>
+          ) : undefined
+        }
+        className="col-span-12"
+      />
     </div>
   );
 }

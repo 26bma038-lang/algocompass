@@ -13,7 +13,11 @@ export interface PoolProblem extends SheetProblem {
   sheets: string[];
   /** Listed by the Beginner Path. */
   inPath: boolean;
-  /** Topics a sheet files it under (a section's topic), as opposed to tag-derived ones. */
+  /**
+   * Topics a sheet files it under (a section's topic), as opposed to tag-derived ones, the most
+   * common first: the first is its home topic (Reverse Linked List is a linked-list problem, though
+   * one A2Z section files it under "Logic Building").
+   */
   leadTopics: string[];
 }
 
@@ -24,6 +28,9 @@ export interface ProblemPool {
   /** Normalized platform title → problem, for matching a video title to the problem it solves. */
   byTitle: ReadonlyMap<string, PoolProblem>;
 }
+
+/** A sheet label more than a topic (see buildPool). */
+const CATCH_ALL = "implementation";
 
 const DIFF_RANK: Record<LcDifficulty, number> = { Easy: 1, Medium: 2, Hard: 3 };
 
@@ -67,6 +74,7 @@ function difficultyScore(p: SheetProblem): number {
  */
 export function buildPool(sheets: readonly Sheet[], pathId: string): ProblemPool {
   const byKey = new Map<string, PoolProblem>();
+  const leadCounts = new Map<string, Map<string, number>>();
   for (const s of sheets) {
     for (const sec of s.sections) {
       for (const p of sec.problems) {
@@ -91,13 +99,25 @@ export function buildPool(sheets: readonly Sheet[], pathId: string): ProblemPool
           if (e.rating == null && p.rating != null) e.rating = p.rating;
           if (!e.links && p.links) e.links = p.links;
         }
-        if (p.topics[0] && !e.leadTopics.includes(p.topics[0])) e.leadTopics.push(p.topics[0]);
+        if (p.topics[0]) {
+          if (!e.leadTopics.includes(p.topics[0])) e.leadTopics.push(p.topics[0]);
+          const counts = leadCounts.get(p.key) ?? new Map<string, number>();
+          counts.set(p.topics[0], (counts.get(p.topics[0]) ?? 0) + 1);
+          leadCounts.set(p.key, counts);
+        }
         if (s.id === pathId) e.inPath = true;
         else if (!e.sheets.includes(s.id)) e.sheets.push(s.id);
       }
     }
   }
   const problems = [...byKey.values()];
+  // Most sheets first; ties keep the order they were first seen in (stable sort). "Implementation"
+  // goes last: A2Z labels a "Logic Building" or "Implementation" part inside many steps (Binary
+  // Search, Heaps…), so it's a home topic only when no sheet files the problem anywhere else.
+  for (const p of problems) {
+    const counts = leadCounts.get(p.key);
+    if (counts) p.leadTopics.sort((a, b) => Number(a === CATCH_ALL) - Number(b === CATCH_ALL) || counts.get(b)! - counts.get(a)!);
+  }
   const byTitle = new Map<string, PoolProblem>();
   // Only LeetCode and Codeforces problems can be "solved in this video": their titles are the platform's own.
   for (const p of problems) if (p.lc || p.cf) byTitle.set(normTitle(p.title), p);
@@ -298,21 +318,27 @@ export interface MustDoOptions {
   exclude?: ReadonlySet<string>;
 }
 
-/** Ranking: more popular sheets, filed under the topic, free before Premium, easier, then the pool's order. */
+/** How much a problem is about the topic: 0 its home topic, 1 a sheet files it there too, 2 only its tags say so. */
+export function topicTier(p: Pick<PoolProblem, "leadTopics">, topic: string): 0 | 1 | 2 {
+  return p.leadTopics[0] === topic ? 0 : p.leadTopics.includes(topic) ? 1 : 2;
+}
+
+/** Ranking: on topic first, then more popular sheets, the Beginner Path, free before Premium, easier, then the pool's order. */
 function compare(topic: string, order: ReadonlyMap<string, number>) {
   return (a: PoolProblem, b: PoolProblem) =>
+    topicTier(a, topic) - topicTier(b, topic) ||
     b.sheets.length - a.sheets.length ||
     Number(b.inPath) - Number(a.inPath) ||
-    Number(b.leadTopics.includes(topic)) - Number(a.leadTopics.includes(topic)) ||
     Number(!!a.premium) - Number(!!b.premium) ||
     difficultyRank(a) - difficultyRank(b) ||
     order.get(a.key)! - order.get(b.key)!;
 }
 
 /**
- * Must-do problems for a topic, easy to hard. Candidates are the topic's problems not solved yet,
- * ranked by how many popular sheets list them (then the Beginner Path, then problems a sheet files
- * under the topic, free before Premium, easier first). The list keeps one or two Easy problems
+ * Must-do problems for a topic, easy to hard. Candidates are the topic's problems not solved yet:
+ * problems whose home topic it is first, then ones a sheet also files there, then ones only tagged
+ * with it; inside each, ranked by how many popular sheets list them (then the Beginner Path, free
+ * before Premium, easier first). The list keeps one or two Easy problems
  * (two when it shows four or more) and fills the rest with the best-ranked harder ones, then shows
  * them Easy → Medium → Hard, with problems no one rates last. The problem the video solves comes
  * first, as "Solved in this video".
@@ -328,11 +354,20 @@ export function mustDo(pool: ProblemPool, topic: string, isSolved: (key: string)
     .sort(compare(topic, order));
   const room = n - (named ? 1 : 0);
   const easyWanted = room >= 4 ? 2 : 1;
-  const easy = cands.filter(isEasy).slice(0, easyWanted);
-  const harder = cands.filter((p) => !isEasy(p)).slice(0, room - easy.length);
-  // Not enough harder ones: more easy ones fill the gap.
-  const extraEasy = cands.filter((p) => isEasy(p) && !easy.includes(p)).slice(0, room - easy.length - harder.length);
-  const picked = [...easy, ...extraEasy, ...harder];
+  const choose = (from: PoolProblem[]) => {
+    const easy = from.filter(isEasy).slice(0, easyWanted);
+    const harder = from.filter((p) => !isEasy(p)).slice(0, room - easy.length);
+    // Not enough harder ones: more easy ones fill the gap.
+    const extraEasy = from.filter((p) => isEasy(p) && !easy.includes(p)).slice(0, room - easy.length - harder.length);
+    return [...easy, ...extraEasy, ...harder];
+  };
+  // On-topic problems first: widen to problems less about the topic only when the list isn't full,
+  // so an easy problem of the topic beats a harder one that a single section files there.
+  let picked: PoolProblem[] = [];
+  for (const tier of [0, 1, 2]) {
+    picked = choose(cands.filter((p) => topicTier(p, topic) <= tier));
+    if (picked.length >= room) break;
+  }
   const rank = new Map(cands.map((p, i) => [p.key, i]));
   picked.sort((a, b) => difficultyRank(a) - difficultyRank(b) || rank.get(a.key)! - rank.get(b.key)!);
   const rows: MustDoPick[] = picked.map((p) => ({ problem: p, reason: p.sheets.length ? "sheets" : "path" }));

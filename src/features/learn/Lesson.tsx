@@ -26,6 +26,7 @@ import { openExternal } from "@/lib/openExternal";
 import { cn } from "@/lib/utils";
 import { useShellFooter } from "@/components/shell/footerSlot";
 import { Breadcrumb, LANG_NAME } from "./parts";
+import { PracticeThis } from "./PracticeThis";
 import { ConnectLeetCode, SolveGuide } from "./SolveHelp";
 import { solveGuideOpen } from "./solveGuide";
 import { CODE_LANG_NAMES, codeItIn, LABELS } from "@/lib/glossary";
@@ -519,6 +520,17 @@ export function Lesson() {
       <div className="col-span-12">
         <SolveCard step={step} view={view} focusKey={focusKey} />
       </div>
+      {/* v1.6: an extra video or walkthrough gets its own must-do problems; the main video's are Solve. */}
+      {currentKind !== "Main video" && (
+        <PracticeThis
+          videoTitle={current.title}
+          filed={step.topics}
+          watched={view.watched.has(current.id)}
+          exclude={new Set(step.problems.map((p) => p.key))}
+          subtitle={`For the ${currentKind.toLowerCase()} you're watching, beyond this lesson's own problems under Solve.`}
+          className="col-span-12"
+        />
+      )}
 
       {footer &&
         createPortal(

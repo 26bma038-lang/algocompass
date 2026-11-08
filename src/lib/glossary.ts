@@ -69,7 +69,18 @@ export const LABELS = {
   continuePlaylist: "Continue where I left off",
   watchedNext: "I've watched it, next part",
   watchedLast: "I've watched it",
+  /** v1.6: must-do problems after a video. */
+  practiceThis: "Practice this",
+  practiceJustWatched: "Practice what you just watched",
+  solvedInVideo: "Solved in this video",
+  fromPath: "From the Beginner Path",
+  iSolvedIt: "I solved it",
+  solved: "Solved",
+  notRated: "Not rated",
 } as const;
+
+/** v1.6: why a must-do problem is on the list, "On 4 of 5 popular sheets". */
+export const onSheets = (n: number, of: number) => `On ${n} of ${of} popular sheets`;
 
 /** v1.6: a playlist part, "Part 12 of 56". */
 export const partOf = (n: number, of: number) => `Part ${n} of ${of}`;

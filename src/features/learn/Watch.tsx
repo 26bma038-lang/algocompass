@@ -14,6 +14,7 @@ import { LABELS } from "@/lib/glossary";
 import { findVideo } from "@/engine/learn";
 import { VideoPlayer, WatchedButton, YouTubeButton } from "@/features/path/VideoPlayer";
 import { Breadcrumb, LANG_NAME, roleLabel, VideoRow } from "./parts";
+import { PracticeThis } from "./PracticeThis";
 
 /**
  * Learn → one video, big. Opened from the library or Continue learning, so it starts playing
@@ -99,6 +100,8 @@ export function Watch() {
           </div>
         </div>
       </section>
+      {/* v1.6: must-do problems for the video's topic, easy to hard. */}
+      <PracticeThis videoTitle={v.title} topic={group.topicId} watched={seen} className="col-span-12" />
       {rest.length > 0 && (
         <section aria-labelledby="more-title" className="glass-card col-span-12 flex flex-col gap-3 p-6">
           <CardHeader
