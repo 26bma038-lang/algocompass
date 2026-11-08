@@ -132,6 +132,18 @@ Practice this ends with real Codeforces problems at your level, and topics the s
 - **Words:** `LABELS.sharpenOnCf`, `solvedBy(n)` ("Solved by 980 / 1.2k / 40k / 1.2M"); the glossary test checks them.
 - **Docs:** CLAUDE.md (the must-do rules), DESIGN.md (the sub-section).
 
+#### Part 13: check (2026-11-09)
+
+- **Coverage** (3,919 distinct videos with a card, today's problemset, nothing solved): **63.7% of cards (2,496) have Codeforces rows**, the same in the beginner window and at 1400, 1900 or 2400. The rest are topics Codeforces has no tag for (arrays & hashing, prefix sums, stacks & queues, linked lists, heaps, recursion & backtracking, tries, design: about a third of all videos) plus the 66 course parts with no topic. **98.3% of cards now have 3 or more rows** (94.5% before).
+- **Topics under 3 problems: none.** Every topic has at least 3 sheet plus Codeforces problems in every window checked (800–1200, 1400–1600, 1900–2100, 2400–2600). The thinnest at 800–1200: probability (5 Codeforces problems), divide & conquer (14 sheet problems, 1 on Codeforces).
+- **`npm test`:** 559 pass, 29 skipped (the same template compiles and the live adapter test).
+- **`npm run check:links`:** all verified (86 URLs, 291 curated LeetCode problems, 5 sheets / 1,281 problems, 153 videos / 204 uses, 102 playlists). The Codeforces problemset isn't bundled data, so there's nothing new for it to check.
+- **`npm run build`:** green; Practice this is 22 kB (9 kB gzipped); the main bundle is unchanged (514 kB).
+- **`npm run tauri dev`** (PowerShell): `algocompass.exe` launched and responding, no errors in the log; stopped after the check, nothing clicked (real database). This time the browser-mode Vite ran as a tracked background task and was stopped before, so port 1420 was free.
+- **Migrations:** none (`cf_problems` and `sync_log` already existed).
+- **Screenshots:** 14 in `docs/audit-v1.6/cf/`, Light and Dark at 1100x700, browser mode, a fresh beginner: binary search with Sharpen on Codeforces, a Codeforces row ticked ("1 of 7 solved"), game theory right after Mark as watched (scrolled into view, filled by Codeforces), range queries (thin, filled), a playlist right after "I've watched it, next part", and offline (Codeforces blocked) for a thin topic and for binary search.
+- **Skipped:** nothing asked for. Not done: no release, no version bump, no merge.
+
 ## Released: v1.5.0, the language you code in (branch `v1.5`, from `polish`, merged to master)
 
 **Released as v1.5.0 (2026-11-07):** this branch and the v1.4 polish under it were merged into master; the version was bumped in package.json, tauri.conf.json, Cargo.toml and Cargo.lock. Tag `v1.5.0`, GitHub release with `AlgoCompass_1.5.0_x64-setup.exe` (4.3 MB) and `AlgoCompass_1.5.0_x64_en-US.msi` (5.7 MB). There's no Android build ("APK"): AlgoCompass is a Windows desktop app, so the release carries the Windows installers. The website wasn't touched (its Pages workflow only runs on changes under `website/`).
