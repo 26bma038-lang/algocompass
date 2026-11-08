@@ -84,6 +84,11 @@ export const LABELS = {
   solvedAgain: "I solved it again",
   stillHard: "Still hard",
   neededHelp: "I solved it, but needed help",
+  /** v1.7: notes and Stuck?. */
+  stuck: "Stuck?",
+  addNote: "Add a note",
+  yourNote: "Your note",
+  yourNotes: "Your notes",
 } as const;
 
 /** v1.6: how many people solved a Codeforces problem, "Solved by 40k" (1,234 → 1.2k, 980 → 980). */

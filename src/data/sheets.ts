@@ -259,8 +259,8 @@ export function useSheetNotes() {
 export function useSaveNote() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: async ({ key, body }: { key: string; body: string }) => {
-      await (await getRepo()).saveSheetNote(key, body, nowS());
+    mutationFn: async ({ key, body, title }: { key: string; body: string; title?: string }) => {
+      await (await getRepo()).saveSheetNote(key, body, nowS(), title ?? null);
     },
     onSuccess: () => client.invalidateQueries({ queryKey: ["db", "sheet-notes"] }),
     onError: (e) => toast.error("Couldn't save the note", { description: e instanceof Error ? e.message : String(e) }),

@@ -138,6 +138,9 @@ function NotificationsSection({ prefs }: { prefs: AppPrefs }) {
   const timeId = useId();
   const [time, setTime] = useState(prefs.notify.streakTime);
   useEffect(() => setTime(prefs.notify.streakTime), [prefs.notify.streakTime]);
+  const dailyId = useId();
+  const [dailyTime, setDailyTime] = useState(prefs.notify.dailyTime);
+  useEffect(() => setDailyTime(prefs.notify.dailyTime), [prefs.notify.dailyTime]);
   const set = (patch: Partial<NotifyPrefs>) => save.mutate({ ...prefs, notify: { ...prefs.notify, ...patch } });
 
   return (
@@ -171,6 +174,29 @@ function NotificationsSection({ prefs }: { prefs: AppPrefs }) {
               onChange={(e) => {
                 setTime(e.target.value);
                 if (/^\d{2}:\d{2}$/.test(e.target.value)) set({ streakTime: e.target.value });
+              }}
+              className="numeric w-[132px] [color-scheme:dark] disabled:opacity-45"
+            />
+          </div>
+        </ToggleRow>
+        <ToggleRow
+          title="Daily reminder"
+          hint="One notification a day naming today's next problem, or a problem that's due for review. Nothing when today's goals are done."
+          checked={prefs.notify.daily}
+          onChange={(v) => set({ daily: v })}
+        >
+          <div className="flex items-center gap-3">
+            <Label htmlFor={dailyId} className="text-body-sm text-ink-muted">
+              Remind me at
+            </Label>
+            <Input
+              id={dailyId}
+              type="time"
+              value={dailyTime}
+              disabled={!prefs.notify.daily}
+              onChange={(e) => {
+                setDailyTime(e.target.value);
+                if (/^\d{2}:\d{2}$/.test(e.target.value)) set({ dailyTime: e.target.value });
               }}
               className="numeric w-[132px] [color-scheme:dark] disabled:opacity-45"
             />

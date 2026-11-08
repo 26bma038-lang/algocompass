@@ -5,7 +5,9 @@ import { useNeededHelp } from "@/data/revisions";
 import { LABELS } from "@/lib/glossary";
 import { useRecFeedback } from "@/data/recommendations";
 import type { FeedbackKind } from "@/data/types";
-import { title, type RowProblem } from "./problemText";
+import { refFromRec } from "@/engine/problemRef";
+import { ProblemToolItems } from "./ProblemTools";
+import { title, url, type RowProblem } from "./problemText";
 
 const FEEDBACK: { kind: FeedbackKind; label: string; hint: (p: RowProblem) => string }[] = [
   { kind: "skip", label: "Skip", hint: (p) => (p.platform === "lc" ? "Hide it without marking it solved" : "Hide it. Use this for problems you've already solved, too.") },
@@ -53,6 +55,7 @@ export function RowMenu({ p, topicId, kinds }: { p: RowProblem; topicId: string;
           <span className="font-medium">{LABELS.neededHelp}</span>
           <span className="text-label text-ink-muted">It comes back in 3 days, not 7</span>
         </DropdownMenuItem>
+        <ProblemToolItems problem={refFromRec(p, url(p))} />
         {items.length > 0 && <DropdownMenuSeparator />}
         {items.map((f) => (
           <DropdownMenuItem

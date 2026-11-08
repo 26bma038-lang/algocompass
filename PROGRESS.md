@@ -20,6 +20,22 @@ Not released. Auto-updates, a revision queue, notes, "Stuck?" and a daily remind
 - **Where:** Practice → Today's problems gets a **Due for review** card first (up to 5, most overdue first; Open, **I solved it again**, **Still hard**); while one is due the mix's "Recommended next" tag steps aside so there's one primary button. Today's **Do this next** shows the most overdue review before anything else (`pickDoThisNext(mix, sheetNext, due)`). Every row's ⋯ menu has **I solved it, but needed help** (a LeetCode row also marks it solved; Codeforces ticks itself at the next update).
 - **Tests:** `revision.test.ts` (schedule, help, since, caps, review outcomes), `revisions.test.ts` (migration, records, manual solves in sql.js), `today.test.ts`.
 
+### Parts 3 and 4: notes and "Stuck?" (2026-11-09, one commit: they share every row)
+
+- **Notes reuse `sheet_notes`** (keyed by the canonical problem key, so a note on Two Sum is the same note from a sheet, Practice, a lesson or Practice this). **Migration `0008_note_titles.sql`** adds a `title` column so "Your notes" can list a note for a problem that's in no sheet; older notes look their title up in the sheets (`noteEntries`, `src/engine/notes.ts`).
+- **Where:** every problem row's ⋯ menu has **Add a note** and **Stuck?** (`ProblemToolItems`, `src/components/practice/ProblemTools.tsx`). Rows with no ⋯ of their own (lesson problems, Practice this, Codeforces rows) got a Stuck? icon and a ⋯ with the two items (`RowTools`); sheet rows keep their inline note box and gained the Stuck? icon; recommendation rows get a visible **Stuck?** button, and a solved row a note button, so "why I got WA" can be written after the solve. Both open from `useUiStore.openTool` into panels mounted once in the shell and loaded lazily (`ProblemPanels`, Radix Dialog like the shortcut sheet).
+- **Your notes:** Progress's third tab (`/progress/notes`): newest first, search over title and text (every word, any order), Edit opens the same panel. Empty state says how to add one.
+- **Stuck? is four steps, one per click, nothing generated** (`src/engine/stuck.ts`): (1) the problem's topics, from its real tags or its sheet section; (2) a verified video for the lead topic from the library, your language and unwatched first, opening the Watch page; (3) an easier unsolved problem on the topic from the five sheets and the path (closest below this one, home topic first, never Premium; an honest "none" for the easiest problems); (4) the platform's own pages: LeetCode `/editorial/` and `/solutions/`, Codeforces the round's page (the tutorial is linked there when the authors wrote one; we don't guess its blog id). Nothing is invented: a step with nothing real says so. Each step scrolls into view.
+- **Tests:** `stuck.test.ts`, `notes.test.ts`, the notes title round trip in `sheets.test.ts`, Progress tabs and the route.
+- **Screenshots:** `docs/audit-v1.7/stuck-notes/` (Stuck? with all four steps, the note panel, Your notes; Light and Dark, 1100x700, browser mode, a fresh beginner).
+
+### Part 5: daily reminder (2026-11-09)
+
+- Settings → Notifications → **Daily reminder** (toggle and "Remind me at", default **off**, 18:00 once on: a new notification shouldn't start by itself). It rides the existing scheduler: `buildSchedule` gets `daily` text and Rust fires it while the window sits in the tray, once a day (`daily:<date>`), up to 3 h late if the app was closed at the set time, never past midnight.
+- **Text** = Today's "Do this next" (`pickDoThisNext`): a due review ("Time to review: <title> on LeetCode. Solved 8 days ago…"), else today's first unsolved problem, else the followed sheet's next ("Today's next problem: <title> on <site>."). **Nothing** is sent when all of today's goals are done, when there is nothing to name, or before the data it reads has loaded (`useDailyReminderText`, `src/data/desktopBridge.ts`). The schedule is re-pushed every 10 minutes and on any change, so solving the problem changes or withdraws it before it fires. A Debug preview profile never reaches the OS (existing rule).
+- Beginner mode: there is no problem mix, so it only names a due review or the followed sheet's next; no lesson text yet.
+- **Tests:** `notifications.test.ts` (set time, review wording, off / done / not-ready, grace, midnight, fires once).
+
 ## v1.6, full playlists and Practice this (released as v1.6.0 on 2026-11-09)
 
 Released. A learner gets whole YouTube playlists (every video, in order) instead of a few videos picked from each.

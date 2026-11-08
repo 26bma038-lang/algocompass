@@ -13,7 +13,7 @@ import { useMarkSolved, useTodayQuests } from "@/data/quests";
 import { useMixOfTheDay } from "@/data/recommendations";
 import { useDueRevisions, useReviewRevision } from "@/data/revisions";
 import { solvedAgoWords } from "@/engine/revision";
-import { revisionUrl } from "@/components/practice/ReviewCard";
+import { revisionUrl } from "@/components/practice/revisionText";
 import { usePrefs } from "@/data/prefs";
 import { isSheetId, openTarget, useSheet } from "@/data/sheets";
 import type { CfRatingChange, CfUser, Contest } from "@/data/types";

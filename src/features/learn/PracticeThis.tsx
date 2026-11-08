@@ -14,6 +14,8 @@ import { difficultyRank, mustDo, namedProblem, topicProblemCount, videoTopic, ty
 import { problemStatus, type ProblemStatus, type SheetProblem } from "@/engine/sheets";
 import { TOPIC_BY_ID } from "@/engine/topics";
 import type { CfProblem } from "@/data/types";
+import { RowTools } from "@/components/practice/ProblemTools";
+import { refFromSheet } from "@/engine/problemRef";
 import { OpenButton, topicName } from "@/features/sheets/parts";
 import { LABELS, onSheets, solvedBy } from "@/lib/glossary";
 import { cn } from "@/lib/utils";
@@ -122,6 +124,7 @@ function Row({ pick, sheetCount, status, onTick }: { pick: MustDoPick; sheetCoun
       </span>
       <SolvedButton p={p} status={status} onTick={onTick} />
       <OpenButton problem={p} withSite className="w-44" />
+      <RowTools problem={refFromSheet(p, openTarget(p)?.url ?? null)} done={status.done} />
     </li>
   );
 }
@@ -147,6 +150,7 @@ function CfRow({ p, solvedCount, status, onTick }: { p: SheetProblem; solvedCoun
       </span>
       <SolvedButton p={p} status={status} onTick={onTick} />
       <OpenButton problem={p} withSite className="w-44" />
+      <RowTools problem={refFromSheet(p, openTarget(p)?.url ?? null)} done={status.done} />
     </li>
   );
 }

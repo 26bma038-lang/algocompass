@@ -521,20 +521,20 @@ export class Repo {
     }
   }
 
-  async getSheetNotes(): Promise<{ key: string; body: string; updatedAt: number }[]> {
-    return this.db.select('SELECT problem_key AS "key", body, updated_at AS "updatedAt" FROM sheet_notes');
+  async getSheetNotes(): Promise<{ key: string; body: string; updatedAt: number; title: string | null }[]> {
+    return this.db.select('SELECT problem_key AS "key", body, updated_at AS "updatedAt", title FROM sheet_notes');
   }
 
   /** Saves a note; an empty one is deleted. */
-  async saveSheetNote(key: string, body: string, now: number) {
+  async saveSheetNote(key: string, body: string, now: number, title: string | null = null) {
     if (!body.trim()) {
       await this.db.execute("DELETE FROM sheet_notes WHERE problem_key = $1", [key]);
       return;
     }
     await this.db.execute(
-      `INSERT INTO sheet_notes (problem_key, body, updated_at) VALUES ($1, $2, $3)
-       ON CONFLICT(problem_key) DO UPDATE SET body = excluded.body, updated_at = excluded.updated_at`,
-      [key, body, now],
+      `INSERT INTO sheet_notes (problem_key, body, updated_at, title) VALUES ($1, $2, $3, $4)
+       ON CONFLICT(problem_key) DO UPDATE SET body = excluded.body, updated_at = excluded.updated_at, title = COALESCE(excluded.title, sheet_notes.title)`,
+      [key, body, now, title],
     );
   }
 

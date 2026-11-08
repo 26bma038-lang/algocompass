@@ -1,21 +1,13 @@
 import { ExternalLink } from "lucide-react";
-import { cfProblemUrl, lcProblemUrl } from "@/adapters/links";
 import { CardHeader } from "@/components/CardHeader";
 import { Button } from "@/components/ui/button";
-import { useReviewRevision, useDueRevisions } from "@/data/revisions";
+import { useDueRevisions, useReviewRevision } from "@/data/revisions";
+import { refFromDue } from "@/engine/problemRef";
 import { solvedAgoWords, type DueRevision } from "@/engine/revision";
 import { LABELS } from "@/lib/glossary";
 import { openExternal } from "@/lib/openExternal";
-
-/** Where a due problem opens ("cf:1850-A" → its Codeforces page); null for ids with no page. */
-export function revisionUrl(d: Pick<DueRevision, "platform" | "problemId">): string | null {
-  if (d.platform === "lc") return lcProblemUrl(d.problemId);
-  const m = /^(\d+)-(.+)$/.exec(d.problemId);
-  return m ? cfProblemUrl(Number(m[1]), m[2]!) : null;
-}
-
-/** "Due today" / "Due 3 days ago" for the row's second line. */
-export const dueWords = (d: Pick<DueRevision, "overdueDays">) => (d.overdueDays === 0 ? "Due today" : d.overdueDays === 1 ? "Due yesterday" : `Due ${d.overdueDays} days ago`);
+import { StuckButton } from "./ProblemTools";
+import { dueWords, revisionUrl } from "./revisionText";
 
 export function RevisionRow({ d, primary = false }: { d: DueRevision; primary?: boolean }) {
   const review = useReviewRevision();
@@ -37,6 +29,7 @@ export function RevisionRow({ d, primary = false }: { d: DueRevision; primary?: 
           <ExternalLink aria-hidden />
         </Button>
       )}
+      <StuckButton problem={refFromDue(d, href)} />
       <Button variant="ghost" size="sm" disabled={review.isPending} onClick={() => review.mutate({ due: d, stillHard: false })} aria-label={`${LABELS.solvedAgain}: ${d.title}`}>
         {LABELS.solvedAgain}
       </Button>
@@ -53,12 +46,7 @@ export function ReviewCard() {
   if (due.length === 0) return null;
   return (
     <section aria-labelledby="review-title" className="glass-card flex flex-col gap-4 p-6">
-      <CardHeader
-        id="review-title"
-        title={LABELS.dueForReview}
-        description="Problems you solved a while ago. Doing one again is how it sticks."
-        pill={`${due.length} due`}
-      />
+      <CardHeader id="review-title" title={LABELS.dueForReview} description="Problems you solved a while ago. Doing one again is how it sticks." pill={`${due.length} due`} />
       <ul className="-mx-3 flex flex-col">
         {due.map((d, i) => (
           <RevisionRow key={d.key} d={d} primary={i === 0} />
