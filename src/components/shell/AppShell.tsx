@@ -6,6 +6,7 @@ import { AmbientBackground } from "./AmbientBackground";
 import { Sidebar } from "./Sidebar";
 import { TitleBar } from "./TitleBar";
 import { PreviewBanner } from "./PreviewBanner";
+import { UpdateBanner } from "./UpdateBanner";
 import { TopBar } from "./TopBar";
 import { useShortcuts } from "./useShortcuts";
 import { Toaster } from "@/components/ui/sonner";
@@ -78,6 +79,7 @@ function MainShell() {
         <AmbientBackground />
         <TitleBar />
         <PreviewBanner />
+        <UpdateBanner />
         <div className="relative z-10 flex min-h-0 flex-1">
           <Sidebar />
           <main className="flex min-w-0 flex-1 flex-col">

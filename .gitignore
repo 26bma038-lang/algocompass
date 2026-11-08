@@ -49,3 +49,4 @@ tmp/
 
 # Local Claude Code settings (machine-specific permissions and paths)
 .claude/settings.local.json
+release-out/
