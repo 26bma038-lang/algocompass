@@ -40,6 +40,7 @@ Five screens with plain names, in this order in the sidebar (Ctrl+1 to Ctrl+5): 
 ### Learn: every video in one place
 - **Continue learning:** your current lesson, last video or playlist part, one click to resume.
 - **Playlists (new in v1.6):** whole YouTube courses and topic series, every video in order, in English and Hindi: Striver's A2Z, Graph, DP and Binary Search series, NeetCode, William Fiset, Abdul Bari, Kunal Kushwaha, Pepcoding, CodeHelp, Aditya Verma, Apna College, Luv, Gate Smashers and more (102 playlists, about 4,500 videos). A playlist opens where you left off, says "Part 12 of 56", and ticks each part as you watch it.
+- **Practice this (new in v1.6):** after every video, 3 to 5 must-do problems on its topic from the popular sheets, plus **Sharpen on Codeforces** with 2 problems in your rating window.
 - **The Beginner Path:** 14 steps from loops and complexity through arrays, strings, hashing, two pointers, sliding window, stacks and queues, binary search, recursion, linked lists, trees, graphs and greedy, to dynamic programming.
 - **The video library:** every single video, grouped by topic (your weakest first in Smart mode, by path step in Beginner mode), in English, Hindi or both, with search.
 - **Your coding language:** every video says what it codes in (Concept, C++, Java, Python). The library and playlists show yours plus concept videos by default; "All languages" is one click.
