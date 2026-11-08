@@ -23,6 +23,13 @@ export interface SheetProblem {
   /** Sub-section inside the section (A2Z's "FAQs (Medium)"), when the source has one. */
   sub?: string;
   difficulty: LcDifficulty | null;
+  /**
+   * v1.6: where `difficulty` comes from: LeetCode itself ("lc"), or the sheet creator's own level
+   * for a problem not on LeetCode ("sheet", takeUforward's basic / core / pro). Absent when null.
+   */
+  difficultyFrom?: "lc" | "sheet";
+  /** v1.6: the Codeforces problem rating, when Codeforces has one. */
+  rating?: number | null;
   /** Unified topic ids, the section's topic first. */
   topics: string[];
   /** LeetCode slug. */

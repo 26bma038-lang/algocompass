@@ -55,6 +55,18 @@ Not released. A learner gets whole YouTube playlists (every video, in order) ins
 - **Screenshots:** 20 in `docs/audit-v1.6/playlists/`, Light and Dark at 1100x700, browser mode, a fresh beginner: the Playlists card, a playlist at part 1, after three "I've watched it, next part" clicks, wandered to part 20 (Continue where I left off), Continue learning resuming the playlist, rows with progress, Hindi + All languages, a Java learner's "Java + concepts", filtered to Dynamic programming, and Today's goal rows on the new Row surface.
 - **Not done:** no release, no version bump, no merge.
 
+### Must-do problems after every video (v1.6, parts 6 to 9)
+
+After any video (a library video, a playlist part, a lesson's extra video) a "Practice this" card lists a few problems for its topic, easy to hard, picked by how many popular sheets list them.
+
+#### Part 6: difficulty data (2026-11-08)
+
+- **`npm run fill:difficulty`** (`scripts/fill-difficulty.mjs`) refreshes every sheet problem's difficulty from the platforms without downloading the sheets' sources again: LeetCode's difficulty from GraphQL (`difficultyFrom: "lc"`), the Codeforces rating from `problemset.problems` (`rating`). **`gen:sheets` writes the same fields** when it rebuilds; both use `scripts/lib/sheet-json.mjs` (`difficultyFields`, the file layout).
+- **Where a difficulty comes from is stored:** `difficultyFrom: "lc"` (LeetCode) or `"sheet"` (the creator's own level for a problem not on LeetCode: takeUforward's basic / core / pro, as before). Nothing is guessed; a problem nobody rates keeps `difficulty: null` and ranks last.
+- **Counts (900 distinct problems):** 336 with LeetCode's difficulty, 163 with the sheet's level (takeUforward-only problems), **401 with none** (370 GeeksforGeeks problems from Babbar 450, 25 other links, 6 with no link). The five sheets list **no Codeforces problems**, so no sheet problem has a rating; the Beginner Path's Codeforces problems already carry theirs (`fill:media`), and must-do uses them.
+- No LeetCode difficulty changed since the sheets were generated (2026-10-18).
+- **Checks:** `check:links` now requires LeetCode's exact difficulty on every LeetCode problem (it used to skip a missing one) with `difficultyFrom: "lc"`, the Codeforces rating on a Codeforces problem, and a source on every difficulty. `src/data/sheets.test.ts` checks the same offline.
+
 ## Released: v1.5.0, the language you code in (branch `v1.5`, from `polish`, merged to master)
 
 **Released as v1.5.0 (2026-11-07):** this branch and the v1.4 polish under it were merged into master; the version was bumped in package.json, tauri.conf.json, Cargo.toml and Cargo.lock. Tag `v1.5.0`, GitHub release with `AlgoCompass_1.5.0_x64-setup.exe` (4.3 MB) and `AlgoCompass_1.5.0_x64_en-US.msi` (5.7 MB). There's no Android build ("APK"): AlgoCompass is a Windows desktop app, so the release carries the Windows installers. The website wasn't touched (its Pages workflow only runs on changes under `website/`).

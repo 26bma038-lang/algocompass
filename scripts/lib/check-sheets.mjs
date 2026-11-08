@@ -1,7 +1,8 @@
 // Verifies the bundled sheets (src/data/sheets/*.json) against the platforms. Used by check-links.mjs.
 // - Structure: ids, sections, a key/title/topics on every problem, topics that exist in topics.json.
-// - LeetCode: every `lc` slug exists (question(titleSlug)), with the stored title and difficulty.
-// - Codeforces: every `cf` id ("1462-A") exists in problemset.problems, with the stored name.
+// - LeetCode: every `lc` slug exists (question(titleSlug)), with the stored title and difficulty
+//   (`difficultyFrom: "lc"`).
+// - Codeforces: every `cf` id ("1462-A") exists in problemset.problems, with the stored name and rating.
 // - --deep: also GETs every takeUforward practice link (they answer a real 404 for unknown slugs).
 import fs from "node:fs";
 import { cfProblemset, get, lcQuestions, pool } from "./platforms.mjs";
@@ -28,6 +29,10 @@ export async function checkSheets({ root, report, quiet, deep }) {
         if (!p.key || !p.title) fail(label, "missing key or title");
         if (!Array.isArray(p.topics) || !p.topics.length) fail(label, "no topics");
         for (const t of p.topics ?? []) if (!topicIds.has(t)) fail(label, `unknown topic "${t}"`);
+        // v1.6: a difficulty says where it came from; only a problem off LeetCode keeps the sheet's level.
+        if (p.difficulty && !["lc", "sheet"].includes(p.difficultyFrom)) fail(label, "difficulty without difficultyFrom");
+        if (!p.difficulty && p.difficultyFrom) fail(label, "difficultyFrom without a difficulty");
+        if (p.difficultyFrom === "sheet" && p.lc) fail(label, "a LeetCode problem must carry LeetCode's difficulty");
         all.push({ sheet, sec, p, label });
       }
     }
@@ -45,7 +50,8 @@ export async function checkSheets({ root, report, quiet, deep }) {
     if (!m) issues.push(`LeetCode has no problem "${p.lc}"`);
     else {
       if (m.title !== p.title) issues.push(`LeetCode title is "${m.title}"`);
-      if (p.difficulty && m.difficulty !== p.difficulty) issues.push(`LeetCode difficulty is ${m.difficulty}`);
+      if (m.difficulty !== p.difficulty) issues.push(`LeetCode difficulty is ${m.difficulty}`);
+      if (p.difficultyFrom !== "lc") issues.push(`difficultyFrom is ${p.difficultyFrom ?? "missing"}, not "lc" (run npm run fill:difficulty)`);
       if (!!m.isPaidOnly !== !!p.premium) issues.push(m.isPaidOnly ? "premium on LeetCode but not marked" : "marked premium but free");
     }
     if (issues.length) fail(label, issues.join("; "));
@@ -61,6 +67,7 @@ export async function checkSheets({ root, report, quiet, deep }) {
       const m = cf.get(p.cf);
       if (!m) fail(label, `Codeforces has no problem ${p.cf}`);
       else if (m.name !== p.title) fail(label, `Codeforces name is "${m.name}"`);
+      else if ((m.rating ?? null) !== (p.rating ?? null)) fail(label, `Codeforces rating is ${m.rating ?? "none"} (run npm run fill:difficulty)`);
       else cfOk++;
     }
     if (!quiet) console.log(`ok    ${cfOk}/${cfRows.length} sheet Codeforces ids match problemset.problems`);

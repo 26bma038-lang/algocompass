@@ -23,6 +23,12 @@ describe("bundled sheet data", () => {
         for (const t of p.topics) expect(TOPIC_BY_ID.has(t), `${id}: ${p.title} topic ${t}`).toBe(true);
         if (p.lc) expect(p.key).toBe(`lc:${p.lc}`);
         if (p.difficulty !== null) expect(["Easy", "Medium", "Hard"]).toContain(p.difficulty);
+        // v1.6 (npm run fill:difficulty): every difficulty says where it came from, and a LeetCode
+        // problem always carries LeetCode's own.
+        if (p.lc) expect(p.difficultyFrom, `${id}: ${p.title}`).toBe("lc");
+        else if (p.difficulty !== null) expect(p.difficultyFrom, `${id}: ${p.title}`).toBe("sheet");
+        else expect(p.difficultyFrom).toBeUndefined();
+        if (p.rating != null) expect(p.cf, `${id}: ${p.title} has a rating but no Codeforces id`).toBeTruthy();
       }
     }
   });

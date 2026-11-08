@@ -15,6 +15,7 @@ import fs from "node:fs";
 import zlib from "node:zlib";
 import { fileURLToPath } from "node:url";
 import { cfProblemset, get, lcQuestions } from "./lib/platforms.mjs";
+import { difficultyFields, sheetJson } from "./lib/sheet-json.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const OUT_DIR = `${root}src/data/sheets`;
@@ -396,7 +397,6 @@ const cfIds = loaded.flatMap((s) => s.sections.flatMap((sec) => sec.problems.fla
 const cf = cfIds.length ? await cfProblemset() : new Map();
 if (cfIds.length) console.log(`Verified against ${cf.size} Codeforces problemset problems`);
 
-const LEVEL = { basic: "Easy", core: "Medium", pro: "Hard", Easy: "Easy", Medium: "Medium", Hard: "Hard" };
 
 for (const s of loaded) {
   for (const sec of s.sections) {
@@ -466,7 +466,8 @@ for (const s of loaded) {
         title: p.lcMeta?.title ?? p.cfMeta?.name ?? p.title,
       };
       if (p.sub) out.sub = p.sub;
-      out.difficulty = p.lcMeta?.difficulty ?? LEVEL[p.level] ?? null;
+      // v1.6: LeetCode's difficulty, else the sheet's own level, plus the Codeforces rating.
+      Object.assign(out, difficultyFields({ lcMeta: p.lcMeta, cfMeta: p.cfMeta, level: p.level }));
       out.topics = topicIds;
       if (p.lc) out.lc = p.lc;
       if (p.cf) out.cf = p.cf;
@@ -496,11 +497,7 @@ for (const s of loaded) {
     sections,
   };
   // One problem per line keeps diffs readable.
-  const head = JSON.stringify({ ...doc, sections: undefined }, null, 2).replace(/\n}$/, "");
-  const body = sections
-    .map((sec) => `    {\n      "title": ${JSON.stringify(sec.title)},\n      "problems": [\n${sec.problems.map((p) => `        ${JSON.stringify(p)}`).join(",\n")}\n      ]\n    }`)
-    .join(",\n");
-  fs.writeFileSync(`${OUT_DIR}/${s.id}.json`, `${head},\n  "sections": [\n${body}\n  ]\n}\n`);
+  fs.writeFileSync(`${OUT_DIR}/${s.id}.json`, sheetJson(doc));
   const withLc = sections.reduce((n, x) => n + x.problems.filter((p) => p.lc).length, 0);
   console.log(`Wrote ${s.id}.json: ${total} problems in ${sections.length} sections, ${withLc} on LeetCode, status ${doc.status}`);
   for (const n of sheetNotes) console.log(`  note: ${n}`);
