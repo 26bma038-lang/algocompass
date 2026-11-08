@@ -25,8 +25,8 @@ export const SCREENS = {
     to: "/learn",
     label: "Learn",
     icon: GraduationCap,
-    description: "Full YouTube playlists and videos for every topic, weakest first, and the Beginner Path",
-    beginnerDescription: "The Beginner Path's lessons, full YouTube playlists and a video for every topic",
+    description: "Full playlists, videos for every topic and the Beginner Path",
+    beginnerDescription: "The Beginner Path's lessons, full playlists and videos for every topic",
   },
   practice: {
     to: "/practice",

@@ -2,9 +2,9 @@
 
 **Website: [26bma038-lang.github.io/algocompass](https://26bma038-lang.github.io/algocompass/)**
 
-**Your competitive programming compass: one desktop app for Codeforces and LeetCode that finds your weak topics, tells you what to solve next, and keeps your streak alive. New to DSA? It teaches you step by step, with video lessons in English or Hindi. Following Striver's A2Z or NeetCode 150? It ticks your progress for you.**
+**Your competitive programming compass: one desktop app for Codeforces and LeetCode that finds your weak topics, tells you what to solve next, and keeps your streak alive. New to DSA? It teaches you step by step, with video lessons in English or Hindi, in the language you code in. Following Striver's A2Z or NeetCode 150? It ticks your progress for you.**
 
-![AlgoCompass: Today](docs/screenshots/today.png)
+![AlgoCompass: Today](docs/screenshots/v1.5/today-dark.png)
 
 **[Download for Windows](https://github.com/26bma038-lang/algocompass/releases/latest)** · **[Website](https://26bma038-lang.github.io/algocompass/)** · Windows 10/11 · free · no account needed
 
@@ -18,41 +18,93 @@ I practice on two sites. LeetCode is where I *learn* a topic (clean problems, go
 
 AlgoCompass answers those in a two-second glance, from the tray, without logins or uploads. The Codeforces rating climb is the goal; LeetCode is the classroom.
 
-## New in v1.3: start learning, or follow a sheet
+## Two modes
 
-**New to DSA?** Pick "Yes, I'm new" on the first screen and you're on Step 1 in under a minute. No handles are needed and there's nothing to decide.
+On the first screen, answer **"New to DSA?"**. You can switch any time in Settings.
 
-![Today in Beginner mode: Start here](docs/screenshots/v1.3/today-beginner-dark.png)
-
-- **The Beginner Path:** 14 steps in order, from loops and complexity through arrays, strings, hashing, two pointers, sliding window, stacks and queues, binary search, recursion, linked lists, trees, graphs (BFS/DFS) and greedy, to dynamic programming. Each step is a lesson:
-  - **Watch:** a 10–25 minute video in **English or Hindi**, played inside the app.
-  - **Read:** the pattern in five lines: when to use it, the idea, common mistakes.
-  - **Solve:** a few easy problems.
-  Watch the main video and solve the required problems to unlock the next step.
-- **Sheets:** follow **Striver's A2Z**, **Striver's SDE Sheet**, **NeetCode 150**, **Blind 75** or **Love Babbar's DSA 450**, in their original order and sections.
-  - **Ticking:** problems you solve on LeetCode or Codeforces tick themselves, in every sheet that lists them. Anything you solved elsewhere (GFG, takeUforward, Code360) is one click.
-  - **Bulk import:** "Mark sections done" catches you up if you're already halfway through.
-  - **Next in this sheet:** picks the next problem in order, leaning toward your weak topics.
-  - **Notes:** private notes per problem, searchable.
-- **Learn, one place for every lesson:** a **Learn** screen in the sidebar (Ctrl+2 for beginners, Ctrl+3 in smart mode) with:
-  - **Continue learning:** your current lesson or last video, one click to resume;
-  - **the Beginner Path** roadmap (done, current, locked);
-  - **the video library:** every video, grouped by topic, in English, Hindi or both, with lengths, channels and ✓ watched. Your weakest topics come first in smart mode;
-  - **search** across topics, titles and channels.
-  A lesson opens in **focus mode**: a big video, then Watch → Read → Solve with checkmarks, and one **Next** button that walks you through it (watched → read → open the first problem → solved → … → next step). Topic Detail ("Watch lessons"), every sheet section ("Learn this topic") and Ctrl+K ("Watch <topic> videos") all link straight to a topic's videos.
-- **Video lessons:** every topic has verified videos (intro, full lecture, problem walkthrough) in English and Hindi, from takeUforward, NeetCode, Errichto, William Fiset, Abdul Bari, CodeHelp, Aditya Verma, Apna College, Luv and others. They play in the app through YouTube's privacy-enhanced player, and you can mark each one watched.
+- **Yes, I'm new (Beginner mode):** you're on Step 1 of the **Beginner Path** in under a minute. No handles needed. Pick the video language (English or Hindi) and the language you code in (C++, Java, Python or JavaScript).
+- **No, I already practise (Smart mode):** enter your Codeforces handle (and optionally your LeetCode username). Both are checked against the sites, then the first update takes about a minute.
 
 | | |
 |---|---|
-| ![Learn: Continue learning and the Beginner Path](docs/screenshots/v1.3/learn/learn-beginner-light.png) | ![A lesson in focus mode, with the Next bar](docs/screenshots/v1.3/learn/lesson-start-dark.png) |
-| ![The video library, weakest topics first](docs/screenshots/v1.3/learn/learn-library-smart-dark.png) | ![Solve, with one Next button](docs/screenshots/v1.3/learn/lesson-solve-light.png) |
-| ![Sheets](docs/screenshots/v1.3/sheets-light.png) | ![Striver's A2Z with Next in this sheet](docs/screenshots/v1.3/sheet-dark.png) |
+| ![Welcome: New to DSA?](docs/screenshots/v1.5/welcome-light.png) | ![Today in Beginner mode](docs/screenshots/v1.5/today-beginner-dark.png) |
 
-**Already practising?** Pick "No" and AlgoCompass is the Codeforces + LeetCode tracker it always was, with the sheets in Practice and every video in Learn. Switch between the two modes any time in Settings.
+## The screens
 
-**In Beginner mode** the sidebar is Today · Learn · Practice · Progress. Contests joins it, marked "New", once you finish the Recursion step: that's when you're ready for your first contest.
+Five screens with plain names, in this order in the sidebar (Ctrl+1 to Ctrl+5): **Today · Learn · Practice · Progress · Contests**, plus **Settings** (Ctrl+,). In Beginner mode, Contests joins the sidebar, marked "New", once you finish the Recursion step: that's when you're ready for your first contest.
 
-### Sheet credits
+### Today: what do I do today?
+- **Smart mode:** three cards. **Do this next** is one problem to open right now (the first unsolved of today's problems, then your sheet's next one). **Today's goals** are three small goals that tick themselves when an update sees the accepted submission. The **rating card** shows your Codeforces rating in your real rank colour, the distance to the next rank, and the next round.
+- **Beginner mode:** one **Do this next** card with the exact next lesson action ("Watch the video (15 min)", "Solve problem 2 of 3: Running Sum"), beside today's goals. Nothing else.
+
+### Learn: every video in one place
+- **Continue learning:** your current lesson, last video or playlist part, one click to resume.
+- **Playlists (new in v1.6):** whole YouTube courses and topic series, every video in order, in English and Hindi: Striver's A2Z, Graph, DP and Binary Search series, NeetCode, William Fiset, Abdul Bari, Kunal Kushwaha, Pepcoding, CodeHelp, Aditya Verma, Apna College, Luv, Gate Smashers and more (102 playlists, about 4,500 videos). A playlist opens where you left off, says "Part 12 of 56", and ticks each part as you watch it.
+- **The Beginner Path:** 14 steps from loops and complexity through arrays, strings, hashing, two pointers, sliding window, stacks and queues, binary search, recursion, linked lists, trees, graphs and greedy, to dynamic programming.
+- **The video library:** every single video, grouped by topic (your weakest first in Smart mode, by path step in Beginner mode), in English, Hindi or both, with search.
+- **Your coding language:** every video says what it codes in (Concept, C++, Java, Python). The library and playlists show yours plus concept videos by default; "All languages" is one click.
+
+| | |
+|---|---|
+| ![Learn](docs/screenshots/v1.5/learn-light.png) | ![Playlists](docs/screenshots/v1.5/learn-playlists-dark.png) |
+| ![A playlist: Part N of M, where you left off](docs/screenshots/v1.5/playlist-dark.png) | ![Learn in Beginner mode](docs/screenshots/v1.5/learn-beginner-dark.png) |
+
+**A lesson** opens in focus mode: a big video that explains the idea, then **Read** (the pattern in five lines plus a code template in all four languages, yours first), **Code it in <your language>** (a verified walkthrough in your language, or an honest "none yet" with the closest one), and **Solve** (a few easy problems). One **Next** button walks you through it: I've watched the video → I've read it → Open problem 1 of 3 → I solved it → … → Next step. Watch the main video and solve the required problems to unlock the next step.
+
+| | |
+|---|---|
+| ![A lesson in focus mode](docs/screenshots/v1.5/lesson-beginner-dark.png) | ![The same lesson in Light](docs/screenshots/v1.5/lesson-beginner-light.png) |
+
+### Practice: what to solve
+- **Today's problems (Smart mode):** 3 Codeforces problems for your weakest topics, rated just above your rating, and 2 LeetCode problems for the topic you're learning. The one to do now is marked "Recommended next". Each row's ⋯ menu has Skip, Too easy, Too hard (they move that topic's difficulty window) and I solved it. **Problems you tried** lists problems you attempted and never got accepted; **More by topic** is folded below.
+- **Sheets:** follow **Striver's A2Z**, **Striver's SDE Sheet**, **NeetCode 150**, **Blind 75** or **Love Babbar's DSA 450**, in their original order and sections. Problems you solve on LeetCode or Codeforces tick themselves in every sheet that lists them; anything you solved elsewhere is one click. "I've already done some" catches you up if you're halfway through. **Next in this sheet** picks the next problem, and every section has "Learn this topic".
+- **Problems from your lessons (Beginner mode):** the problems from the steps you've reached, with a card to follow a popular sheet when you want more.
+
+| | |
+|---|---|
+| ![Today's problems](docs/screenshots/v1.5/practice-dark.png) | ![Striver's A2Z with Next in this sheet](docs/screenshots/v1.5/sheet-light.png) |
+
+### Progress: how you're growing
+Two tabs:
+- **Overview:** your rating chart against the rank bands, your level and XP, weekly goals as meters ("3 of 10, 7 to go"), the weekly review, your activity, LeetCode, badges and where you stand. "Continue today's practice" takes you back to doing.
+- **Topics:** all 33 topics in plain words, weakest first, each with its strength (0–100) and why. **Show as map** draws them on a prerequisite graph. **Badges** has 31 of them across consistency, Codeforces, LeetCode, topics and fun. Rank promotions get a short "Aura Shift" moment; there's no confetti, ever.
+
+Open any topic for its panel: where its strength comes from (Codeforces vs LeetCode), what you've solved and what's still open, recommended problems, curated resources, and two videos with **Watch lessons**.
+
+| | |
+|---|---|
+| ![Progress overview](docs/screenshots/v1.5/progress-dark.png) | ![Topics, weakest first](docs/screenshots/v1.5/topics-light.png) |
+| ![Topics as a map](docs/screenshots/v1.5/topics-map-dark.png) | ![Badges](docs/screenshots/v1.5/badges-dark.png) |
+
+### Contests
+Upcoming Codeforces rounds first, with LeetCode weekly and biweekly contests below. Each shows a countdown, local start time, duration and division, plus Register. "I'll attend" sets Windows reminders 1 hour and 10 minutes before. Past rounds show your rank, problems solved and rating change.
+
+![Contests](docs/screenshots/v1.5/contests-dark.png)
+
+### Ctrl+K, everywhere
+A search box for every screen, topic and action: jump to a topic, watch a topic's videos, update, open today's problems or the next contest. Ctrl+R updates and `?` lists every shortcut.
+
+![Search (Ctrl+K)](docs/screenshots/v1.5/palette-dark.png)
+
+### Settings
+Your handles, the mode (Beginner or Smart), **Language** (video language and "I code in"), the theme, weekly goals, a toggle per notification with the evening reminder time, and launch on Windows startup.
+
+![Settings](docs/screenshots/v1.5/settings-light.png)
+
+### Light and Dark
+**System** (the default) follows your Windows light/dark setting and switches with it; you can also pin **Light** or **Dark**. Both are contrast-checked to WCAG AA, including the Codeforces rank colours, which stay on the things they belong to: your rating, your rank and your progress to the next rank.
+
+| Light | Dark |
+|---|---|
+| ![Light theme](docs/screenshots/v1.5/today-light.png) | ![Dark theme](docs/screenshots/v1.5/today-dark.png) |
+
+### On the desktop
+- Lives in the system tray, with today's goals and links to each screen in the tray menu.
+- Can launch on Windows startup, minimized.
+- Windows notifications fire even while the window is hidden: contest reminders, an evening "streak at risk" nudge, and goal completions.
+- Works offline from a local cache, and stale data is marked as stale.
+
+### Sheet and video credits
 
 The sheets belong to their creators. AlgoCompass only links to them and tracks your progress:
 - **Striver's A2Z DSA Sheet** and **Striver's SDE Sheet** by Striver (Raj Vikramaditya), [takeUforward](https://takeuforward.org/prep-hub/strivers-a2z-dsa-sheet).
@@ -60,97 +112,20 @@ The sheets belong to their creators. AlgoCompass only links to them and tracks y
 - **Blind 75** by Yangshun Tay, from the [original Blind post](https://www.teamblind.com/post/New-Year-Gift---Curated-List-of-Top-75-LeetCode-Questions-to-Save-Your-Time-OaM1orEU) (2018).
 - **DSA 450** by [Love Babbar](https://drive.google.com/file/d/1FMdN_OCfOI0iAeDlqswCiC2DZzD4nPsb/view).
 
-Each sheet is built from its creator's own published list by `npm run gen:sheets`. Every LeetCode and Codeforces link is verified against the platforms, and every sheet in the app shows "Sheet by …" with a link to the original. Videos are embedded from YouTube and never downloaded or rehosted.
-
-#### Features
-
-Five screens with plain names: **Today, Practice, Learn, Progress, Contests**, plus Settings. A short tip tour shows you around on first launch (beginners start with Learn).
-
-![The tip tour](docs/screenshots/tour.png)
-
-### Today: the daily check-in
-Answers "what do I do today?" at a glance:
-- **At the top:** today's three quests with your streak, beside today's mix (the problems to open right now).
-- **The hero:** your Codeforces rating in your real rank colour, a rating sparkline, progress to the next rank, and a countdown to the next round.
-- **Below:** the topic to work on next, LeetCode, your activity heatmap, where you stand, and the later contests.
-
-### Practice: what to solve
-Practice has tabs: **Today's mix** and **Sheets** (and the **Beginner Path** first, in Beginner mode).
-- **Today's mix:** 3 Codeforces problems, one for each of your weakest topics, rated just above your rating. Plus 2 LeetCode problems for the next topic you're learning.
-- **Upsolve:** problems you tried and never got accepted, and problems you didn't solve in a recent contest.
-- **By topic:** every weak topic with its own problems.
-
-Feedback (Skip / Too easy / Too hard) moves a topic's difficulty window up or down. Quests are picked from the mix and check themselves off when a sync sees the accepted submission.
-
-![Practice](docs/screenshots/practice.png)
-
-### Progress: how you're growing
-Three tabs:
-- **Overview:** your full rating chart against the rank bands, your level and XP, weekly goals with progress rings, and a weekly review every Sunday.
-- **Topics map:** 33 topics on a prerequisite graph (built with React Flow). Each node has a mastery ring scored 0–100 from your own solves. Topics unlock as their prerequisites reach Developing. The three most urgent ones lead as "Work on next" tiles, each with its reason.
-- **Achievements:** your level and title (Novice Coder → Pattern Hunter → Algorithm Smith…), plus 31 achievements across Consistency, Codeforces, LeetCode, Topics and Fun. Locked ones show your progress, e.g. "Best streak 13/30". Rank promotions get a short "Aura Shift" moment; there's no confetti, ever.
-
-![Progress overview](docs/screenshots/progress.png)
-
-![Topics map](docs/screenshots/topics-map.png)
-
-![Achievements](docs/screenshots/achievements.png)
-
-### Topic Detail
-Open any topic to see its strength and where it comes from (Codeforces vs LeetCode), hardest solve, struggle rate, what you've solved and what's still open. It also lists recommended problems (LeetCode to learn, Codeforces to sharpen) and curated resources (CP-Algorithms, USACO Guide, NeetCode, CSES and more).
-
-![Topic Detail](docs/screenshots/topic.png)
-
-### Contests
-Upcoming Codeforces rounds come first, with LeetCode weekly and biweekly contests below them. Each shows a countdown, local start time, duration and division, plus a Register button. Mark "I'll attend" to get Windows reminders 1 hour and 10 minutes before. Past rounds show your rank, problems solved and rating change.
-
-![Contests](docs/screenshots/contests.png)
-
-### Ctrl+K, everywhere
-A command palette to jump to any screen or topic, sync, or open today's mix or the next contest, all from the keyboard. Ctrl+1–5 switch screens (in sidebar order), Ctrl+R syncs and `?` lists every shortcut.
-
-![Command palette](docs/screenshots/palette.png)
-
-### Settings
-- Your handles and the theme.
-- Weekly goals: Codeforces problems, LeetCode problems and contests per week.
-- A toggle for each notification, with the evening reminder time.
-- Launch on Windows startup.
-
-![Settings](docs/screenshots/settings.png)
-
-### Light and Dark
-**System** (the default) follows your Windows light/dark setting and switches with it; you can also pin **Light** or **Dark**. Both are contrast-checked to WCAG AA, including the Codeforces rank colours, which stay on the things they belong to: your rating, your rank and your progress to the next rank.
-
-| Light | Dark |
-|---|---|
-| ![Light theme](docs/screenshots/theme-light.png) | ![Dark theme](docs/screenshots/theme-dark.png) |
-
-# Desktop
-- Lives in the system tray, with a tray menu showing today's quest progress and links to each screen.
-- Can launch on Windows startup, minimized.
-- Windows notifications fire even while the window is hidden: contest reminders, an evening "streak at risk" nudge, and quest completions.
-- Works offline from a local cache, and stale data is marked as stale.
-
-### First launch
-Answer "New to DSA?" and pick the lesson video language (English or Hindi).
-- **Yes:** you start on the Beginner Path right away. A LeetCode username (optional) lets lesson problems tick themselves.
-- **No:** enter your Codeforces handle (required) and LeetCode username (optional). Both are checked against the sites before the first sync starts, which takes about a minute.
-
-![Welcome screen](docs/screenshots/v1.3/welcome-light.png)
+Each sheet is built from its creator's own published list by `npm run gen:sheets`, and every sheet in the app shows "Sheet by …" with a link to the original. Videos and playlists belong to their channels: they're embedded from YouTube (privacy-enhanced player) and never downloaded or rehosted. Every video and playlist is checked against YouTube before a release.
 
 ## How it works
 
 ```
 Codeforces API ─┐                       ┌─ topic engine ─┐
                 ├─ adapters ─ SQLite ───┤                ├─ recommender ─ screens
-LeetCode GQL ───┘   (normalize)  (cache)└─ quests / XP ──┘
+LeetCode GQL ───┘   (normalize)  (cache)└─ goals / XP ───┘
 ```
 
 1. **Adapters** (`src/adapters`) are the only code that talks to the platforms. They turn Codeforces and LeetCode responses into shared domain types, so nothing else knows either site's response format.
-2. **Sync** stores everything in a local **SQLite** database:
-   - It runs on start, every 2 hours, or on demand.
-   - It's incremental: new submissions only, and the Codeforces problemset is cached for 24 hours.
+2. **Updates** store everything in a local **SQLite** database:
+   - On start, every 2 hours, or on demand (the Update button, Ctrl+R).
+   - Incremental: new submissions only, and the Codeforces problemset is cached for 24 hours.
    - Each platform fails independently.
 3. **The topic engine** (`src/engine`, pure TypeScript, unit-tested) maps 38 Codeforces tags and 75 LeetCode tags onto 33 unified topics and scores each one 0–100:
    - **Codeforces solves** are weighted by the problem's rating relative to yours: 1× at your rating, ×2 for every +300, clamped to 0.2–4×.
@@ -159,9 +134,9 @@ LeetCode GQL ───┘   (normalize)  (cache)└─ quests / XP ──┘
    - **Struggle:** a topic loses up to 30% for struggle (the share of your judged Codeforces submissions there that weren't accepted).
    - **Mastered** additionally needs a solve at or above your rating.
 4. **The recommender** ranks topics by *how often they appear at your rating × weakness² × staleness*.
-   - A topic stays in **Learn** mode (LeetCode, a curated Easy → Medium path) until you have 5 solves in it.
-   - After that it's in **Sharpen** mode: unsolved Codeforces problems rated between your rating and +200, recent rounds first.
-5. **Screens** render it all (React, TanStack Query over the cache), and quests, XP and achievements are derived from the same history.
+   - A topic is in **learn** mode (LeetCode, a curated Easy → Medium path) until you have 5 solves in it.
+   - After that it's in **sharpen** mode: unsolved Codeforces problems rated between your rating and +200, recent rounds first.
+5. **Screens** render it all (React, TanStack Query over the cache), and goals, XP and badges are derived from the same history.
 
 **About LeetCode:** LeetCode has no public API, so AlgoCompass uses its **unofficial GraphQL endpoint** (the same one leetcode.com uses). It's isolated behind a single adapter that validates every field and fails soft. If LeetCode changes or blocks it, LeetCode data goes stale and everything else keeps working. LeetCode also only exposes your 20 most recent accepted solves, so older ones can be marked solved by hand.
 
@@ -169,7 +144,7 @@ LeetCode GQL ───┘   (normalize)  (cache)└─ quests / XP ──┘
 
 1. Download the `AlgoCompass_…_x64-setup.exe` installer (or the `.msi`) from the **[latest release](https://github.com/26bma038-lang/algocompass/releases/latest)**.
 2. Run it. The app isn't code-signed, so Windows SmartScreen will warn: click **More info → Run anyway**.
-3. Enter your Codeforces handle (and optionally your LeetCode username) on the welcome screen.
+3. Answer "New to DSA?" on the welcome screen.
 
 Requires Windows 10 or 11 with the WebView2 runtime. It's already on Windows 11, and the installer fetches it on Windows 10 if needed.
 
@@ -192,19 +167,21 @@ Use PowerShell (or cmd), not Git Bash, for the Tauri and Cargo commands. Git Bas
 
 `npm run dev` also serves the UI in a plain browser. It uses an in-memory SQLite (sql.js) there and proxies LeetCode through Vite, which is handy for UI work.
 
-### Running tests
+### Tests and data scripts
 
 ```powershell
-npm test               # type-check + unit tests (Vitest)
-$env:CF_HANDLE="tourist"; $env:LC_HANDLE="<username>"; npm run test:live   # full sync against the real APIs
-npm run check:links    # verify every link: articles, sheet problems (LeetCode + Codeforces) and every video
+npm test               # migrations line endings, type-check + unit tests (Vitest)
+$env:CF_HANDLE="tourist"; $env:LC_HANDLE="<username>"; npm run test:live   # a full update against the real APIs
+npm run check:links    # verify every link: articles, sheet and path problems, every video and playlist
 npm run gen:sheets     # rebuild src/data/sheets/*.json from the sheets' original sources
 npm run fill:media     # refill video titles, channels and lengths (and path problems) from the platforms
+npm run tag:videos     # tag every video with what it codes in (src/data/code-langs.json)
+npm run fill:playlists # read every playlist's videos, in order, from YouTube (no API key)
 ```
 
-`check:links` checks every LeetCode slug with LeetCode's GraphQL and every Codeforces id with `problemset.problems`. Every video must pass YouTube oEmbed with its exact title and channel. `--deep` also opens every takeUforward practice link.
+`check:links` checks every LeetCode slug with LeetCode's GraphQL and every Codeforces id with `problemset.problems`. Every video and playlist must pass YouTube oEmbed with its exact title and channel and carry the right coding-language tag; a playlist whose video count changed on YouTube is a warning. `--deep` also opens every takeUforward practice link.
 
-The unit tests cover the adapters (with stubbed fetch), sync against a real SQLite schema, and all of the engine: strength scoring, the recommender, quests, XP and levels, achievements, reminder scheduling, contests and the command palette ranking.
+The unit tests cover the adapters (with stubbed fetch), updates against a real SQLite schema, and all of the engine: strength scoring, the recommender, goals, XP and levels, badges, reminders, contests, sheets, the Beginner Path, playlists and search ranking. The lesson code templates are compiled where a compiler is installed.
 
 ## Tech stack
 
@@ -219,18 +196,20 @@ The unit tests cover the adapters (with stubbed fetch), sync against a real SQLi
 ```
 src/
   adapters/      Codeforces + LeetCode clients (the only code that touches the network)
-  data/          SQLite schema access, sync, settings, TanStack Query hooks
+  data/          SQLite access, updates, settings, TanStack Query hooks, and the bundled data:
     sheets/      The five sheets (generated from the original sources, verified)
-    path/        The Beginner Path's 14 lessons
-  engine/        Pure analysis: topics, strength, recommender, quests, XP, achievements, reminders,
-                 sheets (ticks, progress, smart next) and the Beginner Path (unlocking)
-  features/      One folder per screen (home, skill-tree, topic, practice, sheets, path, quests,
-                 contests, achievements, settings, onboarding)
-  components/    Shell (title bar, sidebar, top bar, palette) and shadcn/ui primitives
+    path/        The Beginner Path's 14 lessons and their code templates
+    playlists.json  Full YouTube playlists (filled from YouTube, verified)
+  engine/        Pure analysis: topics, strength, recommender, goals, XP, badges, reminders,
+                 sheets, the Beginner Path, Learn, playlists and coding languages
+  features/      One folder per screen (home, learn, practice, sheets, progress, topic, contests,
+                 settings, onboarding…)
+  components/    Shell (title bar, sidebar, top bar, search) and shadcn/ui primitives
 src-tauri/
   src/lib.rs     Window, tray, plugins, reminder scheduler
   migrations/    SQLite schema migrations
   capabilities/  Permission scope (only codeforces.com/api and leetcode.com/graphql)
+scripts/         Data and check scripts (sheets, videos, playlists, links, contrast)
 website/         The landing page (static HTML/CSS/JS, deployed to GitHub Pages)
 docs/screenshots README images
 DESIGN.md        The visual system ("The Rank Aura")
@@ -241,17 +220,17 @@ DESIGN.md        The visual system ("The Rank Aura")
 - **AI coach:** a weekly plan in plain words from your topic report and contest results, plus explanations of *why* a submission got WA.
 - **Revision queue:** spaced repetition for problems you struggled with, resurfacing at 3, 7 and 21 days.
 - **Friends comparison:** add a few Codeforces handles and compare ratings, topic strengths and weekly solves.
-- **Notes in the palette:** sheet notes (v1.3) searchable from Ctrl+K too, not just inside a sheet.
+- **Must-do problems per video:** the problems each lesson video and playlist part works through, ready to open.
 - **Rating predictor:** expected rating change during a live round, and a projection toward your next rank.
-- **Mobile companion:** a read-only phone view of the streak, today's quests and the next round.
+- **Mobile companion:** a read-only phone view of the streak, today's goals and the next round.
 
 ## Privacy
 
 Everything stays on your computer.
 - Your data lives in a local SQLite database and settings file in `%APPDATA%\com.algocompass.app`.
 - The app only calls `codeforces.com/api` and `leetcode.com/graphql`, to read your **public** profiles. The Tauri permission scope enforces that.
-- Lesson videos come from YouTube's privacy-enhanced player (`youtube-nocookie.com`). Nothing loads from YouTube until you press play, apart from the video's thumbnail (`i.ytimg.com`). The content security policy allows only those two YouTube hosts.
-- Sheet ticks, notes and watched videos stay in the local database.
+- Videos come from YouTube's privacy-enhanced player (`youtube-nocookie.com`). Nothing loads from YouTube until you press play, apart from thumbnails (`i.ytimg.com`). The content security policy allows only those two YouTube hosts.
+- Sheet ticks, notes, watched videos and where you left off in each playlist stay on your computer.
 - No accounts, no analytics, no telemetry, and nothing is uploaded anywhere.
 
 ## License

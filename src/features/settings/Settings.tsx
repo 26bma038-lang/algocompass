@@ -123,7 +123,7 @@ export function Settings() {
           Handles
         </h2>
         <p className="mt-1 max-w-[56ch] text-body text-ink-muted">
-          AlgoCompass reads your public profiles with these. Changing a handle re-syncs from scratch.
+          AlgoCompass reads your public profiles with these. Changing a handle loads that profile's history again from the start.
         </p>
 
         {isLoading || !draft ? (

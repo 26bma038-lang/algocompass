@@ -251,7 +251,8 @@ function TodayGoal({ q }: { q: QuestState }) {
   return (
     // Three fixed columns (v1.4 polish): the mark, the goal, and its counter right-aligned in a column
     // of its own, so the counters line up down the card.
-    <li className={cn("grid grid-cols-[1rem_minmax(0,1fr)_2.75rem] items-start gap-x-3 gap-y-2 rounded-md bg-abyss-sunken px-4 py-2.5", pulse && "aura-pulse")}>
+    // v1.6: on the Row surface (lifted in Dark, where Abyss Sunken read as black holes in the card).
+    <li className={cn("grid grid-cols-[1rem_minmax(0,1fr)_2.75rem] items-start gap-x-3 gap-y-2 rounded-md border border-glass-border bg-row px-4 py-2.5", pulse && "aura-pulse")}>
       {q.done ? (
         <Check aria-hidden className="mt-0.5 size-4 text-success" strokeWidth={2.4} />
       ) : (

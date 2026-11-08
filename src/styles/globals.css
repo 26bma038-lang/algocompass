@@ -19,6 +19,8 @@
   --abyss: #070b16;
   --abyss-raised: #0b1122;
   --abyss-sunken: #050812;
+  /* v1.6: a list row that sits on a card (Today's goals). Lifts in Dark, recesses in Light. */
+  --row: #101a33;
 
   /* Glass */
   --glass: rgba(20, 29, 54, 0.55);
@@ -90,6 +92,7 @@
   --color-abyss: var(--abyss);
   --color-abyss-raised: var(--abyss-raised);
   --color-abyss-sunken: var(--abyss-sunken);
+  --color-row: var(--row);
   --color-glass: var(--glass);
   --color-glass-hover: var(--glass-hover);
   --color-glass-border: var(--glass-border);
@@ -383,6 +386,7 @@ html.aura-shifting {
   --abyss: #0a0a0c;
   --abyss-raised: #131316;
   --abyss-sunken: #060607;
+  --row: #222228;
   --glass: rgba(23, 23, 27, 0.94);
   --glass-hover: rgba(36, 36, 42, 0.72);
   --glass-border: rgba(255, 255, 255, 0.08);
@@ -437,6 +441,7 @@ html.aura-shifting {
   --abyss: #f6f6f7;
   --abyss-raised: #ffffff;
   --abyss-sunken: #ececef;
+  --row: #ececef;
   --glass: rgba(255, 255, 255, 0.94);
   --glass-hover: rgba(236, 236, 241, 0.92);
   --glass-border: rgba(17, 17, 20, 0.09);
