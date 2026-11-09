@@ -1,7 +1,7 @@
 {
   "name": "algocompass",
   "private": true,
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Desktop app that tracks Codeforces + LeetCode, finds your weak topics, and keeps you consistent",
   "license": "UNLICENSED",
   "repository": {
