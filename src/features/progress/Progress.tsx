@@ -1,7 +1,8 @@
 import { lazy, Suspense } from "react";
 import { Link, Outlet } from "react-router-dom";
-import { ArrowRight, LineChart, RefreshCw } from "lucide-react";
+import { ArrowRight, LineChart } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
+import { UpdateAction, useSyncing } from "@/components/UpdateAction";
 import { SegmentedTabs } from "@/components/SegmentedTabs";
 import { lessonPath } from "@/components/shell/nav";
 import { Button } from "@/components/ui/button";
@@ -9,11 +10,9 @@ import { usePath } from "@/data/path";
 import { usePrefs } from "@/data/prefs";
 import { useHomeData, useTopicReport } from "@/data/queries";
 import { useHandles } from "@/data/settings";
-import { useSyncStore } from "@/data/syncStore";
 import { LevelCard, WeeklyGoalsCard } from "@/features/quests/Quests";
 import { WeeklyReviewFold } from "@/features/quests/WeeklyReview";
 import { ActivityHeatmap } from "@/features/home/ActivityHeatmap";
-import { LABELS } from "@/lib/glossary";
 import { BadgeTiles } from "./BadgesCard";
 import { BeginnerOverview } from "./BeginnerOverview";
 import { LcCard } from "./LcCard";
@@ -66,21 +65,9 @@ function RatingCard() {
 
 /** Before the first update (or while it runs): what will be here, and the button that brings it. */
 function OverviewEmpty() {
-  const syncing = useSyncStore((s) => s.syncing);
-  const run = useSyncStore((s) => s.run);
+  const syncing = useSyncing();
   return (
-    <EmptyState
-      icon={LineChart}
-      title={syncing ? "Adding up your history…" : "Your progress starts after the first update"}
-      action={
-        !syncing && (
-          <Button variant="outline" size="sm" onClick={() => void run()}>
-            <RefreshCw aria-hidden />
-            {LABELS.updateNow}
-          </Button>
-        )
-      }
-    >
+    <EmptyState icon={LineChart} title={syncing ? "Adding up your history…" : "Your progress starts after the first update"} action={<UpdateAction />}>
       Your rating chart, level, weekly goals and activity collect here once your solve history is in.
     </EmptyState>
   );

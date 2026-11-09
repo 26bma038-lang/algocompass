@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useHandles, useSaveHandles, type Handles } from "@/data/settings";
 import { getRepo, useSyncStore } from "@/data/syncStore";
 import { PrefsSections } from "./PrefsSections";
+import { SectionNav } from "./SectionNav";
 import { usePrefs } from "@/data/prefs";
 
 // Codeforces handles: 3–24 chars of letters, digits, underscore, dot, hyphen.
@@ -71,7 +72,8 @@ function HandleField({
 
 export function Settings() {
   const { data: saved, isLoading } = useHandles();
-  const beginner = usePrefs().data?.mode === "beginner";
+  const prefs = usePrefs().data;
+  const beginner = prefs?.mode === "beginner";
   const save = useSaveHandles();
   const [draft, setDraft] = useState<Handles | null>(null);
   const [errors, setErrors] = useState<Partial<Record<keyof Handles, string>>>({});
@@ -116,73 +118,76 @@ export function Settings() {
   };
 
   return (
-    // One column at the minimum window; two at large ones (handles and goals, then notifications and startup).
-    <div className="grid max-w-[640px] grid-cols-1 items-start gap-6 2xl:max-w-[1312px] 2xl:grid-cols-2">
-      <section aria-labelledby="handles-title" className="glass-card p-6">
-        <h2 id="handles-title" className="font-display text-headline font-semibold text-ink">
-          Handles
-        </h2>
-        <p className="mt-1 max-w-[56ch] text-body text-ink-muted">
-          AlgoCompass reads your public profiles with these. Changing a handle loads that profile's history again from the start.
-        </p>
-
-        {isLoading || !draft ? (
-          <p className="mt-6 text-body-sm text-ink-muted">Loading saved handles…</p>
-        ) : (
-          <form
-            onSubmit={onSubmit}
-            onKeyDown={(e) => {
-              if (e.key === "Escape" && dirty) discard();
-            }}
-            noValidate
-            className="mt-6 flex flex-col gap-5"
-          >
-            <div className="grid grid-cols-2 gap-4">
-              <HandleField
-                label={beginner ? "Codeforces handle (optional)" : "Codeforces handle"}
-                hint="Used for rating, contests and sharpening practice."
-                dotClass="bg-ink-faint"
-                value={draft.codeforces}
-                error={errors.codeforces}
-                onChange={update("codeforces")}
-              />
-              <HandleField
-                label="LeetCode username (optional)"
-                hint="Used for learning new topics. Leave empty to skip LeetCode."
-                dotClass="bg-ink-faint"
-                value={draft.leetcode}
-                error={errors.leetcode}
-                onChange={update("leetcode")}
-              />
-            </div>
-            <div className="flex items-center gap-3">
-              <Button type="submit" disabled={!dirty || save.isPending}>
-                {save.isPending ? "Saving…" : "Save handles"}
-              </Button>
-              {dirty && (
-                <Button type="button" variant="ghost" onClick={discard}>
-                  Discard changes
+    // The cards in one column with the section list beside them (v1.8); two columns of cards only on very wide windows.
+    <div className="flex items-start gap-8">
+      <div className="grid min-w-0 max-w-[640px] flex-1 grid-cols-1 items-start gap-6 min-[1800px]:max-w-[1312px] min-[1800px]:grid-cols-2">
+        <section aria-labelledby="handles-title" className="glass-card p-6">
+          <h2 id="handles-title" className="font-display text-headline font-semibold text-ink">
+            Handles
+          </h2>
+          <p className="mt-1 max-w-[56ch] text-body text-ink-muted">
+            AlgoCompass reads your public profiles with these. Changing a handle loads that profile's history again from the start.
+          </p>
+  
+          {isLoading || !draft ? (
+            <p className="mt-6 text-body-sm text-ink-muted">Loading saved handles…</p>
+          ) : (
+            <form
+              onSubmit={onSubmit}
+              onKeyDown={(e) => {
+                if (e.key === "Escape" && dirty) discard();
+              }}
+              noValidate
+              className="mt-6 flex flex-col gap-5"
+            >
+              <div className="grid grid-cols-2 gap-4">
+                <HandleField
+                  label={beginner ? "Codeforces handle (optional)" : "Codeforces handle"}
+                  hint="Used for rating, contests and sharpening practice."
+                  dotClass="bg-ink-faint"
+                  value={draft.codeforces}
+                  error={errors.codeforces}
+                  onChange={update("codeforces")}
+                />
+                <HandleField
+                  label="LeetCode username (optional)"
+                  hint="Used for learning new topics. Leave empty to skip LeetCode."
+                  dotClass="bg-ink-faint"
+                  value={draft.leetcode}
+                  error={errors.leetcode}
+                  onChange={update("leetcode")}
+                />
+              </div>
+              <div className="flex items-center gap-3">
+                <Button type="submit" disabled={!dirty || save.isPending}>
+                  {save.isPending ? "Saving…" : "Save handles"}
                 </Button>
-              )}
-              <span role="status" className="flex items-center gap-1.5 text-body-sm">
-                {justSaved && !dirty && (
-                  <>
-                    <Check aria-hidden className="size-3.5 text-success" strokeWidth={2.4} />
-                    <span className="text-ink-muted">Handles saved</span>
-                  </>
+                {dirty && (
+                  <Button type="button" variant="ghost" onClick={discard}>
+                    Discard changes
+                  </Button>
                 )}
-                {save.isError && (
-                  <>
-                    <AlertCircle aria-hidden className="size-3.5 text-danger" strokeWidth={2} />
-                    <span className="text-danger">Couldn't save handles. Check disk access and try again.</span>
-                  </>
-                )}
-              </span>
-            </div>
-          </form>
-        )}
-      </section>
-      <PrefsSections />
+                <span role="status" className="flex items-center gap-1.5 text-body-sm">
+                  {justSaved && !dirty && (
+                    <>
+                      <Check aria-hidden className="size-3.5 text-success" strokeWidth={2.4} />
+                      <span className="text-ink-muted">Handles saved</span>
+                    </>
+                  )}
+                  {save.isError && (
+                    <>
+                      <AlertCircle aria-hidden className="size-3.5 text-danger" strokeWidth={2} />
+                      <span className="text-danger">Couldn't save handles. Check disk access and try again.</span>
+                    </>
+                  )}
+                </span>
+              </div>
+            </form>
+          )}
+        </section>
+        <PrefsSections />
+      </div>
+      <SectionNav ready={!!prefs} />
     </div>
   );
 }

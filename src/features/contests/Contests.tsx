@@ -1,6 +1,6 @@
 import { useId, type ReactNode } from "react";
 import { Link, Outlet } from "react-router-dom";
-import { ArrowDown, ArrowUp, ExternalLink, RefreshCw, Swords } from "lucide-react";
+import { ArrowDown, ArrowUp, ExternalLink, Swords } from "lucide-react";
 import { CardHeader } from "@/components/CardHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { SegmentedTabs } from "@/components/SegmentedTabs";
@@ -12,9 +12,7 @@ import type { Contest } from "@/data/types";
 import { contestDivision, registerUrl } from "@/engine/contests";
 import { countdown, shortName, when } from "@/features/home/ContestStrip";
 import { useNow } from "@/features/home/useNow";
-import { useHandles } from "@/data/settings";
-import { useSyncStore } from "@/data/syncStore";
-import { LABELS } from "@/lib/glossary";
+import { UpdateAction, useSyncing } from "@/components/UpdateAction";
 import { openExternal } from "@/lib/openExternal";
 import { cn } from "@/lib/utils";
 import { ContestReviewSection } from "./ContestReview";
@@ -213,30 +211,9 @@ export function Contests() {
 
 /** Before the first update: what will be here, and the button that brings it. */
 function NoContests({ title, children }: { title: string; children: ReactNode }) {
-  const syncing = useSyncStore((s) => s.syncing);
-  const run = useSyncStore((s) => s.run);
-  const handles = useHandles().data;
-  // With no handle at all there's nothing to update (a beginner who skipped them): say where to add one.
-  const noHandles = handles !== undefined && !handles.codeforces && !handles.leetcode;
+  const syncing = useSyncing();
   return (
-    <EmptyState
-      icon={Swords}
-      title={syncing ? "Loading contests…" : title}
-      action={
-        noHandles ? (
-          <Button asChild variant="outline" size="sm">
-            <Link to="/settings">Add a handle in Settings</Link>
-          </Button>
-        ) : (
-          !syncing && (
-            <Button variant="outline" size="sm" onClick={() => void run()}>
-              <RefreshCw aria-hidden />
-              {LABELS.updateNow}
-            </Button>
-          )
-        )
-      }
-    >
+    <EmptyState icon={Swords} title={syncing ? "Loading contests…" : title} action={<UpdateAction />}>
       {children}
     </EmptyState>
   );

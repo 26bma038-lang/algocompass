@@ -127,14 +127,14 @@ export function ProblemRow({
             {openLabel(site)}
           </Button>
         ))}
-      {!done && <StuckButton problem={ref} compact={compact} className={compact ? undefined : "w-[84px] shrink-0"} />}
+      {!done && <StuckButton problem={ref} compact={compact} />}
       {!done && (
         <Suspense fallback={<span aria-hidden className="size-8 shrink-0" />}>
           <RowMenu p={p} topicId={topicId} kinds={feedback} />
         </Suspense>
       )}
       {/* Done rows: no Stuck? or menu, but a note is still worth keeping; the slots stay so Open stays aligned. */}
-      {done && !compact && <span aria-hidden className="w-[84px] shrink-0" />}
+      {done && !compact && <span aria-hidden className="size-8 shrink-0" />}
       {done && <NoteButton problem={ref} />}
     </li>
   );

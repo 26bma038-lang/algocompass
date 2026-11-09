@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { ArrowRight, Check, ExternalLink, Flame, RefreshCw } from "lucide-react";
+import { ArrowRight, Check, ExternalLink, Flame } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Pill } from "@/components/CardHeader";
 import { meta as problemMeta, title as problemTitle, url as problemUrl } from "@/components/practice/problemText";
@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/button";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { flameState, streakAtRisk, useStreak } from "@/components/shell/useStreak";
 import { useHomeData } from "@/data/queries";
+import { useHandles } from "@/data/settings";
 import { useSyncStore } from "@/data/syncStore";
+import { UpdateAction, useNoHandles } from "@/components/UpdateAction";
 import { useMarkSolved, useTodayQuests } from "@/data/quests";
 import { useMixOfTheDay } from "@/data/recommendations";
 import { useDueRevisions, useReviewRevision } from "@/data/revisions";
@@ -82,7 +84,7 @@ function DoThisNextCard() {
   const due = useDueRevisions().data?.[0] ?? null;
   const reviewing = useReviewRevision();
   const syncing = useSyncStore((s) => s.syncing);
-  const runSync = useSyncStore((s) => s.run);
+  const noHandles = useNoHandles();
   const pick = pickDoThisNext(mix.data?.items, sheet?.next ?? null, due);
   const progress =
     pick.kind !== "none" && pick.total > 0 ? (
@@ -206,7 +208,7 @@ function DoThisNextCard() {
       <>
         <div className="flex flex-col gap-2">
           <h2 id="next-title" className="font-display text-headline font-semibold text-ink">
-            {busy ? "Picking today's problems…" : "Update to get today's problems"}
+            {busy ? "Picking today's problems…" : noHandles ? "Add a handle to get today's problems" : "Update to get today's problems"}
           </h2>
           <p className="text-body-sm text-ink-muted">
             {busy
@@ -214,12 +216,7 @@ function DoThisNextCard() {
               : "They're picked from your own history: Codeforces problems just above your rating, and LeetCode problems for topics you haven't learned yet."}
           </p>
         </div>
-        {!busy && (
-          <Button size="lg" className="self-start" onClick={() => void runSync()}>
-            <RefreshCw aria-hidden />
-            {LABELS.updateNow}
-          </Button>
-        )}
+        {!busy && <UpdateAction primary />}
       </>
     );
   }
@@ -236,6 +233,8 @@ function DoThisNextCard() {
 /** The CF rating, compact (v1.4): rating, rank and progress to the next, and the next round. */
 function RatingCard({ cf, solved, history, nextCf }: { cf: CfUser | null; solved: number; history: readonly CfRatingChange[]; nextCf: Contest | undefined }) {
   const nowMs = useNow();
+  // No Codeforces handle at all (it can be skipped): say where to add one instead of waiting for an update.
+  const noCf = useHandles().data?.codeforces === "";
   const rating = cf?.rating ?? null;
   const band = rating !== null ? bandForRating(rating) : null;
   const progress = rating !== null ? bandProgress(rating) : 0;
@@ -252,7 +251,7 @@ function RatingCard({ cf, solved, history, nextCf }: { cf: CfUser | null; solved
           <span className="truncate text-body-sm font-normal text-ink-muted">{cf?.handle ?? ""}</span>
         </h2>
         <p className="numeric font-display text-hero leading-none font-semibold text-rank">
-          {rating !== null ? <NumberTicker id="cf-rating" value={rating} format={plain} /> : <span className="text-body text-ink-muted">{cf ? "Unrated" : LABELS.notUpdated}</span>}
+          {rating !== null ? <NumberTicker id="cf-rating" value={rating} format={plain} /> : <span className="text-body text-ink-muted">{cf ? "Unrated" : noCf ? "No handle yet" : LABELS.notUpdated}</span>}
         </p>
       </div>
       <div className="flex min-w-0 flex-col gap-2">
@@ -303,8 +302,8 @@ function RatingCard({ cf, solved, history, nextCf }: { cf: CfUser | null; solved
           </span>
         </button>
       ) : (
-        <Link to="/contests" className="text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
-          {cf ? "No Codeforces round is scheduled yet. See Contests" : "The next round shows here after the update"}
+        <Link to={noCf ? "/settings" : "/contests"} className="text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
+          {cf ? "No Codeforces round is scheduled yet. See Contests" : noCf ? "Add your Codeforces handle in Settings" : "The next round shows here after the update"}
         </Link>
       )}
     </section>
