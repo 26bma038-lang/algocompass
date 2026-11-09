@@ -1,3 +1,4 @@
+import { StandingCard } from "@/features/home/StandingCard";
 import { useEffect } from "react";
 import { Check, Network, PlayCircle } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
@@ -132,40 +133,44 @@ export function TopicsList() {
   const tried = rows.filter((r) => r.tried);
   const untried = rows.filter((r) => !r.tried);
   return (
-    <section aria-labelledby="topics-title" className="glass-card flex flex-col gap-4 p-6">
-      <CardHeader
-        id="topics-title"
-        title={LABELS.topics}
-        description={
+    // v1.8: Where you stand (strongest, work on next, not tried) moved here from Overview, above the list it sums up.
+    <div className="flex flex-col gap-6">
+      <StandingCard report={report.data} seeAll={false} />
+      <section aria-labelledby="topics-title" className="glass-card flex flex-col gap-4 p-6">
+        <CardHeader
+          id="topics-title"
+          title={LABELS.topics}
+          description={
+            <>
+              Weakest first. <Term id="strength" /> goes from 0 to 100 with how much you've solved in a topic and how hard it was. Click one for its
+              problems and videos.
+            </>
+          }
+          actions={
+            <Button asChild variant="outline" size="sm">
+              <Link to={TOPICS_MAP_PATH}>
+                <Network aria-hidden />
+                {LABELS.showAsMap}
+              </Link>
+            </Button>
+          }
+        />
+        <ul className="-mx-3 flex flex-col">
+          {tried.map((r) => (
+            <Row key={r.topicId} r={r} />
+          ))}
+        </ul>
+        {untried.length > 0 && (
           <>
-            Weakest first. <Term id="strength" /> goes from 0 to 100 with how much you've solved in a topic and how hard it was. Click one for its
-            problems and videos.
+            <h3 className="border-t border-glass-border pt-4 text-title font-semibold text-ink">{LABELS.notTried}</h3>
+            <ul className="-mx-3 flex flex-col">
+              {untried.map((r) => (
+                <Row key={r.topicId} r={r} />
+              ))}
+            </ul>
           </>
-        }
-        actions={
-          <Button asChild variant="outline" size="sm">
-            <Link to={TOPICS_MAP_PATH}>
-              <Network aria-hidden />
-              {LABELS.showAsMap}
-            </Link>
-          </Button>
-        }
-      />
-      <ul className="-mx-3 flex flex-col">
-        {tried.map((r) => (
-          <Row key={r.topicId} r={r} />
-        ))}
-      </ul>
-      {untried.length > 0 && (
-        <>
-          <h3 className="border-t border-glass-border pt-4 text-title font-semibold text-ink">{LABELS.notTried}</h3>
-          <ul className="-mx-3 flex flex-col">
-            {untried.map((r) => (
-              <Row key={r.topicId} r={r} />
-            ))}
-          </ul>
-        </>
-      )}
-    </section>
+        )}
+      </section>
+    </div>
   );
 }

@@ -91,6 +91,19 @@ export const LABELS = {
   yourNotes: "Your notes",
   /** v1.7: Progress → Friends. */
   friends: "Friends",
+  /** v1.8: the week's look back, folded into This week. */
+  thisWeek: "This week",
+  weeklyReview: "Weekly review",
+  levelAndBadges: "Level and badges",
+  shareWeek: "Share my week",
+  whereYouStand: "Where you stand",
+  /** v1.8: Contests' three tabs. */
+  upcoming: "Upcoming",
+  yourRounds: "Your rounds",
+  virtualContest: "Virtual contest",
+  /** v1.8: Learn's one browse card and its switch. */
+  singleVideos: "Single videos",
+  nextPart: "Next part",
 } as const;
 
 /** v1.6: how many people solved a Codeforces problem, "Solved by 40k" (1,234 → 1.2k, 980 → 980). */

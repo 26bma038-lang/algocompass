@@ -10,6 +10,18 @@ The owner said "the home page and every page is difficult to navigate". v1.7 add
 - **Degraded run, said so in the file:** the impeccable critique wants two isolated sub-agents; this task asked for no background agents, so it ran in one context, the review first, then the detector (1 finding, a false positive: the React Flow attribution's intended 10px).
 - **Decisions:** keep the five sidebar screens, every route and redirect. Notes move to Practice (they're about problems); Friends stays a Progress tab but only once there's a handle or a friend; Contests gets three tabs, each a route; Learn's two browsers become one card with one toolbar. Playlists get a curated short `name` (the YouTube title stays the verified field).
 
+### Part 1: Progress, five cards and fewer tabs (2026-11-09)
+
+- **Smart Overview: 8 cards → 5** (2,148px → 1,402px at 1100 wide). Left column: **Rating** with the goal under the chart (`RatingGoalSection`: one line, "Goal: 1900 by Jan 31, 2027 · +889 to go · 12 weeks left · Unlikely at your best pace", the plan behind **Show the plan**, Change, Remove; no goal: "Set a goal"), **This week** with **Share my week** in its header and the **Weekly review** folded under the meters (opens on its own on Sundays, as before), **Activity**. Right column: **Level and badges** (one card; the three badge tiles under the level), **LeetCode**.
+- **Where you stand moved to Topics**, above the list it sums up (no "See all topics" link there; the list is right below).
+- **Tabs: Overview · Topics · Friends.** *Your notes* moved to **Practice → Your notes** (`/practice/notes`; `/progress/notes` redirects; `src/features/practice/Notes.tsx`). **Friends** shows in smart mode always, and in Beginner mode once a handle is entered (`friendsTabShown`); `/progress/friends` always works. Decision: a beginner who added a friend without any handle of their own loses the tab but keeps the route; that combination is rare, and the table would show "–" for them anyway.
+- **The tab row is tabs plus one button** (Continue today's practice). Share my week moved into This week (smart) and Your week (beginner, on the title row).
+- **Beginner Practice:** a small **Your notes** card beside Follow a popular sheet, only once a note exists (`NotesLinkCard`).
+- **Empty states:** Overview before the first update has **Update now** (and says "Adding up your history…" while an update runs, instead of "starts after the first update"); Your notes has a button to today's problems (or the lesson problems).
+- Words: `LABELS.thisWeek`, `weeklyReview`, `levelAndBadges`, `shareWeek`, `whereYouStand` (plus the Contests and Learn words used later in v1.8).
+- **Tests:** `progress/tabs.test.ts` (three tabs, Friends rule), `practice/tabs.test.ts` (Your notes tab), `router.test.ts` (notes under Practice, the redirect).
+- **Screenshots:** `docs/audit-v1.8/1-progress/before|after/` (smart Overview, Topics, notes, Friends; beginner Overview, Topics, Practice, notes; Light and Dark, with `-full` captures of the whole scroll).
+
 ## v1.7, the app updates itself (released as v1.7.0 on 2026-11-09)
 
 Released. Auto-updates, a revision queue, notes, "Stuck?", a daily reminder, contest review, virtual contests, a rating goal, friends, more playlists and a share card. **The first version that can update itself;** 1.6.0 and older need one manual install.

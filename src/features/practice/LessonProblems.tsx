@@ -1,3 +1,4 @@
+import { NotesLinkCard } from "./Notes";
 import { useState } from "react";
 import { Check, ChevronDown, ChevronRight, ListChecks } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -142,6 +143,7 @@ export function LessonProblems() {
         )}
       </section>
       <FollowSheetCard />
+      <NotesLinkCard className="col-span-12 lg:col-span-4" />
     </div>
   );
 }

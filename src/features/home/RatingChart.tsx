@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { CartesianGrid, Line, LineChart, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis, type TooltipContentProps } from "recharts";
 import type { CfRatingChange, LcContestEntry } from "@/data/types";
 import { bandForRating, RANK_BANDS } from "@/lib/rank";
@@ -38,10 +38,13 @@ export function RatingChart({
   cf,
   lc,
   rating,
+  children,
 }: {
   cf: readonly CfRatingChange[];
   lc: readonly LcContestEntry[];
   rating: number | null;
+  /** v1.8: the rating goal sits under the chart, in the same card. */
+  children?: ReactNode;
 }) {
   const next = rating !== null ? bandForRating(rating).next : null;
   const data = useMemo<Point[]>(
@@ -168,6 +171,7 @@ export function RatingChart({
       {lc.length === 0 && cf.length > 0 && (
         <p className="text-body-sm text-ink-muted">Your LeetCode contest rating joins this chart after your first LeetCode contest.</p>
       )}
+      {children}
     </section>
   );
 }

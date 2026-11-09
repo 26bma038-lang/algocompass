@@ -7,6 +7,7 @@ import { savePng, useShareWeek } from "@/data/shareCard";
 import { shareFileName } from "@/engine/shareCard";
 import { useSchemeStore, type Scheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
+import { LABELS } from "@/lib/glossary";
 import { CARD_H, CARD_W, canvasPng, drawShareCard, loadCardFonts } from "./shareCardDraw";
 
 const SCHEMES: readonly { id: Scheme; label: string }[] = [
@@ -17,16 +18,16 @@ const SCHEMES: readonly { id: Scheme; label: string }[] = [
 /**
  * Progress → "Share my week" (v1.7): a PNG of this week (rating, solves, streak, top topic) in the
  * app's style, Light or Dark, saved where you choose. It never leaves this computer on its own:
- * no upload, no link.
+ * no upload, no link. Since v1.8 the button sits in This week's header (smart) or Your week's (beginner).
  */
-export function ShareWeekButton() {
+export function ShareWeekButton({ size }: { size?: "sm" }) {
   const [open, setOpen] = useState(false);
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button variant="ghost">
+        <Button variant="ghost" size={size}>
           <Share2 aria-hidden />
-          Share my week
+          {LABELS.shareWeek}
         </Button>
       </Dialog.Trigger>
       {open && <SharePanel />}

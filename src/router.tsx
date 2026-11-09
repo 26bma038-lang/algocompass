@@ -9,7 +9,7 @@ import { humanizeTopic } from "@/lib/topics";
 // Today is the daily check-in, so it ships in the main chunk. Every other screen loads on first
 // visit (the Topics map brings @xyflow/react and dagre with it). AppShell suspends with a quiet line.
 const TopicsMap = lazy(() => import("@/features/progress/TopicsMap").then((m) => ({ default: m.TopicsMap })));
-const NotesList = lazy(() => import("@/features/progress/Notes").then((m) => ({ default: m.NotesList })));
+const NotesList = lazy(() => import("@/features/practice/Notes").then((m) => ({ default: m.NotesList })));
 const FriendsList = lazy(() => import("@/features/progress/Friends").then((m) => ({ default: m.FriendsList })));
 const TopicsList = lazy(() => import("@/features/progress/Topics").then((m) => ({ default: m.TopicsList })));
 const TopicDetail = lazy(() => import("@/features/topic/TopicDetail").then((m) => ({ default: m.TopicDetail })));
@@ -51,6 +51,8 @@ export const routes: RouteObject[] = [
           { path: "mix", element: <PracticeMix /> },
           { path: "sheets", element: <SheetList /> },
           { path: "sheets/:sheetId", element: <SheetView /> },
+          // v1.8: your notes moved here from Progress (they're about problems).
+          { path: "notes", element: <NotesList /> },
         ],
       },
       {
@@ -75,7 +77,7 @@ export const routes: RouteObject[] = [
           { path: "topics", element: <TopicsList /> },
           { path: "topics/map", element: <TopicsMap /> },
           { path: "badges", element: <Achievements /> },
-          { path: "notes", element: <NotesList /> },
+          { path: "notes", element: <Navigate to="/practice/notes" replace /> },
           { path: "friends", element: <FriendsList /> },
           { path: "achievements", element: <Navigate to="/progress/badges" replace /> },
         ],

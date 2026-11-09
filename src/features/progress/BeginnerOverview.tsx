@@ -1,6 +1,5 @@
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { CardHeader } from "@/components/CardHeader";
 import { lessonPath } from "@/components/shell/nav";
 import { stepLabel } from "@/components/shell/topBarItems";
 import { usePath } from "@/data/path";
@@ -10,6 +9,7 @@ import { SectionStrip } from "@/features/sheets/SectionStrip";
 import { LABELS } from "@/lib/glossary";
 import { cn } from "@/lib/utils";
 import { BadgesCard } from "./BadgesCard";
+import { ShareWeekButton } from "./ShareWeek";
 
 const DAYS = ["M", "T", "W", "T", "F", "S", "S"] as const;
 const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as const;
@@ -52,7 +52,13 @@ function YourWeekCard() {
   const today = (new Date().getDay() + 6) % 7;
   return (
     <section aria-labelledby="your-week-title" className="glass-card flex h-full flex-col gap-5 p-6">
-      <CardHeader id="your-week-title" title={LABELS.yourWeek} />
+      {/* Inline header (not CardHeader): its 256px title minimum would push Share under the title in 5 columns. */}
+      <div className="flex items-center justify-between gap-3">
+        <h2 id="your-week-title" className="font-display text-headline font-semibold text-ink">
+          {LABELS.yourWeek}
+        </h2>
+        <ShareWeekButton size="sm" />
+      </div>
       {/* v1.4 polish: a horizontal week meter, one segment a day (seven empty rings read as nothing). */}
       <ol aria-label="Days practised this week" className="flex gap-1.5">
         {DAYS.map((d, i) => {

@@ -2,6 +2,7 @@
  * Quest and goal cards. Since v1.2 there is no Quests screen: today's quests live on Today, and
  * the level and weekly goals on Progress.
  */
+import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import { CardHeader } from "@/components/CardHeader";
@@ -81,12 +82,13 @@ export function TodayQuestsCard() {
   );
 }
 
-export function LevelCard() {
+/** The level and XP; since v1.8 it holds the badges too (`children`), as Level and badges. */
+export function LevelCard({ children }: { children?: ReactNode }) {
   const data = useProgression().data?.xp;
   const lit = data?.level != null;
   return (
     <section aria-labelledby="level-title" className="glass-card flex flex-col gap-4 p-6">
-      <CardHeader id="level-title" title="Level" description={TERMS.level.hint} />
+      <CardHeader id="level-title" title={children ? LABELS.levelAndBadges : "Level"} description={TERMS.level.hint} />
       <p className="flex items-baseline gap-2">
         <span className={cn("numeric font-display text-display leading-none font-semibold", lit ? "text-ink" : "text-ink-faint")}>
           {lit ? <NumberTicker id="level" value={data.level!} format={plain} /> : "–"}
@@ -107,6 +109,7 @@ export function LevelCard() {
           </span>
         </div>
       )}
+      {children && <div className="border-t border-glass-border pt-4">{children}</div>}
     </section>
   );
 }
@@ -158,7 +161,11 @@ export function GoalMeter({ label, value, goal }: { label: string; value: number
   );
 }
 
-export function WeeklyGoalsCard() {
+/**
+ * This week (v1.8): the weekly goals, with `actions` beside Edit goals (Share my week) and
+ * `children` under the meters (the weekly review, folded).
+ */
+export function WeeklyGoalsCard({ actions, children }: { actions?: ReactNode; children?: ReactNode }) {
   const { data } = useWeeklyGoals();
   const goals = data?.goals;
   const daysLeft = data ? Math.max(0, Math.ceil((data.to - Date.now() / 1000) / 86_400)) : null;
@@ -166,13 +173,16 @@ export function WeeklyGoalsCard() {
     <section aria-labelledby="goals-title" className="glass-card flex flex-col gap-5 p-6">
       <CardHeader
         id="goals-title"
-        title="This week"
+        title={LABELS.thisWeek}
         description="Weekly goals, Monday to Sunday. A problem counts in the week you first solve it."
         pill={daysLeft !== null ? `${daysLeft} ${daysLeft === 1 ? "day" : "days"} left` : undefined}
         actions={
-          <Link to="/settings" className="rounded-xs text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
-            Edit goals
-          </Link>
+          <span className="flex items-center gap-3">
+            {actions}
+            <Link to="/settings" className="rounded-xs text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
+              Edit goals
+            </Link>
+          </span>
         }
       />
       {!data || !goals ? (
@@ -184,6 +194,7 @@ export function WeeklyGoalsCard() {
           <GoalMeter label="Contests" value={data.counts.contests} goal={goals.contests} />
         </ul>
       )}
+      {children}
     </section>
   );
 }
