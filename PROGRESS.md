@@ -50,6 +50,17 @@ Not released. Auto-updates, a revision queue, notes, "Stuck?" and a daily remind
 - Pure part: `buildContestReviews` (`src/engine/contestReview.ts`, tests); data: `src/data/contestReview.ts`. No migration.
 - **Screenshots:** `docs/audit-v1.7/contest-review/` (browser mode, a real Codeforces sync).
 
+### Part 8: virtual contest (2026-11-09)
+
+- **Contests → Virtual contest:** pick a past Codeforces round by division (Div. 2, which includes Educational rounds; Div. 3; Div. 4; combined Div. 1 + 2 rounds are left out), newest first, five shown then "Show more". Only rounds you've never touched: no submission of yours in the round, not one you took part in, never done as a virtual. Only rounds whose whole problem list is in the problemset cache (at least 4 problems; a paired Div. 2's shared problems sit under the Div. 1 id, so such a half is skipped rather than shown short). **Start** asks once ("Starts a 2h clock now", **Start the clock**).
+- **While it runs** the card moves to the top of Contests: the round, a countdown for its **real duration** (contest.list), a thin elapsed bar, every problem with **Open** (the Codeforces problem page; you submit there), and "Solved at 0:14" once a solve is found. **I'm done** (asks once) ends it early.
+- **Solve detection** is your own Codeforces submissions inside the window `[start, start + duration)` (or the early end), never a guess. While it runs the app pulls your latest 50 submissions through the adapter every 2 minutes, on **Check for solves**, when the clock runs out and before an early end (`checkVirtualSolves`, `src/data/virtual.ts`); the regular update catches anything later, and since submissions keep their real time, a late update still counts them. Fails soft: offline it says it couldn't reach Codeforces and tries again.
+- **Review at the end:** solved of total and the time used, then per problem **Solved at** (from the start), **Took** (since the solve before it), and **Wrong tries** (rejected submissions before the solve; compilation errors don't count, as on Codeforces), Open, Stuck? and the note for unsolved ones, and **Topics you missed** from the unsolved problems' real tags. **No standings and no rank**: we'd have to invent them. Older virtuals stay listed (up to 4) with a one-line summary; Remove deletes one.
+- **Migration `0009_virtual.sql`** (LF): `cf_contest_times.name` (sync now saves every round's name, so the picker can filter by division without keeping the whole contest list) and `virtual_contests(id, contest_id, name, started_at, duration_seconds, ended_at, problems_json)`. Results are never stored; they're recomputed from submissions.
+- Pure part: `src/engine/virtual.ts` (division, candidates, window, result, clock words; tests). Data tests: `src/data/virtual.test.ts`.
+- Existing installs: the picker fills after the first update on v1.7 (that's when round names are saved).
+- **Screenshots:** `docs/audit-v1.7/virtual-contest/` (browser mode, a real Codeforces sync): the picker with Start confirming, the running clock, and the review of a virtual ended right away (so 0 solved: nothing was submitted, and nothing is made up).
+
 ## v1.6, full playlists and Practice this (released as v1.6.0 on 2026-11-09)
 
 Released. A learner gets whole YouTube playlists (every video, in order) instead of a few videos picked from each.

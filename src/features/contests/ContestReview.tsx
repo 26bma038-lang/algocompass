@@ -9,7 +9,7 @@ import { learnTopicPath } from "@/components/shell/nav";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useContestReviews, useFlagFixNext } from "@/data/contestReview";
-import type { ContestReview, ReviewProblem } from "@/engine/contestReview";
+import type { ContestReview, MissedTopic, ReviewProblem } from "@/engine/contestReview";
 import type { ProblemRef } from "@/engine/problemRef";
 import { LABELS, plainTopicName } from "@/lib/glossary";
 import { openExternal } from "@/lib/openExternal";
@@ -87,6 +87,27 @@ function IndexStrip({ problems }: { problems: ReviewProblem[] }) {
   );
 }
 
+/** Topics of unsolved problems, each linking to Learn filtered to it. Shared with the virtual contest review. */
+export function TopicChips({ topics }: { topics: MissedTopic[] }) {
+  if (topics.length === 0) return <p className="text-body-sm text-ink-muted">Codeforces hasn't tagged these problems yet.</p>;
+  return (
+    <ul className="flex flex-wrap gap-2">
+      {topics.slice(0, 6).map((t) => (
+        <li key={t.id}>
+          <Link
+            to={learnTopicPath(t.id)}
+            className="inline-flex h-7 items-center gap-1.5 rounded-full border border-glass-border bg-glass px-3 text-body-sm text-ink transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover"
+            aria-label={`${plainTopicName(t.id, t.name)}: ${t.count} unsolved. Watch lessons on it`}
+          >
+            {plainTopicName(t.id, t.name)}
+            {t.count > 1 && <span className="numeric text-ink-muted">×{t.count}</span>}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function FixNextRow({ p, onOpen }: { p: ReviewProblem; onOpen: (p: ReviewProblem) => void }) {
   return (
     <li className="flex items-center gap-3 border-t border-glass-border py-2.5 first:border-t-0 first:pt-0 last:pb-0">
@@ -137,24 +158,7 @@ function ReviewCard({ r }: { r: ContestReview }) {
       {unsolved > 0 && (
         <div className="flex flex-col gap-2">
           <span className="text-label text-ink-muted">Topics of the ones you didn't solve</span>
-          {r.missedTopics.length > 0 ? (
-            <ul className="flex flex-wrap gap-2">
-              {r.missedTopics.slice(0, 6).map((t) => (
-                <li key={t.id}>
-                  <Link
-                    to={learnTopicPath(t.id)}
-                    className="inline-flex h-7 items-center gap-1.5 rounded-full border border-glass-border bg-glass px-3 text-body-sm text-ink transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover"
-                    aria-label={`${plainTopicName(t.id, t.name)}: ${t.count} unsolved. Watch lessons on it`}
-                  >
-                    {plainTopicName(t.id, t.name)}
-                    {t.count > 1 && <span className="numeric text-ink-muted">×{t.count}</span>}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-body-sm text-ink-muted">Codeforces hasn't tagged these problems yet.</p>
-          )}
+          <TopicChips topics={r.missedTopics} />
         </div>
       )}
 

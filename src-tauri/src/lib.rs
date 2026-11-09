@@ -117,6 +117,12 @@ fn migrations() -> Vec<Migration> {
             sql: include_str!("../migrations/0008_note_titles.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 9,
+            description: "virtual",
+            sql: include_str!("../migrations/0009_virtual.sql"),
+            kind: MigrationKind::Up,
+        },
     ]
 }
 

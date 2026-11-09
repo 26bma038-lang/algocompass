@@ -1,5 +1,6 @@
 import type { SqlDriver, SqlValue } from "./db";
 import type { TickRow } from "@/engine/sheets";
+import type { VirtualProblem, VirtualRow } from "@/engine/virtual";
 import type {
   CfProblem,
   CfRatingChange,
@@ -50,6 +51,7 @@ export const TABLES = [
   "sheet_ticks",
   "sheet_notes",
   "revisions",
+  "virtual_contests",
   "video_watched",
   "path_steps",
   "sync_log",
@@ -335,14 +337,54 @@ export class Repo {
   }
 
   /** Start time of every CF contest (the problemset itself carries no dates). */
-  async saveCfContestTimes(rows: { contestId: number; startTime: number; durationSeconds: number }[]) {
+  async saveCfContestTimes(rows: { contestId: number; startTime: number; durationSeconds: number; name?: string }[]) {
     await insertMany(
       this.db,
-      "INSERT INTO cf_contest_times (contest_id, start_time, duration_seconds)",
-      3,
-      rows.map((r) => [r.contestId, r.startTime, r.durationSeconds]),
-      "ON CONFLICT(contest_id) DO UPDATE SET start_time = excluded.start_time, duration_seconds = excluded.duration_seconds",
+      "INSERT INTO cf_contest_times (contest_id, start_time, duration_seconds, name)",
+      4,
+      rows.map((r) => [r.contestId, r.startTime, r.durationSeconds, r.name ?? null]),
+      "ON CONFLICT(contest_id) DO UPDATE SET start_time = excluded.start_time, duration_seconds = excluded.duration_seconds, name = COALESCE(excluded.name, cf_contest_times.name)",
     );
+  }
+
+  /** v1.7: every past CF round we know, with its name (for virtual contests). */
+  async getCfRounds(): Promise<{ contestId: number; name: string; startTime: number; durationSeconds: number }[]> {
+    const rows = await this.db.select<{ contest_id: number; name: string; start_time: number; duration_seconds: number }>(
+      "SELECT contest_id, name, start_time, duration_seconds FROM cf_contest_times WHERE name IS NOT NULL AND duration_seconds IS NOT NULL ORDER BY start_time DESC",
+    );
+    return rows.map((r) => ({ contestId: r.contest_id, name: r.name, startTime: r.start_time, durationSeconds: r.duration_seconds }));
+  }
+
+  // ---------- virtual contests (v1.7) ----------
+  async startVirtual(v: { contestId: number; name: string; startedAt: number; durationSeconds: number; problems: VirtualProblem[] }): Promise<void> {
+    await this.db.execute(
+      "INSERT INTO virtual_contests (contest_id, name, started_at, duration_seconds, ended_at, problems_json) VALUES ($1, $2, $3, $4, NULL, $5)",
+      [v.contestId, v.name, v.startedAt, v.durationSeconds, json(v.problems)],
+    );
+  }
+
+  async endVirtual(id: number, at: number) {
+    await this.db.execute("UPDATE virtual_contests SET ended_at = $1 WHERE id = $2 AND ended_at IS NULL", [at, id]);
+  }
+
+  async deleteVirtual(id: number) {
+    await this.db.execute("DELETE FROM virtual_contests WHERE id = $1", [id]);
+  }
+
+  async getVirtuals(): Promise<VirtualRow[]> {
+    const rows = await this.db.select<{ id: number; contest_id: number; name: string; started_at: number; duration_seconds: number; ended_at: number | null; problems_json: string }>(
+      "SELECT * FROM virtual_contests ORDER BY started_at DESC",
+    );
+    return rows.map((r) => {
+      let problems: VirtualProblem[] = [];
+      try {
+        const v: unknown = JSON.parse(r.problems_json);
+        if (Array.isArray(v)) problems = v as VirtualProblem[];
+      } catch {
+        // Keep the row without its problems.
+      }
+      return { id: r.id, contestId: r.contest_id, name: r.name, startedAt: r.started_at, durationSeconds: r.duration_seconds, endedAt: r.ended_at, problems };
+    });
   }
 
   async getCfContestTimes(): Promise<Map<number, number>> {
