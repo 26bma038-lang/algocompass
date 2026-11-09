@@ -1,9 +1,13 @@
 import { MoreHorizontal } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useMarkSolved } from "@/data/quests";
+import { useNeededHelp } from "@/data/revisions";
+import { LABELS } from "@/lib/glossary";
 import { useRecFeedback } from "@/data/recommendations";
 import type { FeedbackKind } from "@/data/types";
-import { title, type RowProblem } from "./problemText";
+import { refFromRec } from "@/engine/problemRef";
+import { ProblemToolItems } from "./ProblemTools";
+import { title, url, type RowProblem } from "./problemText";
 
 const FEEDBACK: { kind: FeedbackKind; label: string; hint: (p: RowProblem) => string }[] = [
   { kind: "skip", label: "Skip", hint: (p) => (p.platform === "lc" ? "Hide it without marking it solved" : "Hide it. Use this for problems you've already solved, too.") },
@@ -19,8 +23,8 @@ const FEEDBACK: { kind: FeedbackKind; label: string; hint: (p: RowProblem) => st
 export function RowMenu({ p, topicId, kinds }: { p: RowProblem; topicId: string; kinds: FeedbackKind[] }) {
   const feedback = useRecFeedback();
   const mark = useMarkSolved();
+  const help = useNeededHelp();
   const items = FEEDBACK.filter((f) => kinds.includes(f.kind));
-  if (p.platform !== "lc" && items.length === 0) return null;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -39,9 +43,20 @@ export function RowMenu({ p, topicId, kinds }: { p: RowProblem; topicId: string;
               <span className="font-medium">I solved it</span>
               <span className="text-label text-ink-muted">LeetCode only shares your 20 latest solves</span>
             </DropdownMenuItem>
-            {items.length > 0 && <DropdownMenuSeparator />}
           </>
         )}
+        <DropdownMenuItem
+          disabled={help.isPending || mark.isPending}
+          onSelect={() => {
+            if (p.platform === "lc") mark.mutate({ platform: "lc", problemId: p.id, title: title(p), topicId });
+            help.mutate({ key: `${p.platform}:${p.id}` });
+          }}
+        >
+          <span className="font-medium">{LABELS.neededHelp}</span>
+          <span className="text-label text-ink-muted">It comes back in 3 days, not 7</span>
+        </DropdownMenuItem>
+        <ProblemToolItems problem={refFromRec(p, url(p))} />
+        {items.length > 0 && <DropdownMenuSeparator />}
         {items.map((f) => (
           <DropdownMenuItem
             key={f.kind}

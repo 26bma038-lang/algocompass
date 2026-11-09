@@ -2,6 +2,9 @@ import { Check } from "lucide-react";
 import { Term } from "@/components/Term";
 import type { PathProblem } from "@/engine/path";
 import type { ProblemStatus } from "@/engine/sheets";
+import { RowTools } from "@/components/practice/ProblemTools";
+import { openTarget } from "@/data/sheets";
+import { refFromSheet } from "@/engine/problemRef";
 import { OpenButton, sourceLabel, TickBox } from "@/features/sheets/parts";
 import { LABELS } from "@/lib/glossary";
 import { cn } from "@/lib/utils";
@@ -47,6 +50,7 @@ export function LessonProblemRow({ p, status, next = false, primaryOpen = false 
           ) : null)}
       </span>
       <OpenButton problem={p} variant={primaryOpen ? "primary" : "outline"} withSite className="w-44" />
+      <RowTools problem={refFromSheet(p, openTarget(p)?.url ?? null)} done={status.done} />
     </li>
   );
 }

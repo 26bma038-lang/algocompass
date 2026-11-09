@@ -108,8 +108,15 @@ describe("ticking against the real schema", () => {
     const repo = await memoryRepo();
     await repo.saveSheetNote("lc:two-sum", "hash map, one pass", 1);
     await repo.saveSheetNote("lc:two-sum", "hash map, one pass; watch duplicates", 2);
-    expect(await repo.getSheetNotes()).toEqual([{ key: "lc:two-sum", body: "hash map, one pass; watch duplicates", updatedAt: 2 }]);
+    expect(await repo.getSheetNotes()).toEqual([{ key: "lc:two-sum", body: "hash map, one pass; watch duplicates", updatedAt: 2, title: null }]);
     await repo.saveSheetNote("lc:two-sum", "  ", 3);
     expect(await repo.getSheetNotes()).toEqual([]);
+  });
+
+  it("remembers the title a note was written on, and keeps it when a later save has none", async () => {
+    const repo = await memoryRepo();
+    await repo.saveSheetNote("cf:4-A", "parity", 1, "Watermelon");
+    await repo.saveSheetNote("cf:4-A", "parity, then even split", 2);
+    expect(await repo.getSheetNotes()).toEqual([{ key: "cf:4-A", body: "parity, then even split", updatedAt: 2, title: "Watermelon" }]);
   });
 });

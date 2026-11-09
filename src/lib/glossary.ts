@@ -79,6 +79,18 @@ export const LABELS = {
   notRated: "Not rated",
   /** v1.6: Codeforces problems after the sheet rows. */
   sharpenOnCf: "Sharpen on Codeforces",
+  /** v1.7: the revision queue. */
+  dueForReview: "Due for review",
+  solvedAgain: "I solved it again",
+  stillHard: "Still hard",
+  neededHelp: "I solved it, but needed help",
+  /** v1.7: notes and Stuck?. */
+  stuck: "Stuck?",
+  addNote: "Add a note",
+  yourNote: "Your note",
+  yourNotes: "Your notes",
+  /** v1.7: Progress → Friends. */
+  friends: "Friends",
 } as const;
 
 /** v1.6: how many people solved a Codeforces problem, "Solved by 40k" (1,234 → 1.2k, 980 → 980). */

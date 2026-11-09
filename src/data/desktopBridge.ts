@@ -2,7 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { LABELS } from "@/lib/glossary";
 import { useQuery } from "@tanstack/react-query";
 import { useStreak } from "@/components/shell/useStreak";
-import { buildSchedule, streakCheckAt } from "@/engine/notifications";
+import { buildSchedule, dailyReminderText, streakCheckAt, type DailyReminderText } from "@/engine/notifications";
+import { title as problemTitle } from "@/components/practice/problemText";
+import { pickDoThisNext } from "@/engine/today";
+import { solvedAgoWords } from "@/engine/revision";
+import { useDueRevisions } from "./revisions";
+import { isSheetId, openTarget, useSheet } from "./sheets";
+import { useMixOfTheDay } from "./recommendations";
 import { useNavigate } from "react-router-dom";
 import { onTrayNavigate, onTraySync, pushSchedule, setTrayStatus } from "@/lib/desktop";
 import { usePrefs } from "./prefs";
@@ -21,6 +27,33 @@ function useTick(ms: number): number {
     return () => window.clearInterval(t);
   }, [ms]);
   return n;
+}
+
+/**
+ * The daily reminder's words (v1.7): the same pick as Today's Do this next, or nothing when every
+ * one of today's goals is done. `ready` is false until the data it reads has loaded, so a reminder is
+ * never built on half the facts.
+ */
+function useDailyReminderText(enabled: boolean): { ready: boolean; text: DailyReminderText | null } {
+  const mix = useMixOfTheDay();
+  const quests = useTodayQuests().data;
+  const due = useDueRevisions();
+  const followed = usePrefs().data?.followedSheet ?? null;
+  const sheet = useSheet(isSheetId(followed) ? followed : null);
+  if (!enabled) return { ready: false, text: null };
+  if (mix.data === undefined || due.data === undefined || !quests || (isSheetId(followed) && sheet.isLoading)) return { ready: false, text: null };
+  if (quests.total > 0 && quests.done >= quests.total) return { ready: true, text: null };
+  const pick = pickDoThisNext(mix.data?.items, sheet.data?.next ?? null, due.data[0] ?? null);
+  if (pick.kind === "review") {
+    const d = pick.due;
+    return { ready: true, text: dailyReminderText({ kind: "review", title: d.title, site: d.platform === "cf" ? "Codeforces" : "LeetCode", solvedAgo: solvedAgoWords(d.at, Math.floor(Date.now() / 1000)) }) };
+  }
+  if (pick.kind === "mix") return { ready: true, text: dailyReminderText({ kind: "problem", title: problemTitle(pick.problem), site: pick.problem.platform === "cf" ? "Codeforces" : "LeetCode" }) };
+  if (pick.kind === "sheet") {
+    const target = openTarget(pick.next.problem);
+    return { ready: true, text: dailyReminderText({ kind: "problem", title: pick.next.problem.title, site: target?.site ?? "its site" }) };
+  }
+  return { ready: true, text: null };
 }
 
 /**
@@ -43,6 +76,7 @@ export function useDesktopBridge() {
     },
     refetchInterval: REFRESH_MS,
   });
+  const daily = useDailyReminderText(prefs?.notify.daily === true);
   const attendKey = contests.data ? [...contests.data.attending].sort().join(",") : "";
 
   useEffect(() => {
@@ -53,10 +87,11 @@ export function useDesktopBridge() {
       attending: contests.data.attending,
       prefs: prefs.notify,
       streak: streak ? { current: streak.current, activeToday: streak.activeToday } : null,
+      daily: daily.ready ? daily.text : undefined,
     });
     void pushSchedule(schedule);
     // `tick` re-runs this every 10th minute-ish (cheap), so the day rolls over without a sync.
-  }, [prefs, contests.data, attendKey, streak?.current, streak?.activeToday, Math.floor(tick / 10)]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [prefs, contests.data, attendKey, streak?.current, streak?.activeToday, daily.ready, daily.text?.body, Math.floor(tick / 10)]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // A fresh sync just before the streak reminder: if you solved something, the reminder is withdrawn.
   const preSynced = useRef<string | null>(null);

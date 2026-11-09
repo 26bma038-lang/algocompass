@@ -11,6 +11,9 @@ import { flameState, streakAtRisk, useStreak } from "@/components/shell/useStrea
 import { useHomeData } from "@/data/queries";
 import { useMarkSolved, useTodayQuests } from "@/data/quests";
 import { useMixOfTheDay } from "@/data/recommendations";
+import { useDueRevisions, useReviewRevision } from "@/data/revisions";
+import { solvedAgoWords } from "@/engine/revision";
+import { revisionUrl } from "@/components/practice/revisionText";
 import { usePrefs } from "@/data/prefs";
 import { isSheetId, openTarget, useSheet } from "@/data/sheets";
 import type { CfRatingChange, CfUser, Contest } from "@/data/types";
@@ -69,7 +72,9 @@ function DoThisNextCard() {
   const followed = usePrefs().data?.followedSheet ?? null;
   const sheet = useSheet(isSheetId(followed) ? followed : null).data;
   const mark = useMarkSolved();
-  const pick = pickDoThisNext(mix.data?.items, sheet?.next ?? null);
+  const due = useDueRevisions().data?.[0] ?? null;
+  const reviewing = useReviewRevision();
+  const pick = pickDoThisNext(mix.data?.items, sheet?.next ?? null, due);
   const progress =
     pick.kind !== "none" && pick.total > 0 ? (
       <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-glass-border pt-4 text-body-sm text-ink-muted">
@@ -83,7 +88,38 @@ function DoThisNextCard() {
     ) : null;
 
   let body: ReactNode;
-  if (pick.kind === "mix") {
+  if (pick.kind === "review") {
+    const d = pick.due;
+    const href = revisionUrl(d);
+    const site = d.platform === "cf" ? "Codeforces" : "LeetCode";
+    body = (
+      <>
+        <div className="flex flex-col gap-2">
+          <h2 id="next-title" className="font-display text-display leading-tight font-semibold text-ink">
+            {d.title}
+          </h2>
+          <p className="text-body-sm text-ink-muted">
+            {solvedAgoWords(d.at, Math.floor(Date.now() / 1000))} on {site}. {LABELS.dueForReview}: doing it again is how it sticks.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          {href && (
+            <Button size="lg" onClick={() => openExternal(href)}>
+              Open on {site}
+              <ExternalLink aria-hidden />
+            </Button>
+          )}
+          <Button variant="outline" disabled={reviewing.isPending} onClick={() => reviewing.mutate({ due: d, stillHard: false })}>
+            <Check aria-hidden />
+            {LABELS.solvedAgain}
+          </Button>
+          <Button variant="ghost" disabled={reviewing.isPending} onClick={() => reviewing.mutate({ due: d, stillHard: true })}>
+            {LABELS.stillHard}
+          </Button>
+        </div>
+      </>
+    );
+  } else if (pick.kind === "mix") {
     const p = pick.problem;
     const site = p.platform === "cf" ? "Codeforces" : "LeetCode";
     const href = problemUrl(p);

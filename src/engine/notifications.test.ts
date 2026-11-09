@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Contest } from "@/data/types";
-import { buildSchedule, dueReminders, type ReminderPrefs } from "./notifications";
+import { buildSchedule, dailyReminderText, dueReminders, type ReminderPrefs } from "./notifications";
 
 const at = (h: number, m = 0, day = 15) => Math.floor(new Date(2026, 9, day, h, m).getTime() / 1000);
 const PREFS: ReminderPrefs = { contests: true, streak: true, streakTime: "20:00" };
@@ -78,5 +78,44 @@ describe("dueReminders", () => {
 
   it("never fires a reminder twice", () => {
     expect(dueReminders(s, at(19, 6), new Set(["contest:cf:1:60"]))).toEqual([]);
+  });
+});
+
+describe("daily reminder (v1.7)", () => {
+  const base = { contests: [], attending: new Set<string>(), streak: null };
+  const prefs: ReminderPrefs = { ...PREFS, daily: true, dailyTime: "18:00" };
+  const daily = dailyReminderText({ kind: "problem", title: "Two Sum", site: "LeetCode" });
+
+  it("names today's exact next problem at the set time", () => {
+    const [r] = buildSchedule({ ...base, now: at(9), prefs, daily });
+    expect(r).toMatchObject({ key: "daily:2026-10-15", at: at(18), expiresAt: at(21), title: "Today's next problem", body: "Two Sum on LeetCode." });
+  });
+
+  it("names a due review when that is the next thing", () => {
+    const text = dailyReminderText({ kind: "review", title: "Koko Eating Bananas", site: "LeetCode", solvedAgo: "Solved 8 days ago" });
+    expect(text.title).toBe("Time to review");
+    expect(text.body).toContain("Koko Eating Bananas");
+    expect(text.body).toContain("Solved 8 days ago");
+  });
+
+  it("sends nothing when goals are done (no text), when off, or when not computed", () => {
+    expect(buildSchedule({ ...base, now: at(9), prefs, daily: null })).toEqual([]);
+    expect(buildSchedule({ ...base, now: at(9), prefs })).toEqual([]);
+    expect(buildSchedule({ ...base, now: at(9), prefs: { ...prefs, daily: false }, daily })).toEqual([]);
+    expect(buildSchedule({ ...base, now: at(9), prefs: PREFS, daily })).toEqual([]);
+  });
+
+  it("is still sent when the app opens a little late, dropped once the grace is over, and never past midnight", () => {
+    expect(buildSchedule({ ...base, now: at(19, 30), prefs, daily })).toHaveLength(1);
+    expect(buildSchedule({ ...base, now: at(21, 1), prefs, daily })).toEqual([]);
+    const late = buildSchedule({ ...base, now: at(22), prefs: { ...prefs, dailyTime: "23:00" }, daily });
+    expect(late[0]!.expiresAt).toBe(at(0, 0, 16));
+  });
+
+  it("fires as due only inside its window, once", () => {
+    const s = buildSchedule({ ...base, now: at(9), prefs, daily });
+    expect(dueReminders(s, at(17, 59), new Set())).toEqual([]);
+    expect(dueReminders(s, at(18, 1), new Set())).toHaveLength(1);
+    expect(dueReminders(s, at(18, 1), new Set(["daily:2026-10-15"]))).toEqual([]);
   });
 });

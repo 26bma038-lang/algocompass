@@ -492,3 +492,11 @@ html.aura-shifting {
   --tree-edge-dim: rgba(17, 17, 20, 0.08);
   --tree-mask: rgba(246, 246, 247, 0.7);
 }
+
+/* v1.7: date inputs (Rating goal) get the native picker in the current theme. */
+html[data-theme="dark"] input[type="date"] {
+  color-scheme: dark;
+}
+html[data-theme="light"] input[type="date"] {
+  color-scheme: light;
+}

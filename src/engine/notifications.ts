@@ -20,6 +20,9 @@ export interface ReminderPrefs {
   streak: boolean;
   /** Local "HH:MM". */
   streakTime: string;
+  /** v1.7: the daily "what to do today" reminder, and its local "HH:MM". Absent = off. */
+  daily?: boolean;
+  dailyTime?: string;
 }
 
 export interface ScheduleInput {
@@ -31,6 +34,11 @@ export interface ScheduleInput {
   prefs: ReminderPrefs;
   /** Null before any data: no streak reminder. */
   streak: { current: number; activeToday: boolean } | null;
+  /**
+   * v1.7: today's exact next thing (dailyReminderText), or null when there is nothing to say: all of
+   * today's goals are done, or there's no problem yet. Undefined = not computed, so no daily reminder.
+   */
+  daily?: DailyReminderText | null;
   /** Formats a start time for the body ("8:05 pm"). Injected so tests stay locale-free. */
   formatTime?: (epochSeconds: number) => string;
 }
@@ -65,9 +73,29 @@ function dayKey(t: number): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
+/** A daily reminder may fire up to this late (the app was closed at the set time) before it's dropped. */
+export const DAILY_GRACE_SECONDS = 3 * 60 * 60;
+
+export interface DailyReminderText {
+  title: string;
+  body: string;
+}
+
+/** The one line a daily reminder says: today's exact next problem, or a revision that's due. */
+export function dailyReminderText(next: { kind: "review"; title: string; site: string; solvedAgo: string } | { kind: "problem"; title: string; site: string }): DailyReminderText {
+  if (next.kind === "review") return { title: "Time to review", body: `${next.title} on ${next.site}. ${next.solvedAgo}, doing it again is how it sticks.` };
+  return { title: "Today's next problem", body: `${next.title} on ${next.site}.` };
+}
+
 export function buildSchedule(input: ScheduleInput): Reminder[] {
   const fmt = input.formatTime ?? defaultTime;
   const out: Reminder[] = [];
+
+  if (input.prefs.daily && input.daily) {
+    const at = localDayAt(input.now, parseHhmm(input.prefs.dailyTime ?? "18:00"));
+    const expiresAt = Math.min(at + DAILY_GRACE_SECONDS, localDayAt(input.now, 0, 1));
+    if (expiresAt > input.now) out.push({ key: `daily:${dayKey(input.now)}`, at, expiresAt, title: input.daily.title, body: input.daily.body });
+  }
 
   if (input.prefs.contests) {
     for (const c of input.contests) {

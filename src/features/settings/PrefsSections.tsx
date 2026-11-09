@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { usePrefs, useSavePrefs, type AppPrefs, type NotifyPrefs } from "@/data/prefs";
 import type { WeeklyGoals } from "@/engine/goals";
+import { checkForUpdate, restartToUpdate, useUpdaterStore } from "@/lib/updater";
 import { autostartEnabled, setAutostart } from "@/lib/desktop";
 import { LanguageSection, ModeSection } from "./ModeSection";
 import { ThemeSection } from "./ThemePicker";
@@ -137,6 +138,9 @@ function NotificationsSection({ prefs }: { prefs: AppPrefs }) {
   const timeId = useId();
   const [time, setTime] = useState(prefs.notify.streakTime);
   useEffect(() => setTime(prefs.notify.streakTime), [prefs.notify.streakTime]);
+  const dailyId = useId();
+  const [dailyTime, setDailyTime] = useState(prefs.notify.dailyTime);
+  useEffect(() => setDailyTime(prefs.notify.dailyTime), [prefs.notify.dailyTime]);
   const set = (patch: Partial<NotifyPrefs>) => save.mutate({ ...prefs, notify: { ...prefs.notify, ...patch } });
 
   return (
@@ -170,6 +174,29 @@ function NotificationsSection({ prefs }: { prefs: AppPrefs }) {
               onChange={(e) => {
                 setTime(e.target.value);
                 if (/^\d{2}:\d{2}$/.test(e.target.value)) set({ streakTime: e.target.value });
+              }}
+              className="numeric w-[132px] [color-scheme:dark] disabled:opacity-45"
+            />
+          </div>
+        </ToggleRow>
+        <ToggleRow
+          title="Daily reminder"
+          hint="One notification a day naming today's next problem, or a problem that's due for review. Nothing when today's goals are done."
+          checked={prefs.notify.daily}
+          onChange={(v) => set({ daily: v })}
+        >
+          <div className="flex items-center gap-3">
+            <Label htmlFor={dailyId} className="text-body-sm text-ink-muted">
+              Remind me at
+            </Label>
+            <Input
+              id={dailyId}
+              type="time"
+              value={dailyTime}
+              disabled={!prefs.notify.daily}
+              onChange={(e) => {
+                setDailyTime(e.target.value);
+                if (/^\d{2}:\d{2}$/.test(e.target.value)) set({ dailyTime: e.target.value });
               }}
               className="numeric w-[132px] [color-scheme:dark] disabled:opacity-45"
             />
@@ -218,6 +245,36 @@ function StartupSection() {
   );
 }
 
+function UpdatesSection() {
+  const status = useUpdaterStore((s) => s.status);
+  const version = useQuery({ queryKey: ["app", "version"], queryFn: async () => (await import("@tauri-apps/api/app")).getVersion().catch(() => null), staleTime: Infinity });
+  const busy = status.kind === "checking" || status.kind === "downloading";
+  const line =
+    status.kind === "checking" ? "Checking…"
+    : status.kind === "downloading" ? `Downloading ${status.version}…`
+    : status.kind === "ready" ? `${status.version} is ready. Restart to finish.`
+    : status.kind === "uptodate" ? "You have the latest version."
+    : status.kind === "error" ? "Couldn't check just now. Try again when you're online."
+    : "AlgoCompass checks for a new version once a day.";
+  return (
+    <section aria-labelledby="updates-title" className="glass-card p-6">
+      <h2 id="updates-title" className="font-display text-headline font-semibold text-ink">
+        App updates
+      </h2>
+      <p className="mt-1 max-w-[56ch] text-body text-ink-muted">{version.data ? `Version ${version.data}. ` : ""}{line}</p>
+      <div className="mt-6 flex gap-3">
+        {status.kind === "ready" ? (
+          <Button onClick={() => void restartToUpdate()}>Restart to update</Button>
+        ) : (
+          <Button variant="outline" disabled={busy} onClick={() => void checkForUpdate({ quiet: false })}>
+            Check for updates
+          </Button>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export function PrefsSections() {
   const { data: prefs } = usePrefs();
   if (!prefs) return <p className="text-body-sm text-ink-muted">Loading settings…</p>;
@@ -229,6 +286,7 @@ export function PrefsSections() {
       <GoalsSection prefs={prefs} />
       <NotificationsSection prefs={prefs} />
       <StartupSection />
+      <UpdatesSection />
     </>
   );
 }

@@ -1,5 +1,17 @@
 import type { SqlDriver, SqlValue } from "./db";
 import type { TickRow } from "@/engine/sheets";
+import type { VirtualProblem, VirtualRow } from "@/engine/virtual";
+import type { PersonStats } from "@/engine/friends";
+
+export interface FriendRow {
+  id: number;
+  cfHandle: string | null;
+  lcHandle: string | null;
+  addedAt: number;
+  stats: PersonStats | null;
+  fetchedAt: number | null;
+  error: string | null;
+}
 import type {
   CfProblem,
   CfRatingChange,
@@ -49,6 +61,9 @@ export const TABLES = [
   "achievements",
   "sheet_ticks",
   "sheet_notes",
+  "revisions",
+  "virtual_contests",
+  "friends",
   "video_watched",
   "path_steps",
   "sync_log",
@@ -334,14 +349,89 @@ export class Repo {
   }
 
   /** Start time of every CF contest (the problemset itself carries no dates). */
-  async saveCfContestTimes(rows: { contestId: number; startTime: number; durationSeconds: number }[]) {
+  async saveCfContestTimes(rows: { contestId: number; startTime: number; durationSeconds: number; name?: string }[]) {
     await insertMany(
       this.db,
-      "INSERT INTO cf_contest_times (contest_id, start_time, duration_seconds)",
-      3,
-      rows.map((r) => [r.contestId, r.startTime, r.durationSeconds]),
-      "ON CONFLICT(contest_id) DO UPDATE SET start_time = excluded.start_time, duration_seconds = excluded.duration_seconds",
+      "INSERT INTO cf_contest_times (contest_id, start_time, duration_seconds, name)",
+      4,
+      rows.map((r) => [r.contestId, r.startTime, r.durationSeconds, r.name ?? null]),
+      "ON CONFLICT(contest_id) DO UPDATE SET start_time = excluded.start_time, duration_seconds = excluded.duration_seconds, name = COALESCE(excluded.name, cf_contest_times.name)",
     );
+  }
+
+  /** v1.7: every past CF round we know, with its name (for virtual contests). */
+  async getCfRounds(): Promise<{ contestId: number; name: string; startTime: number; durationSeconds: number }[]> {
+    const rows = await this.db.select<{ contest_id: number; name: string; start_time: number; duration_seconds: number }>(
+      "SELECT contest_id, name, start_time, duration_seconds FROM cf_contest_times WHERE name IS NOT NULL AND duration_seconds IS NOT NULL ORDER BY start_time DESC",
+    );
+    return rows.map((r) => ({ contestId: r.contest_id, name: r.name, startTime: r.start_time, durationSeconds: r.duration_seconds }));
+  }
+
+  // ---------- friends (v1.7) ----------
+  async addFriend(cfHandle: string | null, lcHandle: string | null, now: number): Promise<number> {
+    await this.db.execute("INSERT INTO friends (cf_handle, lc_handle, added_at) VALUES ($1, $2, $3)", [cfHandle, lcHandle, now]);
+    const [row] = await this.db.select<{ id: number }>("SELECT MAX(id) AS id FROM friends");
+    return row!.id;
+  }
+
+  async removeFriend(id: number) {
+    await this.db.execute("DELETE FROM friends WHERE id = $1", [id]);
+  }
+
+  /** Saves a refresh: new stats (or the old ones kept, when it failed) and the error, if any. */
+  async saveFriendStats(id: number, stats: unknown | null, fetchedAt: number | null, error: string | null) {
+    if (stats !== null) {
+      await this.db.execute("UPDATE friends SET stats_json = $1, fetched_at = $2, error = $3 WHERE id = $4", [json(stats), fetchedAt, error, id]);
+    } else {
+      await this.db.execute("UPDATE friends SET error = $1 WHERE id = $2", [error, id]);
+    }
+  }
+
+  async getFriends(): Promise<FriendRow[]> {
+    const rows = await this.db.select<{ id: number; cf_handle: string | null; lc_handle: string | null; added_at: number; stats_json: string | null; fetched_at: number | null; error: string | null }>(
+      "SELECT * FROM friends ORDER BY added_at, id",
+    );
+    return rows.map((r) => {
+      let stats: PersonStats | null = null;
+      try {
+        stats = r.stats_json ? (JSON.parse(r.stats_json) as PersonStats) : null;
+      } catch {
+        // Unreadable: shown as not loaded yet, and the next update rewrites it.
+      }
+      return { id: r.id, cfHandle: r.cf_handle, lcHandle: r.lc_handle, addedAt: r.added_at, stats, fetchedAt: r.fetched_at, error: r.error };
+    });
+  }
+
+  // ---------- virtual contests (v1.7) ----------
+  async startVirtual(v: { contestId: number; name: string; startedAt: number; durationSeconds: number; problems: VirtualProblem[] }): Promise<void> {
+    await this.db.execute(
+      "INSERT INTO virtual_contests (contest_id, name, started_at, duration_seconds, ended_at, problems_json) VALUES ($1, $2, $3, $4, NULL, $5)",
+      [v.contestId, v.name, v.startedAt, v.durationSeconds, json(v.problems)],
+    );
+  }
+
+  async endVirtual(id: number, at: number) {
+    await this.db.execute("UPDATE virtual_contests SET ended_at = $1 WHERE id = $2 AND ended_at IS NULL", [at, id]);
+  }
+
+  async deleteVirtual(id: number) {
+    await this.db.execute("DELETE FROM virtual_contests WHERE id = $1", [id]);
+  }
+
+  async getVirtuals(): Promise<VirtualRow[]> {
+    const rows = await this.db.select<{ id: number; contest_id: number; name: string; started_at: number; duration_seconds: number; ended_at: number | null; problems_json: string }>(
+      "SELECT * FROM virtual_contests ORDER BY started_at DESC",
+    );
+    return rows.map((r) => {
+      let problems: VirtualProblem[] = [];
+      try {
+        const v: unknown = JSON.parse(r.problems_json);
+        if (Array.isArray(v)) problems = v as VirtualProblem[];
+      } catch {
+        // Keep the row without its problems.
+      }
+      return { id: r.id, contestId: r.contest_id, name: r.name, startedAt: r.started_at, durationSeconds: r.duration_seconds, endedAt: r.ended_at, problems };
+    });
   }
 
   async getCfContestTimes(): Promise<Map<number, number>> {
@@ -520,21 +610,47 @@ export class Repo {
     }
   }
 
-  async getSheetNotes(): Promise<{ key: string; body: string; updatedAt: number }[]> {
-    return this.db.select('SELECT problem_key AS "key", body, updated_at AS "updatedAt" FROM sheet_notes');
+  async getSheetNotes(): Promise<{ key: string; body: string; updatedAt: number; title: string | null }[]> {
+    return this.db.select('SELECT problem_key AS "key", body, updated_at AS "updatedAt", title FROM sheet_notes');
   }
 
   /** Saves a note; an empty one is deleted. */
-  async saveSheetNote(key: string, body: string, now: number) {
+  async saveSheetNote(key: string, body: string, now: number, title: string | null = null) {
     if (!body.trim()) {
       await this.db.execute("DELETE FROM sheet_notes WHERE problem_key = $1", [key]);
       return;
     }
     await this.db.execute(
-      `INSERT INTO sheet_notes (problem_key, body, updated_at) VALUES ($1, $2, $3)
-       ON CONFLICT(problem_key) DO UPDATE SET body = excluded.body, updated_at = excluded.updated_at`,
-      [key, body, now],
+      `INSERT INTO sheet_notes (problem_key, body, updated_at, title) VALUES ($1, $2, $3, $4)
+       ON CONFLICT(problem_key) DO UPDATE SET body = excluded.body, updated_at = excluded.updated_at, title = COALESCE(excluded.title, sheet_notes.title)`,
+      [key, body, now, title],
     );
+  }
+
+  async getRevisions(): Promise<{ key: string; neededHelp: boolean; stage: number; nextAt: number | null }[]> {
+    const rows = await this.db.select<{ problem_key: string; needed_help: number; stage: number; next_at: number | null }>(
+      'SELECT problem_key, needed_help, stage, next_at FROM revisions',
+    );
+    return rows.map((r) => ({ key: r.problem_key, neededHelp: r.needed_help === 1, stage: r.stage, nextAt: r.next_at }));
+  }
+
+  async saveRevision(r: { key: string; neededHelp: boolean; stage: number; nextAt: number | null }, now: number) {
+    await this.db.execute(
+      `INSERT INTO revisions (problem_key, needed_help, stage, next_at, updated_at) VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT(problem_key) DO UPDATE SET needed_help = excluded.needed_help, stage = excluded.stage, next_at = excluded.next_at, updated_at = excluded.updated_at`,
+      [r.key, r.neededHelp ? 1 : 0, r.stage, r.nextAt, now],
+    );
+  }
+
+  /** Marks problems as "needed help" (they return 3 days after the solve), keeping any review progress. */
+  async flagNeededHelp(keys: readonly string[], now: number) {
+    for (const key of keys) {
+      await this.db.execute(
+        `INSERT INTO revisions (problem_key, needed_help, stage, next_at, updated_at) VALUES ($1, 1, 0, NULL, $2)
+         ON CONFLICT(problem_key) DO UPDATE SET needed_help = 1, updated_at = excluded.updated_at`,
+        [key, now],
+      );
+    }
   }
 
   async getWatchedVideos(): Promise<Map<string, number>> {

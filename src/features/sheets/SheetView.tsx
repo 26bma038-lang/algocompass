@@ -15,7 +15,9 @@ import type { LcDifficulty } from "@/data/types";
 import { cn } from "@/lib/utils";
 import { doneOf, LABELS } from "@/lib/glossary";
 import { FollowButton, NextTile, OpenButton, PathStepProgress, SheetCredit, sourceLabel, TickBox, topicName } from "./parts";
-import { PATH_SHEET_ID } from "@/data/sheets";
+import { openTarget, PATH_SHEET_ID } from "@/data/sheets";
+import { StuckButton } from "@/components/practice/ProblemTools";
+import { refFromSheet } from "@/engine/problemRef";
 import { SectionStrip } from "./SectionStrip";
 
 type StatusFilter = "all" | "unsolved" | "solved";
@@ -200,6 +202,7 @@ const Row = memo(function Row({
           </TooltipTrigger>
           <TooltipContent side="top">{note ? "Your note" : "Add a private note"}</TooltipContent>
         </Tooltip>
+        {!status.done && <StuckButton problem={refFromSheet(p, openTarget(p)?.url ?? null)} compact />}
         <OpenButton problem={p} />
       </li>
       {noteOpen && (

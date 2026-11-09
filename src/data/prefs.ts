@@ -14,6 +14,10 @@ export interface NotifyPrefs {
   streakTime: string;
   /** When a daily quest completes. */
   quests: boolean;
+  /** v1.7: one reminder a day naming today's next problem or a due review. Off until you turn it on. */
+  daily: boolean;
+  /** Local "HH:MM". */
+  dailyTime: string;
 }
 
 /**
@@ -38,7 +42,7 @@ export interface AppPrefs {
 
 export const DEFAULT_PREFS: AppPrefs = {
   goals: DEFAULT_GOALS,
-  notify: { contests: true, streak: true, streakTime: "20:00", quests: true },
+  notify: { contests: true, streak: true, streakTime: "20:00", quests: true, daily: false, dailyTime: "18:00" },
   mode: "smart",
   videoLang: "en",
   codeLang: DEFAULT_CODE_LANG,

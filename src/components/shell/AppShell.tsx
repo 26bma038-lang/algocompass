@@ -1,4 +1,4 @@
-import { Suspense, useLayoutEffect, useRef, useState } from "react";
+import { lazy, Suspense, useLayoutEffect, useRef, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { closeTooltips, TooltipProvider } from "@/components/ui/tooltip";
@@ -6,6 +6,7 @@ import { AmbientBackground } from "./AmbientBackground";
 import { Sidebar } from "./Sidebar";
 import { TitleBar } from "./TitleBar";
 import { PreviewBanner } from "./PreviewBanner";
+import { UpdateBanner } from "./UpdateBanner";
 import { TopBar } from "./TopBar";
 import { useShortcuts } from "./useShortcuts";
 import { Toaster } from "@/components/ui/sonner";
@@ -22,6 +23,10 @@ import { TopicPanel } from "@/features/topic/TopicPanel";
 import { useHandlesState } from "@/data/onboarding";
 import { Welcome } from "@/features/onboarding/Welcome";
 import { ShellFooterContext } from "./footerSlot";
+import { useUiStore } from "@/data/uiStore";
+
+// The note editor and Stuck? steps load on first use (v1.7).
+const ProblemPanels = lazy(() => import("@/features/problem/ProblemPanels").then((m) => ({ default: m.ProblemPanels })));
 
 /**
  * First launch (no handles saved, nothing synced): only the title bar and the welcome screen. The
@@ -56,6 +61,16 @@ export function AppShell() {
   return <MainShell />;
 }
 
+function ToolMount() {
+  const open = useUiStore((s) => s.tool !== null);
+  if (!open) return null;
+  return (
+    <Suspense fallback={null}>
+      <ProblemPanels />
+    </Suspense>
+  );
+}
+
 function MainShell() {
   const { pathname } = useLocation();
   // A new screen starts at the top (the scroll area outlives route changes). Screens that land
@@ -78,6 +93,7 @@ function MainShell() {
         <AmbientBackground />
         <TitleBar />
         <PreviewBanner />
+        <UpdateBanner />
         <div className="relative z-10 flex min-h-0 flex-1">
           <Sidebar />
           <main className="flex min-w-0 flex-1 flex-col">
@@ -108,6 +124,7 @@ function MainShell() {
       <CommandPalette />
       <ShortcutSheet />
       <TipTour />
+      <ToolMount />
       {/* On a lesson, toasts sit above the sticky Next bar so they never cover the button. */}
       <Toaster offset={pathname.startsWith("/learn/path/") ? { bottom: 104, right: 20 } : 20} />
     </TooltipProvider>

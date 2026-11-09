@@ -8,7 +8,9 @@ import { TOPIC_BY_ID } from "@/engine/topics";
 import { openExternal } from "@/lib/openExternal";
 import { cn } from "@/lib/utils";
 import { LABELS, plainTopicName } from "@/lib/glossary";
+import { refFromRec } from "@/engine/problemRef";
 import { meta, openLabel, siteName, title, url, type RowProblem } from "./problemText";
+import { NoteButton, StuckButton } from "./ProblemTools";
 
 export type { RowProblem };
 
@@ -69,6 +71,7 @@ export function ProblemRow({
   primary?: boolean;
 }) {
   const href = url(p);
+  const ref = refFromRec(p, href);
   const name = title(p);
   const site = siteName(p.platform);
   const topicId = "topicId" in p ? p.topicId : (p.topics[0] ?? "implementation");
@@ -124,13 +127,15 @@ export function ProblemRow({
             {openLabel(site)}
           </Button>
         ))}
+      {!done && <StuckButton problem={ref} compact={compact} className={compact ? undefined : "w-[84px] shrink-0"} />}
       {!done && (
         <Suspense fallback={<span aria-hidden className="size-8 shrink-0" />}>
           <RowMenu p={p} topicId={topicId} kinds={feedback} />
         </Suspense>
       )}
-      {/* Keeps Open aligned on done rows, which have no menu. */}
-      {done && !compact && <span aria-hidden className="size-8 shrink-0" />}
+      {/* Done rows: no Stuck? or menu, but a note is still worth keeping; the slots stay so Open stays aligned. */}
+      {done && !compact && <span aria-hidden className="w-[84px] shrink-0" />}
+      {done && <NoteButton problem={ref} />}
     </li>
   );
 }

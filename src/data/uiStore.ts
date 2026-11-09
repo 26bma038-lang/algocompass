@@ -1,12 +1,23 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { ProblemRef } from "@/engine/problemRef";
 
 /** A progression moment: a level-up, or a rank promotion (the Aura Shift). Indices are into RANK_BANDS. */
 export type Ceremony =
   | { kind: "level"; level: number; title: string }
   | { kind: "rank"; from: number; to: number; preview: boolean };
 
+/** A note or a "Stuck?" panel open for one problem (v1.7). */
+export interface ProblemTool {
+  kind: "note" | "stuck";
+  ref: ProblemRef;
+}
+
 interface UiState {
+  /** The note editor or the Stuck? steps over any screen (not persisted). */
+  tool: ProblemTool | null;
+  openTool: (kind: ProblemTool["kind"], ref: ProblemRef) => void;
+  closeTool: () => void;
   sidebarExpanded: boolean;
   toggleSidebar: () => void;
   /** Topic shown in the Topic Detail side panel (not persisted). */
@@ -36,6 +47,9 @@ export const useUiStore = create<UiState>()(
       // Labels on by default (v1.2): plain names are the point of the simplified nav.
       sidebarExpanded: true,
       toggleSidebar: () => set((s) => ({ sidebarExpanded: !s.sidebarExpanded })),
+      tool: null,
+      openTool: (kind, ref) => set({ tool: { kind, ref } }),
+      closeTool: () => set({ tool: null }),
       openTopicId: null,
       openTopic: (id) => set({ openTopicId: id }),
       closeTopic: () => set({ openTopicId: null }),

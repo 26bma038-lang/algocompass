@@ -9,7 +9,8 @@ export interface MixPick<P> {
   done: boolean;
 }
 
-export type DoThisNext<P, S> =
+export type DoThisNext<P, S, D = never> =
+  | { kind: "review"; due: D; done: number; total: number }
   | { kind: "mix"; problem: P; done: number; total: number }
   | { kind: "sheet"; next: S; done: number; total: number }
   | { kind: "all-done"; done: number; total: number }
@@ -25,10 +26,12 @@ export function recommendedNextId(items: readonly { platform: "cf" | "lc"; probl
   return listed.find((i) => i.rec !== null && !i.done)?.problemId ?? null;
 }
 
-export function pickDoThisNext<P, S>(mix: readonly MixPick<P>[] | null | undefined, sheetNext: S | null | undefined): DoThisNext<P, S> {
+/** v1.7: a problem due for review comes before everything else (the one most overdue). */
+export function pickDoThisNext<P, S, D = never>(mix: readonly MixPick<P>[] | null | undefined, sheetNext: S | null | undefined, due?: D | null): DoThisNext<P, S, D> {
   const items = (mix ?? []).filter((i): i is { rec: P; done: boolean } => i.rec !== null);
   const done = items.filter((i) => i.done).length;
   const first = items.find((i) => !i.done);
+  if (due) return { kind: "review", due, done, total: items.length };
   if (first) return { kind: "mix", problem: first.rec, done, total: items.length };
   if (sheetNext) return { kind: "sheet", next: sheetNext, done, total: items.length };
   if (items.length) return { kind: "all-done", done, total: items.length };

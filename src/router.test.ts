@@ -47,7 +47,7 @@ describe("routes (v1.4 step 2b: Progress has two tabs)", () => {
     expect(resolve("/progress/topics").chain).toEqual(["", "progress", "topics"]);
     expect(resolve("/progress/topics/map").chain).toEqual(["", "progress", "topics/map"]);
     expect(resolve("/progress/badges").chain).toEqual(["", "progress", "badges"]);
-    for (const p of ["/progress", "/progress/topics", "/progress/topics/map", "/progress/badges"]) expect(resolve(p).to).toBeNull();
+    for (const p of ["/progress", "/progress/topics", "/progress/topics/map", "/progress/badges", "/progress/notes", "/progress/friends"]) expect(resolve(p).to).toBeNull();
   });
 
   it("keeps the old links working", () => {

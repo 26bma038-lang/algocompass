@@ -15,6 +15,8 @@ import { StandingCard } from "@/features/home/StandingCard";
 import { BadgesCard } from "./BadgesCard";
 import { BeginnerOverview } from "./BeginnerOverview";
 import { LcCard } from "./LcCard";
+import { RatingGoalCard } from "./RatingGoal";
+import { ShareWeekButton } from "./ShareWeek";
 import { continuePractice, PROGRESS_TABS } from "./tabs";
 
 // Recharts loads only when the Overview tab opens.
@@ -35,12 +37,16 @@ export function Progress() {
       {/* v1.4 polish: Progress looks back; one button beside the tabs goes back to doing. */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <SegmentedTabs label="Progress sections" tabs={PROGRESS_TABS} />
-        <Button asChild variant="outline">
-          <Link to={cont.to}>
-            {cont.label}
-            <ArrowRight aria-hidden />
-          </Link>
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          {/* v1.7: a PNG of this week, saved where you choose. */}
+          <ShareWeekButton />
+          <Button asChild variant="outline">
+            <Link to={cont.to}>
+              {cont.label}
+              <ArrowRight aria-hidden />
+            </Link>
+          </Button>
+        </div>
       </div>
       <Suspense fallback={<p className="text-body-sm text-ink-muted">Loading…</p>}>
         <Outlet />
@@ -77,6 +83,7 @@ function SmartOverview() {
         <Suspense fallback={<section aria-busy className="glass-card h-[300px] p-6" />}>
           <RatingCard />
         </Suspense>
+        <RatingGoalCard />
         <WeeklyGoalsCard />
         <ActivityHeatmap activity={home?.activity ?? []} />
       </div>

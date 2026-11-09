@@ -1,8 +1,119 @@
 # AlgoCompass progress log
 
-## In progress: v1.6, full playlists (branch `v1.6`, from master)
+## v1.7, the app updates itself (released as v1.7.0 on 2026-11-09)
 
-Not released. A learner gets whole YouTube playlists (every video, in order) instead of a few videos picked from each.
+Released. Auto-updates, a revision queue, notes, "Stuck?", a daily reminder, contest review, virtual contests, a rating goal, friends, more playlists and a share card. **The first version that can update itself;** 1.6.0 and older need one manual install.
+
+### Part 1: auto-updater (2026-11-09)
+
+- **Plugins:** `tauri-plugin-updater` and `tauri-plugin-process` (Rust + JS), registered in `lib.rs`; capabilities `updater:default` and `process:allow-restart`. Docs checked with context7 (`/tauri-apps/tauri-docs`). The check runs inside the updater plugin's own HTTP client, so the CSP and the `http` plugin's URL scope are unchanged.
+- **Signing key:** `%USERPROFILE%\.tauri\algocompass.key` (password-protected since Part 6; `.gitignore` already ignores `*.key`), public half `algocompass.key.pub`, whose content is the `pubkey` in `tauri.conf.json`. **Back the key up: lose it and no installed copy can ever accept an update.** `createUpdaterArtifacts: true`, endpoint `https://github.com/26bma038-lang/algocompass/releases/latest/download/latest.json`, Windows `installMode: passive` (a small progress window, no prompts).
+- **In the app** (`src/lib/updater.ts`): a quiet check 20 s after launch and every 6 h while the app runs, but only when the last check is over a day old (`updateCheckDue`, saved as pref `updateCheckedAt`). Offline or no new version: silence. A found update downloads in the background, then `UpdateBanner` (under the title bar) says "AlgoCompass X is ready. Restart to update". Settings → **App updates** shows the version and **Check for updates** (says "You have the latest version" or why it couldn't check). Nothing happens in a plain browser or a Debug preview profile.
+- **`scripts/release.mjs`** (PowerShell): builds with the key in `TAURI_SIGNING_PRIVATE_KEY`, writes `release-out/latest.json` (version, notes, `windows-x86_64` signature and the release's setup.exe URL) and copies the setup.exe and .msi next to it; `--publish notes.md` then runs `gh release create vX.Y.Z` with all three files. `release-out/` is git-ignored. **The first release with the updater (v1.7.0) is the first that can update itself;** v1.6.0 and older installs need one manual install.
+- `package-lock.json` version now follows `package.json` (it said 1.2.0).
+
+### Part 2: revision queue (2026-11-09)
+
+- **Rule:** a solved problem comes back 7 days and again 30 days after the solve; 3 days instead of 7 if you said you needed help. A review you call **Still hard** comes back in 3 days and counts as "needed help". Both reviews done = finished. A first review that happens after the 30-day mark finishes it (`afterReview`, `src/engine/revision.ts`, pure).
+- **Migration `0007_revision.sql`** (LF): `revisions(problem_key, needed_help, stage, next_at, updated_at)`. Rows exist only for flagged or reviewed problems; the solve time always comes from your real solves (synced Codeforces and LeetCode, manual marks), never copied.
+- **Only solves from the day the queue first ran count** (pref `revisionSince`, set on first read). Decision: queuing an old history would put hundreds of "due" problems on day one. So nothing is due in the first 3 to 7 days after updating; that's expected.
+- **Where:** Practice → Today's problems gets a **Due for review** card first (up to 5, most overdue first; Open, **I solved it again**, **Still hard**); while one is due the mix's "Recommended next" tag steps aside so there's one primary button. Today's **Do this next** shows the most overdue review before anything else (`pickDoThisNext(mix, sheetNext, due)`). Every row's ⋯ menu has **I solved it, but needed help** (a LeetCode row also marks it solved; Codeforces ticks itself at the next update).
+- **Tests:** `revision.test.ts` (schedule, help, since, caps, review outcomes), `revisions.test.ts` (migration, records, manual solves in sql.js), `today.test.ts`.
+
+### Parts 3 and 4: notes and "Stuck?" (2026-11-09, one commit: they share every row)
+
+- **Notes reuse `sheet_notes`** (keyed by the canonical problem key, so a note on Two Sum is the same note from a sheet, Practice, a lesson or Practice this). **Migration `0008_note_titles.sql`** adds a `title` column so "Your notes" can list a note for a problem that's in no sheet; older notes look their title up in the sheets (`noteEntries`, `src/engine/notes.ts`).
+- **Where:** every problem row's ⋯ menu has **Add a note** and **Stuck?** (`ProblemToolItems`, `src/components/practice/ProblemTools.tsx`). Rows with no ⋯ of their own (lesson problems, Practice this, Codeforces rows) got a Stuck? icon and a ⋯ with the two items (`RowTools`); sheet rows keep their inline note box and gained the Stuck? icon; recommendation rows get a visible **Stuck?** button, and a solved row a note button, so "why I got WA" can be written after the solve. Both open from `useUiStore.openTool` into panels mounted once in the shell and loaded lazily (`ProblemPanels`, Radix Dialog like the shortcut sheet).
+- **Your notes:** Progress's third tab (`/progress/notes`): newest first, search over title and text (every word, any order), Edit opens the same panel. Empty state says how to add one.
+- **Stuck? is four steps, one per click, nothing generated** (`src/engine/stuck.ts`): (1) the problem's topics, from its real tags or its sheet section; (2) a verified video for the lead topic from the library, your language and unwatched first, opening the Watch page; (3) an easier unsolved problem on the topic from the five sheets and the path (closest below this one, home topic first, never Premium; an honest "none" for the easiest problems); (4) the platform's own pages: LeetCode `/editorial/` and `/solutions/`, Codeforces the round's page (the tutorial is linked there when the authors wrote one; we don't guess its blog id). Nothing is invented: a step with nothing real says so. Each step scrolls into view.
+- **Tests:** `stuck.test.ts`, `notes.test.ts`, the notes title round trip in `sheets.test.ts`, Progress tabs and the route.
+- **Screenshots:** `docs/audit-v1.7/stuck-notes/` (Stuck? with all four steps, the note panel, Your notes; Light and Dark, 1100x700, browser mode, a fresh beginner).
+
+### Part 5: daily reminder (2026-11-09)
+
+- Settings → Notifications → **Daily reminder** (toggle and "Remind me at", default **off**, 18:00 once on: a new notification shouldn't start by itself). It rides the existing scheduler: `buildSchedule` gets `daily` text and Rust fires it while the window sits in the tray, once a day (`daily:<date>`), up to 3 h late if the app was closed at the set time, never past midnight.
+- **Text** = Today's "Do this next" (`pickDoThisNext`): a due review ("Time to review: <title> on LeetCode. Solved 8 days ago…"), else today's first unsolved problem, else the followed sheet's next ("Today's next problem: <title> on <site>."). **Nothing** is sent when all of today's goals are done, when there is nothing to name, or before the data it reads has loaded (`useDailyReminderText`, `src/data/desktopBridge.ts`). The schedule is re-pushed every 10 minutes and on any change, so solving the problem changes or withdraws it before it fires. A Debug preview profile never reaches the OS (existing rule).
+- Beginner mode: there is no problem mix, so it only names a due review or the followed sheet's next; no lesson text yet.
+- **Tests:** `notifications.test.ts` (set time, review wording, off / done / not-ready, grace, midnight, fires once).
+
+### Part 6: signing key with a password (2026-11-09)
+
+- The first key had no password. v1.7.0 isn't released, so no installed copy trusts it yet: regenerated with `tauri signer generate -w %USERPROFILE%\.tauri\algocompass.key -p <random 32 chars>`, new `pubkey` in `tauri.conf.json`. The old pair was renamed to `algocompass.key.old-unprotected` / `.pub.old` (not deleted; safe to delete).
+- **The password** was written once to `%USERPROFILE%\.tauri\algocompass-password.txt`, for the owner to move somewhere safe. It's in no repo file.
+- `scripts/release.mjs` passes `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` to the build, or asks for it with a hidden prompt when unset (and stops without a terminal). Also fixed: the copy of the setup.exe and .msi into `release-out/` split paths on `/` only, so on Windows it never copied them; it uses `basename` now.
+- **Verified (Part 6):** a signed build with the password wrote `release-out/latest.json`, the setup.exe, the .msi and both `.sig` files; the signature's key id (8EF1FEFD17869EE2) matches the new public key.
+
+### Part 7: contest review (2026-11-09)
+
+- **Contests → Contest review**, under the next round: one card per Codeforces round you took part in (the saved `contest_results`, nothing new fetched), newest first, two shown then "Show all N rounds". Each card: the round, date and rank; the rating change and old → new rating (your rating history; "Unrated" otherwise); every problem by index as a tile (solved in the round with a check, solved since with a hollow check, not solved dashed; name, rating and state in the tooltip and the label); **Topics of the ones you didn't solve** from the problems' real tags in the problemset cache (count per topic, linking to Learn filtered to that topic; "Codeforces hasn't tagged these problems yet" when none); **Fix next**: the unsolved problems among the first (solved + 2) by index, the same rule as Problems you tried, minus any you've solved since, each with Open, Stuck? and the note.
+- **Fix next joins the revision queue:** sync flags those problems "needed help" when it saves a round (`repo.flagNeededHelp`, keeps any review progress), and opening one from the card does too (covers rounds saved before v1.7). So once solved, it returns after 3 days. An unsolved one never shows as due.
+- Pure part: `buildContestReviews` (`src/engine/contestReview.ts`, tests); data: `src/data/contestReview.ts`. No migration.
+- **Screenshots:** `docs/audit-v1.7/contest-review/` (browser mode, a real Codeforces sync).
+
+### Part 8: virtual contest (2026-11-09)
+
+- **Contests → Virtual contest:** pick a past Codeforces round by division (Div. 2, which includes Educational rounds; Div. 3; Div. 4; combined Div. 1 + 2 rounds are left out), newest first, five shown then "Show more". Only rounds you've never touched: no submission of yours in the round, not one you took part in, never done as a virtual. Only rounds whose whole problem list is in the problemset cache (at least 4 problems; a paired Div. 2's shared problems sit under the Div. 1 id, so such a half is skipped rather than shown short). **Start** asks once ("Starts a 2h clock now", **Start the clock**).
+- **While it runs** the card moves to the top of Contests: the round, a countdown for its **real duration** (contest.list), a thin elapsed bar, every problem with **Open** (the Codeforces problem page; you submit there), and "Solved at 0:14" once a solve is found. **I'm done** (asks once) ends it early.
+- **Solve detection** is your own Codeforces submissions inside the window `[start, start + duration)` (or the early end), never a guess. While it runs the app pulls your latest 50 submissions through the adapter every 2 minutes, on **Check for solves**, when the clock runs out and before an early end (`checkVirtualSolves`, `src/data/virtual.ts`); the regular update catches anything later, and since submissions keep their real time, a late update still counts them. Fails soft: offline it says it couldn't reach Codeforces and tries again.
+- **Review at the end:** solved of total and the time used, then per problem **Solved at** (from the start), **Took** (since the solve before it), and **Wrong tries** (rejected submissions before the solve; compilation errors don't count, as on Codeforces), Open, Stuck? and the note for unsolved ones, and **Topics you missed** from the unsolved problems' real tags. **No standings and no rank**: we'd have to invent them. Older virtuals stay listed (up to 4) with a one-line summary; Remove deletes one.
+- **Migration `0009_virtual.sql`** (LF): `cf_contest_times.name` (sync now saves every round's name, so the picker can filter by division without keeping the whole contest list) and `virtual_contests(id, contest_id, name, started_at, duration_seconds, ended_at, problems_json)`. Results are never stored; they're recomputed from submissions.
+- Pure part: `src/engine/virtual.ts` (division, candidates, window, result, clock words; tests). Data tests: `src/data/virtual.test.ts`.
+- Existing installs: the picker fills after the first update on v1.7 (that's when round names are saved).
+- **Screenshots:** `docs/audit-v1.7/virtual-contest/` (browser mode, a real Codeforces sync): the picker with Start confirming, the running clock, and the review of a virtual ended right away (so 0 solved: nothing was submitted, and nothing is made up).
+
+### Part 9: rating goal plan (2026-11-09)
+
+- **Progress → Overview (smart mode), under the rating chart: Rating goal.** Set a target rating (800 to 4000, above your current) and a day; it's saved as the setting `ratingGoal` (`{target, by, setAt, startRating}`), no migration. Change or Remove any time. Hidden until a Codeforces profile has synced.
+- **What the plan shows** (`buildPlan`, `src/engine/ratingGoal.ts`, pure, tested): now, to go, weeks left, and the plan line (a straight line from your rating when you set it to the target) for today; then a verdict, then two weekly targets, then the weeks tracked.
+- **The verdict compares the goal with your own best climb:** the most rating you gained in any 90-day stretch of your rating history, per month. Needs no more than that: "within reach". Needs more: **"Honestly, this is unlikely"**, with both numbers and the day your best pace would get you there. Under 90 days of rated history: it says it can't judge yet. Also "You're there" and "The date has passed". A first rated round's old rating is 0 on Codeforces; that round is the start, never counted as a gain.
+- **Decision, the targets** (so nothing is a made-up number, and each says what it's based on): *problems a week* in the **practice band** (100 to 300 above your rating in 100-point steps; 800 to 1000 unrated) = your Codeforces solves a week over the last 8 weeks, scaled by how much faster than your best climb the goal asks (×0.75 to ×1.5), kept between 3 and 30. *Rated rounds a month* = what you took during your best climb or lately, whichever is more, rounded, at least 2; with no rated history, 4 (one a week), and it says so.
+- **Tracked weekly:** this week's solves inside this week's band against the target (a meter), rated rounds this calendar month against the target, and every earlier week since the goal was set (up to 6), each measured against the band for your rating at the start of that week, with a check when met.
+- **Screenshots:** `docs/audit-v1.7/rating-goal/` (browser mode, a real Codeforces sync): a goal within reach, and an unlikely one with the honest note.
+
+### Part 10: friends (2026-11-09)
+
+- **Progress → Friends** (fourth tab, `/progress/friends`, lazy): add a friend by Codeforces handle, LeetCode username, or both (a pasted profile link or "@" is cleaned up). Each handle is checked through the adapters before it's saved, with the site's own spelling; a duplicate is refused. Stored only on this computer (**migration `0010_friends.sql`**, LF: `friends(id, cf_handle, lc_handle, added_at, stats_json, fetched_at, error)`). No server.
+- **Side by side:** a table with **You** first (highlighted), then friends in the order added: Codeforces rating (and max), **Solved this week** (problems first solved since Monday, Codeforces plus LeetCode), **Streak** (days in a row with a Codeforces solve or a LeetCode submission, the same rule as your own), LeetCode solved. You and friends go through the same function (`personStats`, `src/engine/friends.ts`), so the columns mean the same thing. Remove with the × on a row.
+- **Honest limits:** a friend's Codeforces is read from their latest 1,000 submissions, LeetCode from the 20 latest accepted solves it shows anyone; when that may cut this week short the count gets a "+" (explained under the table). Rank colours are not used for friends: `--rank` stays reserved for your own rank.
+- **Refreshed with every update:** after a sync that wasn't offline, `refreshFriends` (`src/data/friendsRefresh.ts`) reads each friend in turn through the adapters (the Codeforces rate-limit queue is shared). Fails soft per site: a site that doesn't answer keeps that friend's last numbers and the row says "Couldn't update just now; showing <time>" with the reason. A friend is also read right after being added.
+- **Tests:** `friends.test.ts` in engine (week counts, "+", streak, handle cleanup) and data (add, refresh, remove, fail-soft); tabs and the route.
+- **Screenshots:** `docs/audit-v1.7/friends/` (browser mode; you plus three public profiles: tourist and jiangly on Codeforces, lee215 on LeetCode).
+
+### Part 11: more playlists (2026-11-09)
+
+- **Nine playlists added (102 → 111, 4,684 videos)**, every id read from the channel's own Playlists tab (`channelPlaylists()`), filled by `npm run fill:playlists`, verified by `check:links`:
+  - **JavaScript** (there was none): Codevolution *JavaScript Algorithms and Data Structures* (80, course) and RoadsideCoder *DSA with JS* (19, course), both `js`.
+  - **English prefix sums:** CodeNCode *Range Queries : CSES* (6 walkthroughs: static range sums, 2D prefix sums, then sparse table and Fenwick; also `data-structures`).
+  - **English combinatorics:** CodeNCode *Combinatorics* (stars and bars, pigeonhole).
+  - **English string algorithms:** CodeNCode *String Algorithms* (hashing, KMP, Z) and WilliamFiset *Suffix array playlist*.
+  - **Greedy:** GeeksforGeeks *Greedy Algorithms Tutorials* (en), CodeNCode *Greedy Algorithms : Codeforces* (en walkthroughs) and codestorywithMIK *Greedy : Popular Interview Problems* (hi, 72 walkthroughs), the first Hindi greedy playlist, so every Beginner Path topic now has a topic playlist in both languages.
+- `code-langs.json`: Codevolution and RoadsideCoder code in JavaScript; CodeNCode, GeeksforGeeks and codestorywithMIK (C++ and Java side by side) are concept.
+- Still no topic playlist (as of Part 11): en implementation, brute force, constructive, probability, geometry, divide and conquer, interactive, design; hi the same minus constructive, geometry and interactive, plus game theory and advanced graphs.
+
+### Part 12: Share my week (2026-11-09)
+
+- **Progress → Share my week** (a button beside the tabs, both modes): a panel with a preview of a 1200x630 PNG (drawn at 2x) of this week: your Codeforces rating in your rank colour with the rank chip and this week's rated change (or "No rated round this week"; "Unrated" with no rating), **Solved this week** (Codeforces + LeetCode, first solves since Monday, the Weekly goals rule, manual marks included), **Streak**, and **Top topic** (the topic with the most problems solved this week, from real tags; a tie goes to the earlier topic; "None yet" when nothing is solved). Light or Dark (starts on the theme showing), **Save as PNG**.
+- **Style:** the theme's own tokens, read from a hidden `[data-theme]` wrapper, so the card matches the app in both themes; the still nebula, the compass mark and wordmark, Chakra Petch numbers, glass tiles. `--rank` only on the rating and the chip.
+- **Saving, no upload:** a Rust command `save_png` opens the native Save dialog (**tauri-plugin-dialog**, Rust side only; docs checked with context7) and writes the bytes to the path the user picked, after checking they're a PNG. The webview gets no file-system permission and no new capability; the CSP is unchanged. In a plain browser it's an ordinary download.
+- Pure part: `buildShareWeek`, `weekRangeWords`, `shareFileName` (`src/engine/shareCard.ts`, tests); data: `src/data/shareCard.ts`; drawing: `src/features/progress/shareCardDraw.ts`.
+- **Screenshots:** `docs/audit-v1.7/share-week/` (browser mode, a real Codeforces sync, on a Monday, so 0 solved this week).
+
+### Part 13: MAINTAINING.md (2026-11-09)
+
+- **`MAINTAINING.md`** at the repo root, for someone working without an AI assistant: setup, run/test/build, the rules that break things (applied migrations, LF, the bundle id, no invented data), the full release procedure with `scripts/release.mjs` (key, password, the four version fields, test on real data, merge/tag/push, `gh release`, checking `latest.json`), adding and verifying videos and playlists, regenerating sheets, what to do when `check:links` fails, fixing a broken LeetCode GraphQL API (where the adapter is, how it fails soft, how to capture the new query), where user data lives (`%APPDATA%\com.algocompass.app\` and each file), and backups (data folder and signing key). Linked from the README.
+- **`scripts/inspect-db.mjs`**: read-only (sql.js, in memory) list of the applied migrations and rows per table of the real database or a backup. The Debug page doesn't show `_sqlx_migrations`, and a release needs that check.
+
+### Part 14: release v1.7.0 (2026-11-09)
+
+- **Checks:** `npm test` (632 passed), `npm run check:links` (all verified: 111 playlists, 4,684 videos, every sheet and path problem), `npm run build`. Version 1.7.0 in `package.json`, `package-lock.json`, `tauri.conf.json`, `Cargo.toml` (and `Cargo.lock`). README updated for v1.7 (features, "updates itself", and Privacy now names the daily `latest.json` check on GitHub).
+- **Backup first:** `%APPDATA%\com.algocompass.app` copied to `Desktop\algocompass-backup-1.7` (16 files, identical sizes, database hash checked).
+- **Build:** `node scripts/release.mjs` with `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` read from the password file for that one command (never printed, removed after). Signed setup.exe and .msi; the signature's key id (8EF1FEFD17869EE2) matches `pubkey`. `latest.json` carries the release notes.
+- **Run on the owner's real data:** the built `algocompass.exe` started on the real database (Today showed the real rating and problems), migrated it from 6 to 10 migrations (`_sqlx_migrations` 1–10, all successful, read with `scripts/inspect-db.mjs`), and every row count was unchanged (122 Codeforces submissions, 24 LeetCode solves, watched videos, badges, contests); only `sync_log` grew, from the update it ran. New tables (`revisions`, `virtual_contests`, `friends`) empty, as expected. No restore was needed.
+- **Published:** merged `v1.7` into `master`, tagged `v1.7.0`, pushed, GitHub release with the setup.exe, the .msi and `latest.json` (plain-English notes: what's new, the SmartScreen note, "from 1.7 the app updates itself").
+
+## v1.6, full playlists and Practice this (released as v1.6.0 on 2026-11-09)
+
+Released. A learner gets whole YouTube playlists (every video, in order) instead of a few videos picked from each.
 
 ### Part 1: the playlists (2026-11-07)
 

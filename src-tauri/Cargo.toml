@@ -1,6 +1,6 @@
 [package]
 name = "algocompass"
-version = "1.6.0"
+version = "1.7.0"
 description = "AlgoCompass: competitive programming compass"
 authors = []
 edition = "2024"
@@ -29,6 +29,8 @@ tauri-plugin-store = "2"
 # Same versions tauri-plugin-sql already uses: repair migration checksums before it migrates (src/migration_heal.rs).
 sqlx = { version = "0.8", default-features = false, features = ["sqlite", "runtime-tokio"] }
 sha2 = "0.10"
+# v1.7 share card: the native Save dialog, opened from Rust (save_png), so the webview gets no file access.
+tauri-plugin-dialog = "2"
 
 
 # Read the optimization guideline for more details: https://tauri.app/concept/size/#cargo-configuration
@@ -41,3 +43,5 @@ strip = true
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-autostart = "2"
+tauri-plugin-process = "2"
+tauri-plugin-updater = "2"
