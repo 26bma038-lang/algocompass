@@ -8,6 +8,7 @@ import { queryClient } from "./queryClient";
 import { Repo } from "./repo";
 import { PREVIEW } from "@/lib/sandbox";
 import { hasAnyHandle, readHandles, readOnboarded, readSavedHandles, resolveAppHandles, writeHandles } from "./settings";
+import { refreshFriends } from "./friendsRefresh";
 import { syncAll, type SyncResult } from "./sync";
 import type { Platform } from "./types";
 
@@ -21,6 +22,9 @@ const lc = new LeetCodeAdapter();
 
 /** The shared Codeforces adapter (v1.6: the problemset for "Sharpen on Codeforces" loads without a sync). */
 export const getCfAdapter = () => cf;
+
+/** v1.7 friends: both adapters, for reading friends' public profiles. */
+export const getFriendAdapters = () => ({ cf, lc });
 
 let repoPromise: Promise<Repo> | null = null;
 export function getRepo(): Promise<Repo> {
@@ -100,6 +104,8 @@ export const useSyncStore = create<SyncState>((set, get) => ({
         }
       }
       if (result.cf.offline || result.lc.offline) scheduleOfflineRetry(() => void get().run());
+      // v1.7: friends refresh with every update (fails soft, one friend at a time). Not offline.
+      if (!result.cf.offline && !result.lc.offline) await refreshFriends(repo, { cf, lc }, Math.floor(Date.now() / 1000));
       await queryClient.invalidateQueries({ queryKey: ["db"] });
     } catch (e) {
       toast.error("The update couldn't start", { id: "sync-start", description: (e as Error).message });

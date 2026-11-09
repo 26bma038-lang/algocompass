@@ -1,6 +1,17 @@
 import type { SqlDriver, SqlValue } from "./db";
 import type { TickRow } from "@/engine/sheets";
 import type { VirtualProblem, VirtualRow } from "@/engine/virtual";
+import type { PersonStats } from "@/engine/friends";
+
+export interface FriendRow {
+  id: number;
+  cfHandle: string | null;
+  lcHandle: string | null;
+  addedAt: number;
+  stats: PersonStats | null;
+  fetchedAt: number | null;
+  error: string | null;
+}
 import type {
   CfProblem,
   CfRatingChange,
@@ -52,6 +63,7 @@ export const TABLES = [
   "sheet_notes",
   "revisions",
   "virtual_contests",
+  "friends",
   "video_watched",
   "path_steps",
   "sync_log",
@@ -353,6 +365,41 @@ export class Repo {
       "SELECT contest_id, name, start_time, duration_seconds FROM cf_contest_times WHERE name IS NOT NULL AND duration_seconds IS NOT NULL ORDER BY start_time DESC",
     );
     return rows.map((r) => ({ contestId: r.contest_id, name: r.name, startTime: r.start_time, durationSeconds: r.duration_seconds }));
+  }
+
+  // ---------- friends (v1.7) ----------
+  async addFriend(cfHandle: string | null, lcHandle: string | null, now: number): Promise<number> {
+    await this.db.execute("INSERT INTO friends (cf_handle, lc_handle, added_at) VALUES ($1, $2, $3)", [cfHandle, lcHandle, now]);
+    const [row] = await this.db.select<{ id: number }>("SELECT MAX(id) AS id FROM friends");
+    return row!.id;
+  }
+
+  async removeFriend(id: number) {
+    await this.db.execute("DELETE FROM friends WHERE id = $1", [id]);
+  }
+
+  /** Saves a refresh: new stats (or the old ones kept, when it failed) and the error, if any. */
+  async saveFriendStats(id: number, stats: unknown | null, fetchedAt: number | null, error: string | null) {
+    if (stats !== null) {
+      await this.db.execute("UPDATE friends SET stats_json = $1, fetched_at = $2, error = $3 WHERE id = $4", [json(stats), fetchedAt, error, id]);
+    } else {
+      await this.db.execute("UPDATE friends SET error = $1 WHERE id = $2", [error, id]);
+    }
+  }
+
+  async getFriends(): Promise<FriendRow[]> {
+    const rows = await this.db.select<{ id: number; cf_handle: string | null; lc_handle: string | null; added_at: number; stats_json: string | null; fetched_at: number | null; error: string | null }>(
+      "SELECT * FROM friends ORDER BY added_at, id",
+    );
+    return rows.map((r) => {
+      let stats: PersonStats | null = null;
+      try {
+        stats = r.stats_json ? (JSON.parse(r.stats_json) as PersonStats) : null;
+      } catch {
+        // Unreadable: shown as not loaded yet, and the next update rewrites it.
+      }
+      return { id: r.id, cfHandle: r.cf_handle, lcHandle: r.lc_handle, addedAt: r.added_at, stats, fetchedAt: r.fetched_at, error: r.error };
+    });
   }
 
   // ---------- virtual contests (v1.7) ----------

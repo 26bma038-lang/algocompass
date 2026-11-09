@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 import { tabActive } from "@/components/SegmentedTabs";
 import { continuePractice, PROGRESS_TABS } from "./tabs";
 
-describe("Progress tabs (v1.4: Overview and Topics; v1.7 adds Your notes)", () => {
-  it("are Overview, Topics and Your notes", () => {
-    expect(PROGRESS_TABS.map((t) => t.label)).toEqual(["Overview", "Topics", "Your notes"]);
+describe("Progress tabs (v1.4: Overview and Topics; v1.7 adds Your notes and Friends)", () => {
+  it("are Overview, Topics, Your notes and Friends", () => {
+    expect(PROGRESS_TABS.map((t) => t.label)).toEqual(["Overview", "Topics", "Your notes", "Friends"]);
   });
 
   it("has a way back to practice beside the tabs (v1.4 polish)", () => {
@@ -21,5 +21,6 @@ describe("Progress tabs (v1.4: Overview and Topics; v1.7 adds Your notes)", () =
     expect(active("/progress/topics")).toEqual(["Topics"]);
     expect(active("/progress/topics/map")).toEqual(["Topics"]);
     expect(active("/progress/notes")).toEqual(["Your notes"]);
+    expect(active("/progress/friends")).toEqual(["Friends"]);
   });
 });

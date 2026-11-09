@@ -10,6 +10,7 @@ export const PROGRESS_TABS: readonly SegmentedTab[] = [
   { to: "/progress", label: "Overview", end: true, activeOn: ["/progress/badges", "/progress/achievements"] },
   { to: "/progress/topics", label: LABELS.topics },
   { to: "/progress/notes", label: LABELS.yourNotes },
+  { to: "/progress/friends", label: LABELS.friends },
 ];
 
 /**

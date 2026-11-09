@@ -89,6 +89,8 @@ export const LABELS = {
   addNote: "Add a note",
   yourNote: "Your note",
   yourNotes: "Your notes",
+  /** v1.7: Progress → Friends. */
+  friends: "Friends",
 } as const;
 
 /** v1.6: how many people solved a Codeforces problem, "Solved by 40k" (1,234 → 1.2k, 980 → 980). */

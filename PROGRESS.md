@@ -70,6 +70,15 @@ Not released. Auto-updates, a revision queue, notes, "Stuck?" and a daily remind
 - **Tracked weekly:** this week's solves inside this week's band against the target (a meter), rated rounds this calendar month against the target, and every earlier week since the goal was set (up to 6), each measured against the band for your rating at the start of that week, with a check when met.
 - **Screenshots:** `docs/audit-v1.7/rating-goal/` (browser mode, a real Codeforces sync): a goal within reach, and an unlikely one with the honest note.
 
+### Part 10: friends (2026-11-09)
+
+- **Progress → Friends** (fourth tab, `/progress/friends`, lazy): add a friend by Codeforces handle, LeetCode username, or both (a pasted profile link or "@" is cleaned up). Each handle is checked through the adapters before it's saved, with the site's own spelling; a duplicate is refused. Stored only on this computer (**migration `0010_friends.sql`**, LF: `friends(id, cf_handle, lc_handle, added_at, stats_json, fetched_at, error)`). No server.
+- **Side by side:** a table with **You** first (highlighted), then friends in the order added: Codeforces rating (and max), **Solved this week** (problems first solved since Monday, Codeforces plus LeetCode), **Streak** (days in a row with a Codeforces solve or a LeetCode submission, the same rule as your own), LeetCode solved. You and friends go through the same function (`personStats`, `src/engine/friends.ts`), so the columns mean the same thing. Remove with the × on a row.
+- **Honest limits:** a friend's Codeforces is read from their latest 1,000 submissions, LeetCode from the 20 latest accepted solves it shows anyone; when that may cut this week short the count gets a "+" (explained under the table). Rank colours are not used for friends: `--rank` stays reserved for your own rank.
+- **Refreshed with every update:** after a sync that wasn't offline, `refreshFriends` (`src/data/friendsRefresh.ts`) reads each friend in turn through the adapters (the Codeforces rate-limit queue is shared). Fails soft per site: a site that doesn't answer keeps that friend's last numbers and the row says "Couldn't update just now; showing <time>" with the reason. A friend is also read right after being added.
+- **Tests:** `friends.test.ts` in engine (week counts, "+", streak, handle cleanup) and data (add, refresh, remove, fail-soft); tabs and the route.
+- **Screenshots:** `docs/audit-v1.7/friends/` (browser mode; you plus three public profiles: tourist and jiangly on Codeforces, lee215 on LeetCode).
+
 ## v1.6, full playlists and Practice this (released as v1.6.0 on 2026-11-09)
 
 Released. A learner gets whole YouTube playlists (every video, in order) instead of a few videos picked from each.
