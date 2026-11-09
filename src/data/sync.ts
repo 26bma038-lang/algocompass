@@ -281,6 +281,9 @@ async function syncCodeforces(deps: SyncDeps, now: () => number): Promise<Platfo
           problems: standing.problems.map((p) => ({ index: p.index, name: p.name, rating: p.rating, solved: solved.has(p.index) })),
           syncedAt: now(),
         });
+        // v1.7 contest review: the "Fix next" problems join the revision queue as "needed help",
+        // so once you solve one it comes back after 3 days.
+        if (standing.me) await repo.flagNeededHelp(upsolvePicks(standing).map((p) => `cf:${p.key}`), now());
         if (standing.me && now() - (c.startTime + c.durationSeconds) <= UPSOLVE_WINDOW_SECONDS) {
           await repo.addToUpsolveQueue(
             upsolvePicks(standing).map((p) => ({

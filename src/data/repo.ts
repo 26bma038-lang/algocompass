@@ -553,6 +553,17 @@ export class Repo {
     );
   }
 
+  /** Marks problems as "needed help" (they return 3 days after the solve), keeping any review progress. */
+  async flagNeededHelp(keys: readonly string[], now: number) {
+    for (const key of keys) {
+      await this.db.execute(
+        `INSERT INTO revisions (problem_key, needed_help, stage, next_at, updated_at) VALUES ($1, 1, 0, NULL, $2)
+         ON CONFLICT(problem_key) DO UPDATE SET needed_help = 1, updated_at = excluded.updated_at`,
+        [key, now],
+      );
+    }
+  }
+
   async getWatchedVideos(): Promise<Map<string, number>> {
     const rows = await this.db.select<{ video_id: string; watched_at: number }>("SELECT video_id, watched_at FROM video_watched");
     return new Map(rows.map((r) => [r.video_id, r.watched_at]));

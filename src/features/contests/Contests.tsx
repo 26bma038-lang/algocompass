@@ -12,6 +12,7 @@ import { countdown, shortName, when } from "@/features/home/ContestStrip";
 import { useNow } from "@/features/home/useNow";
 import { openExternal } from "@/lib/openExternal";
 import { cn } from "@/lib/utils";
+import { ContestReviewSection } from "./ContestReview";
 
 const PLATFORM = { cf: "Codeforces", lc: "LeetCode" } as const;
 
@@ -209,6 +210,9 @@ export function Contests() {
           <NextRound c={next} attending={data.attending.has(next.id)} nowMs={nowMs} />
         </div>
       )}
+      <div className="col-span-12">
+        <ContestReviewSection />
+      </div>
       <div className="col-span-12 flex flex-col gap-6 xl:col-span-7">
         <UpcomingList title="More Codeforces rounds" contests={laterCf} attending={data.attending} nowMs={nowMs} note="Reminders 1 hour and 10 minutes before rounds you'll attend." />
         <UpcomingList title="LeetCode" contests={lc} attending={data.attending} nowMs={nowMs} />

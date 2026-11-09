@@ -41,7 +41,14 @@ Not released. Auto-updates, a revision queue, notes, "Stuck?" and a daily remind
 - The first key had no password. v1.7.0 isn't released, so no installed copy trusts it yet: regenerated with `tauri signer generate -w %USERPROFILE%\.tauri\algocompass.key -p <random 32 chars>`, new `pubkey` in `tauri.conf.json`. The old pair was renamed to `algocompass.key.old-unprotected` / `.pub.old` (not deleted; safe to delete).
 - **The password** was written once to `%USERPROFILE%\.tauri\algocompass-password.txt`, for the owner to move somewhere safe. It's in no repo file.
 - `scripts/release.mjs` passes `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` to the build, or asks for it with a hidden prompt when unset (and stops without a terminal). Also fixed: the copy of the setup.exe and .msi into `release-out/` split paths on `/` only, so on Windows it never copied them; it uses `basename` now.
-- **Verified:** a signed build with the password wrote `release-out/latest.json`, the setup.exe, the .msi and both `.sig` files; the signature's key id (8EF1FEFD17869EE2) matches the new public key.
+- **Verified (Part 6):** a signed build with the password wrote `release-out/latest.json`, the setup.exe, the .msi and both `.sig` files; the signature's key id (8EF1FEFD17869EE2) matches the new public key.
+
+### Part 7: contest review (2026-11-09)
+
+- **Contests → Contest review**, under the next round: one card per Codeforces round you took part in (the saved `contest_results`, nothing new fetched), newest first, two shown then "Show all N rounds". Each card: the round, date and rank; the rating change and old → new rating (your rating history; "Unrated" otherwise); every problem by index as a tile (solved in the round with a check, solved since with a hollow check, not solved dashed; name, rating and state in the tooltip and the label); **Topics of the ones you didn't solve** from the problems' real tags in the problemset cache (count per topic, linking to Learn filtered to that topic; "Codeforces hasn't tagged these problems yet" when none); **Fix next**: the unsolved problems among the first (solved + 2) by index, the same rule as Problems you tried, minus any you've solved since, each with Open, Stuck? and the note.
+- **Fix next joins the revision queue:** sync flags those problems "needed help" when it saves a round (`repo.flagNeededHelp`, keeps any review progress), and opening one from the card does too (covers rounds saved before v1.7). So once solved, it returns after 3 days. An unsolved one never shows as due.
+- Pure part: `buildContestReviews` (`src/engine/contestReview.ts`, tests); data: `src/data/contestReview.ts`. No migration.
+- **Screenshots:** `docs/audit-v1.7/contest-review/` (browser mode, a real Codeforces sync).
 
 ## v1.6, full playlists and Practice this (released as v1.6.0 on 2026-11-09)
 

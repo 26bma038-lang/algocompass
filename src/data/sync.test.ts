@@ -183,6 +183,8 @@ describe("contest results", () => {
     expect(r).toMatchObject({ contestId: "cf:7", participated: true, rank: 4321, solved: 2, total: 5 });
     // Solved A and C → upsolve B and D (the first solved + 2 by index).
     expect((await repo.getUpsolveQueue()).map((q) => q.problemKey).sort()).toEqual(["7-B", "7-D"]);
+    // v1.7: the same "Fix next" problems join the revision queue as "needed help".
+    expect((await repo.getRevisions()).map((x) => `${x.key}:${x.neededHelp}`).sort()).toEqual(["cf:7-B:true", "cf:7-D:true"]);
 
     // Looked up once: the next sync doesn't call standings again.
     await syncAll({ repo, cf: cf as unknown as CodeforcesAdapter, lc: fakeLc() as unknown as LeetCodeAdapter, handles, now: () => NOW + 60, retryDelaysMs: [0, 0] });
