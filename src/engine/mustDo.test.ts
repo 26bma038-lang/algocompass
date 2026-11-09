@@ -106,6 +106,17 @@ describe("mustDo", () => {
     expect(keys(mustDo(easyOnly, "t", none))).toEqual(["lc:a", "lc:b", "lc:c"]);
   });
 
+  it("gentle (Beginner mode, v1.8): Easy first, at most one Medium, never Hard or unrated", () => {
+    // Same pool: three Easy, then the best Medium (m1); h1 and u1 are on more sheets but stay out.
+    expect(keys(mustDo(pool, "t", none, { gentle: true }))).toEqual(["lc:e3", "lc:e1", "lc:e2", "lc:m1"]);
+    // Only Hard and unrated left: nothing is better than handing a beginner those.
+    const hardOnly = buildPool([sheet("a", [prob("lc:h", "Hard", ["t"]), prob("gfg:u", null, ["t"])])], "p");
+    expect(keys(mustDo(hardOnly, "t", none, { gentle: true }))).toEqual([]);
+    // The video's own problem still leads, even when it's Hard.
+    const named = pool.problems.find((p) => p.key === "lc:h1")!;
+    expect(keys(mustDo(pool, "t", none, { gentle: true, named }))[0]).toBe("lc:h1");
+  });
+
   it("puts the problem the video solves first, solved or not, and leaves out excluded ones", () => {
     const named = pool.problems.find((p) => p.key === "lc:m2")!;
     const rows = mustDo(pool, "t", (k) => k === "lc:m2", { named });

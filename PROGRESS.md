@@ -55,6 +55,14 @@ The owner said "the home page and every page is difficult to navigate". v1.7 add
 - With no crumb to fall back on, the chevron now goes to `/` (it went to `/learn`, which only made sense for Learn's pages).
 - **Screenshots:** `docs/audit-v1.8/5-back/before|after/` (sheet, badges, map; the beginner's sheet list is in `6-beginner/`).
 
+### Part 6: gentler problems for beginners, an on-topic Stuck? video (2026-11-09)
+
+- **Practice this in Beginner mode** (`mustDo(…, { gentle: true })`, passed by `PracticeThis` when the mode is beginner): Easy first (up to one less than the list's room), **at most one Medium, never Hard or unrated**. A topic with nothing gentle left gets the honest empty state, not a Hard problem. The problem the video itself solves still leads ("Solved in this video"), whatever its difficulty. Smart mode is unchanged (two Easy, then the best-ranked harder ones). Graphs for a beginner now reads Flood Fill, Find if Path Exists in Graph, Find the Town Judge, Island Perimeter, then Clone Graph.
+- **Stuck?'s topic** is the problem's first *specific* topic (`stuckTopic`): Codeforces' broad tags (implementation, brute force, math) are skipped when the problem has another, so a Greedy + Implementation problem is about greedy. The easier-problem step uses the same topic.
+- **Stuck?'s video** (`stuckVideo`) is only one we're sure about: its title names the topic (`topicsNamed`, the same word table Practice this uses) or it's the Beginner Path's own lesson for the topic. Then not watched first, your language first, an explanation before a problem walkthrough. With none, the step says no video is clearly about the topic and offers **Browse the topic's videos** (Learn filtered to it). Before, the implementation group's first video ("How to start Competitive Programming? For beginners!") was offered for any problem tagged implementation.
+- **Tests:** `mustDo.test.ts` (gentle: Easy first, one Medium, no Hard or unrated, the video's problem still first), `stuck.test.ts` (specific topic, sure videos only, explanation before walkthrough).
+- **Screenshots:** `docs/audit-v1.8/6-beginner/before|after/` (a beginner's Watch page for DP and for graphs, the beginner's sheet list with the breadcrumb, and Stuck? on a Greedy problem). There's no "before" for Stuck?: the old video was off-topic only for some problems, and the critique describes the case.
+
 ## v1.7, the app updates itself (released as v1.7.0 on 2026-11-09)
 
 Released. Auto-updates, a revision queue, notes, "Stuck?", a daily reminder, contest review, virtual contests, a rating goal, friends, more playlists and a share card. **The first version that can update itself;** 1.6.0 and older need one manual install.

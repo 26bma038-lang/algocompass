@@ -1,6 +1,6 @@
 import type { VideoLang } from "@/data/prefs";
-import { suggestVideo, type LibraryVideo, type TopicGroup } from "./learn";
-import { difficultyRank, topicTier, type PoolProblem, type ProblemPool } from "./mustDo";
+import type { LibraryVideo, TopicGroup } from "./learn";
+import { difficultyRank, topicTier, topicsNamed, type PoolProblem, type ProblemPool } from "./mustDo";
 import type { BeginnerPath } from "./path";
 import { cfParts, type ProblemRef } from "./problemRef";
 
@@ -26,7 +26,7 @@ export const STUCK_LABELS: Record<StuckStepId, string> = {
 
 /** An easier problem on the problem's topic: unsolved, closest below this one, home-topic first. Null when there is none. */
 export function easierProblem(pool: Pick<ProblemPool, "problems">, ref: ProblemRef, isSolved: (key: string) => boolean): PoolProblem | null {
-  const topic = ref.topics[0];
+  const topic = stuckTopic(ref);
   if (!topic) return null;
   const mine = difficultyRank(ref);
   // A problem nobody rates can't be compared: only the Easy band is offered then.
@@ -38,12 +38,33 @@ export function easierProblem(pool: Pick<ProblemPool, "problems">, ref: ProblemR
   return cands[0] ?? null;
 }
 
-/** The video step: the topic's suggested verified video (unwatched first, your language first). */
+/** Codeforces tags almost every problem carries; they say little about how to solve it. */
+const BROAD_TOPICS = new Set(["implementation", "brute-force", "math"]);
+
+/**
+ * The topic Stuck? is about (v1.8): the problem's first specific topic, skipping the broad tags
+ * (implementation, brute force, math) when it has another one. A Greedy + Implementation problem is
+ * about greedy. Null when it has no topic at all.
+ */
+export function stuckTopic(ref: Pick<ProblemRef, "topics">): string | undefined {
+  return ref.topics.find((t) => !BROAD_TOPICS.has(t)) ?? ref.topics[0];
+}
+
+/**
+ * The video step (v1.8: only a video we're sure is about the topic). Sure means its title names the
+ * topic (`topicsNamed`), or it's the Beginner Path's own lesson for that topic. Then: not watched
+ * yet first, your language first, an explanation (lesson, intro, lecture) before a problem
+ * walkthrough. Null when no video is sure, so the panel says so instead of offering "How to start
+ * Competitive Programming?" for a greedy problem.
+ */
 export function stuckVideo(groups: readonly TopicGroup[], topicId: string | undefined, pathData: BeginnerPath | null, watched: ReadonlySet<string>, lang: VideoLang): LibraryVideo | null {
   if (!topicId || !pathData) return null;
   const group = groups.find((g) => g.topicId === topicId);
   if (!group) return null;
-  return suggestVideo(group, pathData, watched, lang) ?? group.videos.find((v) => v.lang === lang) ?? group.videos[0] ?? null;
+  const pathLesson = (v: LibraryVideo) => v.role === "lesson" && v.step !== undefined && pathData.steps[v.step]?.topics[0] === topicId;
+  const sure = group.videos.filter((v) => topicsNamed(v.title).includes(topicId) || pathLesson(v));
+  const rank = (v: LibraryVideo) => Number(watched.has(v.id)) * 4 + Number(v.lang !== lang) * 2 + Number(v.role === "walkthrough");
+  return [...sure].sort((a, b) => rank(a) - rank(b))[0] ?? null;
 }
 
 export interface EditorialLink {

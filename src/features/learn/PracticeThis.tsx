@@ -196,12 +196,13 @@ export function PracticeThis({
   const status = (key: string): ProblemStatus => (idx ? problemStatus(key, idx) : { done: false, source: null, at: null });
   const named = useMemo(() => (pool ? namedProblem(videoTitle, pool) : null), [pool, videoTitle]);
   const topic = topicProp !== undefined ? topicProp : videoTopic(videoTitle, filed ?? [], named);
-  const rows = pool && idx ? (topic || named ? mustDo(pool, topic ?? "", (k) => problemStatus(k, idx).done, { named, keep, exclude }) : []) : null;
+  const beginner = usePrefs().data?.mode === "beginner";
+  // v1.8: Beginner mode gets the gentle list (Easy first, at most one Medium, never Hard).
+  const rows = pool && idx ? (topic || named ? mustDo(pool, topic ?? "", (k) => problemStatus(k, idx).done, { named, keep, exclude, gentle: beginner }) : []) : null;
 
   // Sharpen on Codeforces: your rating's window (800 to 1200 with none, or in Beginner mode).
   const cf = useCfProblemset().data;
   const rating = useCfRating().data ?? null;
-  const beginner = usePrefs().data?.mode === "beginner";
   const cfWindow = sharpenWindow(rating, beginner);
   const thin = !!(pool && topic && topicProblemCount(pool, topic) < 3);
   const cfRows =

@@ -11,9 +11,9 @@ import { openTarget, useSaveNote, useSheetNotes, useSolveIndex } from "@/data/sh
 import { useUiStore } from "@/data/uiStore";
 import { problemStatus } from "@/engine/sheets";
 import type { ProblemRef } from "@/engine/problemRef";
-import { easierProblem, editorialLinks, STUCK_LABELS, STUCK_STEPS, stuckVideo, type StuckStepId } from "@/engine/stuck";
+import { easierProblem, editorialLinks, STUCK_LABELS, STUCK_STEPS, stuckTopic, stuckVideo, type StuckStepId } from "@/engine/stuck";
 import { TOPIC_BY_ID } from "@/engine/topics";
-import { watchPath } from "@/components/shell/nav";
+import { learnTopicPath, watchPath } from "@/components/shell/nav";
 import { LABELS, plainTopicName } from "@/lib/glossary";
 import { openExternal } from "@/lib/openExternal";
 
@@ -129,7 +129,8 @@ function StuckStep({ id, problem, onClose }: { id: StuckStepId; problem: Problem
   const watched = useWatchedVideos().data;
   const pool = useProblemPool();
   const solve = useSolveIndex();
-  const topicId = problem.topics[0];
+  // v1.8: the first specific topic (a Greedy + Implementation problem is about greedy).
+  const topicId = stuckTopic(problem);
   const n = STUCK_STEPS.indexOf(id) + 1;
 
   if (id === "topic") {
@@ -172,7 +173,26 @@ function StuckStep({ id, problem, onClose }: { id: StuckStepId; problem: Problem
             </Button>
           </>
         ) : (
-          <p className="text-body text-ink-muted">There's no video for this topic in the library yet.</p>
+          <div className="flex flex-col items-start gap-2">
+            <p className="text-body text-ink-muted">
+              {topicId
+                ? `No video in the library is clearly about ${plainTopicName(topicId, TOPIC_BY_ID.get(topicId)?.name ?? topicId).toLowerCase()}, so we won't guess one.`
+                : "This problem has no topic, so there's no video to point at."}
+            </p>
+            {topicId && TOPIC_BY_ID.has(topicId) && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  onClose();
+                  navigate(learnTopicPath(topicId));
+                }}
+              >
+                <PlayCircle aria-hidden />
+                Browse the topic's videos
+              </Button>
+            )}
+          </div>
         )}
       </StepCard>
     );
