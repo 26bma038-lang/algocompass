@@ -72,6 +72,13 @@ The owner said "the home page and every page is difficult to navigate". v1.7 add
 - **Stuck? is the ? icon everywhere** (`StuckButton` has no word variant any more): Practice's rows and the Due for review rows had the word, five times a screen. Tooltip "Stuck?", aria-label "Stuck? <problem>". Decision: the plan kept the word on the recommended row; dropped, because one wider button breaks the column of Open buttons and the row already has its own primary.
 - **Screenshots:** `docs/audit-v1.8/7-empty/before|after/` (smart Practice rows, Settings and Settings jumped to Notifications; a fresh profile switched to smart with no handles: Today, Practice, Progress, Contests, the map; a fresh beginner: Contests, Your notes). Light and Dark, 1100x700, browser mode.
 
+### Part 8: polish pass, docs, checks (2026-11-09)
+
+- **Polish pass** (impeccable `polish`, in one context: no sub-agents, per the task) over every screen v1.8 touched, both modes, Light and Dark at 1100x700 (browser mode; smart = the owner's synced public profiles, beginner = Debug → Preview a fresh beginner). Found and fixed in Part 7's batch: Today's rating card with no Codeforces handle. Nothing else needed a change; the badge toast after a fresh sync still covers the rating card's next-round tile once (known, CRITIQUE minor observation).
+- **Docs:** CLAUDE.md's screen table rewritten for v1.8 (Today's one primary, Learn's one browse card, the playlist's one watched action, Practice's three tabs with Your notes, Progress's tabs and five cards, Contests' three tabs, Settings' section list), plus a "v1.8 patterns" line (breadcrumb, `UpdateAction`, Stuck? icon) and the stale notes/contests references. DESIGN.md gets **One job per screen (v1.8)**: tabs are routes, one way back, every empty state ends in an action, one primary per state, the Stuck? icon, the Settings section list, one browse card.
+- **Checks:** glossary test, `npm test` (55 files, 642 tests), `npm run build`, `npm run check:links` (all links verified: 204 video uses, 111 playlists, every LC slug and CF id) and `npm run tauri dev` (built, started, responding; stopped).
+- **Screenshots:** `docs/audit-v1.8/final/` (smart: Today, Learn, Single videos, a playlist, Practice, Sheets, a sheet, Your notes, Overview, Topics, Friends, Badges, the map, the three Contests tabs, Settings; beginner: Today, Learn, a lesson, Practice, Sheets, Overview, Topics, Contests, Settings). Light and Dark.
+
 ## v1.7, the app updates itself (released as v1.7.0 on 2026-11-09)
 
 Released. Auto-updates, a revision queue, notes, "Stuck?", a daily reminder, contest review, virtual contests, a rating goal, friends, more playlists and a share card. **The first version that can update itself;** 1.6.0 and older need one manual install.
