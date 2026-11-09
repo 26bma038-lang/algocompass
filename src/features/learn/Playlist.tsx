@@ -15,20 +15,21 @@ import { frontierIndex, lengthLabel, playlistMinutes, playlistProgress, resumeIn
 import { LABELS, partOf, watchedOf } from "@/lib/glossary";
 import { cn } from "@/lib/utils";
 import { VideoPlayer, WatchedButton, YouTubeButton } from "@/features/path/VideoPlayer";
-import { Breadcrumb, LANG_NAME } from "./parts";
+import { Breadcrumb } from "@/components/Breadcrumb";
+import { LANG_NAME } from "./parts";
 import { PracticeThis } from "./PracticeThis";
 
 /** Learn's Playlists card lives at /learn#playlists. */
 const PLAYLISTS_CRUMB = "/learn#playlists";
 
 /** "12 of 56 watched" over a thin accent meter: how far along a playlist you are. */
-export function PlaylistMeter({ p, watched, className }: { p: Pick<Playlist, "videos" | "title">; watched: ReadonlySet<string>; className?: string }) {
+export function PlaylistMeter({ p, watched, className }: { p: Pick<Playlist, "videos" | "name">; watched: ReadonlySet<string>; className?: string }) {
   const prog = playlistProgress(p, watched);
   return (
     <span className={cn("flex items-center gap-2", className)}>
       <span
         role="meter"
-        aria-label={`${p.title}: ${watchedOf(prog.watched, prog.total)}`}
+        aria-label={`${p.name}: ${watchedOf(prog.watched, prog.total)}`}
         aria-valuemin={0}
         aria-valuemax={prog.total}
         aria-valuenow={prog.watched}
@@ -47,7 +48,8 @@ export function PlaylistMeter({ p, watched, className }: { p: Pick<Playlist, "vi
 /**
  * One full playlist (v1.6): the current part big on the left, every part in order on the right
  * (numbered discs that turn into checks as you watch). Opens where you left off; `?v=` picks a part.
- * The one primary button marks the part watched and moves to the next.
+ * The one primary button marks the part watched and moves to the next (v1.8: once a part is watched
+ * it says Next part, with Watched beside it to undo; there's no second "Mark as watched").
  */
 export function PlaylistPage() {
   const { playlistId } = useParams();
@@ -142,7 +144,7 @@ export function PlaylistPage() {
   return (
     <div className="grid grid-cols-12 items-start gap-6">
       <div className="col-span-12">
-        <Breadcrumb crumbs={[{ label: "Learn", to: "/learn" }, { label: LABELS.playlists, to: PLAYLISTS_CRUMB }, { label: p.title }]} />
+        <Breadcrumb crumbs={[{ label: "Learn", to: "/learn" }, { label: LABELS.playlists, to: PLAYLISTS_CRUMB }, { label: p.name }]} />
       </div>
       <section aria-labelledby="part-title" className="col-span-12 flex min-w-0 flex-col gap-3 lg:col-span-8">
         <VideoPlayer key={v.id} video={{ ...v, channel: p.channel }} watched={seen} autoStart={picked} frameOnly />
@@ -169,20 +171,28 @@ export function PlaylistPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {!(last && seen) && (
+          {/* v1.8: one watched action. Not watched: mark it and move on. Watched: move on, with the Watched state (click to undo) beside it. */}
+          {!seen ? (
             <Button onClick={next} disabled={setWatched.isPending}>
               {last ? LABELS.watchedLast : LABELS.watchedNext}
               {!last && <ChevronRight aria-hidden />}
             </Button>
+          ) : (
+            !last && (
+              <Button onClick={() => go(index + 1)}>
+                {LABELS.nextPart}
+                <ChevronRight aria-hidden />
+              </Button>
+            )
           )}
-          <WatchedButton videoId={v.id} watched={seen} />
+          {seen && <WatchedButton videoId={v.id} watched />}
           <YouTubeButton id={v.id} />
         </div>
       </section>
       <aside aria-labelledby="parts-title" className="glass-card col-span-12 flex min-w-0 flex-col lg:col-span-4">
         <div className="flex flex-col gap-2 border-b border-glass-border p-4">
-          <h3 id="parts-title" className="line-clamp-2 text-body font-semibold text-ink">
-            {p.title}
+          <h3 id="parts-title" className="line-clamp-2 text-body font-semibold text-ink" title={p.title}>
+            {p.name}
           </h3>
           <p className="text-label text-ink-muted">
             {p.channel}, {total} videos, {lengthLabel(playlistMinutes(p))}

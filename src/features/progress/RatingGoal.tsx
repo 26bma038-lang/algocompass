@@ -1,6 +1,5 @@
 import { useId, useState, type FormEvent } from "react";
-import { AlertCircle, Check, Target } from "lucide-react";
-import { CardHeader } from "@/components/CardHeader";
+import { AlertCircle, Check, ChevronDown, Target } from "lucide-react";
 import { Term } from "@/components/Term";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -172,33 +171,83 @@ function Plan({ view, plan }: { view: RatingGoalView; plan: RatingPlan }) {
   );
 }
 
-/** Progress → Overview (smart): a target rating and date, the weekly targets that follow from your history, tracked weekly. */
-export function RatingGoalCard() {
+/** The verdict in two or three words, for the folded goal line. */
+function verdictWord(v: PlanVerdict): { text: string; warn: boolean } {
+  switch (v.kind) {
+    case "reached":
+      return { text: "You're there", warn: false };
+    case "date-passed":
+      return { text: "The date has passed", warn: true };
+    case "unknown":
+      return { text: "Too early to judge", warn: false };
+    case "realistic":
+      return { text: "Within reach", warn: false };
+    case "unrealistic":
+      return { text: "Unlikely at your best pace", warn: true };
+  }
+}
+
+/**
+ * The rating goal (v1.7), inside the Rating card since v1.8: one line (target, date, to go, the
+ * verdict) with the plan folded behind "Show the plan". No goal: one line and "Set a goal".
+ */
+export function RatingGoalSection() {
   const { data } = useRatingGoal();
   const clear = useClearRatingGoal();
   const [editing, setEditing] = useState(false);
+  const [open, setOpen] = useState(false);
   if (!data || !data.hasHandle) return null;
   const { goal, plan } = data;
+  const verdict = plan ? verdictWord(plan.verdict) : null;
   return (
-    <section aria-labelledby="rating-goal-title" className="glass-card flex flex-col gap-5 p-6">
-      <CardHeader
-        id="rating-goal-title"
-        title={goal ? `Rating goal: ${goal.target} by ${longDate(goal.by)}` : "Rating goal"}
-        description={goal ? undefined : "Pick a target rating and a date. The weekly plan comes from your own history, and says so honestly if the date is unlikely."}
-        actions={
-          goal && !editing ? (
-            <span className="flex items-center gap-1">
-              <Button variant="ghost" size="sm" onClick={() => setEditing(true)}>
-                Change
+    <div className="flex flex-col gap-4 border-t border-glass-border pt-4">
+      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <h3 id="rating-goal-title" className="text-title font-semibold text-ink">
+            {goal ? `Goal: ${goal.target} by ${longDate(goal.by)}` : "Rating goal"}
+          </h3>
+          {goal && plan && verdict ? (
+            <p className="numeric flex flex-wrap items-center gap-x-2 text-body-sm text-ink-muted">
+              {plan.current !== null && <span>{signed(plan.gap)} to go</span>}
+              <span aria-hidden>·</span>
+              <span>{Math.ceil(plan.weeksLeft)} weeks left</span>
+              <span aria-hidden>·</span>
+              <span className="flex items-center gap-1 text-ink">
+                {verdict.warn ? <AlertCircle aria-hidden className="size-3.5 text-warning" strokeWidth={2} /> : <Target aria-hidden className="size-3.5 text-ink-muted" strokeWidth={2} />}
+                {verdict.text}
+              </span>
+            </p>
+          ) : (
+            !editing && <p className="text-body-sm text-ink-muted">A target and a date. The weekly plan comes from your own history, and says so honestly if the date is unlikely.</p>
+          )}
+        </div>
+        {!editing && (
+          <span className="flex items-center gap-1">
+            {goal ? (
+              <>
+                {plan && (
+                  <Button variant="outline" size="sm" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+                    {open ? "Hide the plan" : "Show the plan"}
+                    <ChevronDown aria-hidden className={cn("transition-transform duration-[var(--dur-fast)]", open && "rotate-180")} />
+                  </Button>
+                )}
+                <Button variant="ghost" size="sm" onClick={() => setEditing(true)}>
+                  Change
+                </Button>
+                <Button variant="ghost" size="sm" disabled={clear.isPending} onClick={() => clear.mutate()}>
+                  Remove
+                </Button>
+              </>
+            ) : (
+              <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
+                <Target aria-hidden />
+                Set a goal
               </Button>
-              <Button variant="ghost" size="sm" disabled={clear.isPending} onClick={() => clear.mutate()}>
-                Remove
-              </Button>
-            </span>
-          ) : undefined
-        }
-      />
-      {!goal || editing ? <GoalForm view={data} onDone={goal ? () => setEditing(false) : undefined} /> : plan && <Plan view={data} plan={plan} />}
-    </section>
+            )}
+          </span>
+        )}
+      </div>
+      {editing ? <GoalForm view={data} onDone={() => setEditing(false)} /> : goal && plan && open && <Plan view={data} plan={plan} />}
+    </div>
   );
 }

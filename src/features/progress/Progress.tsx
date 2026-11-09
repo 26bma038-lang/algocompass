@@ -2,51 +2,49 @@ import { lazy, Suspense } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { ArrowRight, LineChart } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
+import { UpdateAction, useSyncing } from "@/components/UpdateAction";
 import { SegmentedTabs } from "@/components/SegmentedTabs";
 import { lessonPath } from "@/components/shell/nav";
 import { Button } from "@/components/ui/button";
 import { usePath } from "@/data/path";
 import { usePrefs } from "@/data/prefs";
 import { useHomeData, useTopicReport } from "@/data/queries";
+import { useHandles } from "@/data/settings";
 import { LevelCard, WeeklyGoalsCard } from "@/features/quests/Quests";
-import { WeeklyReviewCard } from "@/features/quests/WeeklyReview";
+import { WeeklyReviewFold } from "@/features/quests/WeeklyReview";
 import { ActivityHeatmap } from "@/features/home/ActivityHeatmap";
-import { StandingCard } from "@/features/home/StandingCard";
-import { BadgesCard } from "./BadgesCard";
+import { BadgeTiles } from "./BadgesCard";
 import { BeginnerOverview } from "./BeginnerOverview";
 import { LcCard } from "./LcCard";
-import { RatingGoalCard } from "./RatingGoal";
+import { RatingGoalSection } from "./RatingGoal";
 import { ShareWeekButton } from "./ShareWeek";
-import { continuePractice, PROGRESS_TABS } from "./tabs";
+import { continuePractice, friendsTabShown, progressTabs } from "./tabs";
 
 // Recharts loads only when the Overview tab opens.
 const RatingChart = lazy(() => import("@/features/home/RatingChart").then((m) => ({ default: m.RatingChart })));
 
 /**
- * Progress (v1.4): two tabs, Overview and Topics, each its own route. Badges (`/progress/badges`)
- * and the Topics map (`/progress/topics/map`) open under them; old links redirect.
+ * Progress looks back. v1.8: Overview · Topics, plus Friends once there's someone to compare (your
+ * notes moved to Practice), and one button beside the tabs back to doing. Badges
+ * (`/progress/badges`) and the Topics map (`/progress/topics/map`) open under them.
  */
 export function Progress() {
-  const beginner = usePrefs().data?.mode === "beginner";
+  const mode = usePrefs().data?.mode === "beginner" ? "beginner" : "smart";
+  const handles = useHandles().data;
   const view = usePath().data;
   const cur = view && view.current !== null ? view.steps[view.current] : undefined;
-  const cont = continuePractice(beginner ? "beginner" : "smart", cur ? lessonPath(cur.step.id) : null);
+  const cont = continuePractice(mode, cur ? lessonPath(cur.step.id) : null);
   return (
     // --tree-above: the tab row (40px) plus its gap (24px), so the Topics map keeps its full height.
     <div className="flex flex-col gap-6 [--tree-above:64px]">
-      {/* v1.4 polish: Progress looks back; one button beside the tabs goes back to doing. */}
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <SegmentedTabs label="Progress sections" tabs={PROGRESS_TABS} />
-        <div className="flex flex-wrap items-center gap-2">
-          {/* v1.7: a PNG of this week, saved where you choose. */}
-          <ShareWeekButton />
-          <Button asChild variant="outline">
-            <Link to={cont.to}>
-              {cont.label}
-              <ArrowRight aria-hidden />
-            </Link>
-          </Button>
-        </div>
+        <SegmentedTabs label="Progress sections" tabs={progressTabs(friendsTabShown(mode, handles))} />
+        <Button asChild variant="outline">
+          <Link to={cont.to}>
+            {cont.label}
+            <ArrowRight aria-hidden />
+          </Link>
+        </Button>
       </div>
       <Suspense fallback={<p className="text-body-sm text-ink-muted">Loading…</p>}>
         <Outlet />
@@ -55,27 +53,36 @@ export function Progress() {
   );
 }
 
-/** Your rating over every rated round (Codeforces, plus LeetCode contest rating once you have one). */
+/** Your rating over every rated round (Codeforces, plus LeetCode contest rating once you have one), with the goal under it. */
 function RatingCard() {
   const { data } = useHomeData();
-  return <RatingChart cf={data?.ratingHistory ?? []} lc={data?.lcContests ?? []} rating={data?.cf?.rating ?? null} />;
+  return (
+    <RatingChart cf={data?.ratingHistory ?? []} lc={data?.lcContests ?? []} rating={data?.cf?.rating ?? null}>
+      <RatingGoalSection />
+    </RatingChart>
+  );
+}
+
+/** Before the first update (or while it runs): what will be here, and the button that brings it. */
+function OverviewEmpty() {
+  const syncing = useSyncing();
+  return (
+    <EmptyState icon={LineChart} title={syncing ? "Adding up your history…" : "Your progress starts after the first update"} action={<UpdateAction />}>
+      Your rating chart, level, weekly goals and activity collect here once your solve history is in.
+    </EmptyState>
+  );
 }
 
 /**
- * Overview, smart mode: the rating chart, level, this week's goals and the weekly review, your
- * activity and LeetCode, badges, and where you stand by topic.
+ * Overview, smart mode (v1.8: five cards, was eight). Left: Rating with the goal under it, This week
+ * with the weekly review folded in, Activity. Right: Level and badges, LeetCode. Where you stand moved
+ * to Topics, beside the list it summarises.
  */
 function SmartOverview() {
   const report = useTopicReport();
   const home = useHomeData().data;
   if (report.isLoading) return <p className="text-body-sm text-ink-muted">Adding up your history…</p>;
-  if (!report.data?.hasData) {
-    return (
-      <EmptyState icon={LineChart} title="Your progress starts after the first update">
-        Your rating chart, level, weekly goals and weekly review collect here once your solve history is in.
-      </EmptyState>
-    );
-  }
+  if (!report.data?.hasData) return <OverviewEmpty />;
   return (
     // Two columns that stack independently (v1.4), so a tall card on one side never leaves a hole on the other.
     <div className="grid grid-cols-12 items-start gap-6">
@@ -83,18 +90,16 @@ function SmartOverview() {
         <Suspense fallback={<section aria-busy className="glass-card h-[300px] p-6" />}>
           <RatingCard />
         </Suspense>
-        <RatingGoalCard />
-        <WeeklyGoalsCard />
+        <WeeklyGoalsCard actions={<ShareWeekButton size="sm" />}>
+          <WeeklyReviewFold />
+        </WeeklyGoalsCard>
         <ActivityHeatmap activity={home?.activity ?? []} />
       </div>
       <div className="col-span-12 flex flex-col gap-6 lg:col-span-4">
-        <LevelCard />
-        <WeeklyReviewCard />
-        <BadgesCard columns={1} />
+        <LevelCard>
+          <BadgeTiles columns={1} heading="section" />
+        </LevelCard>
         <LcCard lc={home?.lcStats ?? null} />
-      </div>
-      <div className="col-span-12">
-        <StandingCard report={report.data} />
       </div>
     </div>
   );

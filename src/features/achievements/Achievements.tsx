@@ -1,5 +1,6 @@
-import { Check, ChevronLeft, Trophy } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Breadcrumb } from "@/components/Breadcrumb";
+import { Check, Trophy } from "lucide-react";
+import { LABELS } from "@/lib/glossary";
 import { CardHeader } from "@/components/CardHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { NumberTicker } from "@/components/ui/number-ticker";
@@ -138,10 +139,7 @@ export function Achievements() {
   return (
     // Bento: the level hero, then one card per category with its badges as tiles.
     <div className="flex flex-col gap-6">
-      <Link to="/progress" className="-mb-2 flex items-center gap-1 self-start rounded-xs text-body-sm text-ink-muted hover:text-ink">
-        <ChevronLeft aria-hidden className="size-4" />
-        Overview
-      </Link>
+      <Breadcrumb crumbs={[{ label: "Progress", to: "/progress" }, { label: LABELS.badges }]} />
       {data.hasData ? (
         <LevelHeader xp={data.xp} unlocked={unlocked} total={data.achievements.length} />
       ) : (

@@ -4,7 +4,9 @@ import { CardHeader } from "@/components/CardHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 import { useProblemPool } from "@/data/mustDo";
+import { usePrefs } from "@/data/prefs";
 import { useSheetNotes } from "@/data/sheets";
 import { useUiStore } from "@/data/uiStore";
 import { filterNotes, noteEntries, type NoteEntry } from "@/engine/notes";
@@ -23,12 +25,13 @@ const refOf = (e: NoteEntry): ProblemRef => ({
   url: null,
 });
 
-/** Progress → Your notes: every note you wrote on a problem, newest first, searchable. */
+/** Practice → Your notes (v1.8, was under Progress): every note you wrote on a problem, newest first, searchable. */
 export function NotesList() {
   const notes = useSheetNotes();
   const pool = useProblemPool().data;
   const open = useUiStore((s) => s.openTool);
   const [query, setQuery] = useState("");
+  const beginner = usePrefs().data?.mode === "beginner";
   const titles = useMemo(() => new Map(pool?.problems.map((p) => [p.key, p.title])), [pool]);
   const entries = useMemo(() => noteEntries([...(notes.data?.values() ?? [])], (k) => titles.get(k)), [notes.data, titles]);
   const shown = useMemo(() => filterNotes(entries, query), [entries, query]);
@@ -36,7 +39,15 @@ export function NotesList() {
   if (notes.isLoading) return <p className="text-body-sm text-ink-muted">Loading your notes…</p>;
   if (entries.length === 0) {
     return (
-      <EmptyState icon={NotebookPen} title="No notes yet">
+      <EmptyState
+        icon={NotebookPen}
+        title="No notes yet"
+        action={
+          <Button asChild variant="outline" size="sm">
+            <Link to="/practice">{beginner ? "Go to your lesson problems" : "Open today's problems"}</Link>
+          </Button>
+        }
+      >
         Open the ⋯ menu on any problem and choose {LABELS.addNote}: why you got Wrong Answer, the key idea, what to remember. They're kept only on this computer, and show up here.
       </EmptyState>
     );
@@ -66,6 +77,29 @@ export function NotesList() {
           ))}
         </ul>
       )}
+    </section>
+  );
+}
+
+/**
+ * Beginner Practice has no tabs (v1.4), so your notes get a small card beside the sheets once
+ * there's at least one (v1.8). Nothing shows before the first note.
+ */
+export function NotesLinkCard({ className }: { className?: string }) {
+  const notes = useSheetNotes();
+  const n = notes.data?.size ?? 0;
+  if (n === 0) return null;
+  return (
+    <section aria-labelledby="notes-link-title" className={`glass-card flex flex-col gap-2 p-6 ${className ?? ""}`}>
+      <h2 id="notes-link-title" className="text-title font-semibold text-ink">
+        {LABELS.yourNotes}
+      </h2>
+      <p className="text-body-sm text-ink-muted">
+        {n} {n === 1 ? "note" : "notes"} on problems you've worked on, kept on this computer.
+      </p>
+      <Link to="/practice/notes" className="mt-1 self-start rounded-xs text-body-sm text-ink underline decoration-glass-border-strong underline-offset-4">
+        Read your notes
+      </Link>
     </section>
   );
 }

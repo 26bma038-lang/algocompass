@@ -321,6 +321,11 @@ export interface MustDoOptions {
   keep?: ReadonlySet<string>;
   /** Keys to leave out (a lesson's own problems, already listed under Solve). */
   exclude?: ReadonlySet<string>;
+  /**
+   * v1.8, Beginner mode: Easy first and at most one Medium, never Hard or unrated (a beginner's
+   * first video shouldn't hand them Median of Two Sorted Arrays). The video's own problem still leads.
+   */
+  gentle?: boolean;
 }
 
 /** How much a problem is about the topic: 0 its home topic, 1 a sheet files it there too, 2 only its tags say so. */
@@ -358,10 +363,13 @@ export function mustDo(pool: ProblemPool, topic: string, isSolved: (key: string)
     .filter((p) => p.topics.includes(topic) && p.key !== named?.key && !exclude.has(p.key) && (keep.has(p.key) || !isSolved(p.key)))
     .sort(compare(topic, order));
   const room = n - (named ? 1 : 0);
-  const easyWanted = room >= 4 ? 2 : 1;
+  const easyWanted = opts.gentle ? Math.max(1, room - 1) : room >= 4 ? 2 : 1;
+  // Gentle: the harder ones are Medium only (no Hard, no unrated), and at most one of them.
+  const harderOk = (p: PoolProblem) => !isEasy(p) && (!opts.gentle || difficultyRank(p) < 3);
+  const harderRoom = opts.gentle ? 1 : room;
   const choose = (from: PoolProblem[]) => {
     const easy = from.filter(isEasy).slice(0, easyWanted);
-    const harder = from.filter((p) => !isEasy(p)).slice(0, room - easy.length);
+    const harder = from.filter(harderOk).slice(0, Math.min(harderRoom, room - easy.length));
     // Not enough harder ones: more easy ones fill the gap.
     const extraEasy = from.filter((p) => isEasy(p) && !easy.includes(p)).slice(0, room - easy.length - harder.length);
     return [...easy, ...extraEasy, ...harder];

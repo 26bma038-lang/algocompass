@@ -6,6 +6,7 @@ import { CardHeader, Pill } from "@/components/CardHeader";
 import { SegmentedTabs } from "@/components/SegmentedTabs";
 import { usePrefs } from "@/data/prefs";
 import { EmptyState } from "@/components/EmptyState";
+import { UpdateAction, useSyncing } from "@/components/UpdateAction";
 import { ModeBadge } from "@/components/practice/ModeBadge";
 import { ProblemRow } from "@/components/practice/ProblemRow";
 import { RunMeter } from "@/components/practice/RunMeter";
@@ -226,13 +227,14 @@ export function PracticeMix() {
   const rec = useRecommender();
   const mix = useMixOfTheDay();
   const due = useDueRevisions().data ?? [];
+  const syncing = useSyncing();
 
   if (report.isLoading || rec.isLoading) return <p className="text-body-sm text-ink-muted">Picking your problems…</p>;
   if (!report.data?.hasData || !rec.data) {
     return (
-      <EmptyState icon={Target} title="Today's problems appear after the first update">
+      <EmptyState icon={Target} title={syncing ? "Picking today's problems…" : "Today's problems appear after the first update"} action={<UpdateAction />}>
         AlgoCompass picks Codeforces problems just above your rating and LeetCode problems for topics you haven't learned yet, from your own
-        history. Add your usernames in Settings, and they show up here once the first update finishes.
+        history. They show up here once the first update finishes.
       </EmptyState>
     );
   }

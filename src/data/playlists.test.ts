@@ -26,6 +26,16 @@ describe("the full playlists (v1.6)", () => {
     }
   });
 
+  it("each have a short curated name (v1.8): plain words, no pipes, no channel, at most 42 characters", () => {
+    for (const p of playlists) {
+      expect(p.name, p.id).toBeTruthy();
+      expect(p.name, p.id).toBe(p.name.trim());
+      expect(p.name.length, `${p.id} "${p.name}"`).toBeLessThanOrEqual(42);
+      expect(p.name, p.id).not.toMatch(/[|:#]/);
+      expect(p.name.toLowerCase(), p.id).not.toContain(p.channel.toLowerCase());
+    }
+  });
+
   it("use known languages, scopes, kinds and topics", () => {
     for (const p of playlists) {
       expect(["en", "hi"], p.id).toContain(p.lang);

@@ -3,7 +3,7 @@ import type { TopicGroup } from "./learn";
 import type { PoolProblem } from "./mustDo";
 import type { BeginnerPath } from "./path";
 import type { ProblemRef } from "./problemRef";
-import { easierProblem, editorialLinks, stuckVideo } from "./stuck";
+import { easierProblem, editorialLinks, stuckTopic, stuckVideo } from "./stuck";
 
 const pp = (key: string, p: Partial<PoolProblem> = {}): PoolProblem => ({
   key,
@@ -59,9 +59,10 @@ describe("editorialLinks", () => {
 });
 
 describe("stuckVideo", () => {
-  const path = { steps: [] } as unknown as BeginnerPath;
-  const v = (id: string, lang: "en" | "hi") => ({ id, lang, role: "lecture", minutes: 10, title: id, channel: "c", codeLang: "concept" }) as TopicGroup["videos"][number];
-  const groups: TopicGroup[] = [{ topicId: "graphs", name: "Graphs", videos: [v("w1", "en"), v("w2", "hi")] }];
+  const path = { steps: [{ topics: ["graphs"] }] } as unknown as BeginnerPath;
+  const v = (id: string, lang: "en" | "hi", title: string, extra: Partial<TopicGroup["videos"][number]> = {}) =>
+    ({ id, lang, role: "lecture", minutes: 10, title, channel: "c", codeLang: "concept", ...extra }) as TopicGroup["videos"][number];
+  const groups: TopicGroup[] = [{ topicId: "graphs", name: "Graphs", videos: [v("w1", "en", "Graph traversals: BFS and DFS"), v("w2", "hi", "Graph series, part 1")] }];
   it("is a video of the topic, in your language, unwatched first", () => {
     expect(stuckVideo(groups, "graphs", path, new Set(), "hi")?.id).toBe("w2");
     expect(stuckVideo(groups, "graphs", path, new Set(["w1"]), "en")?.id).toBe("w2");
@@ -69,5 +70,24 @@ describe("stuckVideo", () => {
   it("is null with no topic or no videos", () => {
     expect(stuckVideo(groups, undefined, path, new Set(), "en")).toBeNull();
     expect(stuckVideo(groups, "dp", path, new Set(), "en")).toBeNull();
+  });
+  it("v1.8: only offers a video that's clearly about the topic (its title, or the path's own lesson)", () => {
+    const offTopic: TopicGroup[] = [{ topicId: "implementation", name: "Basics", videos: [v("x1", "en", "How to start Competitive Programming? For beginners!")] }];
+    expect(stuckVideo(offTopic, "implementation", path, new Set(), "en")).toBeNull();
+    const lesson: TopicGroup[] = [{ topicId: "graphs", name: "Graphs", videos: [v("l1", "en", "Lecture one", { role: "lesson", step: 0 }), v("x2", "en", "Something else")] }];
+    expect(stuckVideo(lesson, "graphs", path, new Set(), "en")?.id).toBe("l1");
+  });
+  it("v1.8: puts an explanation before a problem walkthrough", () => {
+    const both: TopicGroup[] = [{ topicId: "graphs", name: "Graphs", videos: [v("p1", "en", "Number of Islands | Graph problem", { role: "walkthrough" }), v("c1", "en", "Graph theory intro", { role: "intro" })] }];
+    expect(stuckVideo(both, "graphs", path, new Set(), "en")?.id).toBe("c1");
+  });
+});
+
+describe("stuckTopic (v1.8)", () => {
+  it("skips the broad Codeforces tags when the problem has a specific one", () => {
+    expect(stuckTopic({ topics: ["implementation", "greedy"] })).toBe("greedy");
+    expect(stuckTopic({ topics: ["math", "brute-force", "number-theory"] })).toBe("number-theory");
+    expect(stuckTopic({ topics: ["implementation"] })).toBe("implementation");
+    expect(stuckTopic({ topics: [] })).toBeUndefined();
   });
 });

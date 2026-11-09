@@ -9,7 +9,7 @@ import { humanizeTopic } from "@/lib/topics";
 // Today is the daily check-in, so it ships in the main chunk. Every other screen loads on first
 // visit (the Topics map brings @xyflow/react and dagre with it). AppShell suspends with a quiet line.
 const TopicsMap = lazy(() => import("@/features/progress/TopicsMap").then((m) => ({ default: m.TopicsMap })));
-const NotesList = lazy(() => import("@/features/progress/Notes").then((m) => ({ default: m.NotesList })));
+const NotesList = lazy(() => import("@/features/practice/Notes").then((m) => ({ default: m.NotesList })));
 const FriendsList = lazy(() => import("@/features/progress/Friends").then((m) => ({ default: m.FriendsList })));
 const TopicsList = lazy(() => import("@/features/progress/Topics").then((m) => ({ default: m.TopicsList })));
 const TopicDetail = lazy(() => import("@/features/topic/TopicDetail").then((m) => ({ default: m.TopicDetail })));
@@ -25,6 +25,9 @@ const SheetView = lazy(() => import("@/features/sheets/SheetView").then((m) => (
 const Progress = lazy(() => import("@/features/progress/Progress").then((m) => ({ default: m.Progress })));
 const ProgressOverview = lazy(() => import("@/features/progress/Progress").then((m) => ({ default: m.ProgressOverview })));
 const Contests = lazy(() => import("@/features/contests/Contests").then((m) => ({ default: m.Contests })));
+const ContestsUpcoming = lazy(() => import("@/features/contests/Contests").then((m) => ({ default: m.ContestsUpcoming })));
+const ContestsRounds = lazy(() => import("@/features/contests/Contests").then((m) => ({ default: m.ContestsRounds })));
+const ContestsVirtual = lazy(() => import("@/features/contests/Contests").then((m) => ({ default: m.ContestsVirtual })));
 const Achievements = lazy(() => import("@/features/achievements/Achievements").then((m) => ({ default: m.Achievements })));
 const Settings = lazy(() => import("@/features/settings/Settings").then((m) => ({ default: m.Settings })));
 const Debug = lazy(() => import("@/features/debug/Debug").then((m) => ({ default: m.Debug })));
@@ -51,6 +54,8 @@ export const routes: RouteObject[] = [
           { path: "mix", element: <PracticeMix /> },
           { path: "sheets", element: <SheetList /> },
           { path: "sheets/:sheetId", element: <SheetView /> },
+          // v1.8: your notes moved here from Progress (they're about problems).
+          { path: "notes", element: <NotesList /> },
         ],
       },
       {
@@ -75,7 +80,7 @@ export const routes: RouteObject[] = [
           { path: "topics", element: <TopicsList /> },
           { path: "topics/map", element: <TopicsMap /> },
           { path: "badges", element: <Achievements /> },
-          { path: "notes", element: <NotesList /> },
+          { path: "notes", element: <Navigate to="/practice/notes" replace /> },
           { path: "friends", element: <FriendsList /> },
           { path: "achievements", element: <Navigate to="/progress/badges" replace /> },
         ],
@@ -85,7 +90,17 @@ export const routes: RouteObject[] = [
         element: <TopicDetail />,
         handle: h((p) => (p.topicId ? humanizeTopic(p.topicId) : "Topic Detail")),
       },
-      { path: "contests", element: <Contests />, handle: h("Contests") },
+      {
+        path: "contests",
+        element: <Contests />,
+        handle: h("Contests"),
+        // v1.8: three tabs, each a route.
+        children: [
+          { index: true, element: <ContestsUpcoming /> },
+          { path: "rounds", element: <ContestsRounds /> },
+          { path: "virtual", element: <ContestsVirtual /> },
+        ],
+      },
       { path: "settings", element: <Settings />, handle: h("Settings") },
       { path: "debug", element: <Debug />, handle: h("Debug") },
       // v1.1 screens that moved: redirect so nothing breaks.

@@ -1,5 +1,92 @@
 # AlgoCompass progress log
 
+## v1.8, easier to find your way (released as v1.8.0 on 2026-11-09)
+
+The owner said "the home page and every page is difficult to navigate". v1.7 added seven features to Progress and Contests, so screens lost their one job. v1.8 doesn't add features; it gives each screen one job and one primary action again.
+
+### Part 0: critique and plan (2026-11-09)
+
+- **`docs/audit-v1.8/CRITIQUE.md`:** every screen in both modes at 1100x700 (browser mode; smart = a real sync of the owner's public profiles, beginner = Debug → Preview a fresh beginner), Nielsen scores (25/40), 11 problems ranked by how much they hurt navigation, and the information architecture for v1.8 (what lives where, one primary action per screen, what's folded or moved). Evidence in `docs/audit-v1.8/critique/`.
+- **Degraded run, said so in the file:** the impeccable critique wants two isolated sub-agents; this task asked for no background agents, so it ran in one context, the review first, then the detector (1 finding, a false positive: the React Flow attribution's intended 10px).
+- **Decisions:** keep the five sidebar screens, every route and redirect. Notes move to Practice (they're about problems); Friends stays a Progress tab but only once there's a handle or a friend; Contests gets three tabs, each a route; Learn's two browsers become one card with one toolbar. Playlists get a curated short `name` (the YouTube title stays the verified field).
+
+### Part 1: Progress, five cards and fewer tabs (2026-11-09)
+
+- **Smart Overview: 8 cards → 5** (2,148px → 1,402px at 1100 wide). Left column: **Rating** with the goal under the chart (`RatingGoalSection`: one line, "Goal: 1900 by Jan 31, 2027 · +889 to go · 12 weeks left · Unlikely at your best pace", the plan behind **Show the plan**, Change, Remove; no goal: "Set a goal"), **This week** with **Share my week** in its header and the **Weekly review** folded under the meters (opens on its own on Sundays, as before), **Activity**. Right column: **Level and badges** (one card; the three badge tiles under the level), **LeetCode**.
+- **Where you stand moved to Topics**, above the list it sums up (no "See all topics" link there; the list is right below).
+- **Tabs: Overview · Topics · Friends.** *Your notes* moved to **Practice → Your notes** (`/practice/notes`; `/progress/notes` redirects; `src/features/practice/Notes.tsx`). **Friends** shows in smart mode always, and in Beginner mode once a handle is entered (`friendsTabShown`); `/progress/friends` always works. Decision: a beginner who added a friend without any handle of their own loses the tab but keeps the route; that combination is rare, and the table would show "–" for them anyway.
+- **The tab row is tabs plus one button** (Continue today's practice). Share my week moved into This week (smart) and Your week (beginner, on the title row).
+- **Beginner Practice:** a small **Your notes** card beside Follow a popular sheet, only once a note exists (`NotesLinkCard`).
+- **Empty states:** Overview before the first update has **Update now** (and says "Adding up your history…" while an update runs, instead of "starts after the first update"); Your notes has a button to today's problems (or the lesson problems).
+- Words: `LABELS.thisWeek`, `weeklyReview`, `levelAndBadges`, `shareWeek`, `whereYouStand` (plus the Contests and Learn words used later in v1.8).
+- **Tests:** `progress/tabs.test.ts` (three tabs, Friends rule), `practice/tabs.test.ts` (Your notes tab), `router.test.ts` (notes under Practice, the redirect).
+- **Screenshots:** `docs/audit-v1.8/1-progress/before|after/` (smart Overview, Topics, notes, Friends; beginner Overview, Topics, Practice, notes; Light and Dark, with `-full` captures of the whole scroll).
+
+### Part 2: Contests in three tabs (2026-11-09)
+
+- **One 3,295px column → three routes** (`CONTESTS_TABS`, `src/features/contests/tabs.ts`): **Upcoming** (`/contests`, 993px: the next round, then More Codeforces rounds and LeetCode side by side from 1280px), **Your rounds** (`/contests/rounds`: Contest review's cards, then the Past contests table) and **Virtual contest** (`/contests/virtual`: the picker and your past virtual contests). A running virtual contest still leads, now on every tab (it's in the layout). `/contests` keeps working for the tray, Ctrl+5 and deep links; nothing redirects.
+- **Empty states:** Upcoming with nothing loaded has **Update now** (and "Loading contests…" while an update runs); Your rounds with no rounds explains what will appear and links to upcoming rounds.
+- The sidebar hint and the subtitle: "Upcoming rounds, how your rounds went, and virtual contests".
+- **Tests:** `contests/tabs.test.ts`, `router.test.ts` (the three routes).
+- **Screenshots:** `docs/audit-v1.8/2-contests/before|after/`.
+
+### Part 3: Learn in one browse card, short playlist names, one watched button (2026-11-09)
+
+- **One browse card instead of two** (`BrowseCard` in `src/features/learn/Learn.tsx`; smart Learn 3,280px → 1,817px). Its header has a **Playlists / Single videos** switch (`?view=videos`; the title and pill follow it), then one toolbar for both views: search (playlists match on name, YouTube title and channel), English / Hindi / Both, <Language> + concepts / All languages, Not watched yet (videos only), and the topic picker (`?topic=`). The filters carry across the switch; they used to be two sets with separate state. `PlaylistsCard` became `PlaylistsBody`, the library card `LibraryBody`. Order: Continue learning, (beginner: the roadmap, open), the browse card, (smart: the roadmap, folded).
+- **Where links land:** `?topic=` (Topic Detail's Watch lessons, sheet sections, Ctrl+K, the Watch page's crumb) opens on Single videos and scrolls to the card, as the library did; `#playlists` (the playlist page's crumb) opens on Playlists. Decision: the beginner's video library is no longer folded behind "Browse all videos": it's one click on the switch, and the card opens on Playlists.
+- **4 topic groups before "Show all"** in both views (the library showed 8).
+- **Curated short playlist names:** `name` in `src/data/playlists.json` for all 111 ("Striver's A2Z DSA course", "Binary search, beginner to advanced", "Graphs, level 2"), read off each YouTube title: no pipes, no channel (it's on the line below), no language (the chip says it). The YouTube `title` stays the verified field (`check:links` unchanged) and shows on hover. `fill:playlists` keeps `name` and fails without one; `playlists.test.ts` checks every name (present, ≤ 42 characters, no `|`, `:` or `#`, no channel). Shown on playlist rows, the playlist page (crumb and parts card) and Continue learning.
+- **Playlist page, one watched action:** not watched: the primary **I've watched it, next part** (last part: I've watched it); watched: the primary **Next part** with the quiet **✓ Watched** beside it (click to undo). The outline "Mark as watched" next to the primary is gone.
+- **Contests with no handle at all** (a beginner who skipped them): Upcoming's empty state says rounds load once a handle is added and links to Settings, instead of an Update now that can't fetch anything.
+- **Screenshots:** `docs/audit-v1.8/3-learn/before|after/` (smart Learn, Single videos, filtered to a topic, the playlist page before and after a part is watched; beginner Learn, Single videos by step). The beginner "before" captures are Light only (from the critique sweep).
+
+### Part 4: Today always has one button (2026-11-09)
+
+- **Do this next, smart mode:** the title, then **one line** ("Codeforces · difficulty 1100 · Greedy · From a Jan 2025 round"), then the button. The "Picked for your weakest topics, one of today's problems" sentence is gone (Practice says why).
+- **No dead end before the first update:** while an update runs it says "Picking today's problems…" (it used to say they "come after the first update" while the update was running); otherwise the large primary button is **Update now**. Today's goals says "Picking today's goals…" during an update, and the rating card says the next round shows after the update instead of "No Codeforces round is scheduled".
+- **All done:** "Today's problems are done" now ends in a large **Keep going in Practice** button (was a text link), so every Today state has exactly one primary action.
+- Beginner Today is unchanged: it already had one Do this next button in every state.
+- **Screenshots:** `docs/audit-v1.8/4-today/before|after/` (smart Today during the first update and with data).
+- One `npm test` run had `glossary.test.ts` time out while the machine was busy (Vite, the browser and a build at once); it passes alone and on the rerun.
+
+### Part 5: one way back (2026-11-09)
+
+- **`Breadcrumb` moved to `src/components/Breadcrumb.tsx`** (from `features/learn/parts.tsx`) and is now on every page that sits below a screen or a tab: Lesson, Watch and Playlist (as before), and now **a sheet** ("Practice › Sheets › Striver's A2Z DSA Sheet", above the card; the "‹ All sheets" link inside the card is gone), **the beginner's sheet list** ("Practice › Sheets", was "‹ Problems from your lessons"), **Badges** ("Progress › Badges", was "‹ Overview") and **the Topics map** ("Progress › Topics › Map", was "‹ Show as list"). Same row everywhere: a 32px back chevron (history back when there is some, else the parent crumb) and the crumbs. Side panels (Topic, Stuck?, notes) keep their ×.
+- With no crumb to fall back on, the chevron now goes to `/` (it went to `/learn`, which only made sense for Learn's pages).
+- **Screenshots:** `docs/audit-v1.8/5-back/before|after/` (sheet, badges, map; the beginner's sheet list is in `6-beginner/`).
+
+### Part 6: gentler problems for beginners, an on-topic Stuck? video (2026-11-09)
+
+- **Practice this in Beginner mode** (`mustDo(…, { gentle: true })`, passed by `PracticeThis` when the mode is beginner): Easy first (up to one less than the list's room), **at most one Medium, never Hard or unrated**. A topic with nothing gentle left gets the honest empty state, not a Hard problem. The problem the video itself solves still leads ("Solved in this video"), whatever its difficulty. Smart mode is unchanged (two Easy, then the best-ranked harder ones). Graphs for a beginner now reads Flood Fill, Find if Path Exists in Graph, Find the Town Judge, Island Perimeter, then Clone Graph.
+- **Stuck?'s topic** is the problem's first *specific* topic (`stuckTopic`): Codeforces' broad tags (implementation, brute force, math) are skipped when the problem has another, so a Greedy + Implementation problem is about greedy. The easier-problem step uses the same topic.
+- **Stuck?'s video** (`stuckVideo`) is only one we're sure about: its title names the topic (`topicsNamed`, the same word table Practice this uses) or it's the Beginner Path's own lesson for the topic. Then not watched first, your language first, an explanation before a problem walkthrough. With none, the step says no video is clearly about the topic and offers **Browse the topic's videos** (Learn filtered to it). Before, the implementation group's first video ("How to start Competitive Programming? For beginners!") was offered for any problem tagged implementation.
+- **Tests:** `mustDo.test.ts` (gentle: Easy first, one Medium, no Hard or unrated, the video's problem still first), `stuck.test.ts` (specific topic, sure videos only, explanation before walkthrough).
+- **Screenshots:** `docs/audit-v1.8/6-beginner/before|after/` (a beginner's Watch page for DP and for graphs, the beginner's sheet list with the breadcrumb, and Stuck? on a Greedy problem). There's no "before" for Stuck?: the old video was off-topic only for some problems, and the critique describes the case.
+
+### Part 7: every empty state ends in an action, Settings jumps, Stuck? as an icon (2026-11-09)
+
+- **`UpdateAction`** (`src/components/UpdateAction.tsx`) is the one button an empty state ends in when what's missing comes from an update: **Update now**; nothing while an update runs (the title says it's loading); **Add a handle in Settings** when there's no handle at all (an update can't fetch anything). `primary` makes it the large filled button. Used by Today's Do this next before the first update ("Add a handle to get today's problems" with no handle), Practice → Today's problems (had no button; "Picking today's problems…" during an update), Progress → Overview, Contests → Upcoming ("No upcoming contests loaded") and the Topics map (was "Check your handles", which led nowhere useful once handles were set). Your notes already links to today's problems (Part 1); Your rounds links to upcoming rounds (Part 2).
+- **Today's rating card with no Codeforces handle** says "No handle yet" and links "Add your Codeforces handle in Settings" (it said "Not updated yet" and "The next round shows here after the update", which never happens without a handle).
+- **Settings section list** (`SectionNav`, `src/features/settings/SectionNav.tsx`): a sticky list right of the cards (Handles, Mode, Language, Theme, Weekly goals, Notifications, Startup, App updates); a click scrolls that card to 24px under the top, and the section in view is marked (`aria-current="location"`, accent rule). Decision: the cards go two-column only from 1800px wide (was 1536px), so the list always fits beside them.
+- **Wording:** Weekly goals said "Progress rings on Progress → Overview"; they've been meters since v1.4: "The meters for your week on Progress → Overview" (mode-neutral: beginners see "Your week").
+- **Stuck? is the ? icon everywhere** (`StuckButton` has no word variant any more): Practice's rows and the Due for review rows had the word, five times a screen. Tooltip "Stuck?", aria-label "Stuck? <problem>". Decision: the plan kept the word on the recommended row; dropped, because one wider button breaks the column of Open buttons and the row already has its own primary.
+- **Screenshots:** `docs/audit-v1.8/7-empty/before|after/` (smart Practice rows, Settings and Settings jumped to Notifications; a fresh profile switched to smart with no handles: Today, Practice, Progress, Contests, the map; a fresh beginner: Contests, Your notes). Light and Dark, 1100x700, browser mode.
+
+### Part 8: polish pass, docs, checks (2026-11-09)
+
+- **Polish pass** (impeccable `polish`, in one context: no sub-agents, per the task) over every screen v1.8 touched, both modes, Light and Dark at 1100x700 (browser mode; smart = the owner's synced public profiles, beginner = Debug → Preview a fresh beginner). Found and fixed in Part 7's batch: Today's rating card with no Codeforces handle. Nothing else needed a change; the badge toast after a fresh sync still covers the rating card's next-round tile once (known, CRITIQUE minor observation).
+- **Docs:** CLAUDE.md's screen table rewritten for v1.8 (Today's one primary, Learn's one browse card, the playlist's one watched action, Practice's three tabs with Your notes, Progress's tabs and five cards, Contests' three tabs, Settings' section list), plus a "v1.8 patterns" line (breadcrumb, `UpdateAction`, Stuck? icon) and the stale notes/contests references. DESIGN.md gets **One job per screen (v1.8)**: tabs are routes, one way back, every empty state ends in an action, one primary per state, the Stuck? icon, the Settings section list, one browse card.
+- **Checks:** glossary test, `npm test` (55 files, 642 tests), `npm run build`, `npm run check:links` (all links verified: 204 video uses, 111 playlists, every LC slug and CF id) and `npm run tauri dev` (built, started, responding; stopped).
+- **Screenshots:** `docs/audit-v1.8/final/` (smart: Today, Learn, Single videos, a playlist, Practice, Sheets, a sheet, Your notes, Overview, Topics, Friends, Badges, the map, the three Contests tabs, Settings; beginner: Today, Learn, a lesson, Practice, Sheets, Overview, Topics, Contests, Settings). Light and Dark.
+
+### Part 9: release 1.8.0 (2026-11-09)
+
+- **Version 1.8.0** in `package.json`, `package-lock.json`, `tauri.conf.json`, `Cargo.toml` and `Cargo.lock`; README updated for v1.8 (one job per screen, Today's one button, Progress's three tabs and five cards, Contests' tabs, notes in Practice, one browse card on Learn, gentler beginner problems, the Settings list).
+- **Backup** of `%APPDATA%\com.algocompass.app` to `%APPDATA%\com.algocompass.app.backup-v1.8-20261109-1555` before the build.
+- **Build:** `node scripts/release.mjs` from PowerShell, the key's password read from `%USERPROFILE%\.tauri\algocompass-password.txt` into the environment for that one command and removed after. Setup.exe 4.7 MB, .msi 6.3 MB, both signed; `latest.json` says 1.8.0 and carries the release notes.
+- **Real-data run:** the built `algocompass.exe` (1.8.0) started on the owner's data and kept responding; the database still has migrations 1–10 and the same rows (122 Codeforces submissions, 8 rating changes, 14 badges, 57 daily goals), and its update ran (`sync_log` 1,371 → 1,383). No migration in v1.8.
+- **Published:** merged to `master`, tagged `v1.8.0`, GitHub release with the setup.exe, the .msi and `latest.json`.
+
 ## v1.7, the app updates itself (released as v1.7.0 on 2026-11-09)
 
 Released. Auto-updates, a revision queue, notes, "Stuck?", a daily reminder, contest review, virtual contests, a rating goal, friends, more playlists and a share card. **The first version that can update itself;** 1.6.0 and older need one manual install.

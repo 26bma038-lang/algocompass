@@ -31,10 +31,10 @@ On the first screen, answer **"New to DSA?"**. You can switch any time in Settin
 
 ## The screens
 
-Five screens with plain names, in this order in the sidebar (Ctrl+1 to Ctrl+5): **Today · Learn · Practice · Progress · Contests**, plus **Settings** (Ctrl+,). In Beginner mode, Contests joins the sidebar, marked "New", once you finish the Recursion step: that's when you're ready for your first contest.
+Five screens with plain names, in this order in the sidebar (Ctrl+1 to Ctrl+5): **Today · Learn · Practice · Progress · Contests**, plus **Settings** (Ctrl+,). Since v1.8 each screen has one job and one main button, every page below a screen has the same breadcrumb back, and every empty screen tells you what to do next (Update now, or where to add a handle). In Beginner mode, Contests joins the sidebar, marked "New", once you finish the Recursion step: that's when you're ready for your first contest.
 
 ### Today: what do I do today?
-- **Smart mode:** three cards. **Do this next** is one problem to open right now (the first unsolved of today's problems, then your sheet's next one). **Today's goals** are three small goals that tick themselves when an update sees the accepted submission. The **rating card** shows your Codeforces rating in your real rank colour, the distance to the next rank, and the next round.
+- **Smart mode:** three cards. **Do this next** is one problem to open right now (a problem due for review, then the first unsolved of today's problems, then your sheet's next one), with one button in every state: Update now before your first update, Keep going in Practice once everything's done. **Today's goals** are three small goals that tick themselves when an update sees the accepted submission. The **rating card** shows your Codeforces rating in your real rank colour, the distance to the next rank, and the next round.
 - **Beginner mode:** one **Do this next** card with the exact next lesson action ("Watch the video (15 min)", "Solve problem 2 of 3: Running Sum"), beside today's goals. Nothing else.
 
 ### Learn: every video in one place
@@ -42,7 +42,7 @@ Five screens with plain names, in this order in the sidebar (Ctrl+1 to Ctrl+5): 
 - **Playlists (new in v1.6):** whole YouTube courses and topic series, every video in order, in English and Hindi: Striver's A2Z, Graph, DP and Binary Search series, NeetCode, William Fiset, Abdul Bari, Kunal Kushwaha, Pepcoding, CodeHelp, Aditya Verma, Apna College, Luv, Gate Smashers and more (111 playlists, about 4,700 videos, including JavaScript courses since v1.7). A playlist opens where you left off, says "Part 12 of 56", and ticks each part as you watch it.
 - **Practice this (new in v1.6):** after every video, 3 to 5 must-do problems on its topic from the popular sheets, plus **Sharpen on Codeforces** with 2 problems in your rating window.
 - **The Beginner Path:** 14 steps from loops and complexity through arrays, strings, hashing, two pointers, sliding window, stacks and queues, binary search, recursion, linked lists, trees, graphs and greedy, to dynamic programming.
-- **The video library:** every single video, grouped by topic (your weakest first in Smart mode, by path step in Beginner mode), in English, Hindi or both, with search.
+- **Single videos:** every single video, grouped by topic (your weakest first in Smart mode, by path step in Beginner mode), in English, Hindi or both, with search. Since v1.8 playlists and single videos share one card with one set of filters and a Playlists / Single videos switch, and playlists have short, readable names.
 - **Your coding language:** every video says what it codes in (Concept, C++, Java, Python). The library and playlists show yours plus concept videos by default; "All languages" is one click.
 
 | | |
@@ -61,18 +61,18 @@ Five screens with plain names, in this order in the sidebar (Ctrl+1 to Ctrl+5): 
 - **Sheets:** follow **Striver's A2Z**, **Striver's SDE Sheet**, **NeetCode 150**, **Blind 75** or **Love Babbar's DSA 450**, in their original order and sections. Problems you solve on LeetCode or Codeforces tick themselves in every sheet that lists them; anything you solved elsewhere is one click. "I've already done some" catches you up if you're halfway through. **Next in this sheet** picks the next problem, and every section has "Learn this topic".
 - **Problems from your lessons (Beginner mode):** the problems from the steps you've reached, with a card to follow a popular sheet when you want more.
 - **Due for review (new in v1.7):** problems you solved come back after 7 and 30 days (3 if you needed help), at the top of Today's problems and in Do this next.
-- **Notes and Stuck? (new in v1.7):** every problem row can hold a note (all of them in Progress → Your notes) and has **Stuck?**: its topics, a verified video on the topic, an easier problem on it, then the platform's editorial and solutions. Nothing is generated.
+- **Notes and Stuck? (new in v1.7):** every problem row can hold a note (all of them in Practice → Your notes) and has **Stuck?** (the ? icon): its topics, a verified video on the topic, an easier problem on it, then the platform's editorial and solutions. Nothing is generated. Beginners get gentler problems after a video: Easy first, at most one Medium, never Hard.
 
 | | |
 |---|---|
 | ![Today's problems](docs/screenshots/v1.5/practice-dark.png) | ![Striver's A2Z with Next in this sheet](docs/screenshots/v1.5/sheet-light.png) |
 
 ### Progress: how you're growing
-Four tabs:
-- **Overview:** your rating chart against the rank bands, a **rating goal** (new in v1.7: a target and a date, judged honestly against your best 90-day climb, with weekly targets from your own history), your level and XP, weekly goals as meters ("3 of 10, 7 to go"), the weekly review, your activity, LeetCode, badges and where you stand. "Continue today's practice" takes you back to doing.
-- **Your notes** and **Friends** (new in v1.7): every note you wrote, searchable; and friends' Codeforces and LeetCode handles side by side with yours (rating, solved this week, streak), stored only on your computer.
-- **Share my week** (new in v1.7): an image of your week (rating, solves, streak, top topic) in Light or Dark, saved where you choose. Nothing is uploaded.
-- **Topics:** all 33 topics in plain words, weakest first, each with its strength (0–100) and why. **Show as map** draws them on a prerequisite graph. **Badges** has 31 of them across consistency, Codeforces, LeetCode, topics and fun. Rank promotions get a short "Aura Shift" moment; there's no confetti, ever.
+Three tabs: Overview, Topics and Friends.
+- **Overview:** five cards: your **rating** chart against the rank bands with your **rating goal** under it (a target and a date, judged honestly against your best 90-day climb, with weekly targets from your own history), **this week** (weekly goals as meters, "3 of 10, 7 to go", with the weekly review folded under them), your **activity**, your **level and badges**, and **LeetCode**. "Continue today's practice" takes you back to doing.
+- **Share my week** (in This week): an image of your week (rating, solves, streak, top topic) in Light or Dark, saved where you choose. Nothing is uploaded.
+- **Friends:** friends' Codeforces and LeetCode handles side by side with yours (rating, solved this week, streak), stored only on your computer.
+- **Topics:** where you stand (strongest, work on next, not tried yet), then all 33 topics in plain words, weakest first, each with its strength (0–100) and why. **Show as map** draws them on a prerequisite graph. **Badges** has 31 of them across consistency, Codeforces, LeetCode, topics and fun. Rank promotions get a short "Aura Shift" moment; there's no confetti, ever.
 
 Open any topic for its panel: where its strength comes from (Codeforces vs LeetCode), what you've solved and what's still open, recommended problems, curated resources, and two videos with **Watch lessons**.
 
@@ -82,7 +82,7 @@ Open any topic for its panel: where its strength comes from (Codeforces vs LeetC
 | ![Topics as a map](docs/screenshots/v1.5/topics-map-dark.png) | ![Badges](docs/screenshots/v1.5/badges-dark.png) |
 
 ### Contests
-Upcoming Codeforces rounds first, with LeetCode weekly and biweekly contests below. Each shows a countdown, local start time, duration and division, plus Register. "I'll attend" sets Windows reminders 1 hour and 10 minutes before. Past rounds show your rank, problems solved and rating change.
+Three tabs: **Upcoming**, **Your rounds** and **Virtual contest**. Upcoming Codeforces rounds come first, with LeetCode weekly and biweekly contests beside them. Each shows a countdown, local start time, duration and division, plus Register. "I'll attend" sets Windows reminders 1 hour and 10 minutes before. Past rounds show your rank, problems solved and rating change.
 - **Contest review (new in v1.7):** one card per round you took part in: rating change, every problem by index, the topics of the ones you didn't solve, and **Fix next**, which joins the review queue.
 - **Virtual contest (new in v1.7):** a past Div. 2, 3 or 4 round you've never touched, on a clock of its real length. Solves are your own Codeforces submissions inside the window; there are no made-up standings.
 
@@ -94,7 +94,7 @@ A search box for every screen, topic and action: jump to a topic, watch a topic'
 ![Search (Ctrl+K)](docs/screenshots/v1.5/palette-dark.png)
 
 ### Settings
-Your handles, the mode (Beginner or Smart), **Language** (video language and "I code in"), the theme, weekly goals, a toggle per notification with the evening reminder time, and launch on Windows startup.
+Your handles, the mode (Beginner or Smart), **Language** (video language and "I code in"), the theme, weekly goals, a toggle per notification with the evening reminder time, launch on Windows startup, and app updates. A list on the right jumps to each section.
 
 ![Settings](docs/screenshots/v1.5/settings-light.png)
 

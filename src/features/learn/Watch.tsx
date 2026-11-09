@@ -13,7 +13,8 @@ import { useUiStore } from "@/data/uiStore";
 import { LABELS } from "@/lib/glossary";
 import { findVideo } from "@/engine/learn";
 import { VideoPlayer, WatchedButton, YouTubeButton } from "@/features/path/VideoPlayer";
-import { Breadcrumb, LANG_NAME, roleLabel, VideoRow } from "./parts";
+import { Breadcrumb } from "@/components/Breadcrumb";
+import { LANG_NAME, roleLabel, VideoRow } from "./parts";
 import { PracticeThis } from "./PracticeThis";
 
 /**

@@ -47,7 +47,19 @@ describe("routes (v1.4 step 2b: Progress has two tabs)", () => {
     expect(resolve("/progress/topics").chain).toEqual(["", "progress", "topics"]);
     expect(resolve("/progress/topics/map").chain).toEqual(["", "progress", "topics/map"]);
     expect(resolve("/progress/badges").chain).toEqual(["", "progress", "badges"]);
-    for (const p of ["/progress", "/progress/topics", "/progress/topics/map", "/progress/badges", "/progress/notes", "/progress/friends"]) expect(resolve(p).to).toBeNull();
+    for (const p of ["/progress", "/progress/topics", "/progress/topics/map", "/progress/badges", "/progress/friends"]) expect(resolve(p).to).toBeNull();
+  });
+
+  it("v1.8: Contests has three tabs, each a route", () => {
+    expect(resolve("/contests").chain).toEqual(["", "contests", "(index)"]);
+    expect(resolve("/contests/rounds").chain).toEqual(["", "contests", "rounds"]);
+    expect(resolve("/contests/virtual").chain).toEqual(["", "contests", "virtual"]);
+  });
+
+  it("v1.8: your notes live under Practice, and the old Progress link redirects there", () => {
+    expect(resolve("/practice/notes").chain).toEqual(["", "practice", "notes"]);
+    expect(resolve("/practice/notes").to).toBeNull();
+    expect(resolve("/progress/notes").to).toBe("/practice/notes");
   });
 
   it("keeps the old links working", () => {

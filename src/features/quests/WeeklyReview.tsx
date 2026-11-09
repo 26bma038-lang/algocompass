@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { ArrowDown, ArrowUp, Check, ChevronDown, X } from "lucide-react";
 import { useStreak } from "@/components/shell/useStreak";
-import { CardHeader } from "@/components/CardHeader";
-import { Button } from "@/components/ui/button";
 import { usePrefs } from "@/data/prefs";
 import { useWeeklyReview } from "@/data/quests";
 import { useRecommender } from "@/data/recommendations";
@@ -31,7 +29,7 @@ function Versus({ now, before }: { now: number; before: number }) {
  * week-on-week comparisons and goals hit (This week already shows the goals) fold under "Weekly
  * details" (v1.4 polish). Open on Sundays, a click away on other days.
  */
-export function WeeklyReviewCard() {
+export function WeeklyReviewFold() {
   const [open, setOpen] = useState(isSunday);
   const [details, setDetails] = useState(false);
   const review = useWeeklyReview(open);
@@ -51,21 +49,22 @@ export function WeeklyReviewCard() {
   const hit = goalRows.filter((g) => g.value >= g.goal).length;
 
   return (
-    <section aria-labelledby="review-title" className="glass-card flex flex-col gap-4 p-6">
-      <CardHeader
-        id="review-title"
-        title="Weekly review"
-        actions={
-          !open && (
-            <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
-              Show
-            </Button>
-          )
-        }
-      />
-      {!open ? (
-        <p className="text-body-sm text-ink-muted">Your week so far: solves, topics that improved, rating and goals. It opens here on its own on Sundays.</p>
-      ) : !d ? (
+    <div className="flex flex-col gap-4 border-t border-glass-border pt-4">
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center justify-between gap-3 rounded-xs text-left"
+      >
+        <span className="flex min-w-0 flex-col gap-0.5">
+          <span id="review-title" className="text-title font-semibold text-ink">
+            {LABELS.weeklyReview}
+          </span>
+          {!open && <span className="text-body-sm text-ink-muted">Rating, streak and the topics that improved. It opens on its own on Sundays.</span>}
+        </span>
+        <ChevronDown aria-hidden className={cn("size-4 shrink-0 text-ink-muted transition-transform duration-[var(--dur-fast)]", open && "rotate-180")} />
+      </button>
+      {!open ? null : !d ? (
         <p className="text-body-sm text-ink-muted">Adding up your week…</p>
       ) : (
         <>
@@ -164,6 +163,6 @@ export function WeeklyReviewCard() {
           )}
         </>
       )}
-    </section>
+    </div>
   );
 }

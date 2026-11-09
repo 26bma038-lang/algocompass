@@ -56,12 +56,12 @@ function Group({ title, items, empty, untried }: { title: string; items: Standin
  * "Where you stand": strongest topics, what to work on next, and topics you haven't tried at your
  * rating (scores out of 100). v1.4: on Progress → Overview, full width, the three groups side by side.
  */
-export function StandingCard({ report }: { report: TopicReport | undefined }) {
+export function StandingCard({ report, seeAll = true }: { report: TopicReport | undefined; seeAll?: boolean }) {
   return (
     <section aria-labelledby="standing-title" className="glass-card flex h-full flex-col gap-4 p-6">
       <div className="flex items-baseline justify-between gap-3">
         <h2 id="standing-title" className="font-display text-headline font-semibold text-ink">
-          Where you stand
+          {LABELS.whereYouStand}
         </h2>
         <span className="text-body-sm text-ink-muted">
           <Term id="strength" /> / 100
@@ -81,9 +81,11 @@ export function StandingCard({ report }: { report: TopicReport | undefined }) {
               untried
             />
           </div>
-          <Link to="/progress/topics" className="self-start text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
-            See all {report.topics.length} topics
-          </Link>
+          {seeAll && (
+            <Link to="/progress/topics" className="self-start text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
+              See all {report.topics.length} topics
+            </Link>
+          )}
         </>
       )}
     </section>

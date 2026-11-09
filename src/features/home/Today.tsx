@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Check, ExternalLink, Flame } from "lucide-react";
+import { ArrowRight, Check, ExternalLink, Flame } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Pill } from "@/components/CardHeader";
 import { meta as problemMeta, title as problemTitle, url as problemUrl } from "@/components/practice/problemText";
@@ -9,6 +9,9 @@ import { Button } from "@/components/ui/button";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { flameState, streakAtRisk, useStreak } from "@/components/shell/useStreak";
 import { useHomeData } from "@/data/queries";
+import { useHandles } from "@/data/settings";
+import { useSyncStore } from "@/data/syncStore";
+import { UpdateAction, useNoHandles } from "@/components/UpdateAction";
 import { useMarkSolved, useTodayQuests } from "@/data/quests";
 import { useMixOfTheDay } from "@/data/recommendations";
 import { useDueRevisions, useReviewRevision } from "@/data/revisions";
@@ -39,8 +42,8 @@ export function DoThisNextLabel() {
   return <p className="text-body-sm font-medium text-accent">{LABELS.doThisNext}</p>;
 }
 
-/** "Codeforces · difficulty 1100 · Sorting" / "LeetCode · Easy · Dynamic programming". */
-function SourceLine({ p }: { p: Rec }) {
+/** "Codeforces · difficulty 1100 · Sorting · From a Jan 2025 round" / "LeetCode · Easy · Dynamic programming". */
+function SourceLine({ p, extra }: { p: Rec; extra?: string }) {
   const topic = TOPIC_BY_ID.get(p.topicId)?.name;
   return (
     <p className="flex flex-wrap items-center gap-x-2 text-body text-ink-muted">
@@ -62,6 +65,12 @@ function SourceLine({ p }: { p: Rec }) {
           <span>{topic}</span>
         </>
       )}
+      {extra && (
+        <>
+          <span aria-hidden>·</span>
+          <span>{extra}</span>
+        </>
+      )}
     </p>
   );
 }
@@ -74,6 +83,8 @@ function DoThisNextCard() {
   const mark = useMarkSolved();
   const due = useDueRevisions().data?.[0] ?? null;
   const reviewing = useReviewRevision();
+  const syncing = useSyncStore((s) => s.syncing);
+  const noHandles = useNoHandles();
   const pick = pickDoThisNext(mix.data?.items, sheet?.next ?? null, due);
   const progress =
     pick.kind !== "none" && pick.total > 0 ? (
@@ -125,12 +136,12 @@ function DoThisNextCard() {
     const href = problemUrl(p);
     body = (
       <>
+        {/* v1.8: the title and one line under it, so the button is the next thing you read. */}
         <div className="flex flex-col gap-2">
           <h2 id="next-title" className="font-display text-display leading-tight font-semibold text-ink">
             {problemTitle(p)}
           </h2>
-          <SourceLine p={p} />
-          <p className="text-body-sm text-ink-muted">{problemMeta(p)}. Picked for your weakest topics, one of today's problems.</p>
+          <SourceLine p={p} extra={problemMeta(p)} />
         </div>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           {href && (
@@ -173,25 +184,40 @@ function DoThisNextCard() {
       </>
     );
   } else if (pick.kind === "all-done") {
+    // v1.8: still one button, so "what now?" has an answer even when today's set is done.
     body = (
-      <div className="flex flex-col gap-2">
-        <h2 id="next-title" className="font-display text-display leading-tight font-semibold text-ink">
-          Today's problems are done
-        </h2>
-        <p className="text-body text-ink-muted">That's all {pick.total}. A new set comes at midnight; Practice has more by topic if you want to keep going.</p>
-        <Link to="/practice" className="self-start text-body text-ink underline decoration-glass-border-strong underline-offset-4">
-          More problems in Practice
-        </Link>
-      </div>
+      <>
+        <div className="flex flex-col gap-2">
+          <h2 id="next-title" className="font-display text-display leading-tight font-semibold text-ink">
+            Today's problems are done
+          </h2>
+          <p className="text-body text-ink-muted">That's all {pick.total}. A new set comes at midnight.</p>
+        </div>
+        <Button asChild size="lg" className="self-start">
+          <Link to="/practice">
+            Keep going in Practice
+            <ArrowRight aria-hidden />
+          </Link>
+        </Button>
+      </>
     );
   } else {
+    // Nothing to pick yet: while an update runs, say so; otherwise the one button is the update itself (v1.8).
+    const busy = mix.isLoading || syncing;
     body = (
-      <div className="flex flex-col gap-2">
-        <h2 id="next-title" className="font-display text-headline font-semibold text-ink">
-          {mix.isLoading ? "Picking today's problems…" : "Today's problems come after the first update"}
-        </h2>
-        <p className="text-body-sm text-ink-muted">They're picked from your own history: Codeforces problems just above your rating, and LeetCode problems for topics you haven't learned yet.</p>
-      </div>
+      <>
+        <div className="flex flex-col gap-2">
+          <h2 id="next-title" className="font-display text-headline font-semibold text-ink">
+            {busy ? "Picking today's problems…" : noHandles ? "Add a handle to get today's problems" : "Update to get today's problems"}
+          </h2>
+          <p className="text-body-sm text-ink-muted">
+            {busy
+              ? "Reading your Codeforces and LeetCode history. Your first problem shows here in a moment."
+              : "They're picked from your own history: Codeforces problems just above your rating, and LeetCode problems for topics you haven't learned yet."}
+          </p>
+        </div>
+        {!busy && <UpdateAction primary />}
+      </>
     );
   }
 
@@ -207,6 +233,8 @@ function DoThisNextCard() {
 /** The CF rating, compact (v1.4): rating, rank and progress to the next, and the next round. */
 function RatingCard({ cf, solved, history, nextCf }: { cf: CfUser | null; solved: number; history: readonly CfRatingChange[]; nextCf: Contest | undefined }) {
   const nowMs = useNow();
+  // No Codeforces handle at all (it can be skipped): say where to add one instead of waiting for an update.
+  const noCf = useHandles().data?.codeforces === "";
   const rating = cf?.rating ?? null;
   const band = rating !== null ? bandForRating(rating) : null;
   const progress = rating !== null ? bandProgress(rating) : 0;
@@ -223,7 +251,7 @@ function RatingCard({ cf, solved, history, nextCf }: { cf: CfUser | null; solved
           <span className="truncate text-body-sm font-normal text-ink-muted">{cf?.handle ?? ""}</span>
         </h2>
         <p className="numeric font-display text-hero leading-none font-semibold text-rank">
-          {rating !== null ? <NumberTicker id="cf-rating" value={rating} format={plain} /> : <span className="text-body text-ink-muted">{cf ? "Unrated" : LABELS.notUpdated}</span>}
+          {rating !== null ? <NumberTicker id="cf-rating" value={rating} format={plain} /> : <span className="text-body text-ink-muted">{cf ? "Unrated" : noCf ? "No handle yet" : LABELS.notUpdated}</span>}
         </p>
       </div>
       <div className="flex min-w-0 flex-col gap-2">
@@ -274,8 +302,8 @@ function RatingCard({ cf, solved, history, nextCf }: { cf: CfUser | null; solved
           </span>
         </button>
       ) : (
-        <Link to="/contests" className="text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
-          No Codeforces round is scheduled yet. See Contests
+        <Link to={noCf ? "/settings" : "/contests"} className="text-body-sm text-ink-muted underline decoration-glass-border-strong underline-offset-4 hover:text-ink">
+          {cf ? "No Codeforces round is scheduled yet. See Contests" : noCf ? "Add your Codeforces handle in Settings" : "The next round shows here after the update"}
         </Link>
       )}
     </section>
@@ -316,6 +344,7 @@ export function GoalsCard({ withStreak = false }: { withStreak?: boolean }) {
   const state = flameState(streak);
   const atRisk = streakAtRisk(streak);
   const { data, isLoading } = useTodayQuests();
+  const syncing = useSyncStore((s) => s.syncing);
   return (
     <section aria-labelledby="today-title" className="glass-card flex h-full flex-col gap-4 p-6">
       {/* Inline header (not CardHeader): its 256px title minimum would push the pill under the title in 5 columns. */}
@@ -374,7 +403,7 @@ export function GoalsCard({ withStreak = false }: { withStreak?: boolean }) {
           ))}
         </ul>
       ) : (
-        <p className="text-body-sm text-ink-muted">{isLoading ? "Picking today's goals…" : "Today's goals appear after the first update."}</p>
+        <p className="text-body-sm text-ink-muted">{isLoading || syncing ? "Picking today's goals…" : "Today's goals are picked from today's problems, at the first update."}</p>
       )}
     </section>
   );

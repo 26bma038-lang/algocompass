@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LABELS } from "@/lib/glossary";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import {
   Background,
   BackgroundVariant,
@@ -15,6 +15,7 @@ import {
 import "@xyflow/react/dist/base.css";
 import { Crosshair, Info, Maximize, Minus, Network, Plus, Search, SearchX, X } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
+import { UpdateAction } from "@/components/UpdateAction";
 import { MasteryRing } from "@/components/MasteryRing";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -570,11 +571,7 @@ export function SkillTree() {
         <EmptyState
           icon={Network}
           title="Your skill tree grows from solved problems"
-          action={
-            <Button asChild variant="outline" size="sm">
-              <Link to="/settings">Check your handles</Link>
-            </Button>
-          }
+          action={<UpdateAction />}
         >
           Every topic you've practiced on Codeforces and LeetCode becomes a node, with a mastery ring
           that fills as the topic gets stronger. Nodes unlock after the first update.

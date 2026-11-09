@@ -17,6 +17,8 @@ export interface PlaylistVideo {
 export interface Playlist {
   /** YouTube playlist id. */
   id: string;
+  /** v1.8: the short curated name the app shows ("Binary search, beginner to advanced"); `title` is YouTube's own, kept for verification and shown on hover. */
+  name: string;
   lang: VideoLang;
   /** A whole DSA course, or one topic. */
   scope: "course" | "topic";
