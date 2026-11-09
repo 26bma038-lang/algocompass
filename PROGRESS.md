@@ -40,6 +40,15 @@ The owner said "the home page and every page is difficult to navigate". v1.7 add
 - **Contests with no handle at all** (a beginner who skipped them): Upcoming's empty state says rounds load once a handle is added and links to Settings, instead of an Update now that can't fetch anything.
 - **Screenshots:** `docs/audit-v1.8/3-learn/before|after/` (smart Learn, Single videos, filtered to a topic, the playlist page before and after a part is watched; beginner Learn, Single videos by step). The beginner "before" captures are Light only (from the critique sweep).
 
+### Part 4: Today always has one button (2026-11-09)
+
+- **Do this next, smart mode:** the title, then **one line** ("Codeforces · difficulty 1100 · Greedy · From a Jan 2025 round"), then the button. The "Picked for your weakest topics, one of today's problems" sentence is gone (Practice says why).
+- **No dead end before the first update:** while an update runs it says "Picking today's problems…" (it used to say they "come after the first update" while the update was running); otherwise the large primary button is **Update now**. Today's goals says "Picking today's goals…" during an update, and the rating card says the next round shows after the update instead of "No Codeforces round is scheduled".
+- **All done:** "Today's problems are done" now ends in a large **Keep going in Practice** button (was a text link), so every Today state has exactly one primary action.
+- Beginner Today is unchanged: it already had one Do this next button in every state.
+- **Screenshots:** `docs/audit-v1.8/4-today/before|after/` (smart Today during the first update and with data).
+- One `npm test` run had `glossary.test.ts` time out while the machine was busy (Vite, the browser and a build at once); it passes alone and on the rerun.
+
 ## v1.7, the app updates itself (released as v1.7.0 on 2026-11-09)
 
 Released. Auto-updates, a revision queue, notes, "Stuck?", a daily reminder, contest review, virtual contests, a rating goal, friends, more playlists and a share card. **The first version that can update itself;** 1.6.0 and older need one manual install.
