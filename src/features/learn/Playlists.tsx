@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, ListVideo, X } from "lucide-react";
-import { Link, useLocation, useSearchParams } from "react-router-dom";
-import { CardHeader } from "@/components/CardHeader";
+import { useMemo, useState } from "react";
+import { ChevronDown, ListVideo } from "lucide-react";
+import { Link } from "react-router-dom";
 import { CodeChip } from "@/components/CodeChip";
 import { playlistPath } from "@/components/shell/nav";
 import { Button } from "@/components/ui/button";
@@ -13,11 +12,11 @@ import { DEFAULT_CODE_LANG } from "@/engine/codeLang";
 import type { TopicGroup } from "@/engine/learn";
 import { filterPlaylists, groupPlaylists, lengthLabel, playlistMinutes, playlistProgress, resumeIndex, type Playlist, type PlaylistFilter } from "@/engine/playlists";
 import { TOPIC_BY_ID } from "@/engine/topics";
-import { LABELS, myLangAndConcepts, partOf, plainTopicName } from "@/lib/glossary";
+import { LABELS, partOf, plainTopicName } from "@/lib/glossary";
 import { cn } from "@/lib/utils";
 import { Thumb } from "@/features/path/VideoPlayer";
 import { PlaylistMeter } from "./Playlist";
-import { LANG_NAME, Segmented } from "./parts";
+import { LANG_NAME } from "./parts";
 
 /** Playlists a group shows before "Show all" (two rows of two), and topic groups before "Show all topics". */
 const PER_GROUP = 4;
@@ -49,7 +48,9 @@ function PlaylistRow({ p, watched, lastOpened, showLang }: { p: Playlist; watche
           </span>
         </span>
         <span className="flex min-w-0 flex-1 flex-col gap-0.5 pt-0.5">
-          <span className="line-clamp-2 text-body-sm font-medium text-ink">{p.title}</span>
+          <span className="line-clamp-2 text-body-sm font-medium text-ink" title={p.title}>
+            {p.name}
+          </span>
           <span className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5">
             <CodeChip video={p} mine={mine} />
             <span className="text-label text-ink-muted">
@@ -97,114 +98,77 @@ function Group({ id, title, playlists, watched, at, showLang, open }: { id: stri
   );
 }
 
+/** What Learn's browse card hands the playlists view (v1.8: one toolbar for playlists and videos). */
+export interface BrowseFilters {
+  lang: PlaylistFilter["lang"];
+  /** Your language plus concepts ("mine"), or every language. */
+  code: "mine" | "all";
+  topic: string | null;
+  query: string;
+}
+
+/** A playlist matches a search when its name, YouTube title or channel has every word. */
+function matchesQuery(p: Playlist, query: string): boolean {
+  const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+  const hay = `${p.name} ${p.title} ${p.channel}`.toLowerCase();
+  return words.every((w) => hay.includes(w));
+}
+
+/** How many playlists and videos the filters leave (the browse card's pill). */
+export function usePlaylistCount(f: BrowseFilters): { playlists: number; videos: number } | null {
+  const codeLang = usePrefs().data?.codeLang ?? DEFAULT_CODE_LANG;
+  const playlists = usePlaylists().data;
+  if (!playlists) return null;
+  const shown = filterPlaylists(playlists, { lang: f.lang, codeLang: f.code === "mine" ? codeLang : null, topic: f.topic }).filter((p) => matchesQuery(p, f.query));
+  return { playlists: shown.length, videos: shown.reduce((n, p) => n + p.videos.length, 0) };
+}
+
 /**
- * Learn → Playlists (v1.6): whole YouTube courses and topic series, every video in order. Full
- * courses first, then one group per topic in the library's order (weakest first in smart mode, the
- * path's order for beginners). Filters: video language and your coding language plus concepts, and
- * the library's topic (`?topic=`).
+ * Learn → Playlists (v1.6; v1.8 the body of Learn's browse card, whose one toolbar sets `f`): whole
+ * YouTube courses and topic series, every video in order. Full courses first, then one group per
+ * topic in the library's order (weakest first in smart mode, the path's order for beginners).
  */
-export function PlaylistsCard({ groups }: { groups: TopicGroup[] }) {
+export function PlaylistsBody({ groups, f, onEveryLanguage }: { groups: TopicGroup[]; f: BrowseFilters; onEveryLanguage: () => void }) {
   const prefs = usePrefs().data;
-  const [params, setParams] = useSearchParams();
-  const topicParam = params.get("topic");
-  const topic = topicParam && TOPIC_BY_ID.has(topicParam) ? topicParam : null;
-  const [lang, setLang] = useState<PlaylistFilter["lang"]>(prefs?.videoLang ?? "en");
-  const [code, setCode] = useState<"mine" | "all">("mine");
   const [allTopics, setAllTopics] = useState(false);
   const codeLang = prefs?.codeLang ?? DEFAULT_CODE_LANG;
   const playlists = usePlaylists().data;
   const at = useLearnHistory().data?.playlistAt ?? {};
   const watchedMap = useWatchedVideos().data;
   const watched = useMemo(() => new Set(watchedMap?.keys() ?? []), [watchedMap]);
-  const ref = useRef<HTMLElement>(null);
-  const atHash = useLocation().hash === "#playlists";
-  // The playlist page's "Playlists" crumb lands here (/learn#playlists).
-  useEffect(() => {
-    if (atHash && playlists) ref.current?.scrollIntoView({ block: "start" });
-  }, [atHash, !!playlists]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!playlists) return <section aria-busy className="glass-card col-span-12 h-[220px]" />;
-  const shown = filterPlaylists(playlists, { lang, codeLang: code === "mine" ? codeLang : null, topic });
+  if (!playlists) return <div aria-busy className="h-[220px]" />;
+  const shown = filterPlaylists(playlists, { lang: f.lang, codeLang: f.code === "mine" ? codeLang : null, topic: f.topic }).filter((p) => matchesQuery(p, f.query));
   const { courses, groups: byTopic } = groupPlaylists(shown, groups.map((g) => g.topicId));
-  const videos = shown.reduce((n, p) => n + p.videos.length, 0);
-  const visibleGroups = topic || allTopics ? byTopic : byTopic.slice(0, GROUPS_SHOWN);
-  const clearTopic = () => {
-    const next = new URLSearchParams(params);
-    next.delete("topic");
-    setParams(next, { replace: true });
-  };
+  const narrowed = !!f.topic || f.query.trim() !== "";
+  const visibleGroups = narrowed || allTopics ? byTopic : byTopic.slice(0, GROUPS_SHOWN);
 
-  return (
-    <section ref={ref} id="playlists" aria-labelledby="playlists-title" className="glass-card col-span-12 flex scroll-mt-4 flex-col gap-5 p-6">
-      <CardHeader
-        id="playlists-title"
-        title={LABELS.playlists}
-        description="Whole YouTube courses and topic series, every video in order. Each one remembers where you left off."
-        pill={`${shown.length} playlists, ${videos} videos`}
-      />
-      <div className="flex flex-wrap items-center gap-3">
-        <Segmented
-          label={LABELS.videoLanguage}
-          value={lang}
-          onChange={setLang}
-          options={[
-            { id: "en", label: "English" },
-            { id: "hi", label: "Hindi" },
-            { id: "all", label: "Both" },
-          ]}
-        />
-        <Segmented
-          label="Coding language"
-          value={code}
-          onChange={setCode}
-          options={[
-            { id: "mine", label: myLangAndConcepts(codeLang) },
-            { id: "all", label: LABELS.allLanguages },
-          ]}
-        />
+  if (shown.length === 0) {
+    return (
+      <div className="flex flex-col items-start gap-3 rounded-md border border-dashed border-glass-border-strong p-5">
+        <p className="text-body text-ink">No playlists match.</p>
+        <p className="max-w-[56ch] text-body-sm text-ink-muted">
+          {f.topic ? `No ${f.lang === "all" ? "" : `${LANG_NAME[f.lang]} `}playlist covers ${topicName(f.topic).toLowerCase()} yet.` : "Nothing in this language yet."} Try Both, or All languages,
+          or switch to {LABELS.singleVideos.toLowerCase()}.
+        </p>
+        <Button variant="outline" size="sm" onClick={onEveryLanguage}>
+          Show every language
+        </Button>
       </div>
-      {topic && (
-        <div className="-mt-1 flex flex-wrap items-center gap-2 text-body-sm text-ink-muted">
-          <span>
-            Showing playlists that cover <span className="text-ink">{topicName(topic)}</span>.
-          </span>
-          <button type="button" onClick={clearTopic} className="flex items-center gap-1 rounded-xs text-ink underline decoration-glass-border-strong underline-offset-4">
-            <X aria-hidden className="size-3.5" />
-            Show every topic
-          </button>
-        </div>
+    );
+  }
+  return (
+    <div className="flex flex-col gap-6">
+      {courses.length > 0 && <Group id="pl-courses" title={LABELS.fullCourses} playlists={courses} watched={watched} at={at} showLang={f.lang === "all"} open={false} />}
+      {visibleGroups.map((g) => (
+        <Group key={g.topicId} id={`pl-${g.topicId}`} title={topicName(g.topicId)} playlists={g.playlists} watched={watched} at={at} showLang={f.lang === "all"} open={f.topic === g.topicId} />
+      ))}
+      {!narrowed && byTopic.length > GROUPS_SHOWN && (
+        <Button variant="outline" className="self-start" aria-expanded={allTopics} onClick={() => setAllTopics((a) => !a)}>
+          {allTopics ? "Show fewer topics" : `Show all ${byTopic.length} topics`}
+          <ChevronDown aria-hidden className={cn("transition-transform duration-[var(--dur-fast)]", allTopics && "rotate-180")} />
+        </Button>
       )}
-      {shown.length === 0 ? (
-        <div className="flex flex-col items-start gap-3 rounded-md border border-dashed border-glass-border-strong p-5">
-          <p className="text-body text-ink">No playlists match.</p>
-          <p className="max-w-[56ch] text-body-sm text-ink-muted">
-            {topic ? `No ${lang === "all" ? "" : `${LANG_NAME[lang]} `}playlist covers ${topicName(topic).toLowerCase()} yet.` : "Nothing in this language yet."} Try Both, or All languages.
-          </p>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setLang("all");
-              setCode("all");
-            }}
-          >
-            Show every language
-          </Button>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-6">
-          {courses.length > 0 && <Group id="pl-courses" title={LABELS.fullCourses} playlists={courses} watched={watched} at={at} showLang={lang === "all"} open={false} />}
-          {visibleGroups.map((g) => (
-            <Group key={g.topicId} id={`pl-${g.topicId}`} title={topicName(g.topicId)} playlists={g.playlists} watched={watched} at={at} showLang={lang === "all"} open={topic === g.topicId} />
-          ))}
-          {!topic && byTopic.length > GROUPS_SHOWN && (
-            <Button variant="outline" className="self-start" aria-expanded={allTopics} onClick={() => setAllTopics((a) => !a)}>
-              {allTopics ? "Show fewer topics" : `Show all ${byTopic.length} topics`}
-              <ChevronDown aria-hidden className={cn("transition-transform duration-[var(--dur-fast)]", allTopics && "rotate-180")} />
-            </Button>
-          )}
-        </div>
-      )}
-    </section>
+    </div>
   );
 }

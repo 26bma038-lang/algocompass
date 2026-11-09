@@ -4,6 +4,7 @@ import { filterPlaylists, frontierIndex, groupPlaylists, lengthLabel, playlistMi
 const vids = (n: number) => Array.from({ length: n }, (_, i) => ({ id: `v${i}`, title: `Part ${i + 1}`, minutes: 10 }));
 const pl = (id: string, over: Partial<Playlist> = {}): Playlist => ({
   id,
+  name: id,
   lang: "en",
   scope: "topic",
   kind: "lectures",

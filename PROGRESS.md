@@ -30,6 +30,16 @@ The owner said "the home page and every page is difficult to navigate". v1.7 add
 - **Tests:** `contests/tabs.test.ts`, `router.test.ts` (the three routes).
 - **Screenshots:** `docs/audit-v1.8/2-contests/before|after/`.
 
+### Part 3: Learn in one browse card, short playlist names, one watched button (2026-11-09)
+
+- **One browse card instead of two** (`BrowseCard` in `src/features/learn/Learn.tsx`; smart Learn 3,280px → 1,817px). Its header has a **Playlists / Single videos** switch (`?view=videos`; the title and pill follow it), then one toolbar for both views: search (playlists match on name, YouTube title and channel), English / Hindi / Both, <Language> + concepts / All languages, Not watched yet (videos only), and the topic picker (`?topic=`). The filters carry across the switch; they used to be two sets with separate state. `PlaylistsCard` became `PlaylistsBody`, the library card `LibraryBody`. Order: Continue learning, (beginner: the roadmap, open), the browse card, (smart: the roadmap, folded).
+- **Where links land:** `?topic=` (Topic Detail's Watch lessons, sheet sections, Ctrl+K, the Watch page's crumb) opens on Single videos and scrolls to the card, as the library did; `#playlists` (the playlist page's crumb) opens on Playlists. Decision: the beginner's video library is no longer folded behind "Browse all videos": it's one click on the switch, and the card opens on Playlists.
+- **4 topic groups before "Show all"** in both views (the library showed 8).
+- **Curated short playlist names:** `name` in `src/data/playlists.json` for all 111 ("Striver's A2Z DSA course", "Binary search, beginner to advanced", "Graphs, level 2"), read off each YouTube title: no pipes, no channel (it's on the line below), no language (the chip says it). The YouTube `title` stays the verified field (`check:links` unchanged) and shows on hover. `fill:playlists` keeps `name` and fails without one; `playlists.test.ts` checks every name (present, ≤ 42 characters, no `|`, `:` or `#`, no channel). Shown on playlist rows, the playlist page (crumb and parts card) and Continue learning.
+- **Playlist page, one watched action:** not watched: the primary **I've watched it, next part** (last part: I've watched it); watched: the primary **Next part** with the quiet **✓ Watched** beside it (click to undo). The outline "Mark as watched" next to the primary is gone.
+- **Contests with no handle at all** (a beginner who skipped them): Upcoming's empty state says rounds load once a handle is added and links to Settings, instead of an Update now that can't fetch anything.
+- **Screenshots:** `docs/audit-v1.8/3-learn/before|after/` (smart Learn, Single videos, filtered to a topic, the playlist page before and after a part is watched; beginner Learn, Single videos by step). The beginner "before" captures are Light only (from the critique sweep).
+
 ## v1.7, the app updates itself (released as v1.7.0 on 2026-11-09)
 
 Released. Auto-updates, a revision queue, notes, "Stuck?", a daily reminder, contest review, virtual contests, a rating goal, friends, more playlists and a share card. **The first version that can update itself;** 1.6.0 and older need one manual install.

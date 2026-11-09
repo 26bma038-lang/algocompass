@@ -1,8 +1,9 @@
 {
-  "$comment": "Full YouTube playlists (v1.6). Curated per playlist: id, lang (en | hi: the language it's spoken in), scope (course: a whole DSA course; topic: one topic), kind (lectures | walkthroughs: LeetCode-style problem solutions) and topics (ids from topics.json). Everything else (title, channel, codeLang, alsoCodeLang and the ordered videos with their titles and minutes) is written by `npm run fill:playlists` from YouTube itself; never hand-edit it, never invent ids. `npm run check:links` verifies each playlist with oEmbed (title and channel exact) and warns when its video count changed.",
+  "$comment": "Full YouTube playlists (v1.6). Curated per playlist: id, name (v1.8: the short name the app shows, read off the YouTube title; plain words, no pipes, no channel), lang (en | hi: the language it's spoken in), scope (course: a whole DSA course; topic: one topic), kind (lectures | walkthroughs: LeetCode-style problem solutions) and topics (ids from topics.json). Everything else (title, channel, codeLang, alsoCodeLang and the ordered videos with their titles and minutes) is written by `npm run fill:playlists` from YouTube itself; never hand-edit it, never invent ids. `npm run check:links` verifies each playlist with oEmbed (title and channel exact) and warns when its video count changed.",
   "playlists": [
     {
       "id": "PLgUwDviBIf0oF6QL8m22w1hIDC1vJ_BHz",
+      "name": "Striver's A2Z DSA course",
       "lang": "en",
       "scope": "course",
       "kind": "lectures",
@@ -347,6 +348,7 @@
     },
     {
       "id": "PL9gnSGHSqcnr_DxHsP7AW9ftq0AtAyYqJ",
+      "name": "Java + DSA interview course",
       "lang": "en",
       "scope": "course",
       "kind": "lectures",
@@ -441,6 +443,7 @@
     },
     {
       "id": "PLDN4rrl48XKpZkf03iYFl-O29szjTrs_O",
+      "name": "Algorithms",
       "lang": "en",
       "scope": "course",
       "kind": "lectures",
@@ -537,6 +540,7 @@
     },
     {
       "id": "PLDV1Zeh2NRsB6SWUrDFW2RmDotAfPbeHu",
+      "name": "Data structures",
       "lang": "en",
       "scope": "course",
       "kind": "lectures",
@@ -604,6 +608,7 @@
     },
     {
       "id": "PL2_aWCzGMAwI3W_JlcBbtYTwiQSsOTa6P",
+      "name": "Data structures",
       "lang": "en",
       "scope": "course",
       "kind": "lectures",
@@ -658,6 +663,7 @@
     },
     {
       "id": "PL-Jc9J83PIiHxc8vuYMq3C1KUvqc_jB6L",
+      "name": "Java, level 1",
       "lang": "en",
       "scope": "course",
       "kind": "lectures",
@@ -961,6 +967,7 @@
     },
     {
       "id": "PL-Jc9J83PIiFz3xVVjvvWH-X2KdCxnzMv",
+      "name": "Python, level 1",
       "lang": "en",
       "scope": "course",
       "kind": "lectures",
@@ -1187,6 +1194,7 @@
     },
     {
       "id": "PLC3y8-rFHvwjPxNAKvZpdnsr41E0fCMMP",
+      "name": "JavaScript algorithms and data structures",
       "lang": "en",
       "scope": "course",
       "kind": "lectures",
@@ -1289,6 +1297,7 @@
     },
     {
       "id": "PLKhlp2qtUcSZtJefDThsXcsAbRBCSTgW4",
+      "name": "DSA with JavaScript",
       "lang": "en",
       "scope": "course",
       "kind": "lectures",
@@ -1328,6 +1337,7 @@
     },
     {
       "id": "PLgUwDviBIf0rENwdL0nEH0uGom9no0nyB",
+      "name": "Arrays, basics to advanced",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -1369,6 +1379,7 @@
     },
     {
       "id": "PLDV1Zeh2NRsDH5Wq-Vk5tDb8gH03cULZS",
+      "name": "Hash tables",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -1390,6 +1401,7 @@
     },
     {
       "id": "PL-Jc9J83PIiEdq4_IjlT5a5A8IVYsBybO",
+      "name": "Arrays and strings, level 2",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -1476,6 +1488,7 @@
     },
     {
       "id": "PL-Jc9J83PIiHe9LYBR33kWmXgEjQMAVM-",
+      "name": "Arrays and strings, level 2",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -1563,6 +1576,7 @@
     },
     {
       "id": "PLgUwDviBIf0oFON1SRGcMqMIhiZ4EXx_F",
+      "name": "Maths",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -1583,6 +1597,7 @@
     },
     {
       "id": "PL2_aWCzGMAwKedT2KfDMB9YA5DgASZb3U",
+      "name": "Sorting algorithms",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -1603,6 +1618,7 @@
     },
     {
       "id": "PLgUwDviBIf0rF1w2Koyh78zafB0cz7tea",
+      "name": "Greedy algorithms",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -1628,6 +1644,7 @@
     },
     {
       "id": "PLgUwDviBIf0q7vrFA_HEWcqRqMpCXzYAL",
+      "name": "Two pointers and sliding window",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -1652,6 +1669,7 @@
     },
     {
       "id": "PLot-Xpze53leOBgcVsJBEGrHPd_7x_koV",
+      "name": "Sliding window",
       "lang": "en",
       "scope": "topic",
       "kind": "walkthroughs",
@@ -1675,6 +1693,7 @@
     },
     {
       "id": "PLgUwDviBIf0pMFMWuuvDNMAkoQFi-h0ZF",
+      "name": "Binary search, beginner to advanced",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -1717,6 +1736,7 @@
     },
     {
       "id": "PL2_aWCzGMAwL3ldWlrii6YeLszojgH77j",
+      "name": "Binary search",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -1736,6 +1756,7 @@
     },
     {
       "id": "PLgUwDviBIf0pOd5zvVVSzgpo6BaCpHT9c",
+      "name": "Stacks and queues",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -1767,6 +1788,7 @@
     },
     {
       "id": "PLgUwDviBIf0rAuz8tVcM0AymmhTRsfaLU",
+      "name": "Linked lists, beginner to advanced",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -1808,6 +1830,7 @@
     },
     {
       "id": "PL-Jc9J83PIiFtrWruUGKCtrAzuZ3HTnSi",
+      "name": "Linked lists, level 2",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -1855,6 +1878,7 @@
     },
     {
       "id": "PL-Jc9J83PIiH77L4gUKZpJHxQz_x5HUVC",
+      "name": "Linked lists, level 2",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -1902,6 +1926,7 @@
     },
     {
       "id": "PLDV1Zeh2NRsCLFSHm1nYb9daYf60lCcag",
+      "name": "Priority queues",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -1919,6 +1944,7 @@
     },
     {
       "id": "PLgUwDviBIf0rGlzIn_7rsaR2FQ5e6ZOL9",
+      "name": "Recursion and backtracking",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -1953,6 +1979,7 @@
     },
     {
       "id": "PL9gnSGHSqcnp39cTyB1dTZ2pJ04Xmdrod",
+      "name": "Recursion and backtracking",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -1976,6 +2003,7 @@
     },
     {
       "id": "PL-Jc9J83PIiEtRCE37SIczqMy0Ptqehpy",
+      "name": "Recursion, level 2",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -2033,6 +2061,7 @@
     },
     {
       "id": "PL-Jc9J83PIiGzM7ffxpwHDvQ3aDhlFQt_",
+      "name": "Recursion, level 2",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -2091,6 +2120,7 @@
     },
     {
       "id": "PLgUwDviBIf0rnqh8QsJaHyIX7KUiaPUv7",
+      "name": "Bit manipulation",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -2112,6 +2142,7 @@
     },
     {
       "id": "PL-Jc9J83PIiHXjmsZOIL2LmK2hhN364ba",
+      "name": "Bits, level 2",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -2158,6 +2189,7 @@
     },
     {
       "id": "PL-Jc9J83PIiFduuHHgvfZ4Hq0od8q2gPC",
+      "name": "Bits, level 2",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -2204,6 +2236,7 @@
     },
     {
       "id": "PLgUwDviBIf0q8Hkd7bK2Bpryj2xVJk8Vk",
+      "name": "Binary trees and BSTs",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -2271,6 +2304,7 @@
     },
     {
       "id": "PL9gnSGHSqcnqfctdbCQKaw5oZ9Up2cmsq",
+      "name": "Trees, the complete course",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -2295,6 +2329,7 @@
     },
     {
       "id": "PLot-Xpze53ldg4pN6PfzoJY7KsKcxF1jg",
+      "name": "Trees",
       "lang": "en",
       "scope": "topic",
       "kind": "walkthroughs",
@@ -2343,6 +2378,7 @@
     },
     {
       "id": "PL-Jc9J83PIiEMxg-XQu904Vx3peikCw62",
+      "name": "Trees, level 2",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -2411,6 +2447,7 @@
     },
     {
       "id": "PL-Jc9J83PIiHhIVmNFTmFNQhbeP1WoH3p",
+      "name": "Trees, level 2",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -2475,6 +2512,7 @@
     },
     {
       "id": "PLgUwDviBIf0oE3gA41TKO2H5bHpPd7fzn",
+      "name": "Striver's graph series",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -2544,6 +2582,7 @@
     },
     {
       "id": "PLDV1Zeh2NRsDGO4--qE8yH72HFL1Km93P",
+      "name": "Graph theory",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -2599,6 +2638,7 @@
     },
     {
       "id": "PLot-Xpze53ldBT_7QA8NVot219jFNr_GI",
+      "name": "Graph problems",
       "lang": "en",
       "scope": "topic",
       "kind": "walkthroughs",
@@ -2641,6 +2681,7 @@
     },
     {
       "id": "PL-Jc9J83PIiHCrxO6V5Raw_nkNtOes4Qx",
+      "name": "Graphs, level 2",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -2694,6 +2735,7 @@
     },
     {
       "id": "PL-Jc9J83PIiH3QCh8zhsoVpYLsDItkjHl",
+      "name": "Graphs, level 2",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -2746,6 +2788,7 @@
     },
     {
       "id": "PLDV1Zeh2NRsBI1C-mR6ZhHTyfoEJWlxvq",
+      "name": "Union find (disjoint set)",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -2763,6 +2806,7 @@
     },
     {
       "id": "PLgUwDviBIf0qUlt5H_kiKYaNSqJ81PMMY",
+      "name": "Striver's dynamic programming",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -2833,6 +2877,7 @@
     },
     {
       "id": "PLDV1Zeh2NRsCvoyP-bztk6uXAYoyZg_U9",
+      "name": "Fenwick trees",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -2849,6 +2894,7 @@
     },
     {
       "id": "PLgUwDviBIf0pcIDCZnxhv0LkHf5KzG9zp",
+      "name": "Striver's trie series",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -2868,6 +2914,7 @@
     },
     {
       "id": "PL-Jc9J83PIiGMVsewAOyQtR6TAi088GHl",
+      "name": "Tries, level 2",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -2890,6 +2937,7 @@
     },
     {
       "id": "PL-Jc9J83PIiF8aKJTyTPT458oYw3lQaUd",
+      "name": "Tries, level 2",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -2912,6 +2960,7 @@
     },
     {
       "id": "PL-Jc9J83PIiENC1X16gjxjaIbSXBr8C6e",
+      "name": "Game theory, level 3",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -2954,6 +3003,7 @@
     },
     {
       "id": "PLDV1Zeh2NRsDj3NzHbbFIC58etjZhiGcG",
+      "name": "Network flow",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -2977,6 +3027,7 @@
     },
     {
       "id": "PL5DyztRVgtRUarjPSs3Cd4uNyNLpuLkRs",
+      "name": "Greedy on Codeforces",
       "lang": "en",
       "scope": "topic",
       "kind": "walkthroughs",
@@ -2994,6 +3045,7 @@
     },
     {
       "id": "PLqM7alHXFySESatj68JKWHRVhoJ1BxtLW",
+      "name": "Greedy algorithms",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -3021,6 +3073,7 @@
     },
     {
       "id": "PL5DyztRVgtRWdDXvBxMIbrjyKPN37GnMu",
+      "name": "Range queries (CSES)",
       "lang": "en",
       "scope": "topic",
       "kind": "walkthroughs",
@@ -3039,6 +3092,7 @@
     },
     {
       "id": "PL5DyztRVgtRXRA-AEcBI4kfs42Aq9P1kr",
+      "name": "Combinatorics",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -3056,6 +3110,7 @@
     },
     {
       "id": "PL5DyztRVgtRWVqLox_K8lrWZCclxzHzLD",
+      "name": "String algorithms",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -3080,6 +3135,7 @@
     },
     {
       "id": "PLDV1Zeh2NRsCQ_Educ7GCNs3mvzpXhHW5",
+      "name": "Suffix arrays",
       "lang": "en",
       "scope": "topic",
       "kind": "lectures",
@@ -3098,6 +3154,7 @@
     },
     {
       "id": "PLDzeHZWIZsTryvtXdMr6rPh4IDexB5NIA",
+      "name": "Complete C++ placement DSA course",
       "lang": "hi",
       "scope": "course",
       "kind": "lectures",
@@ -3273,6 +3330,7 @@
     },
     {
       "id": "PLDzeHZWIZsTqNW1gvXXAicBgku9uPZeOC",
+      "name": "Java DSA series",
       "lang": "hi",
       "scope": "course",
       "kind": "lectures",
@@ -3421,6 +3479,7 @@
     },
     {
       "id": "PLfqMhTWNBTe137I_EPQd34TsgV6IO55pt",
+      "name": "Complete C++ DSA course",
       "lang": "hi",
       "scope": "course",
       "kind": "lectures",
@@ -3590,6 +3649,7 @@
     },
     {
       "id": "PLauivoElc3ggagradg8MfOZreCMmXMmJ-",
+      "name": "Competitive programming and DSA course",
       "lang": "hi",
       "scope": "course",
       "kind": "lectures",
@@ -3727,6 +3787,7 @@
     },
     {
       "id": "PL-Jc9J83PIiG0Raf2QYq96YoIs_ytPDWT",
+      "name": "C++, level 1",
       "lang": "hi",
       "scope": "course",
       "kind": "lectures",
@@ -3987,6 +4048,7 @@
     },
     {
       "id": "PL-Jc9J83PIiFvNAiNLyu3wO-Nm8CivgsN",
+      "name": "Python, level 1",
       "lang": "hi",
       "scope": "course",
       "kind": "lectures",
@@ -4314,6 +4376,7 @@
     },
     {
       "id": "PLxCzCOWd7aiEwaANNt3OqJPVIxwp2ebiT",
+      "name": "Data structures",
       "lang": "hi",
       "scope": "course",
       "kind": "lectures",
@@ -4392,6 +4455,7 @@
     },
     {
       "id": "PLxCzCOWd7aiHcmS4i14bI0VrMbZTUvlTa",
+      "name": "Design and analysis of algorithms",
       "lang": "hi",
       "scope": "course",
       "kind": "lectures",
@@ -4483,6 +4547,7 @@
     },
     {
       "id": "PL-Jc9J83PIiF4yKmXn2YDAggP1cziUlyS",
+      "name": "Arrays and strings, level 2",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -4570,6 +4635,7 @@
     },
     {
       "id": "PL-Jc9J83PIiGgI3YLlOJAS9CFg6wh3WZg",
+      "name": "Hash maps and heaps, level 2",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -4641,6 +4707,7 @@
     },
     {
       "id": "PL-Jc9J83PIiFs8E0EGeckM89cD8E6sFro",
+      "name": "Maths for CP, level 3",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -4720,6 +4787,7 @@
     },
     {
       "id": "PLDzeHZWIZsTp4pb_WBRahP1tnipLuX9qM",
+      "name": "Searching and sorting",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -4741,6 +4809,7 @@
     },
     {
       "id": "PL-Jc9J83PIiGRNj_KILSAuhvAHS4_4Y5N",
+      "name": "Constructive algorithms, level 3",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -4790,6 +4859,7 @@
     },
     {
       "id": "PL-Jc9J83PIiG1EKApa3Vy2gAClVv2y1cQ",
+      "name": "Two pointers",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -4829,6 +4899,7 @@
     },
     {
       "id": "PL_z_8CaSLPWeM8BDJmIYDaoQ5zuwyxnfj",
+      "name": "Sliding window",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -4854,6 +4925,7 @@
     },
     {
       "id": "PLauivoElc3ginp_2p2cX5i-jrBI32xGuX",
+      "name": "Pre-computation techniques",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -4871,6 +4943,7 @@
     },
     {
       "id": "PL_z_8CaSLPWeYfhtuKHj-9MpYb6XQJ_f2",
+      "name": "Binary search",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -4904,6 +4977,7 @@
     },
     {
       "id": "PLauivoElc3gjE_s-7owHO0RVb_jj7Rx85",
+      "name": "Binary search, noob to expert",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -4921,6 +4995,7 @@
     },
     {
       "id": "PL_z_8CaSLPWdeOezg68SKkeLN4-T_jNHd",
+      "name": "Stacks",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -4944,6 +5019,7 @@
     },
     {
       "id": "PLDzeHZWIZsTrhXYYtx4z8-u8zA-DzuVsj",
+      "name": "Stacks and queues",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -4964,6 +5040,7 @@
     },
     {
       "id": "PL-Jc9J83PIiEKmsuZ5xFwGlv7CoryH3Mu",
+      "name": "Linked lists, level 2",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5011,6 +5088,7 @@
     },
     {
       "id": "PLDzeHZWIZsTr54_TH_NK4ibFojS4mmQA6",
+      "name": "Linked lists",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5033,6 +5111,7 @@
     },
     {
       "id": "PL_z_8CaSLPWdtY9W22VjnPxG30CXNZpI9",
+      "name": "Heaps",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5055,6 +5134,7 @@
     },
     {
       "id": "PLDzeHZWIZsToMrLX5-7qNyS6Db9VwTSvm",
+      "name": "Heaps",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5071,6 +5151,7 @@
     },
     {
       "id": "PL_z_8CaSLPWeT1ffjiImo0sYTcnLzo-wY",
+      "name": "Recursion",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5102,6 +5183,7 @@
     },
     {
       "id": "PL_z_8CaSLPWdbOTog8Jxk9XOjzUs3egMP",
+      "name": "Backtracking",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5135,6 +5217,7 @@
     },
     {
       "id": "PL-Jc9J83PIiEQlu1j1O5iqkoxfroYcHMT",
+      "name": "Recursion, level 2",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5193,6 +5276,7 @@
     },
     {
       "id": "PLfqMhTWNBTe2C_dQAP1UoemcgAxBTlItp",
+      "name": "Recursion and backtracking",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5218,6 +5302,7 @@
     },
     {
       "id": "PLauivoElc3gjpEVTdncOKYN8fAiMm9a5g",
+      "name": "Recursion and backtracking",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5235,6 +5320,7 @@
     },
     {
       "id": "PLDzeHZWIZsTqBmRGnsCOGNDG5FY0G04Td",
+      "name": "Recursion",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5258,6 +5344,7 @@
     },
     {
       "id": "PL-Jc9J83PIiEEpn0vJZXgAdiCIpvhP2cu",
+      "name": "Bits, level 2",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5304,6 +5391,7 @@
     },
     {
       "id": "PL-Jc9J83PIiF0L_qYN4HG_MJpi1I8gvpy",
+      "name": "Number theory, level 3",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5336,6 +5424,7 @@
     },
     {
       "id": "PLauivoElc3giVROwL-6g9hO-LlSen_NaV",
+      "name": "Number theory",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5373,6 +5462,7 @@
     },
     {
       "id": "PL-Jc9J83PIiH0l9IZvdeC55dbFQpdMDSS",
+      "name": "Geometry, level 3",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5398,6 +5488,7 @@
     },
     {
       "id": "PL-Jc9J83PIiF5VDJpx6ZIgE7CaPY0RT0J",
+      "name": "Trees, level 2",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5463,6 +5554,7 @@
     },
     {
       "id": "PLDzeHZWIZsTo87y1ytEAqp7wYlEP3nner",
+      "name": "Binary trees",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5482,6 +5574,7 @@
     },
     {
       "id": "PLDzeHZWIZsTpTAcxT0N5dhzMauZ0A1ZL8",
+      "name": "Binary search trees",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5499,6 +5592,7 @@
     },
     {
       "id": "PL_z_8CaSLPWcn5bKG8UMI0St2D5EmQszx",
+      "name": "Graphs",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5567,6 +5661,7 @@
     },
     {
       "id": "PLauivoElc3ghxyYSr_sVnDUc_ynPk6iXE",
+      "name": "Graphs and trees",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5601,6 +5696,7 @@
     },
     {
       "id": "PLDzeHZWIZsTobi35C3I-tKB3tRDX6YxuA",
+      "name": "Graphs",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5630,6 +5726,7 @@
     },
     {
       "id": "PL-Jc9J83PIiF8R3CNn09i0D56dg-3hxq2",
+      "name": "Graphs, level 2",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5679,6 +5776,7 @@
     },
     {
       "id": "PL-Jc9J83PIiEnpZ_Wz8YENHwrgScQTLDh",
+      "name": "Dynamic programming, the complete course",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5719,6 +5817,7 @@
     },
     {
       "id": "PL_z_8CaSLPWekqhdCPmFohncHwz8TY2Go",
+      "name": "Dynamic programming",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5780,6 +5879,7 @@
     },
     {
       "id": "PLDzeHZWIZsTomOPnCiU3J95WufjE36wsb",
+      "name": "Dynamic programming",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5830,6 +5930,7 @@
     },
     {
       "id": "PLauivoElc3gimdmLcIIpafEkzGs4tCQmi",
+      "name": "Dynamic programming",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5852,6 +5953,7 @@
     },
     {
       "id": "PL_z_8CaSLPWfxJPz2-YKqL9gXWdgrhvdn",
+      "name": "DP on trees",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5869,6 +5971,7 @@
     },
     {
       "id": "PL-Jc9J83PIiFY1445K_x1M_O3j9kr3FII",
+      "name": "Segment trees, level 3",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5901,6 +6004,7 @@
     },
     {
       "id": "PL-Jc9J83PIiGkI_pL8l67OVvbpnwf-5yO",
+      "name": "Range queries, level 3",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5925,6 +6029,7 @@
     },
     {
       "id": "PLauivoElc3gi9zjJ9wIYFfmQ0-rdAKl85",
+      "name": "Binary indexed trees",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5939,6 +6044,7 @@
     },
     {
       "id": "PL-Jc9J83PIiH3u0OZSwCRasnAcCuLsd6h",
+      "name": "Tries, level 2",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5961,6 +6067,7 @@
     },
     {
       "id": "PLDzeHZWIZsToGppbCLGKiYI-gTVASNEVb",
+      "name": "Tries",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -5976,6 +6083,7 @@
     },
     {
       "id": "PL-Jc9J83PIiEoZSwjEZT3TvpKG16FntFL",
+      "name": "Text processing, level 3",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -6032,6 +6140,7 @@
     },
     {
       "id": "PL_z_8CaSLPWc63FA_sPOjysCdwWT-IQBd",
+      "name": "String matching",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -6051,6 +6160,7 @@
     },
     {
       "id": "PL-Jc9J83PIiEH-su38D1Afs1gMFuZg-jV",
+      "name": "Interactive problems, level 3",
       "lang": "hi",
       "scope": "topic",
       "kind": "lectures",
@@ -6082,6 +6192,7 @@
     },
     {
       "id": "PLpIkg8OmuX-J8_n8Vy9P9I3KvyDcPMzRU",
+      "name": "Greedy interview problems",
       "lang": "hi",
       "scope": "topic",
       "kind": "walkthroughs",

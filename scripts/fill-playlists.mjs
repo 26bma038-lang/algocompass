@@ -1,6 +1,7 @@
 // Fills the hand-picked YouTube playlists in src/data/playlists.json from YouTube itself, so nothing
-// is typed from memory (v1.6). The curated fields per playlist are id, lang (en | hi), scope (course
-// = a full DSA course, topic = one topic), kind (lectures | walkthroughs) and topics; this script
+// is typed from memory (v1.6). The curated fields per playlist are id, name (v1.8: the short name the
+// app shows), lang (en | hi), scope (course = a full DSA course, topic = one topic), kind (lectures |
+// walkthroughs) and topics; this script
 // writes the rest:
 // - title and channel from YouTube oEmbed (a playlist oEmbed refuses is reported and fails the run);
 // - every video in playlist order, with its title and length, from the public playlist page and its
@@ -39,6 +40,7 @@ console.log(`Reading ${todo.length} playlists from YouTube…`);
 
 await pool(todo, 3, async (p) => {
   for (const t of p.topics) if (!topics.has(t)) fail(`${p.id}: unknown topic "${t}"`);
+  if (typeof p.name !== "string" || !p.name.trim()) fail(`${p.id}: no name (the short name the app shows; write it from the YouTube title)`);
   if (!["en", "hi"].includes(p.lang) || !["course", "topic"].includes(p.scope) || !["lectures", "walkthroughs"].includes(p.kind)) fail(`${p.id}: bad lang, scope or kind`);
   const o = await ytPlaylistOembed(p.id);
   if (!o.ok) return fail(`${p.id}: oEmbed HTTP ${o.status} (private, deleted or wrong id)`);
@@ -74,8 +76,9 @@ await pool(todo, 3, async (p) => {
   console.log(`ok   ${p.lang} ${p.codeLang.padEnd(7)} ${String(p.videos.length).padStart(3)} videos  ${p.title} · ${p.channel}${notes.length ? `  (${notes.join(", ")})` : ""}`);
 });
 
-doc.playlists = doc.playlists.map(({ id, lang, scope, kind, topics, title, channel, codeLang, alsoCodeLang, videos }) => ({
+doc.playlists = doc.playlists.map(({ id, name, lang, scope, kind, topics, title, channel, codeLang, alsoCodeLang, videos }) => ({
   id,
+  name,
   lang,
   scope,
   kind,

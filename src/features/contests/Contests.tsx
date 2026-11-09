@@ -12,6 +12,7 @@ import type { Contest } from "@/data/types";
 import { contestDivision, registerUrl } from "@/engine/contests";
 import { countdown, shortName, when } from "@/features/home/ContestStrip";
 import { useNow } from "@/features/home/useNow";
+import { useHandles } from "@/data/settings";
 import { useSyncStore } from "@/data/syncStore";
 import { LABELS } from "@/lib/glossary";
 import { openExternal } from "@/lib/openExternal";
@@ -214,16 +215,25 @@ export function Contests() {
 function NoContests({ title, children }: { title: string; children: ReactNode }) {
   const syncing = useSyncStore((s) => s.syncing);
   const run = useSyncStore((s) => s.run);
+  const handles = useHandles().data;
+  // With no handle at all there's nothing to update (a beginner who skipped them): say where to add one.
+  const noHandles = handles !== undefined && !handles.codeforces && !handles.leetcode;
   return (
     <EmptyState
       icon={Swords}
       title={syncing ? "Loading contests…" : title}
       action={
-        !syncing && (
-          <Button variant="outline" size="sm" onClick={() => void run()}>
-            <RefreshCw aria-hidden />
-            {LABELS.updateNow}
+        noHandles ? (
+          <Button asChild variant="outline" size="sm">
+            <Link to="/settings">Add a handle in Settings</Link>
           </Button>
+        ) : (
+          !syncing && (
+            <Button variant="outline" size="sm" onClick={() => void run()}>
+              <RefreshCw aria-hidden />
+              {LABELS.updateNow}
+            </Button>
+          )
         )
       }
     >
@@ -240,7 +250,7 @@ export function ContestsUpcoming() {
   if (!data || data.upcoming.length === 0) {
     return (
       <NoContests title="No upcoming contests loaded">
-        Upcoming Codeforces rounds are listed here first, with LeetCode weekly and biweekly contests below them. They appear after an update.
+        Upcoming Codeforces rounds are listed here first, with LeetCode weekly and biweekly contests below them. They load with every update, once you've added a Codeforces or LeetCode handle.
       </NoContests>
     );
   }
