@@ -166,6 +166,8 @@ npm run tauri build    # installers in src-tauri/target/release/bundle/{nsis,msi
 
 Use PowerShell (or cmd), not Git Bash, for the Tauri and Cargo commands. Git Bash's `link` shadows the MSVC linker.
 
+Releasing, adding videos and playlists, fixing a broken LeetCode API, and where user data lives: see **[MAINTAINING.md](MAINTAINING.md)**.
+
 `npm run dev` also serves the UI in a plain browser. It uses an in-memory SQLite (sql.js) there and proxies LeetCode through Vite, which is handy for UI work.
 
 ### Tests and data scripts

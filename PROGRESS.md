@@ -98,6 +98,11 @@ Not released. Auto-updates, a revision queue, notes, "Stuck?" and a daily remind
 - Pure part: `buildShareWeek`, `weekRangeWords`, `shareFileName` (`src/engine/shareCard.ts`, tests); data: `src/data/shareCard.ts`; drawing: `src/features/progress/shareCardDraw.ts`.
 - **Screenshots:** `docs/audit-v1.7/share-week/` (browser mode, a real Codeforces sync, on a Monday, so 0 solved this week).
 
+### Part 13: MAINTAINING.md (2026-11-09)
+
+- **`MAINTAINING.md`** at the repo root, for someone working without an AI assistant: setup, run/test/build, the rules that break things (applied migrations, LF, the bundle id, no invented data), the full release procedure with `scripts/release.mjs` (key, password, the four version fields, test on real data, merge/tag/push, `gh release`, checking `latest.json`), adding and verifying videos and playlists, regenerating sheets, what to do when `check:links` fails, fixing a broken LeetCode GraphQL API (where the adapter is, how it fails soft, how to capture the new query), where user data lives (`%APPDATA%com.algocompass.app` and each file), and backups (data folder and signing key). Linked from the README.
+- **`scripts/inspect-db.mjs`**: read-only (sql.js, in memory) list of the applied migrations and rows per table of the real database or a backup. The Debug page doesn't show `_sqlx_migrations`, and a release needs that check.
+
 ## v1.6, full playlists and Practice this (released as v1.6.0 on 2026-11-09)
 
 Released. A learner gets whole YouTube playlists (every video, in order) instead of a few videos picked from each.
