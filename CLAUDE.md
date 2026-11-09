@@ -91,6 +91,7 @@ App-wide: Ctrl+K command palette, Ctrl+R sync, `?` shortcut sheet, Ctrl+B sideba
 - **Notes and Stuck?:** `sheet_notes` (+ `title`, migration 0008) is the one note store; **Your notes** is Progress's third tab (`/progress/notes`). Any problem row gets a ProblemRef (`src/engine/problemRef.ts`) and opens the shared panels (`src/features/problem/ProblemPanels.tsx`) through `useUiStore.openTool`. Stuck? is four real-data steps, nothing generated (`src/engine/stuck.ts`); never add invented hints.
 - **Contest review:** Contests → one card per CF round you took part in (`buildContestReviews`, `src/engine/contestReview.ts`): rating change, problems by index, topics of the unsolved from real tags, Fix next (flagged "needed help" in `revisions` by sync and on Open).
 - **Virtual contest:** Contests → a past Div. 2/3/4 round you never touched, timed at its real length (`src/engine/virtual.ts`, `src/data/virtual.ts`, migration 0009: `virtual_contests` + `cf_contest_times.name`). Solves = your CF submissions inside the window (pulled every 2 min while it runs); no standings, ever.
+- **Rating goal:** Progress → Overview (smart). Setting `ratingGoal`; `buildPlan` (`src/engine/ratingGoal.ts`) judges it against your best 90-day climb and derives problems a week in the practice band and rated rounds a month from your history; an unlikely goal says so.
 - **Daily reminder:** `notify.daily` / `dailyTime` (default off), text from `pickDoThisNext`, none when goals are done (`dailyReminderText`, `useDailyReminderText`).
 
 ## Build and performance rules

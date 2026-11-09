@@ -61,6 +61,15 @@ Not released. Auto-updates, a revision queue, notes, "Stuck?" and a daily remind
 - Existing installs: the picker fills after the first update on v1.7 (that's when round names are saved).
 - **Screenshots:** `docs/audit-v1.7/virtual-contest/` (browser mode, a real Codeforces sync): the picker with Start confirming, the running clock, and the review of a virtual ended right away (so 0 solved: nothing was submitted, and nothing is made up).
 
+### Part 9: rating goal plan (2026-11-09)
+
+- **Progress → Overview (smart mode), under the rating chart: Rating goal.** Set a target rating (800 to 4000, above your current) and a day; it's saved as the setting `ratingGoal` (`{target, by, setAt, startRating}`), no migration. Change or Remove any time. Hidden until a Codeforces profile has synced.
+- **What the plan shows** (`buildPlan`, `src/engine/ratingGoal.ts`, pure, tested): now, to go, weeks left, and the plan line (a straight line from your rating when you set it to the target) for today; then a verdict, then two weekly targets, then the weeks tracked.
+- **The verdict compares the goal with your own best climb:** the most rating you gained in any 90-day stretch of your rating history, per month. Needs no more than that: "within reach". Needs more: **"Honestly, this is unlikely"**, with both numbers and the day your best pace would get you there. Under 90 days of rated history: it says it can't judge yet. Also "You're there" and "The date has passed". A first rated round's old rating is 0 on Codeforces; that round is the start, never counted as a gain.
+- **Decision, the targets** (so nothing is a made-up number, and each says what it's based on): *problems a week* in the **practice band** (100 to 300 above your rating in 100-point steps; 800 to 1000 unrated) = your Codeforces solves a week over the last 8 weeks, scaled by how much faster than your best climb the goal asks (×0.75 to ×1.5), kept between 3 and 30. *Rated rounds a month* = what you took during your best climb or lately, whichever is more, rounded, at least 2; with no rated history, 4 (one a week), and it says so.
+- **Tracked weekly:** this week's solves inside this week's band against the target (a meter), rated rounds this calendar month against the target, and every earlier week since the goal was set (up to 6), each measured against the band for your rating at the start of that week, with a check when met.
+- **Screenshots:** `docs/audit-v1.7/rating-goal/` (browser mode, a real Codeforces sync): a goal within reach, and an unlikely one with the honest note.
+
 ## v1.6, full playlists and Practice this (released as v1.6.0 on 2026-11-09)
 
 Released. A learner gets whole YouTube playlists (every video, in order) instead of a few videos picked from each.

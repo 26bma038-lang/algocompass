@@ -15,6 +15,7 @@ import { StandingCard } from "@/features/home/StandingCard";
 import { BadgesCard } from "./BadgesCard";
 import { BeginnerOverview } from "./BeginnerOverview";
 import { LcCard } from "./LcCard";
+import { RatingGoalCard } from "./RatingGoal";
 import { continuePractice, PROGRESS_TABS } from "./tabs";
 
 // Recharts loads only when the Overview tab opens.
@@ -77,6 +78,7 @@ function SmartOverview() {
         <Suspense fallback={<section aria-busy className="glass-card h-[300px] p-6" />}>
           <RatingCard />
         </Suspense>
+        <RatingGoalCard />
         <WeeklyGoalsCard />
         <ActivityHeatmap activity={home?.activity ?? []} />
       </div>
