@@ -1,8 +1,8 @@
 # AlgoCompass progress log
 
-## In progress: v1.7 (branch `v1.7`, from master at v1.6.0)
+## v1.7, the app updates itself (released as v1.7.0 on 2026-11-09)
 
-Not released. Auto-updates, a revision queue, notes, "Stuck?" and a daily reminder.
+Released. Auto-updates, a revision queue, notes, "Stuck?", a daily reminder, contest review, virtual contests, a rating goal, friends, more playlists and a share card. **The first version that can update itself;** 1.6.0 and older need one manual install.
 
 ### Part 1: auto-updater (2026-11-09)
 
@@ -102,6 +102,14 @@ Not released. Auto-updates, a revision queue, notes, "Stuck?" and a daily remind
 
 - **`MAINTAINING.md`** at the repo root, for someone working without an AI assistant: setup, run/test/build, the rules that break things (applied migrations, LF, the bundle id, no invented data), the full release procedure with `scripts/release.mjs` (key, password, the four version fields, test on real data, merge/tag/push, `gh release`, checking `latest.json`), adding and verifying videos and playlists, regenerating sheets, what to do when `check:links` fails, fixing a broken LeetCode GraphQL API (where the adapter is, how it fails soft, how to capture the new query), where user data lives (`%APPDATA%\com.algocompass.app\` and each file), and backups (data folder and signing key). Linked from the README.
 - **`scripts/inspect-db.mjs`**: read-only (sql.js, in memory) list of the applied migrations and rows per table of the real database or a backup. The Debug page doesn't show `_sqlx_migrations`, and a release needs that check.
+
+### Part 14: release v1.7.0 (2026-11-09)
+
+- **Checks:** `npm test` (632 passed), `npm run check:links` (all verified: 111 playlists, 4,684 videos, every sheet and path problem), `npm run build`. Version 1.7.0 in `package.json`, `package-lock.json`, `tauri.conf.json`, `Cargo.toml` (and `Cargo.lock`). README updated for v1.7 (features, "updates itself", and Privacy now names the daily `latest.json` check on GitHub).
+- **Backup first:** `%APPDATA%\com.algocompass.app` copied to `Desktop\algocompass-backup-1.7` (16 files, identical sizes, database hash checked).
+- **Build:** `node scripts/release.mjs` with `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` read from the password file for that one command (never printed, removed after). Signed setup.exe and .msi; the signature's key id (8EF1FEFD17869EE2) matches `pubkey`. `latest.json` carries the release notes.
+- **Run on the owner's real data:** the built `algocompass.exe` started on the real database (Today showed the real rating and problems), migrated it from 6 to 10 migrations (`_sqlx_migrations` 1–10, all successful, read with `scripts/inspect-db.mjs`), and every row count was unchanged (122 Codeforces submissions, 24 LeetCode solves, watched videos, badges, contests); only `sync_log` grew, from the update it ran. New tables (`revisions`, `virtual_contests`, `friends`) empty, as expected. No restore was needed.
+- **Published:** merged `v1.7` into `master`, tagged `v1.7.0`, pushed, GitHub release with the setup.exe, the .msi and `latest.json` (plain-English notes: what's new, the SmartScreen note, "from 1.7 the app updates itself").
 
 ## v1.6, full playlists and Practice this (released as v1.6.0 on 2026-11-09)
 
