@@ -88,7 +88,15 @@ Not released. Auto-updates, a revision queue, notes, "Stuck?" and a daily remind
   - **English string algorithms:** CodeNCode *String Algorithms* (hashing, KMP, Z) and WilliamFiset *Suffix array playlist*.
   - **Greedy:** GeeksforGeeks *Greedy Algorithms Tutorials* (en), CodeNCode *Greedy Algorithms : Codeforces* (en walkthroughs) and codestorywithMIK *Greedy : Popular Interview Problems* (hi, 72 walkthroughs), the first Hindi greedy playlist, so every Beginner Path topic now has a topic playlist in both languages.
 - `code-langs.json`: Codevolution and RoadsideCoder code in JavaScript; CodeNCode, GeeksforGeeks and codestorywithMIK (C++ and Java side by side) are concept.
-- Still no topic playlist: en implementation, brute force, constructive, probability, geometry, divide and conquer, interactive, design; hi the same minus constructive, geometry and interactive, plus game theory and advanced graphs.
+- Still no topic playlist (as of Part 11): en implementation, brute force, constructive, probability, geometry, divide and conquer, interactive, design; hi the same minus constructive, geometry and interactive, plus game theory and advanced graphs.
+
+### Part 12: Share my week (2026-11-09)
+
+- **Progress → Share my week** (a button beside the tabs, both modes): a panel with a preview of a 1200x630 PNG (drawn at 2x) of this week: your Codeforces rating in your rank colour with the rank chip and this week's rated change (or "No rated round this week"; "Unrated" with no rating), **Solved this week** (Codeforces + LeetCode, first solves since Monday, the Weekly goals rule, manual marks included), **Streak**, and **Top topic** (the topic with the most problems solved this week, from real tags; a tie goes to the earlier topic; "None yet" when nothing is solved). Light or Dark (starts on the theme showing), **Save as PNG**.
+- **Style:** the theme's own tokens, read from a hidden `[data-theme]` wrapper, so the card matches the app in both themes; the still nebula, the compass mark and wordmark, Chakra Petch numbers, glass tiles. `--rank` only on the rating and the chip.
+- **Saving, no upload:** a Rust command `save_png` opens the native Save dialog (**tauri-plugin-dialog**, Rust side only; docs checked with context7) and writes the bytes to the path the user picked, after checking they're a PNG. The webview gets no file-system permission and no new capability; the CSP is unchanged. In a plain browser it's an ordinary download.
+- Pure part: `buildShareWeek`, `weekRangeWords`, `shareFileName` (`src/engine/shareCard.ts`, tests); data: `src/data/shareCard.ts`; drawing: `src/features/progress/shareCardDraw.ts`.
+- **Screenshots:** `docs/audit-v1.7/share-week/` (browser mode, a real Codeforces sync, on a Monday, so 0 solved this week).
 
 ## v1.6, full playlists and Practice this (released as v1.6.0 on 2026-11-09)
 

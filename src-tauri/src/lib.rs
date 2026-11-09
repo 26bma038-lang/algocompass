@@ -9,6 +9,7 @@ use tauri::{
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     AppHandle, Emitter, Manager, Runtime, State, Wry,
 };
+use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_notification::NotificationExt;
 use tauri_plugin_sql::{Migration, MigrationKind};
 use tauri_plugin_store::StoreExt;
@@ -173,6 +174,37 @@ fn set_tray_status(text: String, app: AppHandle, status: State<TrayStatus>) {
     }
 }
 
+/// "Share my week" (v1.7): asks where to save the PNG with the native Save dialog, then writes it.
+/// The path always comes from the dialog, never from the webview, so the page gets no file access.
+/// `Ok(None)` means the dialog was cancelled.
+#[tauri::command]
+async fn save_png(window: tauri::WebviewWindow, file_name: String, bytes: Vec<u8>) -> Result<Option<String>, String> {
+    if !bytes.starts_with(b"\x89PNG\r\n\x1a\n") {
+        return Err("That isn't a PNG image.".into());
+    }
+    let name: String = file_name
+        .chars()
+        .filter(|c| c.is_ascii_alphanumeric() || "-_.".contains(*c))
+        .collect();
+    let picked = window
+        .dialog()
+        .file()
+        .set_parent(&window)
+        .set_title("Save your week")
+        .set_file_name(&name)
+        .add_filter("PNG image", &["png"])
+        .blocking_save_file();
+    let Some(picked) = picked else {
+        return Ok(None);
+    };
+    let mut path = picked.into_path().map_err(|e| e.to_string())?;
+    if !path.extension().is_some_and(|e| e.eq_ignore_ascii_case("png")) {
+        path.set_extension("png");
+    }
+    std::fs::write(&path, bytes).map_err(|e| e.to_string())?;
+    Ok(Some(path.display().to_string()))
+}
+
 /// Fires due reminders: once each, only inside their [at, expires_at) window.
 fn fire_due<R: Runtime>(app: &AppHandle<R>) {
     let now = now_secs();
@@ -246,8 +278,9 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_dialog::init())
         .manage(Reminders::default())
-        .invoke_handler(tauri::generate_handler![set_reminders, set_tray_status])
+        .invoke_handler(tauri::generate_handler![set_reminders, set_tray_status, save_png])
         .setup(|app| {
             let open = MenuItem::with_id(app, "open", "Open AlgoCompass", true, None::<&str>)?;
             let sync = MenuItem::with_id(app, "sync", "Update now", true, None::<&str>)?;
