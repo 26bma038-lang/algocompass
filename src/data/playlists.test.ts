@@ -42,10 +42,15 @@ describe("the full playlists (v1.6)", () => {
     }
   });
 
-  it("cover every Beginner Path topic in English, and all but greedy in Hindi", () => {
+  it("cover every Beginner Path topic in English and Hindi", () => {
     const path = ["arrays-hashing", "strings", "two-pointers", "stacks-queues", "binary-search", "recursion-backtracking", "linked-lists", "trees", "graphs", "greedy", "dp"];
     const has = (lang: string, t: string) => playlists.some((p) => p.lang === lang && p.scope === "topic" && p.topics.includes(t));
     expect(path.filter((t) => !has("en", t))).toEqual([]);
-    expect(path.filter((t) => !has("hi", t))).toEqual(["greedy"]);
+    expect(path.filter((t) => !has("hi", t))).toEqual([]);
+  });
+
+  it("v1.7: offer JavaScript, and English prefix sums, combinatorics and string algorithms", () => {
+    expect(playlists.some((p) => p.codeLang === "js")).toBe(true);
+    for (const t of ["prefix-sums", "combinatorics", "string-algorithms"]) expect(playlists.some((p) => p.lang === "en" && p.topics.includes(t)), t).toBe(true);
   });
 });

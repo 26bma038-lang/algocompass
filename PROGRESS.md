@@ -79,6 +79,17 @@ Not released. Auto-updates, a revision queue, notes, "Stuck?" and a daily remind
 - **Tests:** `friends.test.ts` in engine (week counts, "+", streak, handle cleanup) and data (add, refresh, remove, fail-soft); tabs and the route.
 - **Screenshots:** `docs/audit-v1.7/friends/` (browser mode; you plus three public profiles: tourist and jiangly on Codeforces, lee215 on LeetCode).
 
+### Part 11: more playlists (2026-11-09)
+
+- **Nine playlists added (102 → 111, 4,684 videos)**, every id read from the channel's own Playlists tab (`channelPlaylists()`), filled by `npm run fill:playlists`, verified by `check:links`:
+  - **JavaScript** (there was none): Codevolution *JavaScript Algorithms and Data Structures* (80, course) and RoadsideCoder *DSA with JS* (19, course), both `js`.
+  - **English prefix sums:** CodeNCode *Range Queries : CSES* (6 walkthroughs: static range sums, 2D prefix sums, then sparse table and Fenwick; also `data-structures`).
+  - **English combinatorics:** CodeNCode *Combinatorics* (stars and bars, pigeonhole).
+  - **English string algorithms:** CodeNCode *String Algorithms* (hashing, KMP, Z) and WilliamFiset *Suffix array playlist*.
+  - **Greedy:** GeeksforGeeks *Greedy Algorithms Tutorials* (en), CodeNCode *Greedy Algorithms : Codeforces* (en walkthroughs) and codestorywithMIK *Greedy : Popular Interview Problems* (hi, 72 walkthroughs), the first Hindi greedy playlist, so every Beginner Path topic now has a topic playlist in both languages.
+- `code-langs.json`: Codevolution and RoadsideCoder code in JavaScript; CodeNCode, GeeksforGeeks and codestorywithMIK (C++ and Java side by side) are concept.
+- Still no topic playlist: en implementation, brute force, constructive, probability, geometry, divide and conquer, interactive, design; hi the same minus constructive, geometry and interactive, plus game theory and advanced graphs.
+
 ## v1.6, full playlists and Practice this (released as v1.6.0 on 2026-11-09)
 
 Released. A learner gets whole YouTube playlists (every video, in order) instead of a few videos picked from each.
