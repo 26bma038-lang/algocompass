@@ -1,5 +1,15 @@
 # AlgoCompass progress log
 
+## v1.8, easier to find your way (branch `v1.8`, not released)
+
+The owner said "the home page and every page is difficult to navigate". v1.7 added seven features to Progress and Contests, so screens lost their one job. v1.8 doesn't add features; it gives each screen one job and one primary action again.
+
+### Part 0: critique and plan (2026-11-09)
+
+- **`docs/audit-v1.8/CRITIQUE.md`:** every screen in both modes at 1100x700 (browser mode; smart = a real sync of the owner's public profiles, beginner = Debug → Preview a fresh beginner), Nielsen scores (25/40), 11 problems ranked by how much they hurt navigation, and the information architecture for v1.8 (what lives where, one primary action per screen, what's folded or moved). Evidence in `docs/audit-v1.8/critique/`.
+- **Degraded run, said so in the file:** the impeccable critique wants two isolated sub-agents; this task asked for no background agents, so it ran in one context, the review first, then the detector (1 finding, a false positive: the React Flow attribution's intended 10px).
+- **Decisions:** keep the five sidebar screens, every route and redirect. Notes move to Practice (they're about problems); Friends stays a Progress tab but only once there's a handle or a friend; Contests gets three tabs, each a route; Learn's two browsers become one card with one toolbar. Playlists get a curated short `name` (the YouTube title stays the verified field).
+
 ## v1.7, the app updates itself (released as v1.7.0 on 2026-11-09)
 
 Released. Auto-updates, a revision queue, notes, "Stuck?", a daily reminder, contest review, virtual contests, a rating goal, friends, more playlists and a share card. **The first version that can update itself;** 1.6.0 and older need one manual install.
