@@ -15,7 +15,8 @@ import { frontierIndex, lengthLabel, playlistMinutes, playlistProgress, resumeIn
 import { LABELS, partOf, watchedOf } from "@/lib/glossary";
 import { cn } from "@/lib/utils";
 import { VideoPlayer, WatchedButton, YouTubeButton } from "@/features/path/VideoPlayer";
-import { Breadcrumb, LANG_NAME } from "./parts";
+import { Breadcrumb } from "@/components/Breadcrumb";
+import { LANG_NAME } from "./parts";
 import { PracticeThis } from "./PracticeThis";
 
 /** Learn's Playlists card lives at /learn#playlists. */

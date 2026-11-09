@@ -1,4 +1,5 @@
-import { ChevronLeft, ChevronRight, ListChecks } from "lucide-react";
+import { Breadcrumb } from "@/components/Breadcrumb";
+import { ChevronRight, ListChecks } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CardHeader } from "@/components/CardHeader";
 import { EmptyState } from "@/components/EmptyState";
@@ -113,12 +114,11 @@ export function SheetList() {
   const others = sheets.data.filter((v) => v !== followed);
   return (
     <div className="grid grid-cols-12 items-start gap-6">
-      {/* Beginner mode has no Practice tabs (v1.4): the way back to the lesson problems. */}
+      {/* Beginner mode has no Practice tabs (v1.4): the way back to the lesson problems, as the shared breadcrumb (v1.8). */}
       {beginner && (
-        <Link to="/practice" className="col-span-12 -mb-2 flex items-center gap-1 self-start justify-self-start rounded-xs text-body-sm text-ink-muted hover:text-ink">
-          <ChevronLeft aria-hidden className="size-4" />
-          {LABELS.lessonProblems}
-        </Link>
+        <div className="col-span-12">
+          <Breadcrumb crumbs={[{ label: "Practice", to: "/practice" }, { label: LABELS.sheets }]} />
+        </div>
       )}
       {followed && (
         <div className="col-span-12">

@@ -1,5 +1,6 @@
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { memo, useEffect, useId, useMemo, useRef, useState } from "react";
-import { Check, ChevronDown, ChevronLeft, ListChecks, NotebookPen, PlayCircle, Search, SlidersHorizontal, X } from "lucide-react";
+import { Check, ChevronDown, ListChecks, NotebookPen, PlayCircle, Search, SlidersHorizontal, X } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { EmptyState } from "@/components/EmptyState";
 import { learnTopicPath } from "@/components/shell/nav";
@@ -492,13 +493,11 @@ function SheetBody({ view }: { view: View }) {
 
   return (
     <div className="flex flex-col gap-6">
+      {/* v1.8: the same breadcrumb as every page under a screen (was "‹ All sheets" inside the card). */}
+      <Breadcrumb crumbs={[{ label: "Practice", to: "/practice" }, { label: LABELS.sheets, to: "/practice/sheets" }, { label: sheet.name }]} />
       <section aria-labelledby="sheet-title" className="glass-card flex flex-col gap-5 p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex min-w-0 flex-col gap-1.5">
-            <Link to="/practice/sheets" className="flex items-center gap-1 self-start rounded-xs text-body-sm text-ink-muted hover:text-ink">
-              <ChevronLeft aria-hidden className="size-4" />
-              All sheets
-            </Link>
             <h2 id="sheet-title" className="font-display text-display font-semibold text-ink">
               {sheet.name}
             </h2>

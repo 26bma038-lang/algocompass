@@ -49,6 +49,12 @@ The owner said "the home page and every page is difficult to navigate". v1.7 add
 - **Screenshots:** `docs/audit-v1.8/4-today/before|after/` (smart Today during the first update and with data).
 - One `npm test` run had `glossary.test.ts` time out while the machine was busy (Vite, the browser and a build at once); it passes alone and on the rerun.
 
+### Part 5: one way back (2026-11-09)
+
+- **`Breadcrumb` moved to `src/components/Breadcrumb.tsx`** (from `features/learn/parts.tsx`) and is now on every page that sits below a screen or a tab: Lesson, Watch and Playlist (as before), and now **a sheet** ("Practice › Sheets › Striver's A2Z DSA Sheet", above the card; the "‹ All sheets" link inside the card is gone), **the beginner's sheet list** ("Practice › Sheets", was "‹ Problems from your lessons"), **Badges** ("Progress › Badges", was "‹ Overview") and **the Topics map** ("Progress › Topics › Map", was "‹ Show as list"). Same row everywhere: a 32px back chevron (history back when there is some, else the parent crumb) and the crumbs. Side panels (Topic, Stuck?, notes) keep their ×.
+- With no crumb to fall back on, the chevron now goes to `/` (it went to `/learn`, which only made sense for Learn's pages).
+- **Screenshots:** `docs/audit-v1.8/5-back/before|after/` (sheet, badges, map; the beginner's sheet list is in `6-beginner/`).
+
 ## v1.7, the app updates itself (released as v1.7.0 on 2026-11-09)
 
 Released. Auto-updates, a revision queue, notes, "Stuck?", a daily reminder, contest review, virtual contests, a rating goal, friends, more playlists and a share card. **The first version that can update itself;** 1.6.0 and older need one manual install.

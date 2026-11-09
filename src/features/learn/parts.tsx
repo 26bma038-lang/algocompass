@@ -1,6 +1,5 @@
-import { Fragment } from "react";
-import { Check, ChevronLeft, ChevronRight, Play } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Check, Play } from "lucide-react";
+import { Link } from "react-router-dom";
 import { CodeChip } from "@/components/CodeChip";
 import { watchPath } from "@/components/shell/nav";
 import { usePrefs } from "@/data/prefs";
@@ -8,7 +7,7 @@ import type { LibraryRole, LibraryVideo } from "@/engine/learn";
 import { Thumb } from "@/features/path/VideoPlayer";
 import { cn } from "@/lib/utils";
 
-/** Pieces Learn, the lesson page and the watch page share. */
+/** Pieces Learn, the lesson page and the watch page share (the breadcrumb is @/components/Breadcrumb since v1.8). */
 
 export const LANG_NAME = { en: "English", hi: "Hindi" } as const;
 
@@ -23,59 +22,6 @@ export function roleLabel(v: Pick<LibraryVideo, "role" | "step">): string {
   return r[v.role];
 }
 
-export interface Crumb {
-  label: string;
-  to?: string;
-}
-
-/**
- * "‹ Learn › Beginner Path › Step 3". The back arrow goes back in history when there is some (so
- * Back from a lesson opened on Today returns to Today), and otherwise to the parent crumb.
- */
-export function Breadcrumb({ crumbs }: { crumbs: Crumb[] }) {
-  const navigate = useNavigate();
-  const parent = [...crumbs].reverse().find((c) => c.to)?.to ?? "/learn";
-  const back = () => {
-    const idx = (window.history.state as { idx?: number } | null)?.idx ?? 0;
-    if (idx > 0) navigate(-1);
-    else navigate(parent);
-  };
-  return (
-    <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1">
-      <button
-        type="button"
-        onClick={back}
-        aria-label="Back"
-        title="Back (Alt Left)"
-        className="-ml-2 grid size-8 shrink-0 place-items-center rounded-sm text-ink-muted transition-colors duration-[var(--dur-fast)] hover:bg-glass-hover hover:text-ink"
-      >
-        <ChevronLeft aria-hidden className="size-4" />
-      </button>
-      <ol className="flex min-w-0 items-center gap-1 text-body-sm">
-        {crumbs.map((c, i) => (
-          <Fragment key={i}>
-            {i > 0 && (
-              <li aria-hidden className="text-ink-faint">
-                <ChevronRight className="size-3.5" />
-              </li>
-            )}
-            <li className={cn("min-w-0", i === crumbs.length - 1 ? "truncate" : "shrink-0")}>
-              {c.to ? (
-                <Link to={c.to} className="rounded-xs text-ink-muted underline-offset-4 hover:text-ink hover:underline">
-                  {c.label}
-                </Link>
-              ) : (
-                <span aria-current="page" className="text-ink">
-                  {c.label}
-                </span>
-              )}
-            </li>
-          </Fragment>
-        ))}
-      </ol>
-    </nav>
-  );
-}
 
 /**
  * One library video: thumbnail with its length, the title, then what it codes in (v1.5), the channel and what it is. A
