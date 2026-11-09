@@ -1,6 +1,6 @@
 # AlgoCompass progress log
 
-## v1.8, easier to find your way (branch `v1.8`, not released)
+## v1.8, easier to find your way (released as v1.8.0 on 2026-11-09)
 
 The owner said "the home page and every page is difficult to navigate". v1.7 added seven features to Progress and Contests, so screens lost their one job. v1.8 doesn't add features; it gives each screen one job and one primary action again.
 
@@ -78,6 +78,14 @@ The owner said "the home page and every page is difficult to navigate". v1.7 add
 - **Docs:** CLAUDE.md's screen table rewritten for v1.8 (Today's one primary, Learn's one browse card, the playlist's one watched action, Practice's three tabs with Your notes, Progress's tabs and five cards, Contests' three tabs, Settings' section list), plus a "v1.8 patterns" line (breadcrumb, `UpdateAction`, Stuck? icon) and the stale notes/contests references. DESIGN.md gets **One job per screen (v1.8)**: tabs are routes, one way back, every empty state ends in an action, one primary per state, the Stuck? icon, the Settings section list, one browse card.
 - **Checks:** glossary test, `npm test` (55 files, 642 tests), `npm run build`, `npm run check:links` (all links verified: 204 video uses, 111 playlists, every LC slug and CF id) and `npm run tauri dev` (built, started, responding; stopped).
 - **Screenshots:** `docs/audit-v1.8/final/` (smart: Today, Learn, Single videos, a playlist, Practice, Sheets, a sheet, Your notes, Overview, Topics, Friends, Badges, the map, the three Contests tabs, Settings; beginner: Today, Learn, a lesson, Practice, Sheets, Overview, Topics, Contests, Settings). Light and Dark.
+
+### Part 9: release 1.8.0 (2026-11-09)
+
+- **Version 1.8.0** in `package.json`, `package-lock.json`, `tauri.conf.json`, `Cargo.toml` and `Cargo.lock`; README updated for v1.8 (one job per screen, Today's one button, Progress's three tabs and five cards, Contests' tabs, notes in Practice, one browse card on Learn, gentler beginner problems, the Settings list).
+- **Backup** of `%APPDATA%\com.algocompass.app` to `%APPDATA%\com.algocompass.app.backup-v1.8-20261109-1555` before the build.
+- **Build:** `node scripts/release.mjs` from PowerShell, the key's password read from `%USERPROFILE%\.tauri\algocompass-password.txt` into the environment for that one command and removed after. Setup.exe 4.7 MB, .msi 6.3 MB, both signed; `latest.json` says 1.8.0 and carries the release notes.
+- **Real-data run:** the built `algocompass.exe` (1.8.0) started on the owner's data and kept responding; the database still has migrations 1–10 and the same rows (122 Codeforces submissions, 8 rating changes, 14 badges, 57 daily goals), and its update ran (`sync_log` 1,371 → 1,383). No migration in v1.8.
+- **Published:** merged to `master`, tagged `v1.8.0`, GitHub release with the setup.exe, the .msi and `latest.json`.
 
 ## v1.7, the app updates itself (released as v1.7.0 on 2026-11-09)
 
