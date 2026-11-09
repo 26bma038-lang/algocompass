@@ -1,6 +1,6 @@
 # AlgoCompass progress log
 
-## v1.8, easier to find your way (released as v1.8.0 on 2026-11-09)
+## v1.8, easier to find your way (1.8.0 built and merged on 2026-11-09; GitHub release pending)
 
 The owner said "the home page and every page is difficult to navigate". v1.7 added seven features to Progress and Contests, so screens lost their one job. v1.8 doesn't add features; it gives each screen one job and one primary action again.
 
@@ -85,7 +85,7 @@ The owner said "the home page and every page is difficult to navigate". v1.7 add
 - **Backup** of `%APPDATA%\com.algocompass.app` to `%APPDATA%\com.algocompass.app.backup-v1.8-20261109-1555` before the build.
 - **Build:** `node scripts/release.mjs` from PowerShell, the key's password read from `%USERPROFILE%\.tauri\algocompass-password.txt` into the environment for that one command and removed after. Setup.exe 4.7 MB, .msi 6.3 MB, both signed; `latest.json` says 1.8.0 and carries the release notes.
 - **Real-data run:** the built `algocompass.exe` (1.8.0) started on the owner's data and kept responding; the database still has migrations 1–10 and the same rows (122 Codeforces submissions, 8 rating changes, 14 badges, 57 daily goals), and its update ran (`sync_log` 1,371 → 1,383). No migration in v1.8.
-- **Published:** merged to `master`, tagged `v1.8.0`, GitHub release with the setup.exe, the .msi and `latest.json`.
+- **Published:** merged to `master` and pushed. **Not yet released:** a failed merge command left the tag `v1.8.0` pushed on the 1.7.0 commit before the merge happened; moving a pushed tag needs a force push, which is the owner's call. Once it points at the release merge, the GitHub release gets the setup.exe, the .msi and `latest.json` from `release-out/` (notes in `release-out/notes-1.8.0.md`).
 
 ## v1.7, the app updates itself (released as v1.7.0 on 2026-11-09)
 
