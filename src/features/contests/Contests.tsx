@@ -1,7 +1,9 @@
-import { useId } from "react";
-import { ArrowDown, ArrowUp, ExternalLink, Swords } from "lucide-react";
+import { useId, type ReactNode } from "react";
+import { Link, Outlet } from "react-router-dom";
+import { ArrowDown, ArrowUp, ExternalLink, RefreshCw, Swords } from "lucide-react";
 import { CardHeader } from "@/components/CardHeader";
 import { EmptyState } from "@/components/EmptyState";
+import { SegmentedTabs } from "@/components/SegmentedTabs";
 import { ContestName } from "@/components/Term";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -10,10 +12,13 @@ import type { Contest } from "@/data/types";
 import { contestDivision, registerUrl } from "@/engine/contests";
 import { countdown, shortName, when } from "@/features/home/ContestStrip";
 import { useNow } from "@/features/home/useNow";
+import { useSyncStore } from "@/data/syncStore";
+import { LABELS } from "@/lib/glossary";
 import { openExternal } from "@/lib/openExternal";
 import { cn } from "@/lib/utils";
 import { ContestReviewSection } from "./ContestReview";
 import { VirtualSection } from "./Virtual";
+import { CONTESTS_TABS } from "./tabs";
 
 const PLATFORM = { cf: "Codeforces", lc: "LeetCode" } as const;
 
@@ -188,43 +193,105 @@ function PastList({ past }: { past: PastContest[] }) {
   );
 }
 
-/** Contests: Codeforces first and biggest, LeetCode below it, then your history. */
+/**
+ * Contests (v1.8): three tabs, each its own route, so the screen stops being one 3,300px column.
+ * Upcoming (`/contests`), Your rounds (`/contests/rounds`: the review cards, then every round in a
+ * table) and Virtual contest (`/contests/virtual`). A running virtual contest leads every tab.
+ */
 export function Contests() {
+  return (
+    <div className="flex flex-col gap-6">
+      <SegmentedTabs label="Contests sections" tabs={CONTESTS_TABS} />
+      <div className="empty:hidden">
+        <VirtualSection where="top" />
+      </div>
+      <Outlet />
+    </div>
+  );
+}
+
+/** Before the first update: what will be here, and the button that brings it. */
+function NoContests({ title, children }: { title: string; children: ReactNode }) {
+  const syncing = useSyncStore((s) => s.syncing);
+  const run = useSyncStore((s) => s.run);
+  return (
+    <EmptyState
+      icon={Swords}
+      title={syncing ? "Loading contests…" : title}
+      action={
+        !syncing && (
+          <Button variant="outline" size="sm" onClick={() => void run()}>
+            <RefreshCw aria-hidden />
+            {LABELS.updateNow}
+          </Button>
+        )
+      }
+    >
+      {children}
+    </EmptyState>
+  );
+}
+
+/** Contests → Upcoming: the next Codeforces round leads, then later Codeforces rounds, then LeetCode. */
+export function ContestsUpcoming() {
   const { data, isLoading } = useContestsData();
   const nowMs = useNow(15_000);
   if (isLoading) return <p className="text-body-sm text-ink-muted">Loading contests…</p>;
-  if (!data || (data.upcoming.length === 0 && data.past.length === 0)) {
+  if (!data || data.upcoming.length === 0) {
     return (
-      <EmptyState icon={Swords} title="No contests loaded">
-        Upcoming Codeforces rounds are listed here first, with LeetCode weekly and biweekly contests below them. They appear after the first update.
-      </EmptyState>
+      <NoContests title="No upcoming contests loaded">
+        Upcoming Codeforces rounds are listed here first, with LeetCode weekly and biweekly contests below them. They appear after an update.
+      </NoContests>
     );
   }
   const cf = data.upcoming.filter((c) => c.platform === "cf");
   const lc = data.upcoming.filter((c) => c.platform === "lc");
   const [next, ...laterCf] = cf;
   return (
-    // Bento: the next Codeforces round leads; upcoming rounds (7) beside your history (5). The rating chart lives in Progress.
     <div className="grid grid-cols-12 items-start gap-6">
-      <div className="col-span-12 empty:hidden">
-        <VirtualSection where="top" />
-      </div>
       {next && (
         <div className="col-span-12">
           <NextRound c={next} attending={data.attending.has(next.id)} nowMs={nowMs} />
         </div>
       )}
-      <div className="col-span-12">
-        <ContestReviewSection />
-      </div>
-      <div className="col-span-12 flex flex-col gap-6 xl:col-span-7">
+      <div className="col-span-12 xl:col-span-7">
         <UpcomingList title="More Codeforces rounds" contests={laterCf} attending={data.attending} nowMs={nowMs} note="Reminders 1 hour and 10 minutes before rounds you'll attend." />
-        <UpcomingList title="LeetCode" contests={lc} attending={data.attending} nowMs={nowMs} />
-        <VirtualSection where="column" />
       </div>
       <div className="col-span-12 xl:col-span-5">
-        <PastList past={data.past} />
+        <UpcomingList title="LeetCode" contests={lc} attending={data.attending} nowMs={nowMs} />
       </div>
     </div>
   );
+}
+
+/** Contests → Your rounds: one review card per Codeforces round you took part in, then every round in a table. */
+export function ContestsRounds() {
+  const { data, isLoading } = useContestsData();
+  if (isLoading) return <p className="text-body-sm text-ink-muted">Loading your rounds…</p>;
+  if (!data || data.past.length === 0) {
+    return (
+      <EmptyState
+        icon={Swords}
+        title="No rounds yet"
+        action={
+          <Button asChild variant="outline" size="sm">
+            <Link to="/contests">See upcoming rounds</Link>
+          </Button>
+        }
+      >
+        After a Codeforces round you take part in, it shows here: what you solved, your rating change, and the problems to fix next. A virtual contest is a way to practise one before the real thing.
+      </EmptyState>
+    );
+  }
+  return (
+    <div className="flex flex-col gap-6">
+      <ContestReviewSection />
+      <PastList past={data.past} />
+    </div>
+  );
+}
+
+/** Contests → Virtual contest: the picker and your past virtual contests (the running one leads the screen). */
+export function ContestsVirtual() {
+  return <VirtualSection where="column" />;
 }

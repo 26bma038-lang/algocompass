@@ -25,6 +25,9 @@ const SheetView = lazy(() => import("@/features/sheets/SheetView").then((m) => (
 const Progress = lazy(() => import("@/features/progress/Progress").then((m) => ({ default: m.Progress })));
 const ProgressOverview = lazy(() => import("@/features/progress/Progress").then((m) => ({ default: m.ProgressOverview })));
 const Contests = lazy(() => import("@/features/contests/Contests").then((m) => ({ default: m.Contests })));
+const ContestsUpcoming = lazy(() => import("@/features/contests/Contests").then((m) => ({ default: m.ContestsUpcoming })));
+const ContestsRounds = lazy(() => import("@/features/contests/Contests").then((m) => ({ default: m.ContestsRounds })));
+const ContestsVirtual = lazy(() => import("@/features/contests/Contests").then((m) => ({ default: m.ContestsVirtual })));
 const Achievements = lazy(() => import("@/features/achievements/Achievements").then((m) => ({ default: m.Achievements })));
 const Settings = lazy(() => import("@/features/settings/Settings").then((m) => ({ default: m.Settings })));
 const Debug = lazy(() => import("@/features/debug/Debug").then((m) => ({ default: m.Debug })));
@@ -87,7 +90,17 @@ export const routes: RouteObject[] = [
         element: <TopicDetail />,
         handle: h((p) => (p.topicId ? humanizeTopic(p.topicId) : "Topic Detail")),
       },
-      { path: "contests", element: <Contests />, handle: h("Contests") },
+      {
+        path: "contests",
+        element: <Contests />,
+        handle: h("Contests"),
+        // v1.8: three tabs, each a route.
+        children: [
+          { index: true, element: <ContestsUpcoming /> },
+          { path: "rounds", element: <ContestsRounds /> },
+          { path: "virtual", element: <ContestsVirtual /> },
+        ],
+      },
       { path: "settings", element: <Settings />, handle: h("Settings") },
       { path: "debug", element: <Debug />, handle: h("Debug") },
       // v1.1 screens that moved: redirect so nothing breaks.

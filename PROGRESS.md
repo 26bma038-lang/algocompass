@@ -22,6 +22,14 @@ The owner said "the home page and every page is difficult to navigate". v1.7 add
 - **Tests:** `progress/tabs.test.ts` (three tabs, Friends rule), `practice/tabs.test.ts` (Your notes tab), `router.test.ts` (notes under Practice, the redirect).
 - **Screenshots:** `docs/audit-v1.8/1-progress/before|after/` (smart Overview, Topics, notes, Friends; beginner Overview, Topics, Practice, notes; Light and Dark, with `-full` captures of the whole scroll).
 
+### Part 2: Contests in three tabs (2026-11-09)
+
+- **One 3,295px column → three routes** (`CONTESTS_TABS`, `src/features/contests/tabs.ts`): **Upcoming** (`/contests`, 993px: the next round, then More Codeforces rounds and LeetCode side by side from 1280px), **Your rounds** (`/contests/rounds`: Contest review's cards, then the Past contests table) and **Virtual contest** (`/contests/virtual`: the picker and your past virtual contests). A running virtual contest still leads, now on every tab (it's in the layout). `/contests` keeps working for the tray, Ctrl+5 and deep links; nothing redirects.
+- **Empty states:** Upcoming with nothing loaded has **Update now** (and "Loading contests…" while an update runs); Your rounds with no rounds explains what will appear and links to upcoming rounds.
+- The sidebar hint and the subtitle: "Upcoming rounds, how your rounds went, and virtual contests".
+- **Tests:** `contests/tabs.test.ts`, `router.test.ts` (the three routes).
+- **Screenshots:** `docs/audit-v1.8/2-contests/before|after/`.
+
 ## v1.7, the app updates itself (released as v1.7.0 on 2026-11-09)
 
 Released. Auto-updates, a revision queue, notes, "Stuck?", a daily reminder, contest review, virtual contests, a rating goal, friends, more playlists and a share card. **The first version that can update itself;** 1.6.0 and older need one manual install.

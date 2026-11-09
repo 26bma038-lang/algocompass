@@ -43,7 +43,7 @@ export const SCREENS = {
     beginnerDescription: "How you're doing: your path, your week, badges and topics",
     alsoActiveOn: ["/topics"],
   },
-  contests: { to: "/contests", label: "Contests", icon: CalendarDays, description: "Upcoming rounds, reminders and your past results" },
+  contests: { to: "/contests", label: "Contests", icon: CalendarDays, description: "Upcoming rounds, how your rounds went, and virtual contests" },
 } satisfies Record<string, Screen>;
 
 export const SETTINGS_NAV: NavItem = { to: "/settings", label: "Settings", icon: Settings, shortcut: ",", description: "Usernames, mode, languages, theme, weekly goals, reminders and startup" };
