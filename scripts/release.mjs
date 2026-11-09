@@ -4,12 +4,13 @@
 //   node scripts/release.mjs --publish notes.md   ...then gh release create vX.Y.Z with every asset
 //
 // The signing key lives outside the repo: %USERPROFILE%\.tauri\algocompass.key (override with
-// TAURI_SIGNING_PRIVATE_KEY_PATH; set TAURI_SIGNING_PRIVATE_KEY_PASSWORD if it has a password).
+// TAURI_SIGNING_PRIVATE_KEY_PATH). Its password comes from TAURI_SIGNING_PRIVATE_KEY_PASSWORD, or the
+// script asks for it. Never commit either.
 // Run from PowerShell (cargo's linker, see CLAUDE.md).
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync } from "node:fs";
 import { homedir } from "node:os";
-import { join, resolve } from "node:path";
+import { basename, join, resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
 const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
@@ -37,8 +38,44 @@ const run = (cmd, argv, opts = {}) => {
   }
 };
 
+// The key has a password. It comes from TAURI_SIGNING_PRIVATE_KEY_PASSWORD, or a hidden prompt.
+// It is never written anywhere by this script.
+async function askPassword() {
+  if (!process.stdin.isTTY) {
+    console.error("Set TAURI_SIGNING_PRIVATE_KEY_PASSWORD (no terminal to prompt in).");
+    process.exit(1);
+  }
+  process.stdout.write("Signing key password: ");
+  return new Promise((done) => {
+    let pw = "";
+    process.stdin.setRawMode(true);
+    process.stdin.resume();
+    process.stdin.setEncoding("utf8");
+    const onData = (ch) => {
+      for (const c of ch) {
+        if (c === "\r" || c === "\n") {
+          process.stdin.setRawMode(false);
+          process.stdin.pause();
+          process.stdin.off("data", onData);
+          process.stdout.write("\n");
+          return done(pw);
+        }
+        if (c === "\u0003") process.exit(130);
+        if (c === "\u0008" || c === "\u007f") pw = pw.slice(0, -1);
+        else pw += c;
+      }
+    };
+    process.stdin.on("data", onData);
+  });
+}
+const password = process.env.TAURI_SIGNING_PRIVATE_KEY_PASSWORD || (await askPassword());
+if (!password) {
+  console.error("No signing key password given.");
+  process.exit(1);
+}
+
 run("npm", ["run", "tauri", "build"], {
-  env: { ...process.env, TAURI_SIGNING_PRIVATE_KEY: readFileSync(keyPath, "utf8").trim() },
+  env: { ...process.env, TAURI_SIGNING_PRIVATE_KEY: readFileSync(keyPath, "utf8").trim(), TAURI_SIGNING_PRIVATE_KEY_PASSWORD: password },
 });
 
 const bundle = join(root, "src-tauri", "target", "release", "bundle");
@@ -67,7 +104,7 @@ const latest = {
   },
 };
 writeFileSync(join(out, "latest.json"), JSON.stringify(latest, null, 2) + "\n");
-for (const f of [files[0], files[2]]) copyFileSync(f, join(out, f.split(/[\/]/).pop()));
+for (const f of [files[0], files[2]]) copyFileSync(f, join(out, basename(f)));
 console.log(`\nWrote release-out/latest.json for ${version}`);
 
 if (notesFile) {
